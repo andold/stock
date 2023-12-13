@@ -34,19 +34,6 @@
 			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
 		</encoder>
 	</appender>
-	<appender name="stock" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>${LOG_PATH}/stock.log</File>
-		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<fileNamePattern>${LOG_PATH}/stock.log.%i</fileNamePattern>
-			<maxIndex>9</maxIndex>
-		</rollingPolicy>
-		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-			<maxFileSize>1MB</maxFileSize>
-		</triggeringPolicy>
-		<encoder>
-			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
-		</encoder>
-	</appender>
 	<appender name="error" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<filter class="ch.qos.logback.classic.filter.LevelFilter">
 			<level>ERROR</level>
