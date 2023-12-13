@@ -76,7 +76,7 @@ git config --global core.quotepath false
 #
 cd	$SOURCE_DIR
 git stash
-git pull https://andold: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@github.com/andold/stock.git
+git pull https://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@github.com/andold/stock.git
 git		log --pretty=format:"%h - %an, %ai:%ar : %s" -8
 #
 #
