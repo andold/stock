@@ -1,0 +1,452 @@
+package kr.andold.stock.service;
+
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Lexer;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.Vocabulary;
+
+import kr.andold.stock.antlr.StockLexer;
+import kr.andold.stock.antlr.StockParser;
+import kr.andold.stock.domain.StockDividendDomain;
+import kr.andold.stock.domain.StockDividendHistoryDomain;
+import kr.andold.stock.domain.StockItemDomain;
+import kr.andold.stock.domain.StockPriceDomain;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public class StockParserService {
+	private static final List<StockItemDomain> LIST_STOCK_ITEM = new ArrayList<>();
+	private static final List<StockDividendDomain> LIST_STOCK_DIVIDEND = new ArrayList<>();
+	private static final List<StockDividendHistoryDomain> LIST_STOCK_DIVIDEND_HOSTORY = new ArrayList<>();
+	private static final List<StockPriceDomain> LIST_STOCK_PRICE = new ArrayList<>();
+
+
+	@Builder
+	@Data
+	@NoArgsConstructor
+	@AllArgsConstructor
+	static public class StockParserResult {
+		private List<StockItemDomain> items;
+		private List<StockDividendDomain> dividends;
+		private List<StockDividendHistoryDomain> histories;
+		private List<StockPriceDomain> prices;
+
+		@Override
+		public String toString() {
+			return String.format("StockParserResult(items: #%d, dividends: #%d, histories: #%d, prices: #%d)",
+				Utility.size(items), Utility.size(dividends), Utility.size(histories), Utility.size(prices));
+		}
+
+		public void addAll(StockParserResult source) {
+			items.addAll(source.getItems());
+			dividends.addAll(source.getDividends());
+			histories.addAll(source.getHistories());
+			prices.addAll(source.getPrices());
+		}
+
+		public boolean isEmpty() {
+			return items.isEmpty() && dividends.isEmpty() && histories.isEmpty() && prices.isEmpty();
+		}
+
+	}
+
+	public static void crawlDividendHistoryEtfThread(Integer date
+			, String code
+			, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7
+			, String base
+			, String pay
+			, String dividend
+			, String price
+			, String ratio
+	) {
+		LIST_STOCK_DIVIDEND_HOSTORY.add(StockDividendHistoryDomain.builder()
+				.code(code)
+				.base(Utility.parseDateTime(base))
+				.pay(Utility.parseDateTime(pay))
+				.dividend(Utility.parseInteger(dividend, null))
+				.build());
+	}
+	
+	public static void extractTextStockPrice(Integer date
+			, String code
+			, String base
+			, String closing, String market, String high, String low, String volume) {
+		StockPriceDomain price = StockPriceDomain.builder()
+				.code(code)
+				.base(Utility.parseDateTime(base))
+				.closing(Utility.parseInteger(closing))
+				.market(Utility.parseInteger(market))
+				.high(Utility.parseInteger(high))
+				.low(Utility.parseInteger(low))
+				.volume(Utility.parseInteger(volume))
+				.build();
+		LIST_STOCK_PRICE.add(price);
+		log.trace("{} naverStockPrices(...) - {}", Utility.indentMiddle(), price);
+	}
+
+	// 네이버 종목상세
+	public static void naverStockDetail(Integer date
+			, String code
+			, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7
+			, String ckospi, String cwics
+			, String etfckospi, String etfcwics
+			, String currentPrice
+			, String volumeOfListedShares
+			, String priceEarningsRatio) {
+		log.info("{} naverStockDetail(『{} {}』『{} {} {} {} {} {} {} {}』『{} {}』『{} {}』『{}』『{}』『{}』)", Utility.indentMiddle(), date
+				, code
+				, symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7
+				, ckospi, cwics
+				, etfckospi, etfcwics
+				, currentPrice
+				, volumeOfListedShares
+				, priceEarningsRatio);
+		Boolean etf = null;
+		if (etfckospi != null || etfcwics != null) {
+			etf = true;
+		} else if (ckospi != null || cwics != null) {
+			etf = false;
+		}
+		StockItemDomain stockItem = new StockItemDomain(symbol, code, null, volumeOfListedShares, etf, null, null, null);
+		stockItem.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
+		stockItem.setVolumeOfListedShares(volumeOfListedShares);
+		stockItem.setCategory(ckospi, cwics, etfckospi, etfcwics);
+		LIST_STOCK_ITEM.add(stockItem);
+
+		// dividend
+		StockDividendDomain stockDividend = new StockDividendDomain(code, currentPrice, null, null, priceEarningsRatio, null, null, null, null, null, null, null);
+		LIST_STOCK_DIVIDEND.add(stockDividend);
+
+		log.trace("{} naverStockDetail(...) - Item:: {}", Utility.indentMiddle(), stockItem);
+		log.trace("{} naverStockDetail(...) - Dividend:: {}", Utility.indentMiddle(), stockDividend);
+	}
+
+	// 국내상장 월배당ETF 전체 조회
+	public static void searchEtfComMonthlyDividendEtfItem(Integer date, String code
+			, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7
+			, String pay) {
+		StockItemDomain stockItem = new StockItemDomain(symbol, code, "월배당", null, true, "KOSPI", null, null);
+		stockItem.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
+		LIST_STOCK_ITEM.add(stockItem);
+
+		log.trace("{} searchEtfComMonthlyDividendEtfItem(...) - {}", Utility.indentMiddle(), stockItem);
+	}
+	// 국내상장 월배당ETF 전체 조회
+	public static void searchEtfComMonthlyDividendEtfItemDividend(Integer date, String code
+			, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7
+			, String t0, String t1, String t2, String t3
+			, String v0x1, String v0x2, String v0x3, String v0x4, String v0x5, String v0x6, String v0x7, String v0x8, String v0x9, String v0x10,
+			String v0x11, String v0x12, String v1x1, String v1x2, String v1x3, String v1x4, String v1x5, String v1x6, String v1x7, String v1x8, String v1x9, String v1x10, String v1x11, String v1x12, String v2x1, String v2x2, String v2x3, String v2x4,
+			String v2x5, String v2x6, String v2x7, String v2x8, String v2x9, String v2x10, String v2x11, String v2x12, String v3x1, String v3x2, String v3x3, String v3x4, String v3x5, String v3x6, String v3x7, String v3x8, String v3x9, String v3x10,
+			String v3x11, String v3x12, String v0, String v1, String v2, String v3) {
+		log.trace("{} searchEtfComMonthlyDividendEtfItemDividend(『{} {}』『{} {} {} {}』『{} {} {} {} {} {} {} {} {} {} {} {}』『{} {} {} {} {} {} {} {} {} {} {} {}』『{} {} {} {} {} {} {} {} {} {} {} {}』『{} {} {} {} {} {} {} {} {} {} {} {}』『{} {} {} {}』)",
+				Utility.indentMiddle(), date, code, t0, t1, t2, t3, v0x1, v0x2, v0x3, v0x4, v0x5, v0x6, v0x7, v0x8, v0x9, v0x10, v0x11, v0x12, v1x1, v1x2, v1x3, v1x4, v1x5, v1x6, v1x7, v1x8, v1x9, v1x10, v1x11, v1x12, v2x1, v2x2, v2x3, v2x4, v2x5, v2x6,
+				v2x7, v2x8, v2x9, v2x10, v2x11, v2x12, v3x1, v3x2, v3x3, v3x4, v3x5, v3x6, v3x7, v3x8, v3x9, v3x10, v3x11, v3x12, v0, v1, v2, v3);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 1월", t0)), null, v0x1);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 2월", t0)), null, v0x2);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 3월", t0)), null, v0x3);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 4월", t0)), null, v0x4);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 5월", t0)), null, v0x5);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 6월", t0)), null, v0x6);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 7월", t0)), null, v0x7);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 8월", t0)), null, v0x8);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 9월", t0)), null, v0x9);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 10월", t0)), null, v0x10);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 11월", t0)), null, v0x11);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 12월", t0)), null, v0x12);
+
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 1월", t1)), null, v1x1);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 2월", t1)), null, v1x2);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 3월", t1)), null, v1x3);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 4월", t1)), null, v1x4);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 5월", t1)), null, v1x5);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 6월", t1)), null, v1x6);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 7월", t1)), null, v1x7);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 8월", t1)), null, v1x8);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 9월", t1)), null, v1x9);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 10월", t1)), null, v1x10);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 11월", t1)), null, v1x11);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 12월", t1)), null, v1x12);
+
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 1월", t2)), null, v2x1);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 2월", t2)), null, v2x2);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 3월", t2)), null, v2x3);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 4월", t2)), null, v2x4);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 5월", t2)), null, v2x5);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 6월", t2)), null, v2x6);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 7월", t2)), null, v2x7);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 8월", t2)), null, v2x8);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 9월", t2)), null, v2x9);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 10월", t2)), null, v2x10);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 11월", t2)), null, v2x11);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 12월", t2)), null, v2x12);
+
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 1월", t3)), null, v3x1);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 2월", t3)), null, v3x2);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 3월", t3)), null, v3x3);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 4월", t3)), null, v3x4);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 5월", t3)), null, v3x5);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 6월", t3)), null, v3x6);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 7월", t3)), null, v3x7);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 8월", t3)), null, v3x8);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 9월", t3)), null, v3x9);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 10월", t3)), null, v3x10);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 11월", t3)), null, v3x11);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 12월", t3)), null, v3x12);
+
+		String month = ZonedDateTime.now().with(TemporalAdjusters.lastDayOfMonth()).format(DateTimeFormatter.ISO_DATE);
+		LIST_STOCK_DIVIDEND.add(new StockDividendDomain(code, null, month, v3, null, null, null, null, null, v2, v1, v0));
+	}
+
+	// 국내상장 월배당ETF 한항목 조회
+	public static void searchEtfComMonthlyDividendItem(Integer date, String code
+			, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7
+			, String pay) {
+		StockItemDomain stockItem = new StockItemDomain(symbol, code, "월배당", null, true, "KOSPI", null, null);
+		stockItem.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
+		LIST_STOCK_ITEM.add(stockItem);
+
+		log.trace("{} searchEtfComMonthlyDividendItem(...) - {}", Utility.indentMiddle(), stockItem);
+	}
+	// 국내상장 월배당ETF 한항목 조회
+	private static void addStockDividendHistoryDomainIfDividendIsValid(List<StockDividendHistoryDomain> list, String code, String base, String pay, String dividend) {
+		if (Utility.parseInteger(dividend, 0) > 0) {
+			list.add(new StockDividendHistoryDomain(code, base, pay, dividend));
+		}
+	}
+	public static void searchEtfComMonthlyDividends(Integer date, String code, String t0, String t1, String t2, String t3, String v0x1, String v0x2, String v0x3, String v0x4, String v0x5, String v0x6, String v0x7, String v0x8, String v0x9, String v0x10,
+			String v0x11, String v0x12, String v1x1, String v1x2, String v1x3, String v1x4, String v1x5, String v1x6, String v1x7, String v1x8, String v1x9, String v1x10, String v1x11, String v1x12, String v2x1, String v2x2, String v2x3, String v2x4,
+			String v2x5, String v2x6, String v2x7, String v2x8, String v2x9, String v2x10, String v2x11, String v2x12, String v3x1, String v3x2, String v3x3, String v3x4, String v3x5, String v3x6, String v3x7, String v3x8, String v3x9, String v3x10,
+			String v3x11, String v3x12, String v0, String v1, String v2, String v3) {
+		log.trace("{} searchEtfComMonthlyDividends(『{} {}』『{} {} {} {}』『{} {} {} {} {} {} {} {} {} {} {} {}』『{} {} {} {} {} {} {} {} {} {} {} {}』『{} {} {} {} {} {} {} {} {} {} {} {}』『{} {} {} {} {} {} {} {} {} {} {} {}』『{} {} {} {}』)",
+				Utility.indentMiddle(), date, code, t0, t1, t2, t3, v0x1, v0x2, v0x3, v0x4, v0x5, v0x6, v0x7, v0x8, v0x9, v0x10, v0x11, v0x12, v1x1, v1x2, v1x3, v1x4, v1x5, v1x6, v1x7, v1x8, v1x9, v1x10, v1x11, v1x12, v2x1, v2x2, v2x3, v2x4, v2x5, v2x6,
+				v2x7, v2x8, v2x9, v2x10, v2x11, v2x12, v3x1, v3x2, v3x3, v3x4, v3x5, v3x6, v3x7, v3x8, v3x9, v3x10, v3x11, v3x12, v0, v1, v2, v3);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 1월", t0)), null, v0x1);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 2월", t0)), null, v0x2);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 3월", t0)), null, v0x3);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 4월", t0)), null, v0x4);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 5월", t0)), null, v0x5);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 6월", t0)), null, v0x6);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 7월", t0)), null, v0x7);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 8월", t0)), null, v0x8);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 9월", t0)), null, v0x9);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 10월", t0)), null, v0x10);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 11월", t0)), null, v0x11);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 12월", t0)), null, v0x12);
+
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 1월", t1)), null, v1x1);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 2월", t1)), null, v1x2);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 3월", t1)), null, v1x3);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 4월", t1)), null, v1x4);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 5월", t1)), null, v1x5);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 6월", t1)), null, v1x6);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 7월", t1)), null, v1x7);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 8월", t1)), null, v1x8);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 9월", t1)), null, v1x9);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 10월", t1)), null, v1x10);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 11월", t1)), null, v1x11);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 12월", t1)), null, v1x12);
+
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 1월", t2)), null, v2x1);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 2월", t2)), null, v2x2);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 3월", t2)), null, v2x3);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 4월", t2)), null, v2x4);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 5월", t2)), null, v2x5);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 6월", t2)), null, v2x6);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 7월", t2)), null, v2x7);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 8월", t2)), null, v2x8);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 9월", t2)), null, v2x9);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 10월", t2)), null, v2x10);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 11월", t2)), null, v2x11);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 12월", t2)), null, v2x12);
+
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 1월", t3)), null, v3x1);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 2월", t3)), null, v3x2);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 3월", t3)), null, v3x3);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 4월", t3)), null, v3x4);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 5월", t3)), null, v3x5);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 6월", t3)), null, v3x6);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 7월", t3)), null, v3x7);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 8월", t3)), null, v3x8);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 9월", t3)), null, v3x9);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 10월", t3)), null, v3x10);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 11월", t3)), null, v3x11);
+		addStockDividendHistoryDomainIfDividendIsValid(LIST_STOCK_DIVIDEND_HOSTORY, code, lastDate(String.format("20%s 12월", t3)), null, v3x12);
+
+		String month = ZonedDateTime.now().with(TemporalAdjusters.lastDayOfMonth()).format(DateTimeFormatter.ISO_DATE);
+		LIST_STOCK_DIVIDEND.add(new StockDividendDomain(code, null, month, v3, null, null, null, null, null, v2, v1, v0));
+	}
+
+	private static String lastDate(String format) {
+		Date date = Utility.parseDateTime(format);
+		return ZonedDateTime.ofInstant(date.toInstant(), Utility.ZONE_ID_KST).with(TemporalAdjusters.lastDayOfMonth()).format(DateTimeFormatter.ISO_DATE);
+	}
+
+	// 최근 분배금 나온 국내ETF
+	public static void searchEtfComItem(Integer date, String code, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7, String base, String pay, String dividend) {
+		StockItemDomain stockItem = new StockItemDomain(symbol, code, null, null, true, "KOSPI", null, null);
+		stockItem.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
+		LIST_STOCK_ITEM.add(stockItem);
+
+		StockDividendHistoryDomain domain = new StockDividendHistoryDomain(code, base, pay, dividend);
+		LIST_STOCK_DIVIDEND_HOSTORY.add(domain);
+		log.trace("{} searchEtfComItem(...) - Item:: {}", Utility.indentMiddle(), stockItem);
+		log.trace("{} searchEtfComItem(...) - History:: {}", Utility.indentMiddle(), domain);
+	}
+
+	public static void seibroDividendItem(Integer date, String base, String pay, String code, String symbol, String dividend) {
+		StockDividendHistoryDomain history = new StockDividendHistoryDomain(code, base, pay, dividend);
+		LIST_STOCK_DIVIDEND_HOSTORY.add(history);
+		log.trace("{} seibroDividendItem(...) - {}", Utility.indentMiddle(), history);
+	}
+
+	public static void naverStockItem(Integer date, String href, String title, String title1, String title2, String title3, String title4, String title5, String title6, String title7, String currentPrice, String baseMonth, String stringDividend,
+			String priceEarningsRatio, String dividendPayoutRatio, String roe, String per, String pbr, String dividend1YAgo, String dividend2YAgo, String dividend3YAgo) {
+		String code = href.split("=")[1];
+		// dividend
+		StockDividendDomain dividend = new StockDividendDomain(code, currentPrice, baseMonth, stringDividend, priceEarningsRatio, dividendPayoutRatio, roe, per, pbr, dividend1YAgo, dividend2YAgo, dividend3YAgo);
+		dividend.setCode(href.split("=")[1]);
+		LIST_STOCK_DIVIDEND.add(dividend);
+
+		// stock item
+		StockItemDomain item = new StockItemDomain(title, code, null, null, false, null, null, null);
+		item.setSymbol(title, title1, title2, title3, title4, title5, title6, title7);
+		LIST_STOCK_ITEM.add(item);
+
+		log.trace("{} naverStockItem(...) - {}", Utility.indentMiddle(), dividend);
+		log.trace("{} naverStockItem(...) - {}", Utility.indentMiddle(), item);
+	}
+
+	public static StockParserResult testHtmlFile(String filename) {
+		return testHtmlFile(filename, new HashMap<String, Boolean>());
+	}
+
+	public static StockParserResult testHtmlFile(String filename, Map<String, Boolean> mapExtract) {
+		log.info("{} testHtmlFile(『{}』)", Utility.indentStart(), filename);
+
+		String html = Utility.readClassPathFile(filename);
+		String textFromHtml = HtmlParserService.extractTextFromHtml(html, mapExtract);
+
+		StockParserResult result = parse(textFromHtml, true);
+
+		log.info("{} {} testHtmlFile(『{}』)", Utility.indentEnd(), result, filename);
+		return result;
+	}
+
+	public static StockParserResult testText(String text) {
+		StockParserResult result = parse(text, true);
+		log.info("{} text = 『\n{}\n』", Utility.indentMiddle(), text);
+		return result;
+	}
+
+	private static void printTokens(String text) {
+		StockLexer lexer = new StockLexer(CharStreams.fromString(text));
+		String tokensFromText = tokens(lexer, "NEWLINE");
+		log.info("{} tokensFromText = 『\n{}\n』", Utility.indentMiddle(), tokensFromText);
+	}
+
+	public static String tokens(Lexer lexer, String eol) {
+		log.trace("{} tokens(..., 『{}』)", Utility.indentStart(), eol);
+
+		if (lexer == null || eol == null) {
+			log.trace("{} NULL_PARAMETER::tokens(..., 『{}』)", Utility.indentEnd(), eol);
+			return Utility.BLANK;
+		}
+
+		List<? extends Token> listToken = lexer.getAllTokens();
+		String result = Utility.BLANK;
+		String input = Utility.BLANK;
+		String output = Utility.BLANK;
+		int maxLength = 0;
+		Vocabulary vocabulary = lexer.getVocabulary();
+		for (int cx = 0, sizex = listToken.size(); cx < sizex; cx++) {
+			Token token = listToken.get(cx);
+			String tokenText = token.getText();
+			int tokenType = token.getType();
+			String symbolicName = vocabulary.getSymbolicName(tokenType);
+			if (symbolicName == null) {
+				symbolicName = Utility.append("【", tokenText, "】");
+			}
+			log.trace("{} 『{}』 『{}』", Utility.indentMiddle(), tokenText.replaceAll("\\n", "\\\\n"), symbolicName);
+			if (eol.compareToIgnoreCase(symbolicName) == 0) {
+				output = output.trim();
+				maxLength = Math.max(maxLength, output.length());
+				int tabs = Math.min(8, (maxLength - output.length() + 3) / 4);
+
+				result += Utility.append(output, "\t\t", Utility.repeat("\t", tabs), symbolicName, "\t\t//\t", input.replaceAll("\\n", "\\\\n"), tokenText);
+				log.trace("{} {}\t\t{}{}\t\t//\t{}", Utility.indentMiddle(), output, Utility.repeat("\t", tabs), symbolicName, input.replaceAll("\\n", "\\\\n"));
+
+				input = "";
+				output = "";
+				continue;
+			}
+
+			input += (tokenText + " ");
+			output += (symbolicName + " ");
+		}
+
+		log.trace("{} tokens(..., 『{}』) - 『{}』", Utility.indentEnd(), eol, Utility.ellipsis(result.trim(), 32, 32).replaceAll("\\n", "\\\\n"));
+		return result;
+	}
+
+	public static synchronized StockParserResult parse(String text, boolean debug) {
+		log.info("{} parse(『{}』, {}』)", Utility.indentStart(), Utility.ellipsisEscape(text, 16), debug);
+		long started = System.currentTimeMillis();
+
+		LIST_STOCK_ITEM.clear();
+		LIST_STOCK_DIVIDEND.clear();
+		LIST_STOCK_DIVIDEND_HOSTORY.clear();
+		LIST_STOCK_PRICE.clear();
+		
+		if (text == null || text.isBlank()) {
+			log.info("{} PARAMETER parse(『{}』, 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));
+			return StockParserResult.builder()
+					.items(new ArrayList<>())
+					.dividends(new ArrayList<>())
+					.histories(new ArrayList<>())
+					.prices(new ArrayList<>())
+					.build();
+		}
+
+		StockLexer lexer = new StockLexer(CharStreams.fromString(text));
+
+		// Get a list of matched tokens
+		CommonTokenStream tokens = new CommonTokenStream(lexer);
+
+		// Pass the tokens to the parser
+		StockParser parser = new StockParser(tokens);
+
+		parser.setTrace(false);
+		parser.stockDocument();
+
+		StockParserResult result = StockParserResult.builder()
+				.items(new ArrayList<>(LIST_STOCK_ITEM))
+				.dividends(new ArrayList<>(LIST_STOCK_DIVIDEND))
+				.histories(new ArrayList<>(LIST_STOCK_DIVIDEND_HOSTORY))
+				.prices(new ArrayList<>(LIST_STOCK_PRICE))
+				.build();
+
+		if (debug || result.isEmpty()) {
+			log.info("{} parse(『\n{}\n』)", Utility.indentMiddle(), text);
+			printTokens(text);
+		}
+
+		log.info("{} {} parse(『{}』, 『{}』) - {}", Utility.indentEnd(), result, Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
+}
