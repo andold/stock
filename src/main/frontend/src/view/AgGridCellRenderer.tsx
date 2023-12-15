@@ -360,15 +360,6 @@ export function StockItemOperateCellRenderer(props: any) {
 	async function handleOnClick() {
 		setSpinner(true);
 		jobs++;
-		store.crawlPrice(data, (_: any) => {
-			jobs--;
-			if (jobs == 0) {
-				setSpinner(false);
-				onChange && onChange({});
-			}
-		});
-
-		jobs++;
 		store.crawlDividendHistory(data, (_: any) => {
 			jobs--;
 			if (jobs == 0) {

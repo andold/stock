@@ -7,7 +7,7 @@ class StockRepository {
 	}
 
 	async batch(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.post("./api/stock/batch", request)
+		return axios.post("./api/batch", request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
@@ -17,30 +17,30 @@ class StockRepository {
 			.catch(error => onError && onError(request, error, element));
 	}
 	async search(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.post("./api/stock/search", request)
+		return axios.post("./api/search", request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
 	async update(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.put("./api/stock/" + request.id, request)
+		return axios.put("./api/" + request.id, request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
 	async remove(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.delete(`./api/stock/${request.id}`)
+		return axios.delete(`./api/${request.id}`)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
 	async upload(request: any, onSuccess?: any, onError?: any, element?: any) {
 		const data = new FormData();
 		data.append("file", request.file);
-		return axios.post(`./api/stock/${request.vcalendarId}/upload`, data)
+		return axios.post(`./api/${request.vcalendarId}/upload`, data)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
 	async download(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		return axios({
-			url: "./api/stock/download",
+			url: "./api/download",
 			method: "GET",
 			responseType: "blob",
 		}).then(response => {
@@ -56,69 +56,69 @@ class StockRepository {
 			.catch(error => onError && onError(request, error, element));
 	}
 	async deduplicate(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.post(`./api/stock/deduplicate`)
+		return axios.post(`./api/deduplicate`)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
 	async parse(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.post("./api/stock/parse", request)
+		return axios.post("./api/parse", request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
 	async parseFile(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.post("./api/stock/parse-file", request)
+		return axios.post("./api/parse-file", request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
 	async crawl(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.get("./api/stock/crawl", request)
+		return axios.get("./api/crawl", request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
 	async crawlItems(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.get("./api/stock/crawl/items", request)
+		return axios.get("./api/crawl/items", request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
 	async crawlItemDetails(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.get("./api/stock/crawl/item/details", request)
+		return axios.get("./api/crawl/item/details", request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
 	async crawlDividendHistories(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.get("./api/stock/crawl/dividend/histories", request)
+		return axios.get("./api/crawl/dividend/histories", request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
 	async crawlDividendHistoryEtf(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.get(`./api/stock/crawl/dividend/history/etf`, request)
+		return axios.get(`./api/crawl/dividend/history/etf`, request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
 	async crawlDividendHistoryEtfMonthly(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.post("./api/stock/crawl/divident/history/etf/monthly", request)
+		return axios.post("./api/crawl/divident/history/etf/monthly", request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
-	async crawlPrice(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.post(`./api/stock/crawl/price`, request)
+	async crawlPrices(request: any, onSuccess?: any, onError?: any, element?: any) {
+		return axios.get(`./api/crawl/prices`, request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
 
 	// stock item section
 	async searchItem(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.post("./api/stock/item/search", request)
+		return axios.post("./api/item/search", request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
 	async updateItem(request: StockItemModel, onSuccess?: any, onError?: any, element?: any) {
-		return axios.put(`./api/stock/item/${request.id}`, request)
+		return axios.put(`./api/item/${request.id}`, request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
 	async crawlItem(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.post(`./api/stock/item/crawl`, request)
+		return axios.post(`./api/item/crawl`, request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
@@ -128,12 +128,12 @@ class StockRepository {
 
 	// stock dividend history section
 	async searchDividendHistory(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.post("./api/stock/dividend/history/search", request)
+		return axios.post("./api/dividend/history/search", request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
 	async crawlDividendHistory(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.post(`./api/stock/dividend/history/crawl`, request)
+		return axios.post(`./api/dividend/history/crawl`, request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}

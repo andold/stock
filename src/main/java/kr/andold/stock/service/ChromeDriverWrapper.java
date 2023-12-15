@@ -115,4 +115,30 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		return new String(buffer);
 	}
 
+	public String extractTextFromTrElement(WebElement tr) {
+		return extractTextFromTrElement(tr, "");
+	}
+	private static String extractTextFromTrElement(WebElement tr, String prefix) {
+		StringBuffer sb = new StringBuffer(prefix);
+		tr.findElements(By.tagName("th")).forEach(th -> {
+			sb.append(th.getText());
+			sb.append("\t");
+		});
+		tr.findElements(By.tagName("td")).forEach(td -> {
+			sb.append(td.getText());
+			sb.append("\t");
+		});
+		sb.append("\n");
+		return new String(sb);
+	}
+
+	public String extractTextFromTableElement(WebElement e) {
+		return extractTextFromTableElement(e, "");
+	}
+	public static String extractTextFromTableElement(WebElement e, String prefix) {
+		StringBuffer sb = new StringBuffer();
+		e.findElements(By.tagName("tr")).forEach(tr -> sb.append(extractTextFromTrElement(tr, prefix)));
+		return new String(sb);
+	}
+
 }

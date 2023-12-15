@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import kr.andold.stock.domain.StockItemDomain;
 import kr.andold.stock.param.StockDividendHistoryParam;
-import kr.andold.stock.param.StockPriceParam;
 import kr.andold.stock.service.StockParserService.StockParserResult;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,13 +39,6 @@ public class StockCrawlerServiceTest {
 	}
 
 	@Test
-	public void testExtractTextStockPrice() {
-		String text = service.extractTextStockPrice();
-		StockParserResult result = StockParserService.parse(text, true);
-		log.info("{}", result);
-	}
-
-	@Test
 	public void testExtractTextDividendHistoriesGeneralCompany() {
 		String text = service.extractTextDividendHistoriesGeneralCompany();
 		StockParserResult result = StockParserService.parse(text, true);
@@ -60,12 +52,6 @@ public class StockCrawlerServiceTest {
 	}
 
 	@Test
-	public void testCrawlPrice() {
-		StockParserResult result = service.crawlPrice(StockPriceParam.builder().code("175330").build());
-		log.info("{}", result);
-	}
-
-	@Test
 	public void testExtractTextDividendHistoryEtf() {
 		List<StockItemDomain> items = new ArrayList<>();
 		items.add(StockItemDomain.builder()
@@ -75,6 +61,21 @@ public class StockCrawlerServiceTest {
 		String text = service.extractTextDividendHistoryEtf(items);
 //		String text = service.extractTextDividendHistoryEtf();
 		StockParserResult result = StockParserService.parse(text, true);
+		log.info("{}", result);
+	}
+
+	@Test
+	public void testExtractAllEtfFromNaver() {
+		String text = service.extractAllEtfFromNaver();
+		StockParserResult result = StockParserService.parse(text, true);
+		for (StockItemDomain item : result.getItems()) {
+			log.info("{}", item);
+		}
+	}
+
+	@Test
+	public void testCrawlDividendHistoryEtf() {
+		StockParserResult result = service.crawlDividendHistoryEtf();
 		log.info("{}", result);
 	}
 

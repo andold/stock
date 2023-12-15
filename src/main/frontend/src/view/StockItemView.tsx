@@ -77,16 +77,12 @@ export default ((props: any) => {
 			;
 	}, [form]);
 
-	function handleOnGridColumnsChanged(_: any) {
-		gridRef?.current?.columnApi?.autoSizeAllColumns();
-		gridRef?.current?.api?.sizeColumnsToFit();
-	}
 	function handleOnGridReady(_: any) {
 		gridRef?.current?.columnApi?.applyColumnState({
 			state: [{ colId: 'priceEarningsRatio', sort: 'desc' }],
 			defaultState: { sort: null },
 		});
-		gridRef?.current?.columnApi?.autoSizeAllColumns();
+		//gridRef?.current?.columnApi?.autoSizeAllColumns();
 		gridRef?.current?.api?.sizeColumnsToFit();
 		gridRef?.current?.api?.setDomLayout("autoHeight");
 	}
@@ -106,7 +102,6 @@ export default ((props: any) => {
 			isExternalFilterPresent={() => true}
 			doesExternalFilterPass={doesExternalFilterPass}
 			rowDragManaged={true}
-			onGridColumnsChanged={handleOnGridColumnsChanged}
 			onGridReady={handleOnGridReady}
 		/>
 	</>);

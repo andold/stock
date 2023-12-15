@@ -27,6 +27,23 @@ stockDocument
 |	searchEtfComMonthlyDividend	//	https://search-etf.com/divi-list.html
 |	searchEtfComMonthlyDividendEtf	// 국내상장 월배당ETF 전체 조회
 |	crawlDividendHistoryEtfThread
+|	extractAllEtfFromNaver
+;
+
+
+
+extractAllEtfFromNaver:
+(
+	KEYWORD TAB code=WORD TAB symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*		NEWLINE
+			//	KEYWORD 	 https://finance.naver.com/item/main.naver?code=357870 	 TIGER CD금리투자KIS(합성) 
+	{
+		StockParserService.extractAllEtfFromNaver(20231214
+			, $code.text
+			, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
+		);
+	}
+)+
+WORD TAB WORD TAB DATE							NEWLINE		//	andold 	 since 	 2023-11-27 
 ;
 
 
@@ -37,7 +54,7 @@ KEYWORD TAB WORD WORD WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEY
 	WORD TAB TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE		//	종목명 	 	 운용사 	 유형 	 지급기준일 	 실지급일 	 배당구분 	 주당분배금 	 결산과표기준가 	 시가대비분배율 	 
 	((
 		symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* TAB
-		TAB WORD TAB WORD TAB base=DATE TAB pay=DATE TAB WORD TAB dividend=NUMBER TAB price=NUMBER TAB ratio=NUMBER? TAB		NEWLINE
+		TAB WORD TAB word* TAB base=DATE? TAB pay=DATE? TAB WORD? TAB dividend=NUMBER? TAB price=NUMBER? TAB ratio=NUMBER? TAB		NEWLINE
 				//	TIGER 200커버드콜5%OTM 	 	 미래에셋자산운용 	 파생상품/구조화 	 2023/11/30 	 2023/12/04 	 이익분배 	 54 	 11,308.35 	 0.45 	 
 	) | (
 		TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB										NEWLINE		//		 	 	 	 	 	 	 	 	 	 

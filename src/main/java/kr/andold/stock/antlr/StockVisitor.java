@@ -25,6 +25,12 @@ public interface StockVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStockDocument(StockParser.StockDocumentContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link StockParser#extractAllEtfFromNaver}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExtractAllEtfFromNaver(StockParser.ExtractAllEtfFromNaverContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link StockParser#crawlDividendHistoryEtfThread}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

@@ -8,13 +8,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
@@ -28,16 +25,15 @@ import kr.andold.stock.domain.StockDividendDomain;
 import kr.andold.stock.domain.StockItemDomain;
 import kr.andold.stock.domain.StockPriceDomain;
 import kr.andold.stock.param.StockDividendHistoryParam;
-import kr.andold.stock.param.StockPriceParam;
 import kr.andold.stock.service.StockParserService.StockParserResult;
+import kr.andold.stock.thread.CrawlEtfDividendHistoryThread;
+import kr.andold.stock.thread.CrawlPriceThread;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 public class StockCrawlerService {
 	public static final String MARK_ANDOLD_SINCE = "\n andold \t since \t 2023-11-27 \n";
-
-	private static final Random RANDOM = new Random();
 
 	@Autowired
 	private StockItemService stockItemService;
@@ -85,14 +81,13 @@ public class StockCrawlerService {
 		return all;
 	}
 
-	private StockParserResult crawlPrices() {
+	public StockParserResult crawlPrices() {
 		log.info("{} crawlPrices()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
 		StockParserResult all = StockParserResult.builder().items(new ArrayList<>()).dividends(new ArrayList<>()).histories(new ArrayList<>()).prices(new ArrayList<>()).build();
 
-		String textPrices = extractTextStockPrice();
-		StockParserResult resultPrices = StockParserService.parse(textPrices, debug);
+		StockParserResult resultPrices = CrawlPriceThread.crawl(stockItemService.search(null));
 		all.addAll(resultPrices);
 		put(resultPrices);
 
@@ -171,9 +166,9 @@ public class StockCrawlerService {
 		}
 		all.addAll(result);
 
-		String textFromUrlBySelenium = extractTextFromUrlBySelenium("https://search-etf.com/divi-list.html");
-		result = StockParserService.parse(textFromUrlBySelenium, debug);
-		all.addAll(result);
+		String textFromNaverAllEtf = extractAllEtfFromNaver();
+		StockParserResult resultNaverAllEtf = StockParserService.parse(textFromNaverAllEtf, debug);
+		all.addAll(resultNaverAllEtf);
 		put(all);
 
 		log.info("{} {} crawlItems() - {}", Utility.indentEnd(), all, Utility.toStringPastTimeReadable(started));
@@ -252,10 +247,10 @@ public class StockCrawlerService {
 		StringBuffer sb = new StringBuffer();
 		sb.append(mark);
 
-		ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
+		int processors = Runtime.getRuntime().availableProcessors() - 1;
+		ExecutorService service = Executors.newFixedThreadPool(processors);
 		List<Future<String>> futureList = new ArrayList<>();
-		Map<Integer, List<StockItemDomain>> groups = items.stream().collect(Collectors.groupingBy(item -> RANDOM.nextInt(8) % (Runtime.getRuntime().availableProcessors() - 1)));
-		List<List<StockItemDomain>> subSets = new ArrayList<List<StockItemDomain>>(groups.values());
+		List<List<StockItemDomain>> subSets = split(items, processors);
 		subSets.forEach(list -> {
 			CrawlItemDetailThread thread = new CrawlItemDetailThread(list);
 			Future<String> future = service.submit(thread);
@@ -289,25 +284,6 @@ public class StockCrawlerService {
 		return "";
 	}
 
-	// 네이버 > 증권홈 > 국내증시 > 배당 > 코스피 > 종목클릭 > 시세
-	public StockParserResult crawlPrice(StockPriceParam param) {
-		log.info("{} crawlPrice({})", Utility.indentStart(), param);
-		long started = System.currentTimeMillis();
-
-		List<StockItemDomain> items = new ArrayList<>();
-		items.add(StockItemDomain.builder().code(param.getCode()).build());
-		String text = extractTextStockPrice(items);
-		StockParserResult result = StockParserService.parse(text, debug);
-		stockPriceService.put(result.getPrices());
-		List<StockDividendDomain> dividends = currentPriceFromPrices(result.getPrices());
-		result.getDividends().addAll(dividends);
-		put(result);
-//		dividends.forEach(dividend -> log.info("{} crawlPrice(...) - 추출된 현재가:: {}", Utility.indentMiddle(), dividend));
-
-		log.info("{} {} crawlPrice({}) - {}", Utility.indentEnd(), result, param, Utility.toStringPastTimeReadable(started));
-		return result;
-	}
-
 	public static String extractTextFromUrl(String link, Map<String, Boolean> map) {
 		log.info("{} extractTextFromUrl({}, #{})", Utility.indentStart(), link, Utility.size(map));
 
@@ -337,6 +313,33 @@ public class StockCrawlerService {
 		return "";
 	}
 
+	protected String extractAllEtfFromNaver() {
+		log.info("{} extractAllEtfFromNaver()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		StringBuffer sb = new StringBuffer();
+		ChromeDriverWrapper driver = StockCrawlerService.defaultChromeDriver();
+		final String url = "https://finance.naver.com/sise/etf.naver";
+		try {
+			driver.navigate().to(url);
+			List<WebElement> hyperlinkElement = driver.findElements(By.xpath("//div[@id='contentarea']/div[@class='box_type_l']/table//td[@class='ctg']/a"), 4000);
+			for (int cx = 0, sizex = hyperlinkElement.size(); cx < sizex; cx++) {
+				WebElement e = hyperlinkElement.get(cx);
+				
+				sb.append(String.format("KEYWORD\t%s\t%s\n", e.getAttribute("href"), e.getText()));
+			}
+		}
+		catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+		}
+		driver.quit();
+		sb.append(MARK_ANDOLD_SINCE);
+
+		String result = new String(sb);
+		log.info("{} 『{}』 extractAllEtfFromNaver() - {}", Utility.indentEnd(), Utility.ellipsisEscape(result, 16), Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
 	// 배당금 내역
 	private StockParserResult crawlDividendHistory() {
 		log.info("{} crawlDividendHistories()", Utility.indentStart());
@@ -364,6 +367,16 @@ public class StockCrawlerService {
 		log.info("{} crawlDividendHistoryEtf()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
+		StockParserResult resultDividendHistoryEtf = CrawlEtfDividendHistoryThread.crawl(stockItemService.search(null));
+		put(resultDividendHistoryEtf);
+
+		log.info("{} {} crawlDividendHistoryEtf() - {}", Utility.indentEnd(), resultDividendHistoryEtf, Utility.toStringPastTimeReadable(started));
+		return resultDividendHistoryEtf;
+	}
+	public StockParserResult crawlDividendHistoryEtfDeprecating() {
+		log.info("{} crawlDividendHistoryEtf()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
 		String textDividendHistoryEtf = extractTextDividendHistoryEtf();
 		StockParserResult resultDividendHistoryEtf = StockParserService.parse(textDividendHistoryEtf, debug);
 		put(resultDividendHistoryEtf);
@@ -382,10 +395,10 @@ public class StockCrawlerService {
 		StringBuffer sb = new StringBuffer();
 		sb.append(mark);
 
-		ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
+		int processors = Runtime.getRuntime().availableProcessors() - 1;
+		ExecutorService service = Executors.newFixedThreadPool(processors);
 		List<Future<String>> futureList = new ArrayList<>();
-		Map<Integer, List<StockItemDomain>> groups = items.stream().collect(Collectors.groupingBy(item -> RANDOM.nextInt(8) % (Runtime.getRuntime().availableProcessors() - 1)));
-		List<List<StockItemDomain>> subSets = new ArrayList<List<StockItemDomain>>(groups.values());
+		List<List<StockItemDomain>> subSets = split(items, processors);
 		subSets.forEach(list -> {
 			CrawlDividendHistoryCompanyThread thread = new CrawlDividendHistoryCompanyThread(list);
 			Future<String> future = service.submit(thread);
@@ -403,6 +416,17 @@ public class StockCrawlerService {
 		String result = new String(sb);
 		log.info("{} {} extractlDividendHistory() - {}", Utility.indentEnd(), Utility.size(items), Utility.toStringPastTimeReadable(started));
 		return result;
+	}
+
+	public static List<List<StockItemDomain>> split(List<StockItemDomain> items, int count) {
+		List<List<StockItemDomain>> container = new ArrayList<>();
+		for (int cx = 0; cx < count; cx++) {
+			container.add(new ArrayList<>());
+		}
+		for (int cx = 0, sizex = items.size(); cx < sizex; cx++) {
+			container.get(cx % count).add(items.get(cx));
+		}
+		return container;
 	}
 
 	// ETF 배당금 내역 by KSD 증권정보포털 SEIBro
@@ -424,10 +448,10 @@ public class StockCrawlerService {
 		StringBuffer sb = new StringBuffer();
 		sb.append(mark);
 
-		ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
+		int processors = Runtime.getRuntime().availableProcessors() - 1;
+		ExecutorService service = Executors.newFixedThreadPool(processors);
 		List<Future<String>> futureList = new ArrayList<>();
-		Map<Integer, List<StockItemDomain>> groups = items.stream().collect(Collectors.groupingBy(item -> RANDOM.nextInt(8) % (Runtime.getRuntime().availableProcessors() - 1)));
-		List<List<StockItemDomain>> subSets = new ArrayList<List<StockItemDomain>>(groups.values());
+		List<List<StockItemDomain>> subSets = split(items, processors);
 		subSets.forEach(list -> {
 			CrawlDividendHistoryEtfThread thread = new CrawlDividendHistoryEtfThread(list);
 			Future<String> future = service.submit(thread);
@@ -447,32 +471,6 @@ public class StockCrawlerService {
 		return result;
 	}
 
-	public static String extractTextFromTableElement(WebElement e) {
-		return extractTextFromTableElement(e, "");
-	}
-	public static String extractTextFromTableElement(WebElement e, String prefix) {
-		StringBuffer sb = new StringBuffer();
-		e.findElements(By.tagName("tr")).forEach(tr -> sb.append(extractTextFromTrElement(tr, prefix)));
-		return new String(sb);
-	}
-
-	public static String extractTextFromTrElement(WebElement tr) {
-		return extractTextFromTrElement(tr, "");
-	}
-	private static String extractTextFromTrElement(WebElement tr, String prefix) {
-		StringBuffer sb = new StringBuffer(prefix);
-		tr.findElements(By.tagName("th")).forEach(th -> {
-			sb.append(th.getText());
-			sb.append("\t");
-		});
-		tr.findElements(By.tagName("td")).forEach(td -> {
-			sb.append(td.getText());
-			sb.append("\t");
-		});
-		sb.append("\n");
-		return new String(sb);
-	}
-
 	// 국내상장 월배당ETF 조회, https://search-etf.com/ > 국내 월배당 ETF 전체
 	public String extractTextDividendHistoriesEtfMonthly() {
 		log.info("{} extractTextDividendHistoryEtfMonthly()", Utility.indentStart());
@@ -488,7 +486,7 @@ public class StockCrawlerService {
 			String starting = String.format("KEYWORD\t국내상장 월배당ETF 조회\tURL\t%s\n", url);
 			log.info("{} extractTextDividendHistoryEtfMonthly() - {} - {}", Utility.indentMiddle(), starting.strip(), Utility.toStringPastTimeReadable(started));
 			sb.append(String.format(starting));
-			sb.append(extractTextFromTableElement(listTableElement));
+			sb.append(driver.extractTextFromTableElement(listTableElement));
 			sb.append(MARK_ANDOLD_SINCE);
 
 			List<WebElement> linkElements = listTableElement.findElements(By.tagName("a"));
@@ -504,7 +502,7 @@ public class StockCrawlerService {
 				WebElement dividendTableElement = driver.findElement(By.xpath("//*[@id=\"The_table\"]"));
 
 				sb.append(String.format("KEYWORD\tCODE\t%s\tSYMBOL\t%s\n", code, symbol));
-				sb.append(extractTextFromTableElement(dividendTableElement));
+				sb.append(driver.extractTextFromTableElement(dividendTableElement));
 				sb.append(MARK_ANDOLD_SINCE);
 				log.info("{} #{}/{} extractTextDividendHistoryEtfMonthly() - {} {} - {}", Utility.indentMiddle(), cx, sizex, code, symbol, Utility.toStringPastTimeReadable(started));
 			}
@@ -540,7 +538,7 @@ public class StockCrawlerService {
 
 			driver.navigate().to("https://search-etf.com/month-divi.html");
 			WebElement list = driver.findElement(By.xpath("//*[@id='monthDivi_info_table']//table"), 2000);
-			sb.append(extractTextFromTableElement(list));
+			sb.append(driver.extractTextFromTableElement(list));
 			sb.append(MARK_ANDOLD_SINCE);
 
 			// List<WebElement> links = list.findElements(By.tagName("a"));
@@ -552,7 +550,7 @@ public class StockCrawlerService {
 				link.click();
 				Utility.sleep(1000);
 				WebElement dividends = driver.findElement(By.xpath("//*[@id='The_table']"));
-				sb.append(extractTextFromTableElement(dividends));
+				sb.append(driver.extractTextFromTableElement(dividends));
 				sb.append(MARK_ANDOLD_SINCE);
 			});
 
@@ -569,75 +567,6 @@ public class StockCrawlerService {
 		}
 		log.info("{} FAIL extractlDividendHistory({}) - {}", Utility.indentEnd(), param, Utility.toStringPastTimeReadable(started));
 		return "";
-	}
-
-	public String extractTextFromUrlBySelenium(String link) {
-		log.info("{} extractTextFromUrlBySelenium({})", Utility.indentStart(), link);
-		long started = System.currentTimeMillis();
-
-		ChromeDriverWrapper driver = defaultChromeDriver();
-
-		try {
-			driver.navigate().to(link);
-			List<WebElement> html = driver.findElements(By.tagName("html"), 8000);
-			StringBuffer sb = new StringBuffer();
-			html.forEach((e) -> {
-				sb.append(e.getText());
-			});
-			driver.quit();
-
-			String text = new String(sb);
-
-			log.info("{} #{}:{} extractTextFromUrlBySelenium({}) - {}", Utility.indentEnd(), text.length(), Utility.ellipsis(text, 4), link, Utility.toStringPastTimeReadable(started));
-			return text;
-		} catch (Exception e) {
-			driver.quit();
-			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
-		}
-		log.info("{} Exception extractTextFromUrlBySelenium({}) - {}", Utility.indentEnd(), link, Utility.toStringPastTimeReadable(started));
-		return "";
-	}
-
-	// 주식시세 이력 전체
-	public String extractTextStockPrice() {
-		log.info("{} extractTextStockPrice()", Utility.indentStart());
-		long started = System.currentTimeMillis();
-
-		List<StockItemDomain> items = stockItemService.search(null);
-		String result = extractTextStockPrice(items);
-
-		log.info("{} {} extractTextStockPrice() - {}", Utility.indentEnd(), Utility.ellipsisEscape(result, 16, 8), Utility.toStringPastTimeReadable(started));
-		return result;
-	}
-	private String extractTextStockPrice(List<StockItemDomain> items) {
-		log.info("{} extractTextStockPrice(#{})", Utility.indentStart(), Utility.size(items));
-		long started = System.currentTimeMillis();
-
-		String mark = "KEYWORD\t주식 시세 이력\tURL\thttps://finance.naver.com/item/sise.naver?code=\n";
-		StringBuffer sb = new StringBuffer();
-		sb.append(mark);
-
-		ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
-		List<Future<String>> futureList = new ArrayList<>();
-		Map<Integer, List<StockItemDomain>> groups = items.stream().collect(Collectors.groupingBy(item -> RANDOM.nextInt(8) % (Runtime.getRuntime().availableProcessors() - 1)));
-		List<List<StockItemDomain>> subSets = new ArrayList<List<StockItemDomain>>(groups.values());
-		subSets.forEach(list -> {
-			CrawlPriceThread thread = new CrawlPriceThread(list);
-			Future<String> future = service.submit(thread);
-			futureList.add(future);
-		});
-		for (Future<String> task : futureList) {
-			try {
-				String result = task.get();
-				sb.append(result);
-			} catch (Exception e) {
-			}
-		}
-
-		sb.append(mark);
-		String result = new String(sb);
-		log.info("{} {} extractTextStockPrice(#{}) - {}", Utility.indentEnd(), Utility.ellipsisEscape(result, 16, 8), Utility.size(items), Utility.toStringPastTimeReadable(started));
-		return result;
 	}
 
 	public static ChromeDriverWrapper defaultChromeDriver() {
@@ -734,7 +663,7 @@ public class StockCrawlerService {
 						List<WebElement> tables = driver.findElements(By.tagName("table"), 2000);
 						sb.append(String.format("KEYWORD\t%s\t%s\n", code, item.getSymbol()));
 						tables.forEach(table -> {
-							sb.append(StockCrawlerService.extractTextFromTableElement(table));
+							sb.append(driver.extractTextFromTableElement(table));
 							sb.append(StockCrawlerService.MARK_ANDOLD_SINCE);
 						});
 						sb.append(StockCrawlerService.MARK_ANDOLD_SINCE);
@@ -834,7 +763,7 @@ public class StockCrawlerService {
 					WebElement table = driver.findElement(By.xpath("//*[@id='grid1_body_table']"), 2000);
 
 					sb.append(String.format("KEYWORD\t%s\n",  item.getCode()));
-					sb.append(extractTextFromTableElement(table));
+					sb.append(driver.extractTextFromTableElement(table));
 					sb.append(MARK_ANDOLD_SINCE);
 
 					log.debug("{} {}/{} 『{}』 CrawlDividendHistoryEtfThread() - {}", Utility.indentMiddle(), cx, sizex, item, Utility.toStringPastTimeReadable(loopStarted));
@@ -895,13 +824,13 @@ public class StockCrawlerService {
 
 					//// *[@id="cTB11"]
 					WebElement price = driver.findElement(By.xpath("//*[@id='cTB11']//tr[1]")); // 시세 및 주주현황
-					sb.append(extractTextFromTrElement(price));
+					sb.append(driver.extractTextFromTrElement(price));
 					// coinfo_cp
 
 					driver.switchTo().defaultContent();
 					driver.findElement(By.xpath("//*[@id=\"tab_invest\"]/a[1]")).click(); // 투자정보 선택
 					driver.findElements(By.xpath("//table[@summary='시가총액 정보']//tr")).forEach(tr -> {
-						String text = extractTextFromTrElement(tr);
+						String text = driver.extractTextFromTrElement(tr);
 						if (text.contains("상장주식수")) {
 							sb.append(text);
 						}
@@ -915,49 +844,6 @@ public class StockCrawlerService {
 
 			String result = new String(sb);
 			log.info("{} 『{}』 CrawlItemDetailThread(#{}) - {}", Utility.indentEnd(), Utility.ellipsisEscape(result, 16, 8), Utility.size(items), Utility.toStringPastTimeReadable(started));
-			return result;
-		}
-	}
-
-	// 종목 시세 이력 네이버
-	public static class CrawlPriceThread implements Callable<String> {
-		private List<StockItemDomain> items;
-
-		public CrawlPriceThread(List<StockItemDomain> list) {
-			this.items = list;
-		}
-
-		public String call() throws Exception {
-			log.info("{} CrawlPriceThread(#{})", Utility.indentStart(), Utility.size(items));
-			long started = System.currentTimeMillis();
-
-			StringBuffer sb = new StringBuffer();
-			ChromeDriverWrapper driver = defaultChromeDriver();
-
-			for (int cx = 0, sizex = items.size(); cx < sizex; cx++) {
-				long loopStarted = System.currentTimeMillis();
-				StockItemDomain item = items.get(cx);
-				String code = item.getCode();
-				String url = String.format("https://finance.naver.com/item/sise.naver?code=%s", code);
-				try {
-					driver.navigate().to(url);
-
-					WebElement frame = driver.findElement(By.xpath("//*[@id='content']//iframe[@title='일별 시세']"), 2000);
-					driver.switchTo().frame(frame);
-					WebElement table = driver.findElement(By.xpath("//table[@class='type2']"));
-
-					sb.append(String.format("%s\t%s\n", code, item.getSymbol()));
-					sb.append(extractTextFromTableElement(table));
-					sb.append(MARK_ANDOLD_SINCE);
-				} catch (Exception e) {
-					log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
-				}
-				log.info("{} {}/{} 『{}』 CrawlPriceThread() - {}", Utility.indentMiddle(), cx, sizex, item.getSymbol(), Utility.toStringPastTimeReadable(loopStarted));
-			}
-			driver.quit();
-
-			String result = new String(sb);
-			log.info("{} 『{}』 CrawlPriceThread(#{}) - {}", Utility.indentEnd(), Utility.ellipsisEscape(result, 16, 8), Utility.size(items), Utility.toStringPastTimeReadable(started));
 			return result;
 		}
 	}

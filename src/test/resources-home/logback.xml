@@ -40,11 +40,11 @@
 
 	<logger name="org.hibernate" additivity="false" level="warn">
 		<appender-ref ref="console" />
-		<appender-ref ref="stock" />
-		<appender-ref ref="chatclient" />
+		<appender-ref ref="general" />
 	</logger>
 	<logger name="kr.andold.stock.antlr" additivity="false" level="info">
 		<appender-ref ref="console" />
+		<appender-ref ref="general" />
 	</logger>
 	<logger name="kr.andold.stock.controller" additivity="false" level="info">
 		<appender-ref ref="console" />

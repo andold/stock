@@ -121,21 +121,13 @@ function Header(props: any) {
 			setSpinner(spinner - 1);
 		});
 	}
-	function handleOnClickCrawlPrice() {
-		jobs++;
-		setSpinner(1);
-		store.searchItem({}, (_: any, items: any[]) => {
-			jobs--;
-			items.forEach((item: any) => {
-				jobs++;
-				store.crawlPrice(item, (_: any) => {
-					jobs--;
-					if (jobs == 0) {	// 마지막에서만 재검색
-						onChange && onChange({});
-						setSpinner(0);
-					}
-				});
-			});
+	function handleOnClickCrawlPrices() {
+		setSpinner(spinner + 1);
+		store.crawlPrices({}, (_: any) => {
+			if (spinner == 1) {	// 마지막에서만 재검색
+				onChange && onChange({});
+			}
+			setSpinner(spinner - 1);
 		});
 	}
 
@@ -190,11 +182,11 @@ function Header(props: any) {
 								{(spinner > 0) && <Spinner animation="grow" variant="warning" className="ms-1 align-middle" title={spinner.toLocaleString()} />}
 								{!collapsed && (<>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawl}>Crawl All As Start</Button>
-									<Button size="sm" variant="secondary" className="ms-1" style={{ display: "none" }} onClick={handleOnClickCrawlItems}>Crawl Items</Button>
+									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlItems}>Crawl Items</Button>
 									<Button size="sm" variant="secondary" className="ms-1" style={{ display: "none" }} onClick={handleOnClickCrawlItemDetails}>Crawl Item Details</Button>
 									<Button size="sm" variant="secondary" className="ms-1" style={{ display: "none" }} onClick={handleOnClickCrawlDividendHistory}>Crawl Dividend History</Button>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlDividendHistoryEtf}>Crawl Dividend History ETF</Button>
-									<Button size="sm" variant="secondary" className="ms-1" style={{ display: "none" }} onClick={handleOnClickCrawlPrice}>Crawl Price</Button>
+									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlPrices}>Crawl Prices</Button>
 								</>)}
 								<Button size="sm" variant="secondary" className="ms-1" title={form.mode.toString()} onClick={handleOnClickDownload}>다운로드</Button>
 								<Button size="sm" variant="secondary" className="ms-1" title={form.mode.toString()} onClick={(_: any) => onChange && onChange({ mode: form.mode + 1 })}>모드</Button>

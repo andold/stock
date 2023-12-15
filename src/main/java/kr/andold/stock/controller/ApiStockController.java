@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import kr.andold.stock.domain.StockDividendDomain;
-import kr.andold.stock.param.StockPriceParam;
 import kr.andold.stock.service.StockCrawlerService;
 import kr.andold.stock.service.StockService;
 import kr.andold.stock.service.Utility;
@@ -19,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("api/stock")
+@RequestMapping("api")
 public class ApiStockController {
 	@Autowired private StockService service;
 	@Autowired private StockCrawlerService stockCrawlerService;
@@ -68,13 +67,13 @@ public class ApiStockController {
 	}
 
 	@ResponseBody
-	@PostMapping(value = "crawl/price")
-	public StockParserResult crawlPrice(@RequestBody StockPriceParam param) {
-		log.info("{} crawlPrice({})", Utility.indentStart(), param);
+	@GetMapping(value = "crawl/prices")
+	public StockParserResult crawlPrices() {
+		log.info("{} crawlPrices()", Utility.indentStart());
 
-		StockParserResult result = stockCrawlerService.crawlPrice(param);
+		StockParserResult result = stockCrawlerService.crawlPrices();
 
-		log.info("{} {} - crawlPrice({})", Utility.indentEnd(), result, param);
+		log.info("{} {} - crawlPrices()", Utility.indentEnd(), result);
 		return result;
 	}
 

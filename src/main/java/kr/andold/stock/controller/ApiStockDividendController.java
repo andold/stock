@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("api/stock/dividend")
+@RequestMapping("api/dividend")
 public class ApiStockDividendController {
 	@Autowired private StockDividendService service;
 

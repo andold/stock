@@ -20,7 +20,7 @@ public class StockDividendHistoryService implements CommonBlockService<StockDivi
 	
 	@Override
 	public String put(List<StockDividendHistoryDomain> domains) {
-		return CommonBlockService.super.put(domains.stream().filter(t -> t.getDividend() > 0).collect(Collectors.toList()));
+		return CommonBlockService.super.put(domains.stream().filter(domain -> domain.getDividend() != null && domain.getDividend() > 0).collect(Collectors.toList()));
 	}
 
 	@Override
