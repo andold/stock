@@ -25,9 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 public class CrawlEtfDividendHistoryThread implements Callable<StockParserResult> {
 	private static final int JOB_SIZE = 4;
 	private static final String MARK_ANDOLD_SINCE = StockCrawlerService.MARK_ANDOLD_SINCE;
+	private static final Boolean debug = StockCrawlerService.debug;
 	private static final String mark = "KEYWORD\tETF 배당금 내역\tKSD 증권정보포털 SEIBro\tURL\thttps://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179\n";
 
-	private boolean debug = true;
 	private ConcurrentLinkedQueue<StockItemDomain> items;
 
 	private ChromeDriverWrapper driver;

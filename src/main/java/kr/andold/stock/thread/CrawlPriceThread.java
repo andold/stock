@@ -27,8 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 public class CrawlPriceThread implements Callable<StockParserResult> {
 	private static final int JOB_SIZE = 4;
 	private static final String MARK_ANDOLD_SINCE = StockCrawlerService.MARK_ANDOLD_SINCE;
+	private static final Boolean debug = StockCrawlerService.debug;
 
-	private boolean debug = false;
 	private ConcurrentLinkedQueue<StockItemDomain> items;
 	private ChromeDriverWrapper driver;
 

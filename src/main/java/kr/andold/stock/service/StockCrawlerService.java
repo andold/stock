@@ -48,13 +48,16 @@ public class StockCrawlerService {
 	private StockPriceService stockPriceService;
 
 	private static String webdriverPath;
-
 	@Value("${data.webdriver.chrome.driver:C:/src/eclipse-workspace/stock/src/main/resources/bin/chromedriver.exe}")
 	public void setWebdriverPath(String value) {
 		webdriverPath = value;
 	}
 
-	private boolean debug = false;
+	public static Boolean debug = false;
+	@Value("${app.crawler.debug:false}")
+	public void setDegug(Boolean value) {
+		debug = value;
+	}
 
 	static public class CralerItemThread {
 	}
