@@ -37,7 +37,7 @@ public class CrawlPriceThread implements Callable<StockParserResult> {
 	}
 
 	public StockParserResult call() throws Exception {
-		log.info("{} StockParserResult(#{})", Utility.indentStart(), Utility.size(items));
+		log.info("{} CrawlPriceThread(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
 		StockParserResult result = StockParserResult.builder().build();
@@ -54,12 +54,12 @@ public class CrawlPriceThread implements Callable<StockParserResult> {
 				}
 				
 				if (debug && new Random().nextDouble() < 0.9) {
-					log.debug("{} {}/{} 뽑기 제외 『{}』 StockParserResult()", Utility.indentMiddle(), cx, Utility.size(items), item);
+					log.debug("{} {}/{} 뽑기 제외 『{}』 CrawlPriceThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
 				}
 
-				log.debug("{} {}/{} 진행 『{}』 StockParserResult()", Utility.indentMiddle(), cx, Utility.size(items), item);
+				log.debug("{} {}/{} 진행 『{}』 CrawlPriceThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 				String text = extract(item);
 				sb.append(text);
 			}
@@ -69,11 +69,14 @@ public class CrawlPriceThread implements Callable<StockParserResult> {
 			result.addAll(resultDividendHistoryEtf);
 		}
 		driver.quit();
-		log.info("{} 『{}』 StockParserResult(#{}) - {}", Utility.indentEnd(), result, Utility.size(items), Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』 CrawlPriceThread(#{}) - {}", Utility.indentEnd(), result, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
 	private String extract(StockItemDomain item) {
+		log.info("{} CrawlPriceThread({})", Utility.indentStart(), item);
+		long started = System.currentTimeMillis();
+
 		try {
 			String code = item.getCode();
 			String url = String.format("https://finance.naver.com/item/sise.naver?code=%s", code);
@@ -89,11 +92,14 @@ public class CrawlPriceThread implements Callable<StockParserResult> {
 			sb.append(MARK_ANDOLD_SINCE);
 
 			String result = new String(sb);
+
+			log.info("{} #{} 『{}』 CrawlPriceThread({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
 		}
 
+		log.info("{} #{} 『{}』 CrawlPriceThread(#{}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
 		return "";
 	}
 

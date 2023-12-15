@@ -1,6 +1,6 @@
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { Button, ButtonGroup, Col, Container, InputGroup, Nav, Navbar, Offcanvas, Row, Spinner, ToggleButton } from "react-bootstrap";
+import { Button, ButtonGroup, Col, Container, InputGroup, Navbar, Offcanvas, Spinner, ToggleButton } from "react-bootstrap";
 
 // domain
 import { StockDividendFormModel } from "../model/StockModel";
@@ -66,11 +66,6 @@ function Header(props: any) {
 
 	const [spinner, setSpinner] = useState<number>(0);
 	const [collapsed, setCollapsed] = useState(true);
-
-	let jobs = 0;
-
-	useEffect(() => {
-	}, []);
 
 	function handleOnClickDownload() {
 		const yyyymmdd = moment().format("YYYYMMDD");

@@ -1,6 +1,6 @@
 import moment from "moment";
-import React, { Fragment, useEffect, useRef, useState } from "react";
-import { Button, Col, Form, InputGroup, OverlayTrigger, Popover, Row, Spinner, Table, Tooltip } from "react-bootstrap";
+import React, { useEffect, useRef, useState } from "react";
+import { Button, Col, OverlayTrigger, Row, Spinner, Table, Tooltip } from "react-bootstrap";
 
 import StockDividendModel from "../model/StockModel";
 
@@ -179,7 +179,7 @@ export function PriceEarningsRatioCellRenderer(param: any) {
 	return (<>
 		<Row className="mx-0 text-right">
 			<Col sm="4" md="3" xl="2" xxl="2" className="m-0 p-0">
-				<span>{dividend.currentPrice > 0 ? (dividend.dividend / dividend.currentPrice * 100).toFixed(2) : dividend.priceEarningsRatio > 0 ? dividend.priceEarningsRatio.toFixed(2) : "-"}</span>
+				<span>{store.priceEarningsRatio(dividend, data?.custom?.histories).toFixed(2)}</span>
 			</Col>
 			<Col ref={ref} sm="8" md="9" xl="10" xxl="10">
 				<OverlayTrigger overlay={renderTooltip}>

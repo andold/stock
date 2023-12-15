@@ -53,6 +53,10 @@
 		</encoder>
 	</appender>
 
+	<logger name="kr.andold.stock.thread" additivity="false" value="debug">
+		<appender-ref ref="stock" />
+		<appender-ref ref="error" />
+	</logger>
 	<logger name="kr.andold.stock.service" additivity="false" value="info">
 		<appender-ref ref="stock" />
 		<appender-ref ref="error" />

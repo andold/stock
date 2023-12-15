@@ -27,7 +27,7 @@ public class CrawlEtfDividendHistoryThread implements Callable<StockParserResult
 	private static final String MARK_ANDOLD_SINCE = StockCrawlerService.MARK_ANDOLD_SINCE;
 	private static final String mark = "KEYWORD\tETF 배당금 내역\tKSD 증권정보포털 SEIBro\tURL\thttps://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179\n";
 
-	private boolean debug = false;
+	private boolean debug = true;
 	private ConcurrentLinkedQueue<StockItemDomain> items;
 
 	private ChromeDriverWrapper driver;
@@ -88,7 +88,6 @@ public class CrawlEtfDividendHistoryThread implements Callable<StockParserResult
 					continue;
 				}
 
-				log.debug("{} {}/{} 진행 『{}』 CrawlDividendHistoryEtfThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 				String text = extract(item);
 				sb.append(text);
 			}
@@ -96,6 +95,7 @@ public class CrawlEtfDividendHistoryThread implements Callable<StockParserResult
 			String text = new String(sb);
 			StockParserResult resultDividendHistoryEtf = StockParserService.parse(text, false);
 			result.addAll(resultDividendHistoryEtf);
+			log.debug("{} #{} {} CrawlEtfDividendHistoryThread() - {}", Utility.indentMiddle(), Utility.size(items), resultDividendHistoryEtf, Utility.toStringPastTimeReadable(started));
 		}
 		driver.quit();
 		log.info("{} 『{}』 CrawlEtfDividendHistoryThread(#{}) - {}", Utility.indentEnd(), result, Utility.size(items), Utility.toStringPastTimeReadable(started));
@@ -103,12 +103,14 @@ public class CrawlEtfDividendHistoryThread implements Callable<StockParserResult
 	}
 
 	private String extract(StockItemDomain item) {
-		long loopStarted = System.currentTimeMillis();
+		log.info("{} CrawlEtfDividendHistoryThread({})", Utility.indentStart(), item);
+		long started = System.currentTimeMillis();
 
 		try {
 			String code = item.getCode();
 			String symbol = item.getSymbol();
 
+			driver.switchTo().defaultContent();
 			searchSymbolIconElement.click(); // 종목명 검색 아이콘
 			
 			WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"), 4000);
@@ -132,7 +134,7 @@ public class CrawlEtfDividendHistoryThread implements Callable<StockParserResult
 			if (resultSearch.size() == 0) {
 				driver.switchTo().defaultContent();
 				popupCloseIconElement.click();
-				log.debug("{} 없는 종목 『{}』 CrawlDividendHistoryEtfThread() - {}", Utility.indentMiddle(), item, Utility.toStringPastTimeReadable(loopStarted));
+				log.info("{} #{} 없는 종목 『{}』 CrawlEtfDividendHistoryThread() - {}", Utility.indentEnd(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
 				return "";
 			} else if (resultSearch.size() == 1) {
 				driver.findElement(By.xpath(xpathSearchResult)).click();
@@ -143,7 +145,7 @@ public class CrawlEtfDividendHistoryThread implements Callable<StockParserResult
 			} else {
 				driver.switchTo().defaultContent();
 				popupCloseIconElement.click();
-				log.debug("{} 모호한 검색 결과 『{}』 CrawlDividendHistoryEtfThread() - {}", Utility.indentMiddle(), item, Utility.toStringPastTimeReadable(loopStarted));
+				log.info("{} #{} 모호한 검색 결과 『{}』 CrawlEtfDividendHistoryThread() - {}", Utility.indentEnd(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
 				return "";
 			}
 
@@ -159,6 +161,8 @@ public class CrawlEtfDividendHistoryThread implements Callable<StockParserResult
 			sb.append(MARK_ANDOLD_SINCE);
 
 			String result = new String(sb);
+
+			log.info("{} #{} 『{}』 CrawlEtfDividendHistoryThread({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);

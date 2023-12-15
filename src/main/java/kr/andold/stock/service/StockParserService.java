@@ -394,7 +394,7 @@ public class StockParserService {
 	}
 
 	public static synchronized StockParserResult parse(String text, boolean debug) {
-		log.info("{} parse(『{}』, {}』)", Utility.indentStart(), Utility.ellipsisEscape(text, 16), debug);
+		log.debug("{} parse(『{}』, {}』)", Utility.indentStart(), Utility.ellipsisEscape(text, 16), debug);
 		long started = System.currentTimeMillis();
 
 		LIST_STOCK_ITEM.clear();
@@ -403,7 +403,7 @@ public class StockParserService {
 		LIST_STOCK_PRICE.clear();
 
 		if (text == null || text.isBlank()) {
-			log.info("{} PARAMETER parse(『{}』, 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));
+			log.debug("{} PARAMETER parse(『{}』, 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));
 			return StockParserResult.builder().items(new ArrayList<>()).dividends(new ArrayList<>()).histories(new ArrayList<>()).prices(new ArrayList<>()).build();
 		}
 
@@ -426,7 +426,7 @@ public class StockParserService {
 			printTokens(text);
 		}
 
-		log.info("{} {} parse(『{}』, 『{}』) - {}", Utility.indentEnd(), result, Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));
+		log.debug("{} {} parse(『{}』, 『{}』) - {}", Utility.indentEnd(), result, Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 

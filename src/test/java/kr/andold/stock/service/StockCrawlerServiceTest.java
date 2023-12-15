@@ -19,10 +19,10 @@ public class StockCrawlerServiceTest {
 	private StockCrawlerService service;
 
 	@Test
-	public void testCrawlDividendHistoryEtfMonthlyDividend() {
-		String result = service.extractTextDividendHistoryEtfMonthly(StockDividendHistoryParam.builder().code("452360").etf(true).build());
-		log.info(result);
-	}
+		public void testCrawlEtfDividendHistoriesMonthlyDividend() {
+			String result = service.extractTextDividendHistoryEtfMonthly(StockDividendHistoryParam.builder().code("452360").etf(true).build());
+			log.info(result);
+		}
 
 	@Test
 	public void testExtractTextDividendHistoriesEtfMonthly() {
@@ -74,9 +74,9 @@ public class StockCrawlerServiceTest {
 	}
 
 	@Test
-	public void testCrawlDividendHistoryEtf() {
-		StockParserResult result = service.crawlDividendHistoryEtf();
-		log.info("{}", result);
-	}
+		public void testCrawlEtfDividendHistories() {
+			StockParserResult result = service.crawlEtfDividendHistories();
+			log.info("{}", result);
+		}
 
 }

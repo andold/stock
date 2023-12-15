@@ -68,7 +68,7 @@ public class StockCrawlerService {
 		StockParserResult resultItems = crawlItems();
 		all.addAll(resultItems);
 
-		StockParserResult resultHistories = crawlDividendHistory();
+		StockParserResult resultHistories = crawlDividendHistories();
 		all.addAll(resultHistories);
 
 		StockParserResult resultDetails = crawlItemDetails();
@@ -341,7 +341,7 @@ public class StockCrawlerService {
 	}
 
 	// 배당금 내역
-	private StockParserResult crawlDividendHistory() {
+	private StockParserResult crawlDividendHistories() {
 		log.info("{} crawlDividendHistories()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
@@ -350,12 +350,11 @@ public class StockCrawlerService {
 		// 일반기업 배당금 내역
 		String textDividendHistories = extractTextDividendHistoriesGeneralCompany();
 		StockParserResult resultDividendHistories = StockParserService.parse(textDividendHistories, debug);
+		put(resultDividendHistories);
 		all.addAll(resultDividendHistories);
 
 		// ETF 배당금 내역 by KSD 증권정보포털 SEIBro
-		StockParserResult resultDividendHistoryEtf = crawlDividendHistoryEtf();
-
-		put(all);
+		StockParserResult resultDividendHistoryEtf = crawlEtfDividendHistories();
 		all.addAll(resultDividendHistoryEtf);
 
 		log.info("{} {} crawlDividendHistories({})", Utility.indentEnd(), all, Utility.toStringPastTimeReadable(started));
@@ -363,25 +362,14 @@ public class StockCrawlerService {
 	}
 
 	// ETF 배당금 내역 by KSD 증권정보포털 SEIBro
-	public StockParserResult crawlDividendHistoryEtf() {
-		log.info("{} crawlDividendHistoryEtf()", Utility.indentStart());
+	public StockParserResult crawlEtfDividendHistories() {
+		log.info("{} crawlEtfDividendHistories()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
 		StockParserResult resultDividendHistoryEtf = CrawlEtfDividendHistoryThread.crawl(stockItemService.search(null));
 		put(resultDividendHistoryEtf);
 
-		log.info("{} {} crawlDividendHistoryEtf() - {}", Utility.indentEnd(), resultDividendHistoryEtf, Utility.toStringPastTimeReadable(started));
-		return resultDividendHistoryEtf;
-	}
-	public StockParserResult crawlDividendHistoryEtfDeprecating() {
-		log.info("{} crawlDividendHistoryEtf()", Utility.indentStart());
-		long started = System.currentTimeMillis();
-
-		String textDividendHistoryEtf = extractTextDividendHistoryEtf();
-		StockParserResult resultDividendHistoryEtf = StockParserService.parse(textDividendHistoryEtf, debug);
-		put(resultDividendHistoryEtf);
-
-		log.info("{} {} crawlDividendHistoryEtf() - {}", Utility.indentEnd(), resultDividendHistoryEtf, Utility.toStringPastTimeReadable(started));
+		log.info("{} {} crawlEtfDividendHistories() - {}", Utility.indentEnd(), resultDividendHistoryEtf, Utility.toStringPastTimeReadable(started));
 		return resultDividendHistoryEtf;
 	}
 

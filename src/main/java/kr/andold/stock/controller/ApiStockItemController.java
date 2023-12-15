@@ -39,7 +39,7 @@ public class ApiStockItemController {
 
 	@ResponseBody
 	@PutMapping(value = {"{id}"})
-	public StockItemDomain update(@PathVariable Integer id, @RequestBody StockItemDomain domain) {
+	public StockItemDomain update(@PathVariable(name = "id") Integer id, @RequestBody StockItemDomain domain) {
 		log.info("{} update({}, {})", Utility.indentStart(), id, domain);
 
 		domain.setId(id);

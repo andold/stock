@@ -169,6 +169,28 @@ class StockStore {
 
 		return false;
 	}
+	priceEarningsRatio(dividend: any, histories: any[]): number {
+		if (dividend?.currentPrice > 0) {
+			if (dividend?.dividend > 0) {
+				return Math.round(dividend?.dividend / dividend?.currentPrice * 10000) / 100;
+			}
+			
+			const lastYear = moment().year() - 1;
+			let sum = 0;
+			histories?.forEach((history: any) => {
+				const date = moment(history.base);
+				if (date.year() == lastYear) {
+					sum += history.dividend;
+				}
+			});
+
+			return Math.round(sum / dividend?.currentPrice * 10000) / 100;
+		} else if (dividend?.priceEarningsRatio > 0) {
+			return dividend?.priceEarningsRatio;
+		}
+
+		return 0;
+	}
 	colorPriceEarningsRatio(value: number) {
 		if (value > 10) { return `rgb(255, 255, ${32 * 0})`; }
 		if (value > 9) { return `rgb(255, 255, ${32 * 3})`; }
@@ -232,11 +254,7 @@ class StockStore {
 			field: "priceEarningsRatio",
 			headerName: "수익률(%)",
 			hide: hides && hides.includes("priceEarningsRatio"),
-			valueGetter: (params: any) => params.data.custom?.dividend?.currentPrice > 0
-											? (params.data.custom?.dividend?.dividend / params.data.custom?.dividend?.currentPrice * 100).toFixed(2)
-											: params.data.custom?.dividend?.priceEarningsRatio > 0
-											? params.data.custom?.dividend?.priceEarningsRatio.toFixed(2)
-											: "-",
+			valueGetter: (params: any) => this.priceEarningsRatio(params.data.custom?.dividend, params.data?.custom?.histories),
 			comparator: (valueA: number, valueB: number, nodeA: any, nodeB: any, isDescending: boolean) => {
 				const p = nodeA.data.priority - nodeB.data.priority;
 				if (p != 0) {

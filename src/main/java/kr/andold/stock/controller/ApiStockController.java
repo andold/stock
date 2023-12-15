@@ -82,7 +82,7 @@ public class ApiStockController {
 	public StockParserResult crawlDividendHistoryEtf() {
 		log.info("{} crawlDividendHistoryEtf()", Utility.indentStart());
 
-		StockParserResult result = stockCrawlerService.crawlDividendHistoryEtf();
+		StockParserResult result = stockCrawlerService.crawlEtfDividendHistories();
 
 		log.info("{} {} - crawlDividendHistoryEtf()", Utility.indentEnd(), result);
 		return result;
