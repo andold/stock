@@ -52,8 +52,6 @@ export default ((props: any) => {
 	useEffect(() => {
 		const comlumDefs = store.columnDefsItem(["id", "symbol", "code", "etf", "type", "volumeOfListedShares", "baseMonth", "dividendCycle", "ipoDate", "sigma", "operate", "created",], onChange);
 		setColumnDefs(comlumDefs);
-	}, []);
-	useEffect(() => {
 		const request = {
 			keyword: form.keyword,
 			start: null,
@@ -68,15 +66,18 @@ export default ((props: any) => {
 			whenItemChange(items);
 		});
 		return function() { setRowData([]); };
+	}, []);
+	useEffect(() => {
+		gridRef?.current?.api?.onFilterChanged();
 	}, [form]);
-	const doesExternalFilterPass = useCallback((node: any) => {
+
+	function doesExternalFilterPass(node: any) {
 		return (!form.etf && !form.kospi && !form.kosdaq)
 			|| (form.etf && node.data.etf)
 			|| (form.kospi && !node.data.etf && node.data.type === "KOSPI")
 			|| (form.kosdaq && node.data.type === "KOSDAQ")
 			;
-	}, [form]);
-
+	}
 	function handleOnGridReady(_: any) {
 		gridRef?.current?.columnApi?.applyColumnState({
 			state: [{ colId: 'priceEarningsRatio', sort: 'desc' }],

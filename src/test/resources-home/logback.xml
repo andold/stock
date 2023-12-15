@@ -50,7 +50,7 @@
 		<appender-ref ref="console" />
 		<appender-ref ref="stock" />
 	</logger>
-	<logger name="kr.andold.stock.service" additivity="false" level="debug">
+	<logger name="kr.andold.stock.service" additivity="false" level="info">
 		<appender-ref ref="console" />
 		<appender-ref ref="stock" />
 	</logger>
