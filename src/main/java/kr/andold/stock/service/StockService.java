@@ -1,5 +1,7 @@
 package kr.andold.stock.service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -9,19 +11,27 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import kr.andold.stock.domain.StockDividendDomain;
 import kr.andold.stock.domain.StockDividendHistoryDomain;
+import kr.andold.stock.domain.StockItemDomain;
 import kr.andold.stock.domain.StockPriceDomain;
 import kr.andold.stock.entity.StockDividendEntity;
 import kr.andold.stock.param.StockDividendParam;
+import kr.andold.stock.param.StockParam;
+import kr.andold.stock.param.StockParam.DividendHistoryParam;
+import kr.andold.stock.param.StockParam.DividendParam;
+import kr.andold.stock.param.StockParam.ItemParam;
+import kr.andold.stock.param.StockParam.PriceParam;
 import kr.andold.stock.repository.StockRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 public class StockService {
-
+	@Autowired
+	private StockItemService stockItemService;
 	@Autowired
 	private StockDividendService stockDividendService;
 	@Autowired
@@ -30,6 +40,47 @@ public class StockService {
 	private StockPriceService stockPriceService;
 	@Autowired
 	private StockRepository repository;
+
+	public boolean upload(MultipartFile file) {
+		try {
+			InputStream inputStream = file.getInputStream();
+			String text = Utility.extractStringFromText(inputStream);
+			StockParam param = StockParam.of(text);
+			List<StockItemDomain> items = new ArrayList<>();
+			List<StockDividendDomain> dividends = new ArrayList<>();
+			List<StockDividendHistoryDomain> histories = new ArrayList<>();
+			List<StockPriceDomain> prices = new ArrayList<>();
+			for (ItemParam x : param.getItems()) {
+				items.add(x.toDomain());
+			}
+			for (DividendParam x : param.getDividends()) {
+				dividends.add(x.toDomain());
+			}
+			for (DividendHistoryParam x : param.getHistories()) {
+				histories.add(x.toDomain());
+			}
+			for (PriceParam x : param.getPrices()) {
+				prices.add(x.toDomain());
+			}
+			stockItemService.put(items);
+			stockDividendService.put(dividends);
+			stockDividendHistoryService.put(histories);
+			stockPriceService.put(prices);
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	public StockParam download() {
+		List<StockItemDomain> items = stockItemService.search(null);
+		List<StockDividendHistoryDomain> histories = stockDividendHistoryService.search(null);
+		List<StockPriceDomain> prices = stockPriceService.search(null);
+		List<StockDividendDomain> dividends = stockDividendService.search(null);
+		return new StockParam(items, dividends, histories, prices);
+	}
 
 	public String compile() {
 		Calendar calendar = Calendar.getInstance();
@@ -116,7 +167,7 @@ public class StockService {
 				break;
 			}
 		}
-		
+
 		String result = stockDividendService.put(dividends);
 		return result;
 	}
@@ -229,11 +280,6 @@ public class StockService {
 
 		log.info("{} deduplicate()", Utility.indentEnd());
 		return StockDividendParam.builder().duplicates(new ArrayList<>(mapDuplicate.values())).removes(removes).build();
-	}
-
-	public String download() {
-		List<StockDividendDomain> domains = search(StockDividendDomain.builder().build());
-		return Utility.toStringJsonLine(domains);
 	}
 
 }

@@ -29,7 +29,9 @@ class StockStore {
 	remove(request: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.remove(request, onSuccess, onError, element);
 	}
-	upload(request?: any, onSuccess?: any, onError?: any, element?: any) {
+	upload(file?: any, onSuccess?: any, onError?: any, element?: any) {
+		const request = new FormData();
+		request.append("file", file);
 		repository.upload(request, onSuccess, onError, element);
 	}
 	download(request?: any, onSuccess?: any, onError?: any, element?: any) {

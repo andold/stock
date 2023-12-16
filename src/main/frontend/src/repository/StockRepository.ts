@@ -32,9 +32,7 @@ class StockRepository {
 			.catch(error => onError && onError(request, error, element));
 	}
 	async upload(request: any, onSuccess?: any, onError?: any, element?: any) {
-		const data = new FormData();
-		data.append("file", request.file);
-		return axios.post(`./api/${request.vcalendarId}/upload`, data)
+		return axios.post(`./api/upload`, request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}

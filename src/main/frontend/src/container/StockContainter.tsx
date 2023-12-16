@@ -10,6 +10,7 @@ import store from "../store/StockStore";
 
 // view
 import StockItemView from "../view/StockItemView";
+import UploadButtonView from "../view/UploadButtonView";
 
 // StockContainter.tsx
 export default ((props: any) => {
@@ -77,7 +78,7 @@ function Header(props: any) {
 
 	function handleOnClickDownload() {
 		const yyyymmdd = moment().format("YYYYMMDD");
-		store.download({ filename: `stock-divedend-${yyyymmdd}.json`, });
+		store.download({ filename: `stock-${yyyymmdd}.json`, });
 	}
 	function handleOnClickCompile() {
 		setSpinner(spinner + 1);
@@ -200,6 +201,7 @@ function Header(props: any) {
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlPrices}>Crawl Prices</Button>
 								</>)}
 								<Button size="sm" variant="secondary" className="ms-1" title={form.mode.toString()} onClick={handleOnClickDownload}>다운로드</Button>
+								<UploadButtonView />
 								<Button size="sm" variant={form.mode % 2 ? "success" : "secondary"} className="ms-1" title={form.mode.toString()} onClick={(_: any) => onChange && onChange({ mode: form.mode + 1 })}>모드</Button>
 							</InputGroup>
 						</Col>

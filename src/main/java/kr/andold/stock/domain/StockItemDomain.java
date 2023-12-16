@@ -92,7 +92,8 @@ public class StockItemDomain extends StockItemEntity {
 
 	@Override
 	public String toString() {
-		return Utility.toStringJson(this);
+		return String.format("%s %s", getCode(), getSymbol());
+//		return Utility.toStringJson(this);
 	}
 
 	public static StockItemDomain of(StockItemEntity entity) {
