@@ -1,6 +1,8 @@
 package kr.andold.stock.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import kr.andold.stock.domain.StockDividendDomain;
+import kr.andold.stock.domain.StockDividendHistoryDomain;
+import kr.andold.stock.domain.StockPriceDomain;
 import kr.andold.stock.entity.StockDividendEntity;
 import kr.andold.stock.param.StockDividendParam;
 import kr.andold.stock.repository.StockRepository;
@@ -19,10 +23,103 @@ import lombok.extern.slf4j.Slf4j;
 public class StockService {
 
 	@Autowired
+	private StockDividendService stockDividendService;
+	@Autowired
+	private StockDividendHistoryService stockDividendHistoryService;
+	@Autowired
+	private StockPriceService stockPriceService;
+	@Autowired
 	private StockRepository repository;
 
-	@Autowired
-	private StockCrawlerService stockCrawlerService;
+	public String compile() {
+		Calendar calendar = Calendar.getInstance();
+		List<StockDividendHistoryDomain> histories = stockDividendHistoryService.search(null);
+		List<StockPriceDomain> prices = stockPriceService.search(null);
+		List<StockDividendDomain> dividends = stockDividendService.search(null);
+		Map<String, StockDividendDomain> map = stockDividendService.makeMap(dividends);
+		for (StockDividendDomain dividend : dividends) {
+			dividend.setDividend(null);
+			dividend.setDividend1YAgo(null);
+			dividend.setDividend2YAgo(null);
+			dividend.setDividend3YAgo(null);
+		}
+		for (StockPriceDomain price : prices) {
+			Date base = price.getBase();
+			String code = price.getCode();
+			StockDividendDomain dividend = map.get(code);
+			if (dividend == null) {
+				dividend = StockDividendDomain.builder().code(code).build();
+				map.put(code, dividend);
+			}
+			Date baseMonth = dividend.getBaseMonth();
+			if (baseMonth == null || baseMonth.before(base)) {
+				dividend.setBaseMonth(base);
+				dividend.setCurrentPrice(price.getClosing());
+			}
+		}
+		for (StockDividendHistoryDomain history : histories) {
+			Date base = history.getBase();
+			calendar.setTime(base);
+			int index = LocalDate.now().getYear() - calendar.get(Calendar.YEAR);
+			String code = history.getCode();
+			Integer value = history.getDividend();
+			if (value == null || value == 0) {
+				continue;
+			}
+
+			StockDividendDomain dividend = map.get(code);
+			if (dividend == null) {
+				dividend = StockDividendDomain.builder().code(code).build();
+				map.put(code, dividend);
+			}
+			Integer currentPrice = dividend.getCurrentPrice();
+			switch (index) {
+			case 0:
+				if (dividend.getDividend() == null) {
+					dividend.setDividend(value);
+				} else {
+					dividend.setDividend(value + dividend.getDividend());
+				}
+				if (currentPrice == null) {
+					log.warn("{}", dividend);
+					break;
+				}
+				dividend.setPriceEarningsRatio(dividend.getDividend() * 100f / currentPrice);
+				break;
+			case 1:
+				if (dividend.getDividend1YAgo() == null) {
+					dividend.setDividend1YAgo(value);
+				} else {
+					dividend.setDividend1YAgo(value + dividend.getDividend1YAgo());
+				}
+				if (currentPrice == null) {
+					log.warn("{}", dividend);
+					break;
+				}
+				if (dividend.getDividend() == null) {
+					dividend.setPriceEarningsRatio(dividend.getDividend1YAgo() * 100f / currentPrice);
+				}
+				break;
+			case 2:
+				if (dividend.getDividend2YAgo() == null) {
+					dividend.setDividend2YAgo(value);
+				} else {
+					dividend.setDividend2YAgo(value + dividend.getDividend2YAgo());
+				}
+				break;
+			case 3:
+				if (dividend.getDividend3YAgo() == null) {
+					dividend.setDividend3YAgo(value);
+				} else {
+					dividend.setDividend3YAgo(value + dividend.getDividend3YAgo());
+				}
+				break;
+			}
+		}
+		
+		String result = stockDividendService.put(dividends);
+		return result;
+	}
 
 	public List<StockDividendDomain> search(StockDividendDomain param) {
 		List<StockDividendEntity> entities = repository.findAll();
@@ -137,10 +234,6 @@ public class StockService {
 	public String download() {
 		List<StockDividendDomain> domains = search(StockDividendDomain.builder().build());
 		return Utility.toStringJsonLine(domains);
-	}
-
-	public void scheduleTaskEveryDays() {
-		stockCrawlerService.scheduleTaskEveryDays();
 	}
 
 }

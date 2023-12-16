@@ -46,6 +46,9 @@ class StockStore {
 		request.append("file", file);
 		repository.parseFile(request, onSuccess, onError, element);
 	}
+	compile(request?: any, onSuccess?: any, onError?: any, element?: any) {
+		repository.compile(request, onSuccess, onError, element);
+	}
 	crawl(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawl(request, onSuccess, onError, element);
 	}

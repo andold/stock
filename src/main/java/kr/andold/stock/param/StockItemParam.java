@@ -17,6 +17,7 @@ import lombok.experimental.SuperBuilder;
 @Data
 public class StockItemParam extends StockItemDomain {
 	private String keyword;
+	private Float priceEarningsRatio;
 
 	private List<StockItemDomain> creates;
 	private List<StockItemDomain> duplicates;

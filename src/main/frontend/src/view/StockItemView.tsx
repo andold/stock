@@ -11,11 +11,33 @@ import moment from "moment";
 //	StockItemView.tsx
 export default ((props: any) => {
 	const form = props.form as StockDividendFormModel;
-	const onChange = props.onChange;
+	const { priceEarningsRatio, onChange} = props;
 
 	const gridRef = useRef<AgGridReact>();
 	const [rowData, setRowData] = useState<StockItemModel[]>([]);
 	const [columnDefs, setColumnDefs] = useState([]);
+
+	useEffect(() => {
+		const comlumDefs = store.columnDefsItem(["id", "symbol", "code", "etf", "type", "volumeOfListedShares", "baseMonth", "dividendCycle", "ipoDate", "sigma", "operate", "created",], onChange);
+		setColumnDefs(comlumDefs);
+		const request = {
+			keyword: form.keyword,
+			start: null,
+			end: null,
+			priceEarningsRatio: priceEarningsRatio,
+		};
+		if (form.keyword?.length > 0) {
+			request.start = form.start?.format("YYYY-MM-DDTHH:mm:ss.SSSZZ");
+			request.end = form.end?.format("YYYY-MM-DDTHH:mm:ss.SSSZZ");
+		} else {
+		}
+		store.searchItem(request, (_: any, items: StockItemModel[]) => {
+			whenItemChange(items);
+		});
+		return function() { setRowData([]); };
+	}, [form, priceEarningsRatio]);
+	useEffect(() => {
+	}, [form]);
 
 	function whenItemChange(items: StockItemModel[]) {
 		const request = {
@@ -49,27 +71,6 @@ export default ((props: any) => {
 			setRowData(items);
 		});
 	}
-	useEffect(() => {
-		const comlumDefs = store.columnDefsItem(["id", "symbol", "code", "etf", "type", "volumeOfListedShares", "baseMonth", "dividendCycle", "ipoDate", "sigma", "operate", "created",], onChange);
-		setColumnDefs(comlumDefs);
-		const request = {
-			keyword: form.keyword,
-			start: null,
-			end: null,
-		};
-		if (form.keyword?.length > 0) {
-			request.start = form.start?.format("YYYY-MM-DDTHH:mm:ss.SSSZZ");
-			request.end = form.end?.format("YYYY-MM-DDTHH:mm:ss.SSSZZ");
-		} else {
-		}
-		store.searchItem(request, (_: any, items: StockItemModel[]) => {
-			whenItemChange(items);
-		});
-		return function() { setRowData([]); };
-	}, []);
-	useEffect(() => {
-		gridRef?.current?.api?.onFilterChanged();
-	}, [form]);
 
 	function doesExternalFilterPass(node: any) {
 		return (!form.etf && !form.kospi && !form.kosdaq)

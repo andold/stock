@@ -34,6 +34,17 @@ public class ApiStockController {
 	}
 
 	@ResponseBody
+	@GetMapping(value = "compile")
+	public String compile() {
+		log.info("{} compile()", Utility.indentStart());
+
+		String result = service.compile();
+
+		log.info("{} {} - compile()", Utility.indentEnd(), result);
+		return result;
+	}
+
+	@ResponseBody
 	@GetMapping(value = "crawl")
 	public StockParserResult crawl() {
 		log.info("{} crawl()", Utility.indentStart());

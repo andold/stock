@@ -16,7 +16,7 @@ export default ((props: any) => {
 	const { } = props;
 
 	const [form, setForm] = useState<StockDividendFormModel>({
-		mode: 1,
+		mode: 0,
 
 		filterDividendPayoutRatio: false,
 		filterSigma: false,
@@ -33,7 +33,15 @@ export default ((props: any) => {
 
 	const modes = [
 		<StockItemView
+			key={0}
 			form={form}
+			priceEarningsRatio={4}
+			onChange={(params: any) => setForm({ ...form, ...params, })}
+		/>,
+		<StockItemView
+			key={1}
+			form={form}
+			priceEarningsRatio={null}
 			onChange={(params: any) => setForm({ ...form, ...params, })}
 		/>,
 	];
@@ -70,6 +78,13 @@ function Header(props: any) {
 	function handleOnClickDownload() {
 		const yyyymmdd = moment().format("YYYYMMDD");
 		store.download({ filename: `stock-divedend-${yyyymmdd}.json`, });
+	}
+	function handleOnClickCompile() {
+		setSpinner(spinner + 1);
+		store.compile(null, () => {
+			setSpinner(spinner - 1);
+			onChange && onChange({});
+		});
 	}
 	function handleOnClickCrawl() {
 		setSpinner(spinner + 1);
@@ -176,6 +191,7 @@ function Header(props: any) {
 								}</Button>
 								{(spinner > 0) && <Spinner animation="grow" variant="warning" className="ms-1 align-middle" title={spinner.toLocaleString()} />}
 								{!collapsed && (<>
+									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCompile}>Compile</Button>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawl}>Crawl All As Start</Button>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlItems}>Crawl Items</Button>
 									<Button size="sm" variant="secondary" className="ms-1" style={{ display: "none" }} onClick={handleOnClickCrawlItemDetails}>Crawl Item Details</Button>
@@ -184,7 +200,7 @@ function Header(props: any) {
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlPrices}>Crawl Prices</Button>
 								</>)}
 								<Button size="sm" variant="secondary" className="ms-1" title={form.mode.toString()} onClick={handleOnClickDownload}>다운로드</Button>
-								<Button size="sm" variant="secondary" className="ms-1" title={form.mode.toString()} onClick={(_: any) => onChange && onChange({ mode: form.mode + 1 })}>모드</Button>
+								<Button size="sm" variant={form.mode % 2 ? "success" : "secondary"} className="ms-1" title={form.mode.toString()} onClick={(_: any) => onChange && onChange({ mode: form.mode + 1 })}>모드</Button>
 							</InputGroup>
 						</Col>
 					</Offcanvas.Body>

@@ -14,7 +14,7 @@ import kr.andold.stock.param.StockItemParam;
 public interface StockItemRepository extends JpaRepository<StockItemEntity, Integer> {
 	final String QUERY_SEARCH_PARAM	=	""
 			+ "	SELECT	x"
-			+ "		FROM	StockItemEntity x"
+			+ "		FROM	StockItemEntity x	LEFT JOIN StockDividendEntity	y ON y.code	=	x.code"
 			//	keyword
 			+ "		WHERE	("
 			+ "				:#{#param.keyword}	IS NULL"
@@ -38,6 +38,14 @@ public interface StockItemRepository extends JpaRepository<StockItemEntity, Inte
 			+ "		)	AND	("
 			+ "				:#{#param.updated}	IS NULL"
 			+ "			OR	x.updated	>=	:#{#param.updated}"
+			//	priceEarningsRatio
+			+ "		)	AND	("
+			+ "				:#{#param.priceEarningsRatio}				IS NULL"
+			+ "			OR	y.priceEarningsRatio						>	:#{#param.priceEarningsRatio}"
+			+ "			OR	(y.dividend / y.currentPrice * 100)			>	:#{#param.priceEarningsRatio}"
+			+ "			OR	(y.dividend1YAgo / y.currentPrice * 100)	>	:#{#param.priceEarningsRatio}"
+			+ "			OR	(y.dividend2YAgo / y.currentPrice * 100)	>	:#{#param.priceEarningsRatio}"
+			+ "			OR	(y.dividend3YAgo / y.currentPrice * 100)	>	:#{#param.priceEarningsRatio}"
 			//	flexable
 			+ "		)"
 			;
