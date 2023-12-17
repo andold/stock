@@ -40,7 +40,7 @@ KEYWORD TAB WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 ETF 상세 	 URL 
 	symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*	NEWLINE		//	KODEX 에너지화학[117460] 
 	category=WORD category1=WORD?			NEWLINE		//	섹터/소재 
 	DATE WORD+								NEWLINE		//	2009/10/09 (14년 2개월) 
-	fee=NUMBER								NEWLINE		//	0.45 
+	fee=word								NEWLINE		//	0.45 
 	WORD TAB WORD TAB DATE					NEWLINE		//	andold 	 since 	 2023-11-27 
 	{
 		StockParserService.crawlEtfDetailThread(20231217
