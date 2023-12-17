@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -81,17 +80,6 @@ public class ApiStockController {
 	}
 
 	@ResponseBody
-	@GetMapping(value = "crawl")
-	public StockParserResult crawl() {
-		log.info("{} crawl()", Utility.indentStart());
-
-		StockParserResult result = stockCrawlerService.crawl();
-
-		log.info("{} {} - crawl()", Utility.indentEnd(), result);
-		return result;
-	}
-
-	@ResponseBody
 	@GetMapping(value = "crawl/items")
 	public StockParserResult crawlItems() {
 		log.info("{} crawlItems()", Utility.indentStart());
@@ -110,6 +98,17 @@ public class ApiStockController {
 		StockParserResult result = stockCrawlerService.crawlItemDetails();
 
 		log.info("{} {} - crawlItemDetails()", Utility.indentEnd(), result);
+		return result;
+	}
+
+	@ResponseBody
+	@GetMapping(value = "crawl/item/etf/details")
+	public StockParserResult crawlItemEtfDetails() {
+		log.info("{} crawlItemEtfDetails()", Utility.indentStart());
+
+		StockParserResult result = stockCrawlerService.crawlEtfDetails();
+
+		log.info("{} {} - crawlItemEtfDetails()", Utility.indentEnd(), result);
 		return result;
 	}
 

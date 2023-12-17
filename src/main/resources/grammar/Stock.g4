@@ -28,8 +28,32 @@ stockDocument
 |	searchEtfComMonthlyDividendEtf	// 국내상장 월배당ETF 전체 조회
 |	crawlDividendHistoryEtfThread
 |	extractAllEtfFromNaver
+|	crawlEtfDetailThread	// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
 ;
 
+
+// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
+crawlEtfDetailThread:
+KEYWORD TAB WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 ETF 상세 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS906032V.xml&menuNo=514 
+(
+	KEYWORD TAB code=NUMBER TAB word*		NEWLINE
+	symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*	NEWLINE		//	KODEX 에너지화학[117460] 
+	category=WORD category1=WORD?			NEWLINE		//	섹터/소재 
+	DATE WORD+								NEWLINE		//	2009/10/09 (14년 2개월) 
+	fee=NUMBER								NEWLINE		//	0.45 
+	WORD TAB WORD TAB DATE					NEWLINE		//	andold 	 since 	 2023-11-27 
+	{
+		StockParserService.crawlEtfDetailThread(20231217
+			, $code.text
+			, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
+			, $DATE.text
+			, $category.text, $category1.text
+			, $fee.text
+		);
+	}
+)+
+KEYWORD TAB WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 ETF 상세 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS906032V.xml&menuNo=514 
+;
 
 
 extractAllEtfFromNaver:
@@ -117,10 +141,6 @@ extractlDividendHistory:
 	KEYWORD TAB WORD WORD WORD TAB WORD TAB WORD	NEWLINE		//	KEYWORD 	 일반기업 배당금 내역 	 URL 	 "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285
 	(
 		KEYWORD TAB code=NUMBER TAB word+			NEWLINE		//	KEYWORD 	 000850 	 화천기공 
-		TAB TAB										NEWLINE		//		 	 
-		WORD TAB WORD TAB DATE						NEWLINE		//	andold 	 since 	 2023-11-27 
-		TAB TAB										NEWLINE		//		 	 
-		WORD TAB WORD TAB DATE						NEWLINE		//	andold 	 since 	 2023-11-27 
 		WORD TAB WORD								NEWLINE		//	배정기준일 	 현금배당 
 		WORD TAB WORD								NEWLINE		//	지급일 	 주식 
 		WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE		//	유통(교부)일 	 종목코드 	 종목명 	 시장구분 	 배당구분 	 명의개서대리인 	 주식종류 	 주당배당금 	 주당배당률(일반) 	 주당배당률(차등) 	 액면가 	 결산월 	 
@@ -130,16 +150,13 @@ extractlDividendHistory:
 		) | (
 			base=DATE TAB pay=DATE? TAB DATE? TAB NUMBER TAB symbol=word+ TAB WORD TAB WORD TAB WORD TAB WORD TAB dividend=NUMBER TAB NUMBER? TAB NUMBER TAB NUMBER TAB NUMBER? TAB TAB NUMBER TAB NUMBER TAB		NEWLINE
 					//	2022/12/31 	 2023/04/21 	 	 000850 	 화천기공 	 유가증권시장 	 현금배당 	 국민은행 	 보통주 	 2,500 	 	 50.00 	 0.00 	 	 	 5,000 	 12 	 
-		){
+		) {
 			StockParserService.seibroDividendItem(20231127
 				, $base.text , $pay.text
 				, $code.text , $symbol.text
 				, $dividend.text
 			);
 		})+
-		WORD TAB WORD TAB DATE						NEWLINE		//	andold 	 since 	 2023-11-27 
-		TAB TAB										NEWLINE		//		 	 
-		WORD TAB WORD TAB DATE						NEWLINE		//	andold 	 since 	 2023-11-27 
 		WORD TAB WORD TAB DATE						NEWLINE		//	andold 	 since 	 2023-11-27 
 	)+
 	KEYWORD TAB WORD WORD WORD TAB WORD TAB WORD	NEWLINE		//	KEYWORD 	 일반기업 배당금 내역 	 URL 	 "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285 

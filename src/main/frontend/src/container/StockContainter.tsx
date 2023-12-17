@@ -87,13 +87,6 @@ function Header(props: any) {
 			onChange && onChange({});
 		});
 	}
-	function handleOnClickCrawl() {
-		setSpinner(spinner + 1);
-		store.crawl(null, () => {
-			setSpinner(spinner - 1);
-			onChange && onChange({});
-		});
-	}
 	function handleOnClickCrawlItems() {
 		setSpinner(spinner + 1);
 		store.crawlItems(null, () => {
@@ -108,21 +101,6 @@ function Header(props: any) {
 			onChange && onChange({});
 		});
 	}
-	function handleOnClickCrawlDividendHistory() {
-		setSpinner(spinner + 1);
-		store.searchItem({}, (_: any, items: any[]) => {
-			setSpinner(spinner - 1);
-			items.forEach((item: any) => {
-				setSpinner(spinner + 1);
-				store.crawlDividendHistory(item, (_: any) => {
-					if (spinner == 1) {	// 마지막에서만 재검색
-						onChange && onChange({});
-					}
-					setSpinner(spinner - 1);
-				});
-			});
-		});
-	}
 	function handleOnClickCrawlDividendHistoryEtf() {
 		setSpinner(spinner + 1);
 		store.crawlDividendHistoryEtf({}, (_: any) => {
@@ -135,6 +113,15 @@ function Header(props: any) {
 	function handleOnClickCrawlPrices() {
 		setSpinner(spinner + 1);
 		store.crawlPrices({}, (_: any) => {
+			if (spinner == 1) {	// 마지막에서만 재검색
+				onChange && onChange({});
+			}
+			setSpinner(spinner - 1);
+		});
+	}
+	function handleOnClickCrawlItemEtfDetails() {
+		setSpinner(spinner + 1);
+		store.crawlItemEtfDetails({}, (_: any) => {
 			if (spinner == 1) {	// 마지막에서만 재검색
 				onChange && onChange({});
 			}
@@ -193,10 +180,9 @@ function Header(props: any) {
 								{(spinner > 0) && <Spinner animation="grow" variant="warning" className="ms-1 align-middle" title={spinner.toLocaleString()} />}
 								{!collapsed && (<>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCompile}>Compile</Button>
-									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawl}>Crawl All As Start</Button>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlItems}>Crawl Items</Button>
+									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlItemEtfDetails}>Crawl Item ETF Details</Button>
 									<Button size="sm" variant="secondary" className="ms-1" style={{ display: "none" }} onClick={handleOnClickCrawlItemDetails}>Crawl Item Details</Button>
-									<Button size="sm" variant="secondary" className="ms-1" style={{ display: "none" }} onClick={handleOnClickCrawlDividendHistory}>Crawl Dividend History</Button>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlDividendHistoryEtf}>Crawl Dividend History ETF</Button>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlPrices}>Crawl Prices</Button>
 								</>)}

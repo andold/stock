@@ -36,6 +36,18 @@ public class StockBaseListener implements StockListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCrawlEtfDetailThread(StockParser.CrawlEtfDetailThreadContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCrawlEtfDetailThread(StockParser.CrawlEtfDetailThreadContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExtractAllEtfFromNaver(StockParser.ExtractAllEtfFromNaverContext ctx) { }
 	/**
 	 * {@inheritDoc}

@@ -30,12 +30,14 @@ public class ScheduledTasks {
 	@Scheduled(cron = "15 30 22 * * SUN")
 	public void scheduleTaskWeekly() {
 		stockCrawlerService.crawlEtfDividendHistories();
+		stockCrawlerService.crawlCompanyDividendHistories();
 	}
 
 	// 매월
 	@Scheduled(cron = "15 30 23 1 * *")
 	public void scheduleTaskMonthly() {
 		stockCrawlerService.crawlItems();
+		stockCrawlerService.crawlEtfDetails();
 		stockCrawlerService.crawlItemDetails();
 	}
 

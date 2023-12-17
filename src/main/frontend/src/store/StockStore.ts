@@ -51,9 +51,6 @@ class StockStore {
 	compile(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.compile(request, onSuccess, onError, element);
 	}
-	crawl(request?: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.crawl(request, onSuccess, onError, element);
-	}
 	crawlItems(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlItems(request, onSuccess, onError, element);
 	}
@@ -65,6 +62,9 @@ class StockStore {
 	}
 	crawlPrices(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlPrices(request, onSuccess, onError, element);
+	}
+	crawlItemEtfDetails(request?: any, onSuccess?: any, onError?: any, element?: any) {
+		repository.crawlItemEtfDetails(request, onSuccess, onError, element);
 	}
 	// 
 

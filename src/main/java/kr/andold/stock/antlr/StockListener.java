@@ -26,6 +26,16 @@ public interface StockListener extends ParseTreeListener {
 	 */
 	void exitStockDocument(StockParser.StockDocumentContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link StockParser#crawlEtfDetailThread}.
+	 * @param ctx the parse tree
+	 */
+	void enterCrawlEtfDetailThread(StockParser.CrawlEtfDetailThreadContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link StockParser#crawlEtfDetailThread}.
+	 * @param ctx the parse tree
+	 */
+	void exitCrawlEtfDetailThread(StockParser.CrawlEtfDetailThreadContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link StockParser#extractAllEtfFromNaver}.
 	 * @param ctx the parse tree
 	 */
