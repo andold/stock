@@ -65,7 +65,7 @@ public class CrawlPriceThread implements Callable<StockParserResult> {
 			}
 			sb.append(MARK_END_POINT);
 			String text = new String(sb);
-			StockParserResult resultDividendHistoryEtf = StockParserService.parse(text, false);
+			StockParserResult resultDividendHistoryEtf = StockParserService.parse(text, debug);
 			result.addAll(resultDividendHistoryEtf);
 		}
 		driver.quit();

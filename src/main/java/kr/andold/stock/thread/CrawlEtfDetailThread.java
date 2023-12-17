@@ -86,7 +86,7 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 			}
 			sb.append(MARK_END_POINT);
 			String text = new String(sb);
-			StockParserResult resultDividendHistoryEtf = StockParserService.parse(text, false);
+			StockParserResult resultDividendHistoryEtf = StockParserService.parse(text, debug);
 			result.addAll(resultDividendHistoryEtf);
 			log.info("{} 수정되어야해 『{}』 CrawlEtfDetailThread(#{}) - {}", Utility.indentMiddle(), resultDividendHistoryEtf, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		}

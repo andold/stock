@@ -3,41 +3,6 @@
 	<property name="LOG_PATH" value="E:/logs/stock" />
 	<statusListener class="ch.qos.logback.core.status.NopStatusListener" />
 
-	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
-		<encoder>
-			<Pattern>L%d{yyyy-MM-dd HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
-		</encoder>
-	</appender>
-	<appender name="console-info" class="ch.qos.logback.core.ConsoleAppender">
-		<filter class="ch.qos.logback.classic.filter.LevelFilter">
-			<level>INFO</level>
-			<onMatch>ACCEPT</onMatch>
-			<onMismatch>DENY</onMismatch>
-		</filter>
-		<encoder>
-			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
-		</encoder>
-	</appender>
-	<appender name="console-warn" class="ch.qos.logback.core.ConsoleAppender">
-		<filter class="ch.qos.logback.classic.filter.LevelFilter">
-			<level>WARN</level>
-			<onMatch>ACCEPT</onMatch>
-			<onMismatch>DENY</onMismatch>
-		</filter>
-		<encoder>
-			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
-		</encoder>
-	</appender>
-	<appender name="console-error" class="ch.qos.logback.core.ConsoleAppender">
-		<filter class="ch.qos.logback.classic.filter.LevelFilter">
-			<level>ERROR</level>
-			<onMatch>ACCEPT</onMatch>
-			<onMismatch>DENY</onMismatch>
-		</filter>
-		<encoder>
-			<Pattern>T%d{yyyy-MM-dd HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
-		</encoder>
-	</appender>
 	<appender name="general" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<File>${LOG_PATH}/general.log</File>
 		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
@@ -98,18 +63,19 @@
 	</appender>
 
 	<logger name="kr.andold.stock.controller" additivity="false" level="info">
-		<appender-ref ref="to-user" />
-		<appender-ref ref="stock" />
-		<appender-ref ref="error" />
-	</logger>
-	<logger name="kr.andold.stock.service" additivity="false" level="info">
-		<appender-ref ref="to-user" />
 		<appender-ref ref="stock" />
 		<appender-ref ref="error" />
 	</logger>
 	<logger name="kr.andold.stock.repository" additivity="false" level="info">
-		<appender-ref ref="to-user" />
 		<appender-ref ref="repository" />
+		<appender-ref ref="error" />
+	</logger>
+	<logger name="kr.andold.stock.service" additivity="false" level="info">
+		<appender-ref ref="stock" />
+		<appender-ref ref="error" />
+	</logger>
+	<logger name="kr.andold.stock.thread" additivity="false" level="debug">
+		<appender-ref ref="stock" />
 		<appender-ref ref="error" />
 	</logger>
 
@@ -122,13 +88,9 @@
 		<appender-ref ref="general" />
 		<appender-ref ref="error" />
 	</logger>
-	<logger name="org.thymeleaf" additivity="false" level="warn">
-		<appender-ref ref="general" />
-		<appender-ref ref="error" />
-	</logger>
 
 	<root>
-		<level value="warn" />
+		<level value="info" />
 		<appender-ref ref="stock" />
 		<appender-ref ref="general" />
 		<appender-ref ref="error" />
