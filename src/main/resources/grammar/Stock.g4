@@ -37,17 +37,17 @@ crawlEtfDetailThread:
 KEYWORD TAB WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 ETF 상세 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS906032V.xml&menuNo=514 
 (
 	KEYWORD TAB code=NUMBER TAB word*		NEWLINE
-	symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*	NEWLINE		//	KODEX 에너지화학[117460] 
-	category=WORD category1=WORD?			NEWLINE		//	섹터/소재 
-	DATE WORD+								NEWLINE		//	2009/10/09 (14년 2개월) 
+	symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*					NEWLINE		//	KODEX 에너지화학[117460] 
+	category=word category1=word? category2=word? category3=word? category4=word? category5=word? category6=word? category7=word*	NEWLINE		//	섹터/소재 
+	ipo=DATE WORD+							NEWLINE		//	2009/10/09 (14년 2개월) 
 	fee=word								NEWLINE		//	0.45 
 	WORD TAB WORD TAB DATE					NEWLINE		//	andold 	 since 	 2023-11-27 
 	{
 		StockParserService.crawlEtfDetailThread(20231217
 			, $code.text
 			, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
-			, $DATE.text
-			, $category.text, $category1.text
+			, $category.text, $category1.text, $category2.text, $category3.text, $category4.text, $category5.text, $category6.text, $category7.text
+			, $ipo.text
 			, $fee.text
 		);
 	}
