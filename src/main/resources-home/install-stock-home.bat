@@ -1,4 +1,4 @@
-SET  SOURCE_PATH=C:\src\github\stock
+SET  SOURCE_PATH=E:\src\github\stock
 SET  APACHE_TOMCAT=tomcat10
 SET  CURRENT_PATH=%~dp0
 SET  CURRENT_FILENAME=%~nx0
@@ -14,7 +14,7 @@ PUSHD %CURRENT_PATH%
 CD  %SOURCE_PATH%
 git stash
 git clean -f
-git  pull https://andold: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@github.com/andold/stock.git
+git  pull https://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@github.com/andold/stock.git
 git  log --pretty=format:"%%h - %%an, %%ai:%%ar : %%s" -8
 
 DEL /Q %SOURCE_PATH%\src\main\java\kr\andold\stock\antlr\*
