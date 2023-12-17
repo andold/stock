@@ -301,7 +301,7 @@ public class StockParser extends Parser {
 		public Token category;
 		public Token category1;
 		public Token DATE;
-		public Token fee;
+		public WordContext fee;
 		public List<TerminalNode> KEYWORD() { return getTokens(StockParser.KEYWORD); }
 		public TerminalNode KEYWORD(int i) {
 			return getToken(StockParser.KEYWORD, i);
@@ -520,7 +520,7 @@ public class StockParser extends Parser {
 					setState(128);
 					match(NEWLINE);
 					setState(129);
-					((CrawlEtfDetailThreadContext)_localctx).fee = match(NUMBER);
+					((CrawlEtfDetailThreadContext)_localctx).fee = word();
 					setState(130);
 					match(NEWLINE);
 					setState(131);
@@ -541,7 +541,7 @@ public class StockParser extends Parser {
 								, (((CrawlEtfDetailThreadContext)_localctx).symbol!=null?_input.getText(((CrawlEtfDetailThreadContext)_localctx).symbol.start,((CrawlEtfDetailThreadContext)_localctx).symbol.stop):null), (((CrawlEtfDetailThreadContext)_localctx).symbol1!=null?_input.getText(((CrawlEtfDetailThreadContext)_localctx).symbol1.start,((CrawlEtfDetailThreadContext)_localctx).symbol1.stop):null), (((CrawlEtfDetailThreadContext)_localctx).symbol2!=null?_input.getText(((CrawlEtfDetailThreadContext)_localctx).symbol2.start,((CrawlEtfDetailThreadContext)_localctx).symbol2.stop):null), (((CrawlEtfDetailThreadContext)_localctx).symbol3!=null?_input.getText(((CrawlEtfDetailThreadContext)_localctx).symbol3.start,((CrawlEtfDetailThreadContext)_localctx).symbol3.stop):null), (((CrawlEtfDetailThreadContext)_localctx).symbol4!=null?_input.getText(((CrawlEtfDetailThreadContext)_localctx).symbol4.start,((CrawlEtfDetailThreadContext)_localctx).symbol4.stop):null), (((CrawlEtfDetailThreadContext)_localctx).symbol5!=null?_input.getText(((CrawlEtfDetailThreadContext)_localctx).symbol5.start,((CrawlEtfDetailThreadContext)_localctx).symbol5.stop):null), (((CrawlEtfDetailThreadContext)_localctx).symbol6!=null?_input.getText(((CrawlEtfDetailThreadContext)_localctx).symbol6.start,((CrawlEtfDetailThreadContext)_localctx).symbol6.stop):null), (((CrawlEtfDetailThreadContext)_localctx).symbol7!=null?_input.getText(((CrawlEtfDetailThreadContext)_localctx).symbol7.start,((CrawlEtfDetailThreadContext)_localctx).symbol7.stop):null)
 								, (((CrawlEtfDetailThreadContext)_localctx).DATE!=null?((CrawlEtfDetailThreadContext)_localctx).DATE.getText():null)
 								, (((CrawlEtfDetailThreadContext)_localctx).category!=null?((CrawlEtfDetailThreadContext)_localctx).category.getText():null), (((CrawlEtfDetailThreadContext)_localctx).category1!=null?((CrawlEtfDetailThreadContext)_localctx).category1.getText():null)
-								, (((CrawlEtfDetailThreadContext)_localctx).fee!=null?((CrawlEtfDetailThreadContext)_localctx).fee.getText():null)
+								, (((CrawlEtfDetailThreadContext)_localctx).fee!=null?_input.getText(((CrawlEtfDetailThreadContext)_localctx).fee.start,((CrawlEtfDetailThreadContext)_localctx).fee.stop):null)
 							);
 						
 					}
@@ -6416,7 +6416,7 @@ public class StockParser extends Parser {
 		"z|\u0005\u0006\u0000\u0000{}\u0005\n\u0000\u0000|{\u0001\u0000\u0000\u0000"+
 		"}~\u0001\u0000\u0000\u0000~|\u0001\u0000\u0000\u0000~\u007f\u0001\u0000"+
 		"\u0000\u0000\u007f\u0080\u0001\u0000\u0000\u0000\u0080\u0081\u0005\u0004"+
-		"\u0000\u0000\u0081\u0082\u0005\b\u0000\u0000\u0082\u0083\u0005\u0004\u0000"+
+		"\u0000\u0000\u0081\u0082\u00032\u0019\u0000\u0082\u0083\u0005\u0004\u0000"+
 		"\u0000\u0083\u0084\u0005\n\u0000\u0000\u0084\u0085\u0005\u0003\u0000\u0000"+
 		"\u0085\u0086\u0005\n\u0000\u0000\u0086\u0087\u0005\u0003\u0000\u0000\u0087"+
 		"\u0088\u0005\u0006\u0000\u0000\u0088\u0089\u0005\u0004\u0000\u0000\u0089"+
