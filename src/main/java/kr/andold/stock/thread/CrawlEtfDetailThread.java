@@ -70,7 +70,7 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 
 				String code = item.getCode();
 				if (code == null || code.isBlank() || item.getEtf() == null || !item.getEtf()) {
-					log.info("{} {}/{} 대상아님 『{}』 CrawlCompanyDividendHistoryThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
+					log.debug("{} {}/{} 대상아님 『{}』 CrawlCompanyDividendHistoryThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
 				}
@@ -88,14 +88,15 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 			String text = new String(sb);
 			StockParserResult resultDividendHistoryEtf = StockParserService.parse(text, false);
 			result.addAll(resultDividendHistoryEtf);
+			log.info("{} 수정되어야해 『{}』 CrawlEtfDetailThread(#{}) - {}", Utility.indentMiddle(), resultDividendHistoryEtf, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		}
 		driver.quit();
-		log.info("{} 『{}』 CrawlEtfDetailThread(#{}) - {}", Utility.indentEnd(), result, Utility.size(items), Utility.toStringPastTimeReadable(started));
+		log.info("{} {} CrawlEtfDetailThread(#{}) - {}", Utility.indentMiddle(), result, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
 	private String extract(StockItemDomain item) {
-		log.info("{} CrawlEtfDetailThread.extract({})", Utility.indentStart(), item);
+		log.debug("{} CrawlEtfDetailThread.extract({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
 		try {
@@ -122,7 +123,7 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 			if (resultSearch.size() == 0) {
 				driver.switchTo().defaultContent();
 				popupCloseIconElement.click();
-				log.info("{} #{} 없는 종목 『{}』 CrawlEtfDividendHistoryThread() - {}", Utility.indentEnd(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
+				log.debug("{} #{} 없는 종목 『{}』 CrawlEtfDividendHistoryThread() - {}", Utility.indentEnd(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
 				return "";
 			} else if (resultSearch.size() == 1) {
 				driver.findElement(By.xpath(xpathSearchResult)).click();
@@ -133,7 +134,7 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 			} else {
 				driver.switchTo().defaultContent();
 				popupCloseIconElement.click();
-				log.info("{} #{} 모호한 검색 결과 『{}』 CrawlEtfDividendHistoryThread() - {}", Utility.indentEnd(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
+				log.debug("{} #{} 모호한 검색 결과 『{}』 CrawlEtfDividendHistoryThread() - {}", Utility.indentEnd(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
 				return "";
 			}
 
@@ -155,13 +156,13 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 			sb.append(MARK_ANDOLD_SINCE);
 			String result = new String(sb);
 
-			log.info("{} #{} 『{}』 CrawlEtfDetailThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
+			log.debug("{} #{} 『{}』 CrawlEtfDetailThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
 		}
 
-		log.info("{} #{} 『{}』 CrawlEtfDetailThread.extract(#{}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
+		log.debug("{} #{} 『{}』 CrawlEtfDetailThread.extract(#{}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
 		return "";
 	}
 
