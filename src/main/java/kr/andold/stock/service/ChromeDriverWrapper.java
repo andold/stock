@@ -30,6 +30,24 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		throw previous;
 	}
 
+	public WebElement findElement(By xpath, String mark, int milli) throws Exception {
+		Exception previous = null;
+		while (milli > 0) {
+			try {
+				WebElement e = super.findElement(xpath);
+				String text = e.getText();
+				if (!mark.contentEquals(text)) {
+					return  e;
+				}
+			} catch (Exception e) {
+				previous = e;
+			}
+			Utility.sleep(PAUSE);
+			milli -= PAUSE;
+		}
+		throw previous;
+	}
+
 	public List<WebElement> findElements(By xpath, int milli) throws Exception {
 		List<WebElement> elements = null;
 		while (milli > 0) {

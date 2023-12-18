@@ -28,6 +28,8 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 	private static final Boolean debug = StockCrawlerService.debug;
 	private static final String NEWLINE = "\n";
 
+	private String previousSymbol = "andold";
+
 	private ConcurrentLinkedQueue<StockItemDomain> items;
 	private ChromeDriverWrapper driver;
 	private WebElement symbolSearchElement;
@@ -112,9 +114,12 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 			inputSearchElement.clear();
 			inputSearchElement.sendKeys("andold"); // 코드 입력
 			searchSymbolIconElement.click();
+			Thread.sleep(100);
+
 			inputSearchElement.clear();
 			inputSearchElement.sendKeys(code); // 코드 입력
 			searchSymbolIconElement.click();
+			Thread.sleep(100);
 
 			String xpathSearchResult = "//ul[@id='contentsList']/li/a";
 			List<WebElement> resultSearch = driver.findElements(By.xpath(xpathSearchResult), 4000);
@@ -126,7 +131,7 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 				log.debug("{} #{} 없는 종목 『{}』 CrawlEtfDividendHistoryThread() - {}", Utility.indentEnd(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
 				return "";
 			} else if (resultSearch.size() == 1) {
-				driver.findElement(By.xpath(xpathSearchResult)).click();
+				driver.findElement(By.xpath(xpathSearchResult), 2000).click();
 			} else if (!driver.isEmpty(By.xpath(oneXpathCandidate1))) {
 				driver.clickIfExist(By.xpath(oneXpathCandidate1));
 			} else if (!driver.isEmpty(By.xpath(oneXpathCandidate2))) {
@@ -137,6 +142,7 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 				log.debug("{} #{} 모호한 검색 결과 『{}』 CrawlEtfDividendHistoryThread() - {}", Utility.indentEnd(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
 				return "";
 			}
+			Thread.sleep(100);
 
 			driver.switchTo().defaultContent();
 			searchElement.click();
@@ -144,6 +150,8 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 
 			StringBuffer sb = new StringBuffer();
 			sb.append(String.format("KEYWORD\t%s\t%s\n", code, symbol));
+			String newSymbol = driver.findElement(By.xpath("//h3[@id='KOR_SECN_NM']"), previousSymbol, 2000).getText();
+			previousSymbol = newSymbol;
 			sb.append(driver.findElement(By.xpath("//h3[@id='KOR_SECN_NM']"), 2000).getText());	// symbol
 			sb.append(NEWLINE);
 			sb.append(driver.findElement(By.xpath("//div[@id='ETF_BIG_SORT_NM']"), 2000).getText());	// 분류

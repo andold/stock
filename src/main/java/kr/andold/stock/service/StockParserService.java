@@ -103,8 +103,8 @@ public class StockParserService {
 
 	public static void extractAllEtfFromNaver(Integer date, String codeString, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7) {
 		String code = codeString.split("=")[1];
-		StockItemDomain stockItem = new StockItemDomain(symbol, code, null, null, true, null, null, null);
-		stockItem.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
+		StockItemDomain stockItem = new StockItemDomain(null, code, null, null, true, null, null, null);
+//		stockItem.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
 		LIST_STOCK_ITEM.add(stockItem);
 	}
 
@@ -147,8 +147,8 @@ public class StockParserService {
 
 	// 국내상장 월배당ETF 전체 조회
 	public static void searchEtfComMonthlyDividendEtfItem(Integer date, String code, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7, String pay) {
-		StockItemDomain stockItem = new StockItemDomain(symbol, code, "월배당", null, true, "KOSPI", null, null);
-		stockItem.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
+		StockItemDomain stockItem = new StockItemDomain(null, code, "월배당", null, true, "KOSPI", null, null);
+//		stockItem.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
 		LIST_STOCK_ITEM.add(stockItem);
 
 		log.trace("{} searchEtfComMonthlyDividendEtfItem(...) - {}", Utility.indentMiddle(), stockItem);
@@ -220,8 +220,8 @@ public class StockParserService {
 
 	// 국내상장 월배당ETF 한항목 조회
 	public static void searchEtfComMonthlyDividendItem(Integer date, String code, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7, String pay) {
-		StockItemDomain stockItem = new StockItemDomain(symbol, code, "월배당", null, true, "KOSPI", null, null);
-		stockItem.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
+		StockItemDomain stockItem = new StockItemDomain(null, code, "월배당", null, true, "KOSPI", null, null);
+//		stockItem.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
 		LIST_STOCK_ITEM.add(stockItem);
 
 		log.trace("{} searchEtfComMonthlyDividendItem(...) - {}", Utility.indentMiddle(), stockItem);
@@ -304,8 +304,8 @@ public class StockParserService {
 
 	// 최근 분배금 나온 국내ETF
 	public static void searchEtfComItem(Integer date, String code, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7, String base, String pay, String dividend) {
-		StockItemDomain stockItem = new StockItemDomain(symbol, code, null, null, true, "KOSPI", null, null);
-		stockItem.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
+		StockItemDomain stockItem = new StockItemDomain(null, code, null, null, true, "KOSPI", null, null);
+//		stockItem.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
 		LIST_STOCK_ITEM.add(stockItem);
 
 		StockDividendHistoryDomain domain = new StockDividendHistoryDomain(code, base, pay, dividend);
@@ -329,8 +329,8 @@ public class StockParserService {
 		LIST_STOCK_DIVIDEND.add(dividend);
 
 		// stock item
-		StockItemDomain item = new StockItemDomain(title, code, null, null, false, null, null, null);
-		item.setSymbol(title, title1, title2, title3, title4, title5, title6, title7);
+		StockItemDomain item = new StockItemDomain(null, code, null, null, false, null, null, null);
+//		item.setSymbol(title, title1, title2, title3, title4, title5, title6, title7);
 		LIST_STOCK_ITEM.add(item);
 
 		log.trace("{} naverStockItem(...) - {}", Utility.indentMiddle(), dividend);
