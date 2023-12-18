@@ -85,6 +85,12 @@ public class StockParserService {
 
 	}
 
+	// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당순위
+	public static void crawlCompanyTopDividend(Integer date
+			, String code) {
+		LIST_STOCK_ITEM.add(StockItemDomain.builder().code(code).build());
+	}
+
 	// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
 	public static void crawlEtfDetailThread(Integer mark, String code
 			, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7
@@ -104,7 +110,6 @@ public class StockParserService {
 	public static void extractAllEtfFromNaver(Integer date, String codeString, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7) {
 		String code = codeString.split("=")[1];
 		StockItemDomain stockItem = new StockItemDomain(null, code, null, null, true, null, null, null);
-//		stockItem.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
 		LIST_STOCK_ITEM.add(stockItem);
 	}
 

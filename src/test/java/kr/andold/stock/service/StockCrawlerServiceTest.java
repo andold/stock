@@ -48,4 +48,10 @@ public class StockCrawlerServiceTest {
 		log.info("{}", result);
 	}
 
+	@Test
+	public void testCrawlCompanyTopDividend() {
+		StockParserResult result = service.crawlCompanyTopDividend();
+		log.info("{}", result);
+	}
+
 }

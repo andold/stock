@@ -42,13 +42,22 @@ export default ((props: any) => {
 		<StockItemView
 			key={1}
 			form={form}
+			priceEarningsRatio={2}
+			onChange={(params: any) => setForm({ ...form, ...params, })}
+		/>,
+		<StockItemView
+			key={2}
+			form={form}
+			priceEarningsRatio={1}
+			onChange={(params: any) => setForm({ ...form, ...params, })}
+		/>,
+		<StockItemView
+			key={3}
+			form={form}
 			priceEarningsRatio={null}
 			onChange={(params: any) => setForm({ ...form, ...params, })}
 		/>,
 	];
-
-	useEffect(() => {
-	}, [form]);
 
 	function handleOnChange(params: any) {
 		setForm({
@@ -128,6 +137,13 @@ function Header(props: any) {
 			setSpinner(spinner - 1);
 		});
 	}
+	function handleOnClickMode(e: any) {
+		if (e.ctrlKey) {
+			onChange && onChange({ mode: form.mode - 1 });
+		} else {
+			onChange && onChange({ mode: form.mode + 1 });
+		}
+	}
 
 	// [false, 'sm', 'md', 'lg', 'xl', 'xxl']
 	const expand = "md";
@@ -188,7 +204,7 @@ function Header(props: any) {
 								</>)}
 								<Button size="sm" variant="secondary" className="ms-1" title={form.mode.toString()} onClick={handleOnClickDownload}>다운로드</Button>
 								<UploadButtonView />
-								<Button size="sm" variant={form.mode % 2 ? "success" : "secondary"} className="ms-1" title={form.mode.toString()} onClick={(_: any) => onChange && onChange({ mode: form.mode + 1 })}>모드</Button>
+								<Button size="sm" variant={form.mode % 2 ? "success" : "secondary"} className="ms-1" title={form.mode.toString()} onClick={(e: any) => handleOnClickMode(e)}>모드</Button>
 							</InputGroup>
 						</Col>
 					</Offcanvas.Body>

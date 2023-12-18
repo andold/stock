@@ -26,6 +26,16 @@ public interface StockListener extends ParseTreeListener {
 	 */
 	void exitStockDocument(StockParser.StockDocumentContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link StockParser#crawlCompanyTopDividend}.
+	 * @param ctx the parse tree
+	 */
+	void enterCrawlCompanyTopDividend(StockParser.CrawlCompanyTopDividendContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link StockParser#crawlCompanyTopDividend}.
+	 * @param ctx the parse tree
+	 */
+	void exitCrawlCompanyTopDividend(StockParser.CrawlCompanyTopDividendContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link StockParser#crawlEtfDetailThread}.
 	 * @param ctx the parse tree
 	 */

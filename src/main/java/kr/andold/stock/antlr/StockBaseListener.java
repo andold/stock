@@ -36,6 +36,18 @@ public class StockBaseListener implements StockListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCrawlCompanyTopDividend(StockParser.CrawlCompanyTopDividendContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCrawlCompanyTopDividend(StockParser.CrawlCompanyTopDividendContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterCrawlEtfDetailThread(StockParser.CrawlEtfDetailThreadContext ctx) { }
 	/**
 	 * {@inheritDoc}

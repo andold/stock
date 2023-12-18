@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.concurrent.Future;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.Select;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -247,6 +249,70 @@ public class StockCrawlerService {
 		return result;
 	}
 
+	public StockParserResult crawlCompanyTopDividend() {
+		log.info("{} crawlCompanyTopDividend()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01042V.xml&menuNo=286";
+		String MARK_START_END_POINT = "KEYWORD\tcrawlCompanyTopDividend\t주식 상위 배당\tURL\t" + URL + "\n";
+		int YEARS = 3;
+
+		StringBuffer sb = new StringBuffer();
+		sb.append(MARK_START_END_POINT);
+		ChromeDriverWrapper driver = StockCrawlerService.defaultChromeDriver();
+		try {
+			driver.navigate().to(URL);
+			driver.findElement(By.xpath("//a[@id='btn_wide']"), 2000).click();
+			driver.findElementIncludeText(By.xpath("//th"), 8000, "결산월");
+
+			new Select(driver.findElement(By.xpath("//select[@id='select_marketKind_input_0']"), 2000)).selectByVisibleText("유가증권시장"); // 시장구분을 유가증권시장
+			for (int cx = LocalDate.now().getYear() - 1, sizex = LocalDate.now().getYear() - YEARS; cx > sizex; cx--) {
+				String year = String.format("%d년", cx);
+				new Select(driver.findElement(By.xpath("//select[@id='selectbox2_input_0']"), 2000)).selectByVisibleText(year); // 2022년
+				String previous = driver.getText(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), 8000, "andold");
+				driver.findElement(By.xpath("//a[@id='group57']"), 2000).click();
+				driver.findElement(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), 8000, previous);
+				for (int cy = 1; cy < 5; cy++) {
+					String pageString = String.format("%d", cy);
+					log.debug("{} {} {} {} - crawlCompanyTopDividend() - {}", Utility.indentMiddle(), "유가증권시장", year, cy, Utility.toStringPastTimeReadable(started));
+					driver.findElementIncludeText(By.xpath("//div[@id='cntsPaging01']//a"), 8000, pageString).click();
+					driver.findElementIncludeTextAndClass(By.xpath("//div[@id='cntsPaging01']//a"), 2000, pageString, "w2pageList_label_selected");
+					WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), 2000);
+					sb.append(driver.extractTextFromTableElement(table));
+					sb.append(MARK_ANDOLD_SINCE);
+				}
+			}
+
+			new Select(driver.findElement(By.xpath("//select[@id='select_marketKind_input_0']"), 2000)).selectByVisibleText("코스닥시장"); // 시장구분을 코스닥시장
+			for (int cx = LocalDate.now().getYear() - 1, sizex = LocalDate.now().getYear() - YEARS; cx > sizex; cx--) {
+				String year = String.format("%d년", cx);
+				new Select(driver.findElement(By.xpath("//select[@id='selectbox2_input_0']"), 2000)).selectByVisibleText(year); // 2022년
+				String previous = driver.getText(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), 8000, "andold");
+				driver.findElement(By.xpath("//a[@id='group57']"), 2000).click();
+				driver.findElement(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), 8000, previous);
+				for (int cy = 1; cy < 5; cy++) {
+					String pageString = String.format("%d", cy);
+					log.debug("{} {} {} {} - crawlCompanyTopDividend() - {}", Utility.indentMiddle(), "코스닥시장", year, cy, Utility.toStringPastTimeReadable(started));
+					driver.findElementIncludeText(By.xpath("//div[@id='cntsPaging01']//a"), 4000, pageString).click();
+					driver.findElementIncludeTextAndClass(By.xpath("//div[@id='cntsPaging01']//a"), 2000, pageString, "w2pageList_label_selected");
+					WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), 2000);
+					sb.append(driver.extractTextFromTableElement(table));
+					sb.append(MARK_ANDOLD_SINCE);
+				}
+			}
+		} catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+		}
+		driver.quit();
+
+		sb.append(MARK_START_END_POINT);
+		String text = new String(sb);
+		StockParserResult result = StockParserService.parse(text, debug);
+
+		log.info("{} {} crawlCompanyTopDividend() - {}", Utility.indentMiddle(), result, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
 	public static String extractTextFromUrl(String link, Map<String, Boolean> map) {
 		log.info("{} extractTextFromUrl({}, #{})", Utility.indentStart(), link, Utility.size(map));
 
@@ -357,7 +423,7 @@ public class StockCrawlerService {
 		options.addArguments("--incognito");
 		options.addArguments("--disable-gpu");
 		options.addArguments("--verbose");
-//		options.addArguments("--headless");
+		options.addArguments("--headless");
 		options.addArguments("--window-size=3840,4320");
 		ChromeDriverWrapper driver = new ChromeDriverWrapper(options);
 		return driver;
