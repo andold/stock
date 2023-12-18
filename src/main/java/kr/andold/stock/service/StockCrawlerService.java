@@ -25,6 +25,7 @@ import kr.andold.stock.domain.StockDividendDomain;
 import kr.andold.stock.domain.StockItemDomain;
 import kr.andold.stock.domain.StockPriceDomain;
 import kr.andold.stock.service.StockParserService.StockParserResult;
+import kr.andold.stock.thread.CrawlCompanyDetailThread;
 import kr.andold.stock.thread.CrawlCompanyDividendHistoryThread;
 import kr.andold.stock.thread.CrawlEtfDetailThread;
 import kr.andold.stock.thread.CrawlEtfDividendHistoryThread;
@@ -402,6 +403,18 @@ public class StockCrawlerService {
 		put(result);
 
 		log.info("{} {} crawlEtfDetails() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
+	// 주식 상세 by KSD 증권정보포털 SEIBro
+	public StockParserResult crawlItemCompanyDetails() {
+		log.info("{} crawlItemCompanyDetails()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		StockParserResult result = CrawlCompanyDetailThread.crawl(stockItemService.search(null));
+		put(result);
+
+		log.info("{} {} crawlItemCompanyDetails() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 

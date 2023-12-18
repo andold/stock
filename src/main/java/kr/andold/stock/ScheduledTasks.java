@@ -29,16 +29,22 @@ public class ScheduledTasks {
 	// 매주
 	@Scheduled(cron = "15 30 22 * * SUN")
 	public void scheduleTaskWeekly() {
-		stockCrawlerService.crawlEtfDividendHistories();
-		stockCrawlerService.crawlCompanyDividendHistories();
+		stockCrawlerService.crawlEtfDividendHistories();	//	ETF 배당 이력
+		stockCrawlerService.crawlCompanyDividendHistories();	//	기업주식 배당 이력
 	}
 
 	// 매월
 	@Scheduled(cron = "15 30 23 1 * *")
 	public void scheduleTaskMonthly() {
 		stockCrawlerService.crawlItems();
-		stockCrawlerService.crawlEtfDetails();
-		stockCrawlerService.crawlItemDetails();
+		stockCrawlerService.crawlItemCompanyDividendTop();	// 기업 배당 상위
+		stockCrawlerService.crawlEtfDetails();	//	ETF 상세
+		stockCrawlerService.crawlItemCompanyDetails();	//	기업주식 상세
+	}
+
+	// 매분기
+	@Scheduled(cron = "15 30 20 1 1,4,7,10 *")
+	public void scheduleTaskQuarter() {
 	}
 
 	// 매년

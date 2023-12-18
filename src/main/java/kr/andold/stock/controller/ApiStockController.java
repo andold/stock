@@ -113,6 +113,17 @@ public class ApiStockController {
 	}
 
 	@ResponseBody
+	@GetMapping(value = "crawl/item/company/details")
+	public StockParserResult crawlItemCompanyDetails() {
+		log.info("{} crawlItemCompanyDetails()", Utility.indentStart());
+
+		StockParserResult result = stockCrawlerService.crawlItemCompanyDetails();
+
+		log.info("{} {} - crawlItemCompanyDetails()", Utility.indentEnd(), result);
+		return result;
+	}
+
+	@ResponseBody
 	@GetMapping(value = "crawl/item/company/dividend/top")
 	public StockParserResult crawlCompanyDividendTop() {
 		log.info("{} crawlCompanyDividendTop()", Utility.indentStart());

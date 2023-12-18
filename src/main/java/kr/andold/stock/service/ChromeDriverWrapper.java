@@ -239,5 +239,19 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		return value;
 	}
 
+	public void waitUntilIsDisplayed(By xpath, boolean b, int milli) {
+		while (milli > 0) {
+			try {
+				WebElement e = super.findElement(xpath);
+				if (e.isDisplayed() == b) {
+					return;
+				}
+			} catch (Exception e) {
+			}
+			Utility.sleep(PAUSE);
+			milli -= PAUSE;
+		}
+	}
+
 
 }

@@ -30,6 +30,35 @@ stockDocument
 |	extractAllEtfFromNaver
 |	crawlEtfDetailThread	// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
 |	crawlCompanyTopDividend	// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당순위
+|	crawlCompanyDetails	// KSD증권정보포털(SEIBro) > 기업 > 기업기본정보
+;
+
+
+// KSD증권정보포털(SEIBro) > 기업 > 기업기본정보
+crawlCompanyDetails:
+KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 주식 상세 	 CrawlCompanyDetailThread 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02006V.xml&menuNo=44 
+(
+	KEYWORD TAB code=NUMBER TAB symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*	NEWLINE
+			//	KEYWORD 	 093920 	 서원인텍 
+	KEYWORD TAB category=word category1=word? category2=word? category3=word? category4=word? category5=word? category6=word? category7=word*			NEWLINE
+			//	KEYWORD 	 전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업 
+	KEYWORD TAB fics=word fics1=word? fics2=word? fics3=word? fics4=word? fics5=word? fics6=word? fics7=word*			NEWLINE
+			//	KEYWORD 	 IT > 하드웨어 > 휴대폰 및 관련부품 
+	KEYWORD TAB ea=NUMBER WORD									NEWLINE		//	KEYWORD 	 18,600,000 주 
+	KEYWORD TAB ipo=DATE										NEWLINE		//	KEYWORD 	 2007/12/20 
+	WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27
+	{
+		StockParserService.crawlCompanyDetails(20231217
+			, $code.text
+			, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
+			, $category.text, $category1.text, $category2.text, $category3.text, $category4.text, $category5.text, $category6.text, $category7.text
+			, $fics.text, $fics1.text, $fics2.text, $fics3.text, $fics4.text, $fics5.text, $fics6.text, $fics7.text
+			, $ea.text
+			, $ipo.text
+		);
+	}
+)+
+KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 주식 상세 	 CrawlCompanyDetailThread 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02006V.xml&menuNo=44 
 ;
 
 
@@ -51,6 +80,7 @@ KEYWORD TAB WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 cra
 )+
 KEYWORD TAB WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 crawlCompanyTopDividend 	 주식 상위 배당 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01042V.xml&menuNo=286 
 ;
+
 
 // KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
 crawlEtfDetailThread:

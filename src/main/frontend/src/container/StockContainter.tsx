@@ -146,6 +146,15 @@ function Header(props: any) {
 			setSpinner(spinner - 1);
 		});
 	}
+	function handleOnClickCrawlItemCompanyDetails() {
+		setSpinner(spinner + 1);
+		store.crawlItemCompanyDetails({}, (_: any) => {
+			if (spinner == 1) {	// 마지막에서만 재검색
+				onChange && onChange({});
+			}
+			setSpinner(spinner - 1);
+		});
+	}
 	function handleOnClickMode(e: any) {
 		if (e.ctrlKey) {
 			onChange && onChange({ mode: form.mode - 1 });
@@ -208,6 +217,7 @@ function Header(props: any) {
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCompile}>Compile</Button>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlItems}>Crawl Items</Button>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={crawlItemCompanyDividendTop}>Crawl Item Company Dividend Top</Button>
+									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlItemCompanyDetails}>Crawl Item Company Details</Button>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlItemEtfDetails}>Crawl Item ETF Details</Button>
 									<Button size="sm" variant="secondary" className="ms-1" style={{ display: "none" }} onClick={handleOnClickCrawlItemDetails}>Crawl Item Details</Button>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlDividendHistoryEtf}>Crawl Dividend History ETF</Button>

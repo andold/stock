@@ -54,4 +54,10 @@ public class StockCrawlerServiceTest {
 		log.info("{}", result);
 	}
 
+	@Test
+	public void testCrawlCompanyDetails() {
+		StockParserResult result = service.crawlItemCompanyDetails();
+		log.info("{}", result);
+	}
+
 }

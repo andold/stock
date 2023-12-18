@@ -85,6 +85,26 @@ public class StockParserService {
 
 	}
 
+	// KSD증권정보포털(SEIBro) > 기업 > 기업기본정보
+	public static void crawlCompanyDetails(Integer date
+			, String code
+			, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7
+			, String category, String category1, String category2, String category3, String category4, String category5, String category6, String category7
+			, String fics, String fics1, String fics2, String fics3, String fics4, String fics5, String fics6, String fics7
+			, String ea
+			, String ipo
+			) {
+		StockItemDomain item = StockItemDomain.builder()
+				.code(code)
+				.volumeOfListedShares(Utility.parseInteger(ea, null))
+				.ipoDate(Utility.parseDateTime(ipo, null))
+				.build();
+		item.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
+		item.setCategory(category, category1, category2, category3, category4, category5, category6, category7
+				, fics, fics1, fics2, fics3, fics4, fics5, fics6, fics7);
+		LIST_STOCK_ITEM.add(item);
+	}
+
 	// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당순위
 	public static void crawlCompanyTopDividend(Integer date
 			, String code) {
