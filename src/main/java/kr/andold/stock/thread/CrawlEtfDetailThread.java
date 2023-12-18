@@ -28,9 +28,6 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 	private static final Boolean debug = StockCrawlerService.debug;
 	private static final String NEWLINE = "\n";
 
-	private String previousSymbol = "andold";
-	private WebElement previousElement = null;
-
 	private ConcurrentLinkedQueue<StockItemDomain> items;
 	private ChromeDriverWrapper driver;
 	private WebElement symbolSearchElement;
@@ -146,12 +143,11 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 			Thread.sleep(100);
 
 			driver.switchTo().defaultContent();
-			String previous = driver.getText(By.xpath("//h3[@id='KOR_SECN_NM']"), 2000, "andold");
 			searchElement.click();
 
 			StringBuffer sb = new StringBuffer();
 			sb.append(String.format("KEYWORD\t%s\t%s\n", code, symbol));
-			sb.append(driver.findElement(By.xpath("//h3[@id='KOR_SECN_NM']"), 2000, previous, "").getText());	// symbol
+			sb.append(driver.findElementIncludeText(By.xpath("//h3[@id='KOR_SECN_NM']"), 2000, code).getText());	// symbol
 			sb.append(NEWLINE);
 			sb.append(driver.findElement(By.xpath("//div[@id='ETF_BIG_SORT_NM']"), 2000).getText());	// 분류
 			sb.append(NEWLINE);

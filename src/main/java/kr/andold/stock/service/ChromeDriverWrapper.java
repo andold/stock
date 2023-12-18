@@ -97,6 +97,31 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		throw exception;
 	}
 
+	public WebElement findElementIncludeText(By xpath, int milli, String string) throws Exception {
+		Exception exception = null;
+		WebElement element = null;
+		while (milli > 0) {
+			try {
+				element = super.findElement(xpath);
+				String text = element.getText();
+				if (text.indexOf(string) >= 0) {
+					return element;
+				}
+
+				Utility.sleep(PAUSE);
+				milli -= PAUSE;
+			} catch (Exception e) {
+				exception = e;
+			}
+		}
+
+		if (exception == null) {
+			return element;
+		}
+
+		throw exception;
+	}
+
 	public List<WebElement> findElements(By xpath, int milli) throws Exception {
 		List<WebElement> elements = null;
 		while (milli > 0) {
