@@ -48,6 +48,55 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		throw previous;
 	}
 
+	public WebElement findElement(By xpath, WebElement previousElement, int milli) throws Exception {
+		Exception previous = null;
+		while (milli > 0) {
+			try {
+				WebElement e = super.findElement(xpath);
+				if (e != previousElement) {
+					return  e;
+				}
+			} catch (Exception e) {
+				previous = e;
+			}
+			Utility.sleep(PAUSE);
+			milli -= PAUSE;
+		}
+		throw previous;
+	}
+
+	public WebElement findElement(By xpath, int milli, String... marks) throws Exception {
+		Exception exception = null;
+		WebElement element = null;
+		while (milli > 0) {
+			try {
+				element = super.findElement(xpath);
+				String text = element.getText();
+				for (String mark : marks) {
+					if (mark.contentEquals(text)) {
+						Utility.sleep(PAUSE);
+						milli -= PAUSE;
+						continue;
+					}
+				}
+
+				return element;
+			} catch (Exception e) {
+				exception = e;
+			}
+		}
+
+		if (element == null && exception == null) {
+			return null;
+		}
+
+		if (exception == null) {
+			return element;
+		}
+
+		throw exception;
+	}
+
 	public List<WebElement> findElements(By xpath, int milli) throws Exception {
 		List<WebElement> elements = null;
 		while (milli > 0) {
@@ -157,6 +206,16 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		StringBuffer sb = new StringBuffer();
 		e.findElements(By.tagName("tr")).forEach(tr -> sb.append(extractTextFromTrElement(tr, prefix)));
 		return new String(sb);
+	}
+
+	public String getText(By xpath, int milli, String value) {
+		try {
+			WebElement e = findElement(xpath, milli);
+			return e.getText();
+		} catch (Exception e) {
+		}
+
+		return value;
 	}
 
 }

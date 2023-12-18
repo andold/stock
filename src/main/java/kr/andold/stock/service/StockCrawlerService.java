@@ -357,7 +357,7 @@ public class StockCrawlerService {
 		options.addArguments("--incognito");
 		options.addArguments("--disable-gpu");
 		options.addArguments("--verbose");
-		options.addArguments("--headless");
+//		options.addArguments("--headless");
 		options.addArguments("--window-size=3840,4320");
 		ChromeDriverWrapper driver = new ChromeDriverWrapper(options);
 		return driver;

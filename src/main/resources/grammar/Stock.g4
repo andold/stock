@@ -39,7 +39,7 @@ KEYWORD TAB WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 ETF 상세 	 URL 
 	KEYWORD TAB code=NUMBER TAB word*		NEWLINE
 	symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*					NEWLINE		//	KODEX 에너지화학[117460] 
 	category=word category1=word? category2=word? category3=word? category4=word? category5=word? category6=word? category7=word*	NEWLINE		//	섹터/소재 
-	ipo=DATE WORD+							NEWLINE		//	2009/10/09 (14년 2개월) 
+	ipo=DATE WORD*							NEWLINE		//	2009/10/09 (14년 2개월) 
 	fee=word								NEWLINE		//	0.45 
 	WORD TAB WORD TAB DATE					NEWLINE		//	andold 	 since 	 2023-11-27 
 	{

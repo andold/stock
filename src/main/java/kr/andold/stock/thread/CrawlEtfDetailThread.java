@@ -29,6 +29,7 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 	private static final String NEWLINE = "\n";
 
 	private String previousSymbol = "andold";
+	private WebElement previousElement = null;
 
 	private ConcurrentLinkedQueue<StockItemDomain> items;
 	private ChromeDriverWrapper driver;
@@ -76,7 +77,7 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 					cx--;
 					continue;
 				}
-				if (debug && new Random().nextDouble() < 0.9) {
+				if (debug && new Random().nextDouble() < 0.95) {
 					log.trace("{} {}/{} 뽑기 제외 『{}』 CrawlEtfDetailThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
@@ -145,14 +146,12 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 			Thread.sleep(100);
 
 			driver.switchTo().defaultContent();
+			String previous = driver.getText(By.xpath("//h3[@id='KOR_SECN_NM']"), 2000, "andold");
 			searchElement.click();
-			Thread.sleep(100);
 
 			StringBuffer sb = new StringBuffer();
 			sb.append(String.format("KEYWORD\t%s\t%s\n", code, symbol));
-			String newSymbol = driver.findElement(By.xpath("//h3[@id='KOR_SECN_NM']"), previousSymbol, 2000).getText();
-			previousSymbol = newSymbol;
-			sb.append(driver.findElement(By.xpath("//h3[@id='KOR_SECN_NM']"), 2000).getText());	// symbol
+			sb.append(driver.findElement(By.xpath("//h3[@id='KOR_SECN_NM']"), 2000, previous, "").getText());	// symbol
 			sb.append(NEWLINE);
 			sb.append(driver.findElement(By.xpath("//div[@id='ETF_BIG_SORT_NM']"), 2000).getText());	// 분류
 			sb.append(NEWLINE);
@@ -176,6 +175,7 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 
 	public static StockParserResult crawl(List<StockItemDomain> items) {
 		int processors = Runtime.getRuntime().availableProcessors() - 1;
+//		processors = 1;
 		ExecutorService service = Executors.newFixedThreadPool(processors);
 		List<Future<StockParserResult>> futureList = new ArrayList<>();
 		ConcurrentLinkedQueue<StockItemDomain> queue = new ConcurrentLinkedQueue<StockItemDomain>();
