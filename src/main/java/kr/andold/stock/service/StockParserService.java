@@ -88,8 +88,8 @@ public class StockParserService {
 	// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
 	public static void crawlEtfDetailThread(Integer mark, String code
 			, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7
-			, String date
 			, String category, String category1, String category2, String category3, String category4, String category5, String category6, String category7
+			, String date
 			, String fee) {
 		log.info("{} crawlEtfDetailThread(『{} {}』『{} {} {} {} {} {} {} {}』『{} {} {} {} {} {} {} {} {}』『{}』)", Utility.indentMiddle()
 				, mark, code, symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7, date, category, category1, fee);
