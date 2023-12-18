@@ -40,9 +40,9 @@ KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 주식 �
 (
 	KEYWORD TAB code=NUMBER TAB symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*	NEWLINE
 			//	KEYWORD 	 093920 	 서원인텍 
-	KEYWORD TAB category=word category1=word? category2=word? category3=word? category4=word? category5=word? category6=word? category7=word*			NEWLINE
+	KEYWORD TAB category=word? category1=word? category2=word? category3=word? category4=word? category5=word? category6=word? category7=word*			NEWLINE
 			//	KEYWORD 	 전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업 
-	KEYWORD TAB fics=word fics1=word? fics2=word? fics3=word? fics4=word? fics5=word? fics6=word? fics7=word*			NEWLINE
+	KEYWORD TAB fics=word? fics1=word? fics2=word? fics3=word? fics4=word? fics5=word? fics6=word? fics7=word*			NEWLINE
 			//	KEYWORD 	 IT > 하드웨어 > 휴대폰 및 관련부품 
 	KEYWORD TAB ea=NUMBER WORD									NEWLINE		//	KEYWORD 	 18,600,000 주 
 	KEYWORD TAB ipo=DATE										NEWLINE		//	KEYWORD 	 2007/12/20 
