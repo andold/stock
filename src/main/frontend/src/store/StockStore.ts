@@ -66,6 +66,9 @@ class StockStore {
 	crawlItemEtfDetails(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlItemEtfDetails(request, onSuccess, onError, element);
 	}
+	crawlItemCompanyDividendTop(request?: any, onSuccess?: any, onError?: any, element?: any) {
+		repository.crawlItemCompanyDividendTop(request, onSuccess, onError, element);
+	}
 	// 
 
 	//	stock item section

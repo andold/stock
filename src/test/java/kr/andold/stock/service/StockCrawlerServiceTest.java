@@ -50,7 +50,7 @@ public class StockCrawlerServiceTest {
 
 	@Test
 	public void testCrawlCompanyTopDividend() {
-		StockParserResult result = service.crawlCompanyTopDividend();
+		StockParserResult result = service.crawlItemCompanyDividendTop();
 		log.info("{}", result);
 	}
 

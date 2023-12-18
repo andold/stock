@@ -249,12 +249,12 @@ public class StockCrawlerService {
 		return result;
 	}
 
-	public StockParserResult crawlCompanyTopDividend() {
-		log.info("{} crawlCompanyTopDividend()", Utility.indentStart());
+	public StockParserResult crawlItemCompanyDividendTop() {
+		log.info("{} crawlItemCompanyDividendTop()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
 		String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01042V.xml&menuNo=286";
-		String MARK_START_END_POINT = "KEYWORD\tcrawlCompanyTopDividend\t주식 상위 배당\tURL\t" + URL + "\n";
+		String MARK_START_END_POINT = "KEYWORD\tcrawlItemCompanyDividendTop\t주식 상위 배당\tURL\t" + URL + "\n";
 		int YEARS = 3;
 
 		StringBuffer sb = new StringBuffer();
@@ -274,7 +274,7 @@ public class StockCrawlerService {
 				driver.findElement(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), 8000, previous);
 				for (int cy = 1; cy < 5; cy++) {
 					String pageString = String.format("%d", cy);
-					log.debug("{} {} {} {} - crawlCompanyTopDividend() - {}", Utility.indentMiddle(), "유가증권시장", year, cy, Utility.toStringPastTimeReadable(started));
+					log.debug("{} {} {} {} - crawlItemCompanyDividendTop() - {}", Utility.indentMiddle(), "유가증권시장", year, cy, Utility.toStringPastTimeReadable(started));
 					driver.findElementIncludeText(By.xpath("//div[@id='cntsPaging01']//a"), 8000, pageString).click();
 					driver.findElementIncludeTextAndClass(By.xpath("//div[@id='cntsPaging01']//a"), 2000, pageString, "w2pageList_label_selected");
 					WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), 2000);
@@ -292,7 +292,7 @@ public class StockCrawlerService {
 				driver.findElement(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), 8000, previous);
 				for (int cy = 1; cy < 5; cy++) {
 					String pageString = String.format("%d", cy);
-					log.debug("{} {} {} {} - crawlCompanyTopDividend() - {}", Utility.indentMiddle(), "코스닥시장", year, cy, Utility.toStringPastTimeReadable(started));
+					log.debug("{} {} {} {} - crawlItemCompanyDividendTop() - {}", Utility.indentMiddle(), "코스닥시장", year, cy, Utility.toStringPastTimeReadable(started));
 					driver.findElementIncludeText(By.xpath("//div[@id='cntsPaging01']//a"), 4000, pageString).click();
 					driver.findElementIncludeTextAndClass(By.xpath("//div[@id='cntsPaging01']//a"), 2000, pageString, "w2pageList_label_selected");
 					WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), 2000);
@@ -309,7 +309,7 @@ public class StockCrawlerService {
 		String text = new String(sb);
 		StockParserResult result = StockParserService.parse(text, debug);
 
-		log.info("{} {} crawlCompanyTopDividend() - {}", Utility.indentMiddle(), result, Utility.toStringPastTimeReadable(started));
+		log.info("{} {} crawlItemCompanyDividendTop() - {}", Utility.indentMiddle(), result, Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
