@@ -46,6 +46,7 @@ public interface StockItemRepository extends JpaRepository<StockItemEntity, Inte
 			+ "			OR	(y.dividend1YAgo / y.currentPrice * 100)	>	:#{#param.priceEarningsRatio}"
 			+ "			OR	(y.dividend2YAgo / y.currentPrice * 100)	>	:#{#param.priceEarningsRatio}"
 			+ "			OR	(y.dividend3YAgo / y.currentPrice * 100)	>	:#{#param.priceEarningsRatio}"
+			+ "			OR	x.priority									<	8"
 			//	flexable
 			+ "		)"
 			;
