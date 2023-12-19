@@ -24,6 +24,31 @@ stockDocument
 |	crawlEtfDetailThread			// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
 |	crawlCompanyTopDividend			// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당순위
 |	crawlCompanyDetails				// KSD증권정보포털(SEIBro) > 기업 > 기업기본정보
+|	crawlPriceCompay				// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 일자별시세
+;
+
+
+// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 일자별시세
+crawlPriceCompay:
+KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD						NEWLINE		//	KEYWORD 	 주식 일자별시세 	 CrawlCompanyPriceThread 	 URL 	 https://finance.naver.com/item/sise.naver?code= 
+(
+	code=NUMBER TAB symbol=word+										NEWLINE		//	072870 	 메가스터디 
+	WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE		//	일자 	 종가 	 전일비 	 시가 	 고가 	 저가 	 거래량 	 
+	((
+		TAB TAB TAB TAB TAB TAB TAB										NEWLINE		//		 	 	 	 	 	 	 
+	) | (
+		base=DATE TAB closing=NUMBER TAB NUMBER TAB market=NUMBER TAB high=NUMBER TAB low=NUMBER TAB volume=NUMBER TAB		NEWLINE
+				//	2023/12/18 	 11,430 	 30 	 11,400 	 11,500 	 11,370 	 16,124 
+		{
+			StockParserService.crawlPriceCompay(20231217
+				, $code.text, $symbol.text
+				, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
+			);
+		}
+	))+
+	WORD TAB WORD TAB DATE												NEWLINE		//	andold 	 since 	 2023-11-27 
+)+
+KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD						NEWLINE		//	KEYWORD 	 주식 일자별시세 	 CrawlCompanyPriceThread 	 URL 	 https://finance.naver.com/item/sise.naver?code= 
 ;
 
 

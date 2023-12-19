@@ -18,6 +18,7 @@ public class ScheduledTasks {
 	// 매시마다
 	@Scheduled(cron = "15 30 * * * *")
 	public void scheduleTaskHourly() {
+		stockCrawlerService.crawlPriceCompay();
 	}
 
 	// 매일

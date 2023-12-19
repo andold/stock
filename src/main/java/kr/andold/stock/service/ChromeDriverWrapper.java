@@ -55,6 +55,8 @@ public class ChromeDriverWrapper extends ChromeDriver {
 			} catch (Exception e) {
 				exception = e;
 			}
+			Utility.sleep(PAUSE);
+			milli -= PAUSE;
 		}
 
 		if (element == null && exception == null) {
@@ -66,6 +68,10 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		}
 
 		throw exception;
+	}
+
+	public void waitUntilTextNotInclude(By xpath, int milli, String... marks) throws Exception {
+		findElement(xpath, milli, marks);
 	}
 
 	public WebElement findElementIncludeText(By xpath, int milli, String string) throws Exception {
@@ -252,6 +258,5 @@ public class ChromeDriverWrapper extends ChromeDriver {
 			milli -= PAUSE;
 		}
 	}
-
 
 }

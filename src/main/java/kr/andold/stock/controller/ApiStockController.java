@@ -135,6 +135,17 @@ public class ApiStockController {
 	}
 
 	@ResponseBody
+	@GetMapping(value = "crawl/price/company")
+	public StockParserResult crawlPriceCompay() {
+		log.info("{} crawlPriceCompay()", Utility.indentStart());
+
+		StockParserResult result = stockCrawlerService.crawlPriceCompay();
+
+		log.info("{} {} - crawlPriceCompay()", Utility.indentEnd(), result);
+		return result;
+	}
+
+	@ResponseBody
 	@GetMapping(value = "crawl/dividend/history/etf")
 	public StockParserResult crawlDividendHistoryEtf() {
 		log.info("{} crawlDividendHistoryEtf()", Utility.indentStart());

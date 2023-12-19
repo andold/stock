@@ -25,6 +25,12 @@ public interface StockVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStockDocument(StockParser.StockDocumentContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link StockParser#crawlPriceCompay}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCrawlPriceCompay(StockParser.CrawlPriceCompayContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link StockParser#crawlCompanyDetails}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

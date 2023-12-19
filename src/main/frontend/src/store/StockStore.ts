@@ -3,7 +3,7 @@ import moment from "moment";
 import StockDividendModel, { StockItemModel } from "../model/StockModel";
 
 import repository from "../repository/StockRepository";
-import { PriceEarningsRatioCellRenderer, PriorityCellRenderer, RecentDividendAgGridCellRenderer, StockItemOperateCellRenderer, SymbolTypeCode as SymbolEtfTypeCode } from "../view/AgGridCellRenderer";
+import { PriceEarningsRatioCellRenderer, PriorityCellRenderer, RecentDividendAgGridCellRenderer, OperateColumn, SymbolTypeCode as SymbolEtfTypeCode } from "../view/AgGridCellRenderer";
 
 const CELL_STYLE_LEFT = { textAlign: "left", padding: 1, };
 const CELL_STYLE_RIGHT = { textAlign: "right", padding: 1, paddingRight: 4, };
@@ -65,6 +65,9 @@ class StockStore {
 	}
 	crawlPrices(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlPrices(request, onSuccess, onError, element);
+	}
+	crawlPriceCompay(request?: any, onSuccess?: any, onError?: any, element?: any) {
+		repository.crawlPriceCompay(request, onSuccess, onError, element);
 	}
 	crawlItemEtfDetails(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlItemEtfDetails(request, onSuccess, onError, element);
@@ -371,12 +374,12 @@ class StockStore {
 			field: "operate",
 			hide: hides && hides.includes("operate"),
 			headerName: "▦",
-			cellRenderer: StockItemOperateCellRenderer,
+			cellRenderer: OperateColumn,
 			cellRendererParams: {
 				onChange: onChange,
 			},
-			cellStyle: CELL_STYLE_RIGHT,
-			width: 8,
+			cellStyle: CELL_STYLE_LEFT,
+			width: 48,
 		}];
 	}
 

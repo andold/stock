@@ -106,6 +106,22 @@ public class StockParserService {
 		log.trace("{} naverStockDetail(...) - Dividend:: {}", Utility.indentMiddle(), stockDividend);
 	}
 
+	// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 일자별시세
+	public static void crawlPriceCompay(Integer date
+			, String code, String symbol
+			, String base, String closing, String market, String high, String low, String volume
+			) {
+		LIST_STOCK_PRICE.add(StockPriceDomain.builder()
+				.code(code)
+				.base(Utility.parseDateTime(base, null))
+				.closing(Utility.parseInteger(closing, null))
+				.market(Utility.parseInteger(market, null))
+				.high(Utility.parseInteger(high, null))
+				.low(Utility.parseInteger(low, null))
+				.volume(Utility.parseInteger(volume, null))
+				.build());
+	}
+
 	// KSD증권정보포털(SEIBro) > 기업 > 기업기본정보
 	public static void crawlCompanyDetails(Integer date
 			, String code

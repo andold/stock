@@ -351,7 +351,7 @@ export function RecentDividendAgGridCellRenderer(param: any) {
 }
 
 // 종목별 기능
-export function StockItemOperateCellRenderer(props: any) {
+export function OperateColumn(props: any) {
 	const { data, onChange } = props;
 
 	const [spinner, setSpinner] = useState<boolean>(false);
@@ -383,11 +383,15 @@ export function StockItemOperateCellRenderer(props: any) {
 		});
 	}
 	async function handleOnClickPriceChart(e: any) {
-		window.open(`https://finance.naver.com/item/fchart.naver?code=${data.code}`, "시세차트");
+		window.open(`https://finance.naver.com/item/fchart.naver?code=${data.code}`, "네이버");
+	}
+	async function handleOnClickDetail(e: any) {
+		window.open(`https://finance.naver.com/item/coinfo.naver?code=${data.code}`, "네이버");
 	}
 
 	return (<>
 		<Button size="sm" variant="outline-secondary" className="ms-1 mb-1 py-0 text-white" style={{fontSize: 8}} onClick={handleOnClickPriceChart} title="네이버 증권 시세 차트">차트</Button>
+		<Button size="sm" variant="outline-secondary" className="ms-1 mb-1 py-0 text-white" style={{fontSize: 8}} onClick={handleOnClickDetail} title="네이버 증권 상세">상세</Button>
 		{spinner
 			? (<Spinner animation="grow" variant="warning" size="sm" className="ms-0 me-1 align-middle" />)
 			: (

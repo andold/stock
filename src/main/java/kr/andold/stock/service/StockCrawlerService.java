@@ -24,6 +24,7 @@ import kr.andold.stock.domain.StockPriceDomain;
 import kr.andold.stock.service.StockParserService.StockParserResult;
 import kr.andold.stock.thread.CrawlCompanyDetailThread;
 import kr.andold.stock.thread.CrawlCompanyDividendHistoryThread;
+import kr.andold.stock.thread.CrawlPriceCompanyThread;
 import kr.andold.stock.thread.CrawlEtfDetailThread;
 import kr.andold.stock.thread.CrawlEtfDividendHistoryThread;
 import kr.andold.stock.thread.CrawlPriceThread;
@@ -75,6 +76,17 @@ public class StockCrawlerService {
 
 		log.info("{} {} crawlPrices() - {}", Utility.indentEnd(), all, Utility.toStringPastTimeReadable(started));
 		return all;
+	}
+
+	public StockParserResult crawlPriceCompay() {
+		log.info("{} crawlPriceCompay()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		StockParserResult result = CrawlPriceCompanyThread.crawl(stockItemService.search(null));
+		put(result);
+
+		log.info("{} {} crawlPriceCompay() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		return result;
 	}
 
 	private void put(StockParserResult result) {

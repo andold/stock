@@ -128,6 +128,15 @@ function Header(props: any) {
 			setSpinner(spinner - 1);
 		});
 	}
+	function handleOnClickCrawlPriceCompay() {
+		setSpinner(spinner + 1);
+		store.crawlPriceCompay({}, (_: any) => {
+			if (spinner == 1) {	// 마지막에서만 재검색
+				onChange && onChange({});
+			}
+			setSpinner(spinner - 1);
+		});
+	}
 	function handleOnClickCrawlItemEtfDetails() {
 		setSpinner(spinner + 1);
 		store.crawlItemEtfDetails({}, (_: any) => {
@@ -222,6 +231,7 @@ function Header(props: any) {
 									<Button size="sm" variant="secondary" className="ms-1" style={{ display: "none" }} onClick={handleOnClickCrawlItemDetails}>Crawl Item Details</Button>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlDividendHistoryEtf}>Crawl Dividend History ETF</Button>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlPrices}>Crawl Prices</Button>
+									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlPriceCompay}>Crawl Price Company</Button>
 								</>)}
 								<Button size="sm" variant="secondary" className="ms-1" title={form.mode.toString()} onClick={handleOnClickDownload}>다운로드</Button>
 								<UploadButtonView />
