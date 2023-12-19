@@ -279,7 +279,7 @@ public class StockCrawlerService {
 					driver.findElementIncludeText(By.xpath("//div[@id='cntsPaging01']//a"), 8000, pageString).click();
 					driver.findElementIncludeTextAndClass(By.xpath("//div[@id='cntsPaging01']//a"), 2000, pageString, "w2pageList_label_selected");
 					WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), 2000);
-					sb.append(driver.extractTextFromTableElement(table));
+					sb.append(driver.extractTextFromTableElement(table, "KOSPI\t"));
 					sb.append(MARK_ANDOLD_SINCE);
 				}
 			}
@@ -297,7 +297,7 @@ public class StockCrawlerService {
 					driver.findElementIncludeText(By.xpath("//div[@id='cntsPaging01']//a"), 4000, pageString).click();
 					driver.findElementIncludeTextAndClass(By.xpath("//div[@id='cntsPaging01']//a"), 2000, pageString, "w2pageList_label_selected");
 					WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), 2000);
-					sb.append(driver.extractTextFromTableElement(table));
+					sb.append(driver.extractTextFromTableElement(table, "KOSDAQ\t"));
 					sb.append(MARK_ANDOLD_SINCE);
 				}
 			}

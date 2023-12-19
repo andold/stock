@@ -223,7 +223,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 	public String extractTextFromTableElement(WebElement e) {
 		return extractTextFromTableElement(e, "");
 	}
-	public static String extractTextFromTableElement(WebElement e, String prefix) {
+	public String extractTextFromTableElement(WebElement e, String prefix) {
 		StringBuffer sb = new StringBuffer();
 		e.findElements(By.tagName("tr")).forEach(tr -> sb.append(extractTextFromTrElement(tr, prefix)));
 		return new String(sb);

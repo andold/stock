@@ -18,7 +18,7 @@ export default ((props: any) => {
 	const [columnDefs, setColumnDefs] = useState([]);
 
 	useEffect(() => {
-		const comlumDefs = store.columnDefsItem(["id", "symbol", "code", "etf", "type", "volumeOfListedShares", "baseMonth", "dividendCycle", "ipoDate", "sigma", "operate", "created",], onChange);
+		const comlumDefs = store.columnDefsItem(["id", "symbol", "code", "etf", "type", "volumeOfListedShares", "baseMonth", "dividendCycle", "ipoDate", "sigma", "--operate", "created",], onChange);
 		setColumnDefs(comlumDefs);
 		const request = {
 			keyword: form.keyword,

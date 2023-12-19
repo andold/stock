@@ -117,7 +117,7 @@ export function PriorityCellRenderer(param: any) {
 			</Col>
 			<Col xs="4" className="mx-1 my-0 p-0">
 				<Row className="mx-0 p-0" style={{ lineHeight: 1, marginTop: -2 }} onClick={handleOnClickLike}>⇧</Row>
-				<Row className="mx-0 p-0" style={{ lineHeight: 1, marginTop: 1}} onClick={handleOnClickDisike}>⇩</Row>
+				<Row className="mx-0 p-0" style={{ lineHeight: 1, marginTop: 1 }} onClick={handleOnClickDisike}>⇩</Row>
 			</Col>
 		</Row>
 	</>);
@@ -264,24 +264,24 @@ export function RecentDividendAgGridCellRenderer(param: any) {
 						}
 						<th className="text-end px-1">합계</th>
 					</tr></thead><tbody>
-					{
-						store.range(end.year() - start.year()).map((cx: number) => (<tr key={Math.random()}>
-							<th className="px-1">{start.year() + cx}</th>
-							{
-								store.range(12).map((cy: number) => {
-									const dividend = nomalized[start.year() + cx]?.[cy];
-									if (dividend > 0) {
-										return (
-											<td key={Math.random()} className="text-end px-1">{dividend.toLocaleString()}</td>
-										);
-									}
-									return (<td key={Math.random()}></td>);
-								})
-							}
-							<th className="text-end px-1">{nomalized[start.year() + cx]?.[13].toLocaleString()}</th>
-						</tr>))
-					}
-				</tbody></Table>
+						{
+							store.range(end.year() - start.year()).map((cx: number) => (<tr key={Math.random()}>
+								<th className="px-1">{start.year() + cx}</th>
+								{
+									store.range(12).map((cy: number) => {
+										const dividend = nomalized[start.year() + cx]?.[cy];
+										if (dividend > 0) {
+											return (
+												<td key={Math.random()} className="text-end px-1">{dividend.toLocaleString()}</td>
+											);
+										}
+										return (<td key={Math.random()}></td>);
+									})
+								}
+								<th className="text-end px-1">{nomalized[start.year() + cx]?.[13].toLocaleString()}</th>
+							</tr>))
+						}
+					</tbody></Table>
 				<Row className="m-2 mb-0 py-0">수익율 (단위: %)</Row>
 				<Table bordered striped size="sm" variant="dark" className="my-0 py-0" style={{ fontSize: FONT_SIZE }}>
 					<thead><tr>
@@ -293,24 +293,24 @@ export function RecentDividendAgGridCellRenderer(param: any) {
 						}
 						<th>합계</th>
 					</tr></thead><tbody>
-					{
-						store.range(end.year() - start.year()).map((cx: number) => (<tr key={Math.random()}>
-							<th className="text-end px-1">{start.year() + cx}</th>
-							{
-								store.range(12).map((cy: number) => {
-									const dividend = nomalized[start.year() + cx]?.[cy];
-									if (dividend > 0) {
-										return (
-											<td key={Math.random()} className="text-end px-1">{(dividend / data?.custom?.dividend?.currentPrice * 100).toFixed(2)}</td>
-										);
-									}
-									return (<td key={Math.random()}></td>);
-								})
-							}
-							<th className="text-end px-1">{(nomalized[start.year() + cx]?.[13] / data?.custom?.dividend?.currentPrice * 100).toFixed(2)}</th>
-						</tr>))
-					}
-				</tbody></Table>
+						{
+							store.range(end.year() - start.year()).map((cx: number) => (<tr key={Math.random()}>
+								<th className="text-end px-1">{start.year() + cx}</th>
+								{
+									store.range(12).map((cy: number) => {
+										const dividend = nomalized[start.year() + cx]?.[cy];
+										if (dividend > 0) {
+											return (
+												<td key={Math.random()} className="text-end px-1">{(dividend / data?.custom?.dividend?.currentPrice * 100).toFixed(2)}</td>
+											);
+										}
+										return (<td key={Math.random()}></td>);
+									})
+								}
+								<th className="text-end px-1">{(nomalized[start.year() + cx]?.[13] / data?.custom?.dividend?.currentPrice * 100).toFixed(2)}</th>
+							</tr>))
+						}
+					</tbody></Table>
 			</Tooltip>
 		);
 	};
@@ -382,8 +382,12 @@ export function StockItemOperateCellRenderer(props: any) {
 			}
 		});
 	}
+	async function handleOnClickPriceChart(e: any) {
+		window.open(`https://finance.naver.com/item/fchart.naver?code=${data.code}`, "시세차트");
+	}
 
 	return (<>
+		<Button size="sm" variant="outline-secondary" className="ms-1 mb-1 py-0 text-white" style={{fontSize: 8}} onClick={handleOnClickPriceChart} title="네이버 증권 시세 차트">차트</Button>
 		{spinner
 			? (<Spinner animation="grow" variant="warning" size="sm" className="ms-0 me-1 align-middle" />)
 			: (
