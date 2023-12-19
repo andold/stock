@@ -18,13 +18,13 @@ public class ScheduledTasks {
 	// 매시마다
 	@Scheduled(cron = "15 30 * * * *")
 	public void scheduleTaskHourly() {
-		stockCrawlerService.crawlPriceCompay();
 	}
 
 	// 매일
 	@Scheduled(cron = "15 30 22 * * *")
 	public void scheduleTaskDaily() {
 		stockCrawlerService.crawlPrices();
+		stockCrawlerService.crawlPriceCompay();
 	}
 
 	// 매주
