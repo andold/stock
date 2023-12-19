@@ -76,26 +76,6 @@ public interface StockListener extends ParseTreeListener {
 	 */
 	void exitCrawlDividendHistoryEtfThread(StockParser.CrawlDividendHistoryEtfThreadContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link StockParser#extractItemDetails}.
-	 * @param ctx the parse tree
-	 */
-	void enterExtractItemDetails(StockParser.ExtractItemDetailsContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#extractItemDetails}.
-	 * @param ctx the parse tree
-	 */
-	void exitExtractItemDetails(StockParser.ExtractItemDetailsContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link StockParser#extractItemDetailsCompany}.
-	 * @param ctx the parse tree
-	 */
-	void enterExtractItemDetailsCompany(StockParser.ExtractItemDetailsCompanyContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#extractItemDetailsCompany}.
-	 * @param ctx the parse tree
-	 */
-	void exitExtractItemDetailsCompany(StockParser.ExtractItemDetailsCompanyContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link StockParser#extractItemDetailsEtf}.
 	 * @param ctx the parse tree
 	 */
@@ -126,126 +106,6 @@ public interface StockListener extends ParseTreeListener {
 	 */
 	void exitExtractTextStockPrice(StockParser.ExtractTextStockPriceContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link StockParser#naverStockItemDetails}.
-	 * @param ctx the parse tree
-	 */
-	void enterNaverStockItemDetails(StockParser.NaverStockItemDetailsContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#naverStockItemDetails}.
-	 * @param ctx the parse tree
-	 */
-	void exitNaverStockItemDetails(StockParser.NaverStockItemDetailsContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link StockParser#searchEtfComMonthlyDividendEtf}.
-	 * @param ctx the parse tree
-	 */
-	void enterSearchEtfComMonthlyDividendEtf(StockParser.SearchEtfComMonthlyDividendEtfContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#searchEtfComMonthlyDividendEtf}.
-	 * @param ctx the parse tree
-	 */
-	void exitSearchEtfComMonthlyDividendEtf(StockParser.SearchEtfComMonthlyDividendEtfContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link StockParser#searchEtfComMonthlyDividendEtfItem}.
-	 * @param ctx the parse tree
-	 */
-	void enterSearchEtfComMonthlyDividendEtfItem(StockParser.SearchEtfComMonthlyDividendEtfItemContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#searchEtfComMonthlyDividendEtfItem}.
-	 * @param ctx the parse tree
-	 */
-	void exitSearchEtfComMonthlyDividendEtfItem(StockParser.SearchEtfComMonthlyDividendEtfItemContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link StockParser#searchEtfComMonthlyDividendEtfItemDividend}.
-	 * @param ctx the parse tree
-	 */
-	void enterSearchEtfComMonthlyDividendEtfItemDividend(StockParser.SearchEtfComMonthlyDividendEtfItemDividendContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#searchEtfComMonthlyDividendEtfItemDividend}.
-	 * @param ctx the parse tree
-	 */
-	void exitSearchEtfComMonthlyDividendEtfItemDividend(StockParser.SearchEtfComMonthlyDividendEtfItemDividendContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link StockParser#searchEtfComMonthlyDividend}.
-	 * @param ctx the parse tree
-	 */
-	void enterSearchEtfComMonthlyDividend(StockParser.SearchEtfComMonthlyDividendContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#searchEtfComMonthlyDividend}.
-	 * @param ctx the parse tree
-	 */
-	void exitSearchEtfComMonthlyDividend(StockParser.SearchEtfComMonthlyDividendContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link StockParser#searchEtfComMonthlyDividendItem}.
-	 * @param ctx the parse tree
-	 */
-	void enterSearchEtfComMonthlyDividendItem(StockParser.SearchEtfComMonthlyDividendItemContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#searchEtfComMonthlyDividendItem}.
-	 * @param ctx the parse tree
-	 */
-	void exitSearchEtfComMonthlyDividendItem(StockParser.SearchEtfComMonthlyDividendItemContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link StockParser#searchEtfComMonthlyDividends}.
-	 * @param ctx the parse tree
-	 */
-	void enterSearchEtfComMonthlyDividends(StockParser.SearchEtfComMonthlyDividendsContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#searchEtfComMonthlyDividends}.
-	 * @param ctx the parse tree
-	 */
-	void exitSearchEtfComMonthlyDividends(StockParser.SearchEtfComMonthlyDividendsContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link StockParser#naverStockDetail}.
-	 * @param ctx the parse tree
-	 */
-	void enterNaverStockDetail(StockParser.NaverStockDetailContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#naverStockDetail}.
-	 * @param ctx the parse tree
-	 */
-	void exitNaverStockDetail(StockParser.NaverStockDetailContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link StockParser#naverStockDetailCompany}.
-	 * @param ctx the parse tree
-	 */
-	void enterNaverStockDetailCompany(StockParser.NaverStockDetailCompanyContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#naverStockDetailCompany}.
-	 * @param ctx the parse tree
-	 */
-	void exitNaverStockDetailCompany(StockParser.NaverStockDetailCompanyContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link StockParser#naverStockDetailEtf}.
-	 * @param ctx the parse tree
-	 */
-	void enterNaverStockDetailEtf(StockParser.NaverStockDetailEtfContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#naverStockDetailEtf}.
-	 * @param ctx the parse tree
-	 */
-	void exitNaverStockDetailEtf(StockParser.NaverStockDetailEtfContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link StockParser#searchEtfCom}.
-	 * @param ctx the parse tree
-	 */
-	void enterSearchEtfCom(StockParser.SearchEtfComContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#searchEtfCom}.
-	 * @param ctx the parse tree
-	 */
-	void exitSearchEtfCom(StockParser.SearchEtfComContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link StockParser#searchEtfComItem}.
-	 * @param ctx the parse tree
-	 */
-	void enterSearchEtfComItem(StockParser.SearchEtfComItemContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#searchEtfComItem}.
-	 * @param ctx the parse tree
-	 */
-	void exitSearchEtfComItem(StockParser.SearchEtfComItemContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link StockParser#seibroDividend}.
 	 * @param ctx the parse tree
 	 */
@@ -265,26 +125,6 @@ public interface StockListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSeibroDividendItem(StockParser.SeibroDividendItemContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link StockParser#naverStock}.
-	 * @param ctx the parse tree
-	 */
-	void enterNaverStock(StockParser.NaverStockContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#naverStock}.
-	 * @param ctx the parse tree
-	 */
-	void exitNaverStock(StockParser.NaverStockContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link StockParser#naverStockItem}.
-	 * @param ctx the parse tree
-	 */
-	void enterNaverStockItem(StockParser.NaverStockItemContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#naverStockItem}.
-	 * @param ctx the parse tree
-	 */
-	void exitNaverStockItem(StockParser.NaverStockItemContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link StockParser#word}.
 	 * @param ctx the parse tree

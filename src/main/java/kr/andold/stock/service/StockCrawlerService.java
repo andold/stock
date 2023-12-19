@@ -10,9 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -153,101 +150,6 @@ public class StockCrawlerService {
 
 		log.info("{} {} crawlItems() - {}", Utility.indentEnd(), all, Utility.toStringPastTimeReadable(started));
 		return all;
-	}
-
-	// 기업 상세 정보
-	public StockParserResult crawlItemDetails() {
-		log.info("{} crawlItemDetails()", Utility.indentStart());
-		long started = System.currentTimeMillis();
-
-		String textItemDetail = extractTextItemDetails();
-		StockParserResult resultItemDetail = StockParserService.parse(textItemDetail, debug);
-		put(resultItemDetail);
-
-		log.info("{} {} crawlItemDetails() - {}", Utility.indentEnd(), resultItemDetail, Utility.toStringPastTimeReadable(started));
-		return resultItemDetail;
-	}
-
-	// 개별 기업 상세 정보
-	public StockItemDomain crawlItemDetail(StockItemDomain domain) {
-		log.info("{} crawlItemDetail({})", Utility.indentStart(), domain);
-		long started = System.currentTimeMillis();
-
-		List<StockItemDomain> items = new ArrayList<StockItemDomain>();
-		items.add(domain);
-		String text = extractTextItemDetails(items);
-		if (text.isBlank()) {
-			log.warn("{} CANNOT crawl crawlItemDetail({})", Utility.indentMiddle(), domain);
-			return null;
-		}
-		StockParserResult result = StockParserService.parse(text, debug);
-		if (result.getItems().size() != 1) {
-			return domain;
-		}
-		// ...우 의 경우, 코드가 본래 코드가 표시된다
-		result.getItems().get(0).setCode(domain.getCode());
-
-		List<StockItemDomain> befores = new ArrayList<StockItemDomain>() {
-			private static final long serialVersionUID = 1L;
-			{
-				add(domain);
-			}
-		};
-		List<StockItemDomain> creates = new ArrayList<StockItemDomain>();
-		List<StockItemDomain> duplicates = new ArrayList<StockItemDomain>();
-		List<StockItemDomain> updates = new ArrayList<StockItemDomain>();
-		List<StockItemDomain> removes = new ArrayList<StockItemDomain>();
-		stockItemService.differ(befores, result.getItems(), creates, duplicates, updates, removes);
-		if (updates.isEmpty()) {
-			return domain;
-		}
-		stockItemService.update(updates);
-		StockItemDomain updated = updates.get(0);
-
-		log.info("{} {} crawlItemDetail({}) - {}", Utility.indentEnd(), Utility.toStringJson(updated, 16), domain, Utility.toStringPastTimeReadable(started));
-		return updated;
-	}
-
-	// 개별 기업 상세 정보
-	public String extractTextItemDetails() {
-		log.info("{} extractTextItemDetails()", Utility.indentStart());
-		long started = System.currentTimeMillis();
-
-		List<StockItemDomain> items = stockItemService.search(null);
-		String result = extractTextItemDetails(items);
-
-		log.info("{} {} extractTextItemDetails() - {}", Utility.indentEnd(), Utility.size(items), Utility.toStringPastTimeReadable(started));
-		return result;
-	}
-	private String extractTextItemDetails(List<StockItemDomain> items) {
-		log.info("{} extractTextItemDetails(#{})", Utility.indentStart(), Utility.size(items));
-		long started = System.currentTimeMillis();
-
-		String mark = "KEYWORD\t개별 기업 상세\tURL\thttps://finance.naver.com/item/coinfo.naver?code=\n";
-		StringBuffer sb = new StringBuffer();
-		sb.append(mark);
-
-		int processors = Runtime.getRuntime().availableProcessors() - 1;
-		ExecutorService service = Executors.newFixedThreadPool(processors);
-		List<Future<String>> futureList = new ArrayList<>();
-		List<List<StockItemDomain>> subSets = split(items, processors);
-		subSets.forEach(list -> {
-			CrawlItemDetailThread thread = new CrawlItemDetailThread(list);
-			Future<String> future = service.submit(thread);
-			futureList.add(future);
-		});
-		for (Future<String> task : futureList) {
-			try {
-				String result = task.get();
-				sb.append(result);
-			} catch (Exception e) {
-			}
-		}
-
-		sb.append(mark);
-		String result = new String(sb);
-		log.info("{} {} extractTextItemDetails(#{}) - {}", Utility.indentEnd(), Utility.ellipsisEscape(result, 16, 8), Utility.size(items), Utility.toStringPastTimeReadable(started));
-		return result;
 	}
 
 	public StockParserResult crawlItemCompanyDividendTop() {

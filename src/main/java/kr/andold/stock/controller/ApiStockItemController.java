@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import kr.andold.stock.domain.StockItemDomain;
 import kr.andold.stock.param.StockItemParam;
-import kr.andold.stock.service.StockCrawlerService;
 import kr.andold.stock.service.StockItemService;
 import kr.andold.stock.service.Utility;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("api/item")
 public class ApiStockItemController {
 	@Autowired private StockItemService service;
-
-	@Autowired
-	private StockCrawlerService stockCrawlerService;
 
 	@PostMapping(value = {"search"})
 	public List<StockItemDomain> search(@RequestBody StockItemParam param) {
@@ -47,17 +43,6 @@ public class ApiStockItemController {
 
 		log.info("{} {} - update({}, {})", Utility.indentEnd(), updated, id, domain);
 		return updated;
-	}
-
-	@ResponseBody
-	@PostMapping(value = "crawl")
-	public StockItemDomain crawl(@RequestBody StockItemParam param) {
-		log.info("{} crawl()", Utility.indentStart());
-
-		StockItemDomain response = stockCrawlerService.crawlItemDetail(param);
-
-		log.info("{} {} - crawl()", Utility.indentEnd(), response);
-		return response;
 	}
 
 }

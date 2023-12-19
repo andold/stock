@@ -15,13 +15,6 @@ public class StockCrawlerServiceTest {
 	private StockCrawlerService service;
 
 	@Test
-	public void testExtractTextItemDetails() {
-		String text = service.extractTextItemDetails();
-		StockParserResult result = StockParserService.parse(text, true);
-		log.info("{}", result);
-	}
-
-	@Test
 	public void testExtractAllEtfFromNaver() {
 		String text = service.extractAllEtfFromNaver();
 		StockParserResult result = StockParserService.parse(text, true);
