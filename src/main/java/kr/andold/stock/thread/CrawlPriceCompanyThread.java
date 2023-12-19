@@ -159,7 +159,9 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 
 	public static StockParserResult crawl(List<StockItemDomain> items) {
 		int processors = Runtime.getRuntime().availableProcessors() - 1;
-		processors = 1;
+		if (debug) {
+			processors = 1;
+		}
 		ExecutorService service = Executors.newFixedThreadPool(processors);
 		List<Future<StockParserResult>> futureList = new ArrayList<>();
 		ConcurrentLinkedQueue<StockItemDomain> queue = new ConcurrentLinkedQueue<StockItemDomain>();
