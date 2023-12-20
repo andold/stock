@@ -25,7 +25,7 @@ public class CrawlCompanyDetailThread implements Callable<StockParserResult> {
 	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02006V.xml&menuNo=44";
 	private static String MARK_END_POINT = "KEYWORD\t주식 상세\tCrawlCompanyDetailThread\tURL\t" + URL + "\n";
 	private static final int TIMEOUT = 4000;
-	private static final int JOB_SIZE = 8;
+	private static final int JOB_SIZE = 4;
 	private static final String MARK_ANDOLD_SINCE = StockCrawlerService.MARK_ANDOLD_SINCE;
 	private static final Boolean debug = StockCrawlerService.debug;
 	private static final String NEWLINE = "\n";
@@ -134,11 +134,15 @@ public class CrawlCompanyDetailThread implements Callable<StockParserResult> {
 			StringBuffer sb = new StringBuffer();
 			sb.append(String.format("KEYWORD\t%s\t%s\n", code, symbol));
 			sb.append("KEYWORD\t");
+			sb.append("\"");
 			sb.append(driver.findElement(By.xpath("//dd[@id='item_add_info_left_01_dd']"), TIMEOUT).getText());	// 표준산업분류
+			sb.append("\"");
 			sb.append(NEWLINE);
 
 			sb.append("KEYWORD\t");
+			sb.append("\"");
 			sb.append(driver.findElement(By.xpath("//dd[@id='FICS']"), TIMEOUT).getText());	// FICS
+			sb.append("\"");
 			sb.append(NEWLINE);
 
 			sb.append("KEYWORD\t");

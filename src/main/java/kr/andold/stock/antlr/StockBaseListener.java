@@ -120,18 +120,6 @@ public class StockBaseListener implements StockListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExtractItemDetailsEtf(StockParser.ExtractItemDetailsEtfContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExtractItemDetailsEtf(StockParser.ExtractItemDetailsEtfContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterExtractlDividendHistory(StockParser.ExtractlDividendHistoryContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -139,18 +127,6 @@ public class StockBaseListener implements StockListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitExtractlDividendHistory(StockParser.ExtractlDividendHistoryContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterExtractTextStockPrice(StockParser.ExtractTextStockPriceContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExtractTextStockPrice(StockParser.ExtractTextStockPriceContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

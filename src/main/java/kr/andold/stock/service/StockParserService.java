@@ -81,37 +81,15 @@ public class StockParserService {
 
 	}
 
-	// 네이버 종목상세
-	public static void naverStockDetail(Integer date, String code, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7, String ckospi, String cwics, String etfckospi,
-			String etfcwics, String currentPrice, String volumeOfListedShares, String priceEarningsRatio) {
-		log.info("{} naverStockDetail(『{} {}』『{} {} {} {} {} {} {} {}』『{} {}』『{} {}』『{}』『{}』『{}』)", Utility.indentMiddle(), date, code, symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7, ckospi, cwics, etfckospi, etfcwics, currentPrice,
-				volumeOfListedShares, priceEarningsRatio);
-		Boolean etf = null;
-		if (etfckospi != null || etfcwics != null) {
-			etf = true;
-		} else if (ckospi != null || cwics != null) {
-			etf = false;
-		}
-		StockItemDomain stockItem = new StockItemDomain(symbol, code, null, volumeOfListedShares, etf, null, null, null);
-		stockItem.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
-		stockItem.setVolumeOfListedShares(volumeOfListedShares);
-		stockItem.setCategory(ckospi, cwics, etfckospi, etfcwics);
-		LIST_STOCK_ITEM.add(stockItem);
-
-		// dividend
-		StockDividendDomain stockDividend = new StockDividendDomain(code, currentPrice, null, null, priceEarningsRatio, null, null, null, null, null, null, null);
-		LIST_STOCK_DIVIDEND.add(stockDividend);
-
-		log.trace("{} naverStockDetail(...) - Item:: {}", Utility.indentMiddle(), stockItem);
-		log.trace("{} naverStockDetail(...) - Dividend:: {}", Utility.indentMiddle(), stockDividend);
-	}
-
 	// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 일자별시세
 	// KSD 증권정보포털 SEIBro > ETF > ETF종합정보 > 기준가추이
 	public static void crawlPriceCompanyEtf(Integer date
 			, String code, String symbol
 			, String base, String closing, String market, String high, String low, String volume
 			) {
+		log.info("{} crawlPriceCompanyEtf(『{}』『{}{}』『{}{}{}{}{}{}』)", Utility.indentMiddle(), date
+				, code, symbol
+				, base, closing, market, high, low, volume);
 		if (code == null || base == null) {
 			return;
 		}
@@ -131,19 +109,25 @@ public class StockParserService {
 	public static void crawlCompanyDetails(Integer date
 			, String code
 			, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7
-			, String category, String category1, String category2, String category3, String category4, String category5, String category6, String category7
-			, String fics, String fics1, String fics2, String fics3, String fics4, String fics5, String fics6, String fics7
+			, String category
+			, String fics
 			, String ea
 			, String ipo
 			) {
+		log.info("{} crawlCompanyDetails(『{}』『{}』『{}{}{}{}{}{}{}{}』『{}』『{}』『{}』『{}』)", Utility.indentMiddle(), date
+				, code
+				, symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7
+				, category
+				, fics
+				, ea
+				, ipo);
 		StockItemDomain item = StockItemDomain.builder()
 				.code(code)
 				.volumeOfListedShares(Utility.parseInteger(ea, null))
 				.ipoDate(Utility.parseDateTime(ipo, null))
 				.build();
 		item.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
-		item.setCategory(category, category1, category2, category3, category4, category5, category6, category7
-				, fics, fics1, fics2, fics3, fics4, fics5, fics6, fics7);
+		item.setCategory(category, fics);
 		LIST_STOCK_ITEM.add(item);
 	}
 

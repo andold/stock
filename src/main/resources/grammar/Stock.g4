@@ -16,8 +16,7 @@ import kr.andold.stock.service.StockParserService;
 }
 
 stockDocument
-:	extractTextStockPrice			//	네이버 > 증권홈 > 국내증시 > 배당 > 코스피 > 종목클릭 > 시세
-|	extractlDividendHistory
+:	extractlDividendHistory
 |	seibroDividend					// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당내역전체겁색 > 조회
 |	crawlDividendHistoryEtfThread
 |	extractAllEtfFromNaver
@@ -83,10 +82,9 @@ KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 주식 �
 (
 	KEYWORD TAB code=NUMBER TAB symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*	NEWLINE
 			//	KEYWORD 	 093920 	 서원인텍 
-	KEYWORD TAB category=word? category1=word? category2=word? category3=word? category4=word? category5=word? category6=word? category7=word*			NEWLINE
-			//	KEYWORD 	 전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업 
-	KEYWORD TAB fics=word? fics1=word? fics2=word? fics3=word? fics4=word? fics5=word? fics6=word? fics7=word*			NEWLINE
-			//	KEYWORD 	 IT > 하드웨어 > 휴대폰 및 관련부품 
+
+	KEYWORD TAB category=STRING									NEWLINE		//	KEYWORD 	 "부동산업" 
+	KEYWORD TAB fics=STRING										NEWLINE		//	KEYWORD 	 "> >" 
 	KEYWORD TAB ea=NUMBER WORD									NEWLINE		//	KEYWORD 	 18,600,000 주 
 	KEYWORD TAB ipo=DATE										NEWLINE		//	KEYWORD 	 2007/12/20 
 	WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27
@@ -94,8 +92,8 @@ KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 주식 �
 		StockParserService.crawlCompanyDetails(20231217
 			, $code.text
 			, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
-			, $category.text, $category1.text, $category2.text, $category3.text, $category4.text, $category5.text, $category6.text, $category7.text
-			, $fics.text, $fics1.text, $fics2.text, $fics3.text, $fics4.text, $fics5.text, $fics6.text, $fics7.text
+			, $category.text
+			, $fics.text
 			, $ea.text
 			, $ipo.text
 		);
@@ -193,24 +191,6 @@ KEYWORD TAB WORD WORD WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEY
 ;
 
 
-extractItemDetailsEtf:
-	symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* code=NUMBER	NEWLINE		//	금화피에스시 036190
-	WORD ckospi=WORD cwics=WORD? TAB															NEWLINE
-	WORD TAB currentPrice=WORD WORD WORD WORD WORD TAB		NEWLINE		//	주가/전일대비/수익률 	 27,050원 / +200원 / +0.74% 	 
-	WORD TAB volumeOfListedShares=NUMBER TAB				NEWLINE		//	상장주식수 	 6,000,000 	 
-{
-	StockParserService.naverStockDetail(20231127
-		, $code.text
-		, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
-		, null, null
-		, $ckospi.text, $cwics.text
-		, $currentPrice.text
-		, $volumeOfListedShares.text
-		, null
-	);
-};
-
-
 extractlDividendHistory:
 	KEYWORD TAB WORD WORD WORD TAB WORD TAB WORD	NEWLINE		//	KEYWORD 	 일반기업 배당금 내역 	 URL 	 "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285
 	(
@@ -234,33 +214,6 @@ extractlDividendHistory:
 		WORD TAB WORD TAB DATE						NEWLINE		//	andold 	 since 	 2023-11-27 
 	)+
 	KEYWORD TAB WORD WORD WORD TAB WORD TAB WORD	NEWLINE		//	KEYWORD 	 일반기업 배당금 내역 	 URL 	 "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285 
-;
-
-
-extractTextStockPrice:
-	KEYWORD TAB WORD WORD WORD TAB WORD TAB WORD							NEWLINE		//	KEYWORD 	 주식 시세 이력 	 URL 	 https://finance.naver.com/item/sise.naver?code=
-	(
-		code=NUMBER TAB word+												NEWLINE		//	000850	화천기공 
-		WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE		//	날짜 	 종가 	 전일비 	 시가 	 고가 	 저가 	 거래량
-		((
-			TAB																NEWLINE		//		 
-		) | (
-			DATE TAB closing=NUMBER TAB NUMBER TAB market=NUMBER TAB high=NUMBER TAB low=NUMBER TAB volume=NUMBER TAB		NEWLINE
-					//	2023.12.04 	 32,650 	 50 	 32,700 	 32,850 	 32,450 	 2,525 	 
-		) {
-			StockParserService.extractTextStockPrice(20231127
-				, $code.text
-				, $DATE.text
-				, $closing.text
-				, $market.text
-				, $high.text
-				, $low.text
-				, $volume.text
-			);
-		})+
-		WORD TAB WORD TAB DATE											NEWLINE		//	andold 	 since 	 2023-11-27 
-	)+
-	KEYWORD TAB WORD WORD WORD TAB WORD TAB WORD							NEWLINE		//	KEYWORD 	 주식 시세 이력 	 URL 	 https://finance.naver.com/item/sise.naver?code= 
 ;
 
 
