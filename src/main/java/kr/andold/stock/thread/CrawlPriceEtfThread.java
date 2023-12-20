@@ -50,7 +50,7 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 
 		try {
 			driver.navigate().to(URL);
-			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT).click(); // 넓게 보기 아이콘 크릭
+			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT * 4).click(); // 넓게 보기 아이콘 크릭
 			new Select(driver.findElement(By.xpath("//select[@id='selectbox1_input_0']"), TIMEOUT)).selectByVisibleText("1주"); // 검색항목을 『1주』로
 			iconClosePopupedElement = driver.findElement(By.xpath("//div[@id='group1520']/a[@id='anchor2']"), TIMEOUT); // 검색결과창의 닫기 아이콘
 			frame = driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"), TIMEOUT);
