@@ -135,6 +135,7 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 			String previousTableClosingMark = driver.getText(By.xpath(XPATH_MARK_TABLE_CLOSING_READ_DONE), 1, "andold");	//	이전거 첫번째 종가
 			String XPATH_MARK_TABLE_AMOUNT_READ_DONE = "//table[@id='grid1_body_table']/tbody/tr[1]/td[7]";	//	7th: 거래량
 			String previousTableAmountMark = driver.getText(By.xpath(XPATH_MARK_TABLE_AMOUNT_READ_DONE), 1, "andold");	//	이전거 첫번째 거래량
+			driver.waitUntilIsDisplayed(By.xpath("//div[@id='group1500']"), false, TIMEOUT);
 			driver.clickIfExist(By.xpath("//a[@id='group155']"));
 			//	이전거 지워져야지
 			driver.waitUntilTextNotInclude(By.xpath(XPATH_MARK_TABLE_CLOSING_READ_DONE), TIMEOUT, previousTableClosingMark);
