@@ -21,11 +21,11 @@ import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.StockParserService.StockParserResult;
 import lombok.extern.slf4j.Slf4j;
 
-//	KSD 증권정보포털 SEIBro > 주식 > 종목별상세정보 > 일자별시세
+// KSD 증권정보포털 SEIBro > ETF > ETF종합정보 > 기준가추이 :: 일별시세
 @Slf4j
-public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
-	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02007V.xml&menuNo=45";
-	private static String MARK_START_END_POINT = "KEYWORD\t주식 일자별시세\tCrawlPriceCompanyThread\tURL\t" + URL + "\n";
+public class CrawlPriceEtfThread implements Callable<StockParserResult> {
+	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06033V.xml&menuNo=182";
+	private static String MARK_START_END_POINT = "KEYWORD\tETF 일별시세\tCrawlPriceEtfThread\tURL\t" + URL + "\n";
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 8;
 	private static final String MARK_ANDOLD_SINCE = StockCrawlerService.MARK_ANDOLD_SINCE;
@@ -36,12 +36,12 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 	private WebElement frame;
 	private WebElement iconClosePopupedElement; // 검색결과창의 닫기 아이콘
 
-	public CrawlPriceCompanyThread(ConcurrentLinkedQueue<StockItemDomain> list) {
+	public CrawlPriceEtfThread(ConcurrentLinkedQueue<StockItemDomain> list) {
 		this.items = list;
 	}
 
 	public StockParserResult call() throws Exception {
-		log.info("{} CrawlPriceCompanyThread(#{})", Utility.indentStart(), Utility.size(items));
+		log.info("{} CrawlPriceEtfThread(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
 		StockParserResult result = StockParserResult.builder().build();
@@ -51,9 +51,9 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 		try {
 			driver.navigate().to(URL);
 			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT).click(); // 넓게 보기 아이콘 크릭
-			new Select(driver.findElement(By.xpath("//select[@id='sd1_selectbox1_input_0']"), TIMEOUT)).selectByVisibleText("1주"); // 검색항목을 『1주』로
-			iconClosePopupedElement = driver.findElement(By.xpath("//div[@id='group58']/a[@id='anchor2']"), TIMEOUT); // 검색결과창의 닫기 아이콘
-			frame = driver.findElement(By.xpath("//iframe[@id='iframe1']"), TIMEOUT);
+			new Select(driver.findElement(By.xpath("//select[@id='selectbox1_input_0']"), TIMEOUT)).selectByVisibleText("1주"); // 검색항목을 『1주』로
+			iconClosePopupedElement = driver.findElement(By.xpath("//div[@id='group1520']/a[@id='anchor2']"), TIMEOUT); // 검색결과창의 닫기 아이콘
+			frame = driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"), TIMEOUT);
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 			driver.quit();
@@ -70,33 +70,33 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 				}
 				
 				String code = item.getCode();
-				if (code == null || code.isBlank() || (item.getEtf() != null && item.getEtf())) {
-					log.debug("{} {}/{} 대상아님 『{}』 CrawlPriceCompanyThread.extract()", Utility.indentMiddle(), cx, Utility.size(items), item);
+				if (code == null || code.isBlank() || (item.getEtf() != null && !item.getEtf())) {
+					log.debug("{} {}/{} 대상아님 『{}』 CrawlPriceEtfThread.extract()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
 				}
-				if (debug && new Random().nextDouble() < 0.9) {
-					log.debug("{} {}/{} 테스트 뽑기 제외 『{}』 CrawlPriceCompanyThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
+				if (debug && new Random().nextDouble() < 0.95) {
+					log.debug("{} {}/{} 테스트 뽑기 제외 『{}』 CrawlPriceEtfThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
 				}
 
-				log.debug("{} {}/{} 진행 『{}』 CrawlPriceCompanyThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
+				log.debug("{} {}/{} 진행 『{}』 CrawlPriceEtfThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 				String text = extract(item);
 				sb.append(text);
 			}
 			sb.append(MARK_START_END_POINT);
 			String text = new String(sb);
-			StockParserResult resultDividendHistoryEtf = StockParserService.parse(text, debug);
-			result.addAll(resultDividendHistoryEtf);
+			StockParserResult resultParsed = StockParserService.parse(text, debug);
+			result.addAll(resultParsed);
 		}
 		driver.quit();
-		log.info("{} 『{}』 CrawlPriceCompanyThread(#{}) - {}", Utility.indentEnd(), result, Utility.size(items), Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』 CrawlPriceEtfThread(#{}) - {}", Utility.indentEnd(), result, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
 	private String extract(StockItemDomain item) {
-		log.info("{} CrawlPriceCompanyThread.extract({})", Utility.indentStart(), item);
+		log.info("{} CrawlPriceEtfThread.extract({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
 		try {
@@ -118,21 +118,27 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 			inputSearchElement.sendKeys(code); // 코드 입력
 			
 			// 종목명 검색 아이콘
-			driver.findElement(By.xpath("//a[@id='P_group100']/img"), TIMEOUT).click();
+			String XPATH_MARK_CODE_SEARCH_DONE = "//ul[@id='contentsList']/li/a";
+			String previousSymbol = driver.getText(By.xpath(XPATH_MARK_CODE_SEARCH_DONE), 1, "andold");	//	이전거 첫번째 종목 검색 결과
+			driver.findElement(By.xpath("//a[@id='group236']/img"), TIMEOUT).click();
+			//	이전거 지워져야지
+			driver.waitUntilTextNotInclude(By.xpath(XPATH_MARK_CODE_SEARCH_DONE), TIMEOUT, previousSymbol);
 
 			//	검색 결과에서 선택
-			driver.findElementIncludeText(By.xpath("//ul[@id='P_isinList']/li/a/span"), TIMEOUT, code).click();
+			driver.findElement(By.xpath(XPATH_MARK_CODE_SEARCH_DONE), TIMEOUT).click();
 
 			//	팝업이 닫혔다, 돌아간다
 			driver.switchTo().defaultContent();
 
 			// 조회 아이콘 클릭
-			String XPATH_MARK_SEARCH_DONE = "//table/tbody/tr[1]/td[7]";
-			String previousAmount = driver.getText(By.xpath(XPATH_MARK_SEARCH_DONE), TIMEOUT, "andold");	//	이전거 첫번째 거래양
-			driver.findElement(By.xpath("//a[@id='group44']"), TIMEOUT).click();
-
+			String XPATH_MARK_TABLE_CLOSING_READ_DONE = "//table[@id='grid1_body_table']/tbody/tr[1]/td[2]";	//	2nd: 종가
+			String previousTableClosingMark = driver.getText(By.xpath(XPATH_MARK_TABLE_CLOSING_READ_DONE), 1, "andold");	//	이전거 첫번째 종가
+			String XPATH_MARK_TABLE_AMOUNT_READ_DONE = "//table[@id='grid1_body_table']/tbody/tr[1]/td[7]";	//	7th: 거래량
+			String previousTableAmountMark = driver.getText(By.xpath(XPATH_MARK_TABLE_AMOUNT_READ_DONE), 1, "andold");	//	이전거 첫번째 거래량
+			driver.findElement(By.xpath("//a[@id='group155']"), TIMEOUT).click();
 			//	이전거 지워져야지
-			driver.waitUntilTextNotInclude(By.xpath(XPATH_MARK_SEARCH_DONE), TIMEOUT, previousAmount);
+			driver.waitUntilTextNotInclude(By.xpath(XPATH_MARK_TABLE_CLOSING_READ_DONE), TIMEOUT, previousTableClosingMark);
+			driver.waitUntilTextNotInclude(By.xpath(XPATH_MARK_TABLE_AMOUNT_READ_DONE), TIMEOUT, previousTableAmountMark);
 
 			//	테이블
 			WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
@@ -145,7 +151,7 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 
 			String result = new String(sb);
 
-			log.info("{} #{} 『{}』 CrawlPriceCompanyThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
+			log.info("{} #{} 『{}』 CrawlPriceEtfThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
@@ -153,7 +159,7 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 			iconClosePopupedElement.click();
 		}
 
-		log.info("{} #{} 『{}』 CrawlPriceCompanyThread.extract(#{}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
+		log.info("{} #{} 『{}』 CrawlPriceEtfThread.extract(#{}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
 		return "";
 	}
 
@@ -167,7 +173,7 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 		ConcurrentLinkedQueue<StockItemDomain> queue = new ConcurrentLinkedQueue<StockItemDomain>();
 		queue.addAll(items);
 		for (int cx = 0; cx < processors; cx++) {
-			CrawlPriceCompanyThread thread = new CrawlPriceCompanyThread(queue);
+			CrawlPriceEtfThread thread = new CrawlPriceEtfThread(queue);
 			Future<StockParserResult> future = service.submit(thread);
 			futureList.add(future);
 		}
@@ -177,7 +183,7 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 			try {
 				StockParserResult result = task.get();
 				container.addAll(result);
-				log.info("{} 『{}』 CrawlPriceCompanyThread.crawl(#{})", Utility.indentMiddle(), result, Utility.size(items));
+				log.info("{} 『{}』 CrawlPriceEtfThread.crawl(#{})", Utility.indentMiddle(), result, Utility.size(items));
 			} catch (Exception e) {
 			}
 		}

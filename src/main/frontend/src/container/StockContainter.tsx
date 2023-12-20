@@ -119,18 +119,18 @@ function Header(props: any) {
 			setSpinner(spinner - 1);
 		});
 	}
-	function handleOnClickCrawlPrices() {
+	function handleOnClickCrawlPriceCompany() {
 		setSpinner(spinner + 1);
-		store.crawlPrices({}, (_: any) => {
+		store.crawlPriceCompany({}, (_: any) => {
 			if (spinner == 1) {	// 마지막에서만 재검색
 				onChange && onChange({});
 			}
 			setSpinner(spinner - 1);
 		});
 	}
-	function handleOnClickCrawlPriceCompay() {
+	function handleOnClickCrawlPriceEtf() {
 		setSpinner(spinner + 1);
-		store.crawlPriceCompay({}, (_: any) => {
+		store.crawlPriceEtf({}, (_: any) => {
 			if (spinner == 1) {	// 마지막에서만 재검색
 				onChange && onChange({});
 			}
@@ -230,8 +230,8 @@ function Header(props: any) {
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlItemEtfDetails}>Crawl Item ETF Details</Button>
 									<Button size="sm" variant="secondary" className="ms-1" style={{ display: "none" }} onClick={handleOnClickCrawlItemDetails}>Crawl Item Details</Button>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlDividendHistoryEtf}>Crawl Dividend History ETF</Button>
-									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlPrices}>Crawl Prices</Button>
-									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlPriceCompay}>Crawl Price Company</Button>
+									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlPriceCompany}>Crawl Price Company</Button>
+									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlPriceEtf}>Crawl Price ETF</Button>
 								</>)}
 								<Button size="sm" variant="secondary" className="ms-1" title={form.mode.toString()} onClick={handleOnClickDownload}>다운로드</Button>
 								<UploadButtonView />

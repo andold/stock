@@ -54,8 +54,14 @@ public class StockCrawlerServiceTest {
 	}
 
 	@Test
-	public void testCrawlPriceCompay() {
-		StockParserResult result = service.crawlPriceCompay();
+		public void testCrawlPriceCompany() {
+			StockParserResult result = service.crawlPriceCompany();
+			log.info("{}", result);
+		}
+
+	@Test
+	public void testCrawlPriceEtf() {
+		StockParserResult result = service.crawlPriceEtf();
 		log.info("{}", result);
 	}
 

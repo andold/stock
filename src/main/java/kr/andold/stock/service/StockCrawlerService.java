@@ -25,6 +25,7 @@ import kr.andold.stock.service.StockParserService.StockParserResult;
 import kr.andold.stock.thread.CrawlCompanyDetailThread;
 import kr.andold.stock.thread.CrawlCompanyDividendHistoryThread;
 import kr.andold.stock.thread.CrawlPriceCompanyThread;
+import kr.andold.stock.thread.CrawlPriceEtfThread;
 import kr.andold.stock.thread.CrawlEtfDetailThread;
 import kr.andold.stock.thread.CrawlEtfDividendHistoryThread;
 import kr.andold.stock.thread.CrawlPriceThread;
@@ -78,15 +79,43 @@ public class StockCrawlerService {
 		return all;
 	}
 
-	public StockParserResult crawlPriceCompay() {
-		log.info("{} crawlPriceCompay()", Utility.indentStart());
+	public StockParserResult crawlPriceCompany() {
+		log.info("{} crawlPriceCompany()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		StockParserResult result = CrawlPriceCompanyThread.crawl(stockItemService.search(null));
-		put(result);
+		StockParserResult container = new StockParserResult();
 
-		log.info("{} {} crawlPriceCompay() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
-		return result;
+		StockParserResult resultPrices = CrawlPriceCompanyThread.crawl(stockItemService.search(null));
+		put(resultPrices);
+		container.addAll(resultPrices);
+
+		// 현재가 적용 to dividend
+		List<StockDividendDomain> resultRecent = currentPriceFromPrices(resultPrices.getPrices());
+		stockDividendService.put(resultRecent);
+		container.getDividends().addAll(resultRecent);
+
+		log.info("{} {} crawlPriceCompany() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
+		return container;
+	}
+
+	public StockParserResult crawlPriceEtf() {
+		log.info("{} crawlPriceEtf()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		StockParserResult container = new StockParserResult();
+
+		StockParserResult resultPrices = CrawlPriceEtfThread.crawl(stockItemService.search(null));
+		put(resultPrices);
+		container.addAll(resultPrices);
+
+		// 현재가 적용 to dividend
+		List<StockDividendDomain> resultRecent = currentPriceFromPrices(resultPrices.getPrices());
+		stockDividendService.put(resultRecent);
+		container.getDividends().addAll(resultRecent);
+		container.getDividends().addAll(resultRecent);
+
+		log.info("{} {} crawlPriceEtf() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
+		return container;
 	}
 
 	private void put(StockParserResult result) {

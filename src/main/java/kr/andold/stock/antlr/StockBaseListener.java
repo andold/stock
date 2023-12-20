@@ -36,6 +36,18 @@ public class StockBaseListener implements StockListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCrawlPriceEtf(StockParser.CrawlPriceEtfContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCrawlPriceEtf(StockParser.CrawlPriceEtfContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterCrawlPriceCompay(StockParser.CrawlPriceCompayContext ctx) { }
 	/**
 	 * {@inheritDoc}

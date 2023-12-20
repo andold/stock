@@ -25,6 +25,31 @@ stockDocument
 |	crawlCompanyTopDividend			// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당순위
 |	crawlCompanyDetails				// KSD증권정보포털(SEIBro) > 기업 > 기업기본정보
 |	crawlPriceCompay				// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 일자별시세
+|	crawlPriceEtf					// KSD 증권정보포털 SEIBro > ETF > ETF종합정보 > 기준가추이
+;
+
+
+// KSD 증권정보포털 SEIBro > ETF > ETF종합정보 > 기준가추이
+crawlPriceEtf:
+KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD								NEWLINE		//	KEYWORD 	 ETF 일별시세 	 CrawlPriceEtfThread 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06033V.xml&menuNo=182 
+(
+	code=NUMBER TAB symbol=word+												NEWLINE		//	143860 	 TIGER 헬스케어 
+	WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE		//	일자 	 종가 	 전일비 	 시가 	 고가 	 저가 	 거래량 	 거래대금 	 
+	((
+		TAB TAB TAB TAB TAB TAB TAB TAB											NEWLINE		//		 	 	 	 	 	 	 	 
+	) | (
+		base=DATE? TAB closing=NUMBER? TAB NUMBER? TAB market=NUMBER? TAB high=NUMBER? TAB low=NUMBER TAB volume=NUMBER TAB NUMBER? TAB		NEWLINE
+				//	2023/12/15 	 32,300 	 320 	 32,165 	 32,320 	 32,070 	 121,115 	 3,900 	 
+		{
+			StockParserService.crawlPriceCompanyEtf(20231217
+				, $code.text, $symbol.text
+				, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
+			);
+		}
+	))+
+	WORD TAB WORD TAB DATE							NEWLINE		//	andold 	 since 	 2023-11-27 
+)+
+KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD	NEWLINE		//	KEYWORD 	 ETF 일별시세 	 CrawlPriceEtfThread 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06033V.xml&menuNo=182 
 ;
 
 
@@ -40,7 +65,7 @@ KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD						NEWLINE		//	KEYWORD 	 주�
 		base=DATE TAB closing=NUMBER TAB NUMBER TAB market=NUMBER TAB high=NUMBER TAB low=NUMBER TAB volume=NUMBER TAB		NEWLINE
 				//	2023/12/18 	 11,430 	 30 	 11,400 	 11,500 	 11,370 	 16,124 
 		{
-			StockParserService.crawlPriceCompay(20231217
+			StockParserService.crawlPriceCompanyEtf(20231217
 				, $code.text, $symbol.text
 				, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
 			);

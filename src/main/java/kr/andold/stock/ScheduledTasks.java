@@ -23,8 +23,8 @@ public class ScheduledTasks {
 	// 매일
 	@Scheduled(cron = "15 30 22 * * *")
 	public void scheduleTaskDaily() {
-		stockCrawlerService.crawlPrices();
-		stockCrawlerService.crawlPriceCompay();
+		stockCrawlerService.crawlPriceCompany();
+		stockCrawlerService.crawlPriceEtf();
 	}
 
 	// 매주

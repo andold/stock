@@ -107,7 +107,8 @@ public class StockParserService {
 	}
 
 	// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 일자별시세
-	public static void crawlPriceCompay(Integer date
+	// KSD 증권정보포털 SEIBro > ETF > ETF종합정보 > 기준가추이
+	public static void crawlPriceCompanyEtf(Integer date
 			, String code, String symbol
 			, String base, String closing, String market, String high, String low, String volume
 			) {
