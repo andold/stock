@@ -125,7 +125,7 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 			driver.waitUntilTextNotInclude(By.xpath(XPATH_MARK_CODE_SEARCH_DONE), TIMEOUT, previousSymbol);
 
 			//	검색 결과에서 선택
-			driver.findElement(By.xpath(XPATH_MARK_CODE_SEARCH_DONE), TIMEOUT).click();
+			driver.clickIfExist(By.xpath(XPATH_MARK_CODE_SEARCH_DONE));
 
 			//	팝업이 닫혔다, 돌아간다
 			driver.switchTo().defaultContent();
