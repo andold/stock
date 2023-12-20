@@ -70,7 +70,7 @@ public class StockItemDomain extends StockItemEntity {
 	public void setCategory(String string, String... args) {
 		StringBuffer stringBuffer = new StringBuffer("");
 		if (string != null) {
-			stringBuffer.append(string.replaceAll("[\s\"]+", " ").strip());
+			stringBuffer.append(string.replaceAll("[\s\"]+", "").strip());
 		}
 
 		if (args == null || args.length == 0) {
