@@ -78,14 +78,14 @@ public class CrawlCompanyDetailThread implements Callable<StockParserResult> {
 				}
 
 				String text = extract(item);
-				log.info("{} {}/{} 『{}』 CrawlCompanyDetailThread() - {}", Utility.indentMiddle(), cx, Utility.size(items), item, text);
+				log.debug("{} {}/{} 『{}』 CrawlCompanyDetailThread() - {}", Utility.indentMiddle(), cx, Utility.size(items), item, text);
 				sb.append(text);
 			}
 			sb.append(MARK_END_POINT);
 			String text = new String(sb);
-			StockParserResult resultDividendHistoryEtf = StockParserService.parse(text, debug);
+			StockParserResult resultDividendHistoryEtf = StockParserService.parse(text, true);
 			result.addAll(resultDividendHistoryEtf);
-			log.info("{} 변경 필요 『{}』 CrawlCompanyDetailThread(#{}) - {}", Utility.indentMiddle(), resultDividendHistoryEtf, Utility.size(items), Utility.toStringPastTimeReadable(started));
+			log.debug("{} 변경 필요 『{}』 CrawlCompanyDetailThread(#{}) - {}", Utility.indentMiddle(), resultDividendHistoryEtf, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		}
 		driver.quit();
 		log.info("{} {} CrawlCompanyDetailThread(#{}) - {}", Utility.indentMiddle(), result, Utility.size(items), Utility.toStringPastTimeReadable(started));
