@@ -16,15 +16,15 @@ public class ScheduledTasks {
 	private StockCrawlerService stockCrawlerService;
 
 	// 매시마다
-	@Scheduled(cron = "15 30 * * * *")
+	@Scheduled(cron = "15 30 8-16 * * *")
 	public void scheduleTaskHourly() {
 	}
 
 	// 매일
 	@Scheduled(cron = "15 30 22 * * *")
 	public void scheduleTaskDaily() {
-		stockCrawlerService.crawlPriceCompany();
-		stockCrawlerService.crawlPriceEtf();
+		stockCrawlerService.crawlPriceCompany();	//	기업주가 시세
+		stockCrawlerService.crawlPriceEtf();		//	ETF 주가 시세
 	}
 
 	// 매주
@@ -39,17 +39,17 @@ public class ScheduledTasks {
 	public void scheduleTaskMonthly() {
 		stockCrawlerService.crawlItems();
 		stockCrawlerService.crawlItemCompanyDividendTop();	// 기업 배당 상위
-		stockCrawlerService.crawlEtfDetails();	//	ETF 상세
-		stockCrawlerService.crawlItemCompanyDetails();	//	기업주식 상세
+		stockCrawlerService.crawlEtfDetails();				//	ETF 상세
+		stockCrawlerService.crawlItemCompanyDetails();		//	기업주식 상세
 	}
 
 	// 매분기
-	@Scheduled(cron = "15 30 20 1 1,4,7,10 *")
+	@Scheduled(cron = "15 30 20 8 1,4,7,10 *")
 	public void scheduleTaskQuarter() {
 	}
 
 	// 매년
-	@Scheduled(cron = "15 30 20 1 1 *")
+	@Scheduled(cron = "15 30 20 8 1 *")
 	public void scheduleTaskYearly() {
 	}
 
