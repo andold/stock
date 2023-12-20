@@ -107,7 +107,7 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 			driver.switchTo().defaultContent();
 
 			//	종목명 검색 링크 클릭
-			driver.findElement(By.xpath("//a[@id='sn_group4']"), TIMEOUT).click();
+			driver.clickIfExist(By.xpath("//a[@id='sn_group4']"));
 
 			//	떠 있는 팝업으로 이동
 			driver.switchTo().frame(frame);
@@ -120,7 +120,7 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 			// 종목명 검색 아이콘
 			String XPATH_MARK_CODE_SEARCH_DONE = "//ul[@id='contentsList']/li/a";
 			String previousSymbol = driver.getText(By.xpath(XPATH_MARK_CODE_SEARCH_DONE), 1, "andold");	//	이전거 첫번째 종목 검색 결과
-			driver.findElement(By.xpath("//a[@id='group236']/img"), TIMEOUT).click();
+			driver.clickIfExist(By.xpath("//a[@id='group236']/img"));
 			//	이전거 지워져야지
 			driver.waitUntilTextNotInclude(By.xpath(XPATH_MARK_CODE_SEARCH_DONE), TIMEOUT, previousSymbol);
 
@@ -135,7 +135,7 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 			String previousTableClosingMark = driver.getText(By.xpath(XPATH_MARK_TABLE_CLOSING_READ_DONE), 1, "andold");	//	이전거 첫번째 종가
 			String XPATH_MARK_TABLE_AMOUNT_READ_DONE = "//table[@id='grid1_body_table']/tbody/tr[1]/td[7]";	//	7th: 거래량
 			String previousTableAmountMark = driver.getText(By.xpath(XPATH_MARK_TABLE_AMOUNT_READ_DONE), 1, "andold");	//	이전거 첫번째 거래량
-			driver.findElement(By.xpath("//a[@id='group155']"), TIMEOUT).click();
+			driver.clickIfExist(By.xpath("//a[@id='group155']"));
 			//	이전거 지워져야지
 			driver.waitUntilTextNotInclude(By.xpath(XPATH_MARK_TABLE_CLOSING_READ_DONE), TIMEOUT, previousTableClosingMark);
 			driver.waitUntilTextNotInclude(By.xpath(XPATH_MARK_TABLE_AMOUNT_READ_DONE), TIMEOUT, previousTableAmountMark);
