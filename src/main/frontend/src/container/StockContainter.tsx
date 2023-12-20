@@ -103,13 +103,6 @@ function Header(props: any) {
 			onChange && onChange({});
 		});
 	}
-	function handleOnClickCrawlItemDetails() {
-		setSpinner(spinner + 1);
-		store.crawlItemDetails(null, () => {
-			setSpinner(spinner - 1);
-			onChange && onChange({});
-		});
-	}
 	function handleOnClickCrawlDividendHistoryEtf() {
 		setSpinner(spinner + 1);
 		store.crawlDividendHistoryEtf({}, (_: any) => {
@@ -228,7 +221,6 @@ function Header(props: any) {
 									<Button size="sm" variant="secondary" className="ms-1" onClick={crawlItemCompanyDividendTop}>Crawl Item Company Dividend Top</Button>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlItemCompanyDetails}>Crawl Item Company Details</Button>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlItemEtfDetails}>Crawl Item ETF Details</Button>
-									<Button size="sm" variant="secondary" className="ms-1" style={{ display: "none" }} onClick={handleOnClickCrawlItemDetails}>Crawl Item Details</Button>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlDividendHistoryEtf}>Crawl Dividend History ETF</Button>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlPriceCompany}>Crawl Price Company</Button>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlPriceEtf}>Crawl Price ETF</Button>

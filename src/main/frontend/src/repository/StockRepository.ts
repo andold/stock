@@ -83,11 +83,6 @@ class StockRepository {
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
-	async crawlItemDetails(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.get("./api/crawl/item/details", request)
-			.then(response => onSuccess && onSuccess(request, response.data, element))
-			.catch(error => onError && onError(request, error, element));
-	}
 	async crawlItemCompanyDetails(request: any, onSuccess?: any, onError?: any, element?: any) {
 		return axios.get("./api/crawl/item/company/details", request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
@@ -137,11 +132,6 @@ class StockRepository {
 	}
 	async updateItem(request: StockItemModel, onSuccess?: any, onError?: any, element?: any) {
 		return axios.put(`./api/item/${request.id}`, request)
-			.then(response => onSuccess && onSuccess(request, response.data, element))
-			.catch(error => onError && onError(request, error, element));
-	}
-	async crawlItem(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.post(`./api/item/crawl`, request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}

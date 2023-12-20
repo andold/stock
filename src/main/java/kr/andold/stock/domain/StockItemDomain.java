@@ -70,11 +70,11 @@ public class StockItemDomain extends StockItemEntity {
 	public void setCategory(String string, String... args) {
 		StringBuffer stringBuffer = new StringBuffer("");
 		if (string != null) {
-			stringBuffer.append(string.replaceAll("[　\n\"]+", " ").trim());
+			stringBuffer.append(string.replaceAll("[\s\"]+", " ").strip());
 		}
 
 		if (args == null || args.length == 0) {
-			setCategory(new String(stringBuffer).trim());
+			setCategory(new String(stringBuffer).strip());
 			return;
 		}
 
@@ -84,7 +84,7 @@ public class StockItemDomain extends StockItemEntity {
 			}
 
 			stringBuffer.append(" ");
-			stringBuffer.append(arg.replaceAll("[　]+", "").trim());
+			stringBuffer.append(arg.replaceAll("[\s\"]+", "").strip());
 		}
 
 		setCategory(new String(stringBuffer).trim());
@@ -93,7 +93,6 @@ public class StockItemDomain extends StockItemEntity {
 	@Override
 	public String toString() {
 		return String.format("%s %s", getCode(), getSymbol());
-//		return Utility.toStringJson(this);
 	}
 
 	public static StockItemDomain of(StockItemEntity entity) {

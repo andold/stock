@@ -367,13 +367,6 @@ export function OperateColumn(props: any) {
 				onChange && onChange({});
 			}
 		});
-		store.crawlItem(data, (_: any) => {
-			jobs--;
-			if (jobs == 0) {
-				setSpinner(false);
-				onChange && onChange({});
-			}
-		});
 		store.crawlDividendHistoryEtfMonthly(data, (_: any) => {
 			jobs--;
 			if (jobs == 0) {
@@ -382,10 +375,10 @@ export function OperateColumn(props: any) {
 			}
 		});
 	}
-	async function handleOnClickPriceChart(e: any) {
+	async function handleOnClickPriceChart(_: any) {
 		window.open(`https://finance.naver.com/item/fchart.naver?code=${data.code}`, "네이버");
 	}
-	async function handleOnClickDetail(e: any) {
+	async function handleOnClickDetail(_: any) {
 		window.open(`https://finance.naver.com/item/coinfo.naver?code=${data.code}`, "네이버");
 	}
 

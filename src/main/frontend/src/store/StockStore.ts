@@ -54,9 +54,6 @@ class StockStore {
 	crawlItems(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlItems(request, onSuccess, onError, element);
 	}
-	crawlItemDetails(request?: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.crawlItemDetails(request, onSuccess, onError, element);
-	}
 	crawlItemCompanyDetails(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlItemCompanyDetails(request, onSuccess, onError, element);
 	}
@@ -83,9 +80,6 @@ class StockStore {
 	}
 	updateItem(request: StockItemModel, onSuccess?: any, onError?: any, element?: any) {
 		repository.updateItem(request, onSuccess, onError, element);
-	}
-	crawlItem(request?: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.crawlItem(request, onSuccess, onError, element);
 	}
 
 

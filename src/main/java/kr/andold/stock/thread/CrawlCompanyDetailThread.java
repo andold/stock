@@ -27,7 +27,7 @@ public class CrawlCompanyDetailThread implements Callable<StockParserResult> {
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 4;
 	private static final String MARK_ANDOLD_SINCE = StockCrawlerService.MARK_ANDOLD_SINCE;
-	private static final Boolean debug = StockCrawlerService.debug;
+	private static final Boolean debug = StockCrawlerService.debug && false;
 	private static final String NEWLINE = "\n";
 
 	private ConcurrentLinkedQueue<StockItemDomain> items;

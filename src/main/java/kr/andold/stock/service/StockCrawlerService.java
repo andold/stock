@@ -28,7 +28,6 @@ import kr.andold.stock.thread.CrawlPriceCompanyThread;
 import kr.andold.stock.thread.CrawlPriceEtfThread;
 import kr.andold.stock.thread.CrawlEtfDetailThread;
 import kr.andold.stock.thread.CrawlEtfDividendHistoryThread;
-import kr.andold.stock.thread.CrawlPriceThread;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -58,25 +57,6 @@ public class StockCrawlerService {
 	@Value("${app.crawler.debug:false}")
 	public void setDegug(Boolean value) {
 		debug = value;
-	}
-
-	public StockParserResult crawlPrices() {
-		log.info("{} crawlPrices()", Utility.indentStart());
-		long started = System.currentTimeMillis();
-
-		StockParserResult all = StockParserResult.builder().items(new ArrayList<>()).dividends(new ArrayList<>()).histories(new ArrayList<>()).prices(new ArrayList<>()).build();
-
-		StockParserResult resultPrices = CrawlPriceThread.crawl(stockItemService.search(null));
-		all.addAll(resultPrices);
-		put(resultPrices);
-
-		// 현재가 적용 to dividend
-		List<StockDividendDomain> resultRecent = currentPriceFromPrices(resultPrices.getPrices());
-		stockDividendService.put(resultRecent);
-		all.addAll(resultPrices);
-
-		log.info("{} {} crawlPrices() - {}", Utility.indentEnd(), all, Utility.toStringPastTimeReadable(started));
-		return all;
 	}
 
 	public StockParserResult crawlPriceCompany() {
