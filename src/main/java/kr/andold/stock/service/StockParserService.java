@@ -112,6 +112,10 @@ public class StockParserService {
 			, String code, String symbol
 			, String base, String closing, String market, String high, String low, String volume
 			) {
+		if (code == null || base == null) {
+			return;
+		}
+
 		LIST_STOCK_PRICE.add(StockPriceDomain.builder()
 				.code(code)
 				.base(Utility.parseDateTime(base, null))
