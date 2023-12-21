@@ -60,7 +60,12 @@ public class StockPriceService implements CommonBlockService<StockPriceParam, St
 
 	@Override
 	public List<StockPriceDomain> search(StockPriceParam param) {
-		List<StockPriceEntity> entities = param == null ? repository.findAll() : repository.search(param);
+		List<StockPriceEntity> entities;
+		if (param == null) {
+			entities = repository.findAll();
+		} else {
+			entities = repository.search(param);
+		}
 		List<StockPriceDomain> domains = new ArrayList<StockPriceDomain>();
 		for (StockPriceEntity entity : entities) {
 			domains.add(StockPriceDomain.of(entity));

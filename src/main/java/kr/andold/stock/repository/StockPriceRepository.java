@@ -16,8 +16,9 @@ public interface StockPriceRepository extends JpaRepository<StockPriceEntity, In
 			+ "	SELECT	x"
 			+ "		FROM	StockPriceEntity x"
 			//	code
-			+ "		WHERE	("
-			+ "			x.code			=	:#{#param.code}"
+			+ "	WHERE	("
+			+ "				:#{#param.code}	IS NULL"
+			+ "			OR	x.code			=	:#{#param.code}"
 			//	start time
 			+ "		)	AND	("
 			+ "				:#{#param.start}	IS NULL"

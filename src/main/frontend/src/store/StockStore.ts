@@ -3,7 +3,7 @@ import moment from "moment";
 import StockDividendModel, { StockItemModel } from "../model/StockModel";
 
 import repository from "../repository/StockRepository";
-import { PriceEarningsRatioCellRenderer, PriorityCellRenderer, RecentDividendAgGridCellRenderer, OperateColumn, SymbolTypeCode as SymbolEtfTypeCode } from "../view/AgGridCellRenderer";
+import { PriceEarningsRatioCellRenderer, PriorityCellRenderer, RecentDividendAgGridCellRenderer, OperateColumn, SymbolTypeCode as SymbolEtfTypeCode, PriceRecentCellRenderer } from "../view/AgGridCellRenderer";
 
 const CELL_STYLE_LEFT = { textAlign: "left", padding: 1, };
 const CELL_STYLE_RIGHT = { textAlign: "right", padding: 1, paddingRight: 4, };
@@ -221,7 +221,7 @@ class StockStore {
 	}
 
 	// stock item section
-	columnDefsItem(hides?: string[], onChange?: any): any {
+	columnDefs(hides?: string[], onChange?: any): any {
 		return [{
 			field: "id",
 			hide: hides && hides.includes("id"),
@@ -281,8 +281,9 @@ class StockStore {
 			headerName: "현재가",
 			hide: hides && hides.includes("currentPrice"),
 			valueGetter: (params: any) => params.data.custom.dividend?.currentPrice?.toLocaleString(),
+			cellRenderer: PriceRecentCellRenderer,
 			cellStyle: CELL_STYLE_RIGHT,
-			width: 16,
+			width: 64,
 		}, {
 			field: "dividend",
 			headerName: "최근 배당",

@@ -1,12 +1,13 @@
 import { AgGridReact } from "ag-grid-react";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import moment from "moment";
 
 // domain
 import StockDividendModel, { StockDividendFormModel, StockItemModel } from "../model/StockModel";
 
 // store
 import store from "../store/StockStore";
-import moment from "moment";
+import priceStore from "../store/PriceStore";
 
 //	StockItemView.tsx
 export default ((props: any) => {
@@ -18,7 +19,7 @@ export default ((props: any) => {
 	const [columnDefs, setColumnDefs] = useState([]);
 
 	useEffect(() => {
-		const comlumDefs = store.columnDefsItem(["id", "symbol", "code", "etf", "type", "volumeOfListedShares", "baseMonth", "dividendCycle", "ipoDate", "sigma", "--operate", "created",], onChange);
+		const comlumDefs = store.columnDefs(["id", "symbol", "code", "etf", "type", "volumeOfListedShares", "baseMonth", "dividendCycle", "ipoDate", "sigma", "created",], onChange);
 		setColumnDefs(comlumDefs);
 		const request = {
 			keyword: form.keyword,
@@ -55,6 +56,16 @@ export default ((props: any) => {
 			});
 			whenItemDividendChange(items);
 		});
+		priceStore.search({start: moment().subtract(14, "days").format("YYYY-MM-DD")}, (_: any, prices: any[]) => {
+			const map = priceStore.makeMap(prices);
+			items.forEach((item: StockItemModel) => {
+				item.custom = {
+					...item.custom,
+					prices: map.get(item.code),
+				};
+			});
+			whenItemDividendChange(items);
+	});
 	}
 	function whenItemDividendChange(items: StockItemModel[]) {
 		const request = {

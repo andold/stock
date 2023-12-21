@@ -6,6 +6,7 @@ import StockDividendModel from "../model/StockModel";
 
 // store
 import store from "../store/StockStore";
+import Price from "../model/Price";
 
 const FILL_COLOR_PRIORITY = [
 	`rgb(128, 0, 0)`,
@@ -51,6 +52,77 @@ const FILL_COLOR_MONTH = [
 ];
 
 // AgGridCellRenderer.tsx
+
+// 주가
+const LINE_HEIGHT = 26;
+export function PriceRecentCellRenderer(param: any) {
+	const prices: Price[] = param.data?.custom?.prices;
+
+	const FONT_SIZE = 10;
+	const ref = useRef(null);
+	const [info, setInfo] = useState<any>({min: 1, max: 1});
+
+	useEffect(() => {
+		let max = Number.MIN_SAFE_INTEGER;
+		let min = Number.MAX_SAFE_INTEGER;
+		prices?.forEach((price: Price) => {
+			max = Math.max(max, price.closing);
+			min = Math.min(min, price.closing);
+		});
+		setInfo({min: min + 1, max: max});
+	}, [param]);
+
+	// 종가로 정렬
+	function compare(left: Price, right: Price) {
+		return moment(left.base).diff(moment(right.base));
+	}
+	
+	//	툴팁
+	function renderTooltip(props: any) {
+		return (
+			<Tooltip className="mytooltip" {...props}>
+				<Table bordered striped size="sm" variant="dark" className="my-0 py-0" style={{ fontSize: FONT_SIZE }}>
+					<thead><tr>
+						<th>날짜</th>
+						<th>종가</th>
+						<th>시가</th>
+						<th>고가</th>
+						<th>저가</th>
+						<th>거래량</th>
+					</tr></thead><tbody>
+						{
+							prices?.sort(compare).map((price: Price) => (
+								<tr key={price.id}>
+									<th className="px-1">{moment(price.base).format("YYYY-MM-DD (dd)")}</th>
+									<td className="text-end px-1">{price.closing.toLocaleString()}</td>
+									<td className="text-end px-1">{price.market.toLocaleString()}</td>
+									<td className="text-end px-1">{price.high.toLocaleString()}</td>
+									<td className="text-end px-1">{price.low.toLocaleString()}</td>
+									<td className="text-end px-1">{price.volume.toLocaleString()}</td>
+								</tr>))
+						}
+					</tbody></Table>
+			</Tooltip>
+		);
+	};
+	return (<>
+		<Row className="mx-0 text-right">
+			<Col sm="5" md="4" xl="3" xxl="3" className="m-0 p-0 text-right">{param.value}</Col>
+			<Col ref={ref} className="ms-2 p-0">
+				<OverlayTrigger overlay={renderTooltip} trigger={["hover", "hover"]} placement="auto">
+					<Row className="m-0 p-0"> {
+						prices?.sort(compare).map((price: Price) => (
+							<Col key={price.id} className={"px-0 bg-primary"}
+								style={{ marginRight: 1,
+								height: (price.closing - info.min) / (info.max - info.min) * LINE_HEIGHT,
+								marginTop: LINE_HEIGHT - (price.closing - info.min) / (info.max - info.min) * LINE_HEIGHT, }}></Col>
+						))
+					}</Row>
+				</OverlayTrigger>
+			</Col>
+		</Row>
+	</>);
+}
 
 // 종목이름 타입 코드
 export function SymbolTypeCode(param: any) {
