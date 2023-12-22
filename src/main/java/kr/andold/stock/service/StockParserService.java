@@ -87,7 +87,7 @@ public class StockParserService {
 			, String code, String symbol
 			, String base, String closing, String market, String high, String low, String volume
 			) {
-		log.info("{} crawlPriceCompanyEtf(『{}』『{}{}』『{}{}{}{}{}{}』)", Utility.indentMiddle(), date
+		log.info("{} crawlPriceCompanyEtf(『{}』『{} {}』『{} {} {} {} {} {}』)", Utility.indentMiddle(), date
 				, code, symbol
 				, base, closing, market, high, low, volume);
 		if (code == null || base == null) {
@@ -114,7 +114,7 @@ public class StockParserService {
 			, String ea
 			, String ipo
 			) {
-		log.info("{} crawlCompanyDetails(『{}』『{}』『{}{}{}{}{}{}{}{}』『{}』『{}』『{}』『{}』)", Utility.indentMiddle(), date
+		log.info("{} crawlCompanyDetails(『{}』『{}』『{} {} {} {} {} {} {} {}』『{}』『{}』『{}』『{}』)", Utility.indentMiddle(), date
 				, code
 				, symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7
 				, category
@@ -164,33 +164,10 @@ public class StockParserService {
 		LIST_STOCK_DIVIDEND_HOSTORY.add(StockDividendHistoryDomain.builder().code(code).base(Utility.parseDateTime(base)).pay(Utility.parseDateTime(pay)).dividend(Utility.parseInteger(dividend, null)).build());
 	}
 
-	public static void extractTextStockPrice(Integer date, String code, String base, String closing, String market, String high, String low, String volume) {
-		StockPriceDomain price = StockPriceDomain.builder().code(code).base(Utility.parseDateTime(base)).closing(Utility.parseInteger(closing)).market(Utility.parseInteger(market)).high(Utility.parseInteger(high)).low(Utility.parseInteger(low))
-				.volume(Utility.parseInteger(volume)).build();
-		LIST_STOCK_PRICE.add(price);
-		log.trace("{} naverStockPrices(...) - {}", Utility.indentMiddle(), price);
-	}
-
 	public static void seibroDividendItem(Integer date, String base, String pay, String code, String symbol, String dividend) {
 		StockDividendHistoryDomain history = new StockDividendHistoryDomain(code, base, pay, dividend);
 		LIST_STOCK_DIVIDEND_HOSTORY.add(history);
 		log.trace("{} seibroDividendItem(...) - {}", Utility.indentMiddle(), history);
-	}
-
-	public static StockParserResult testHtmlFile(String filename) {
-		return testHtmlFile(filename, new HashMap<String, Boolean>());
-	}
-
-	public static StockParserResult testHtmlFile(String filename, Map<String, Boolean> mapExtract) {
-		log.info("{} testHtmlFile(『{}』)", Utility.indentStart(), filename);
-
-		String html = Utility.readClassPathFile(filename);
-		String textFromHtml = HtmlParserService.extractTextFromHtml(html, mapExtract);
-
-		StockParserResult result = parse(textFromHtml, true);
-
-		log.info("{} {} testHtmlFile(『{}』)", Utility.indentEnd(), result, filename);
-		return result;
 	}
 
 	public static StockParserResult testText(String text) {

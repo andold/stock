@@ -50,7 +50,7 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 
 		try {
 			driver.navigate().to(URL);
-			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT).click(); // 넓게 보기 아이콘 크릭
+			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT * 4).click(); // 넓게 보기 아이콘 크릭, 처음은 좀더 오래 기다려 준다
 			new Select(driver.findElement(By.xpath("//select[@id='sd1_selectbox1_input_0']"), TIMEOUT)).selectByVisibleText("1주"); // 검색항목을 『1주』로
 			iconClosePopupedElement = driver.findElement(By.xpath("//div[@id='group58']/a[@id='anchor2']"), TIMEOUT); // 검색결과창의 닫기 아이콘
 			frame = driver.findElement(By.xpath("//iframe[@id='iframe1']"), TIMEOUT);
@@ -96,7 +96,7 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 	}
 
 	private String extract(StockItemDomain item) {
-		log.info("{} CrawlPriceCompanyThread.extract({})", Utility.indentStart(), item);
+		log.debug("{} CrawlPriceCompanyThread.extract({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
 		try {
@@ -145,7 +145,7 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 
 			String result = new String(sb);
 
-			log.info("{} #{} 『{}』 CrawlPriceCompanyThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
+			log.debug("{} #{} 『{}』 CrawlPriceCompanyThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
@@ -153,7 +153,7 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 			iconClosePopupedElement.click();
 		}
 
-		log.info("{} #{} 『{}』 CrawlPriceCompanyThread.extract(#{}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
+		log.debug("{} #{} 『{}』 CrawlPriceCompanyThread.extract(#{}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
 		return "";
 	}
 
