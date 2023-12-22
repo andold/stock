@@ -71,12 +71,12 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 				
 				String code = item.getCode();
 				if (code == null || code.isBlank() || (item.getEtf() != null && !item.getEtf())) {
-					log.debug("{} {}/{} 대상아님 『{}』 CrawlPriceEtfThread.extract()", Utility.indentMiddle(), cx, Utility.size(items), item);
+					log.trace("{} {}/{} 대상아님 『{}』 CrawlPriceEtfThread.extract()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
 				}
 				if (debug && new Random().nextDouble() < 0.95) {
-					log.debug("{} {}/{} 테스트 뽑기 제외 『{}』 CrawlPriceEtfThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
+					log.trace("{} {}/{} 테스트 뽑기 제외 『{}』 CrawlPriceEtfThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
 				}
@@ -96,7 +96,7 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 	}
 
 	private String extract(StockItemDomain item) {
-		log.info("{} CrawlPriceEtfThread.extract({})", Utility.indentStart(), item);
+		log.debug("{} CrawlPriceEtfThread.extract({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
 		try {
@@ -152,7 +152,7 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 
 			String result = new String(sb);
 
-			log.info("{} #{} 『{}』 CrawlPriceEtfThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
+			log.debug("{} #{} 『{}』 CrawlPriceEtfThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
@@ -160,7 +160,7 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 			iconClosePopupedElement.click();
 		}
 
-		log.info("{} #{} 『{}』 CrawlPriceEtfThread.extract(#{}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
+		log.debug("{} #{} 『{}』 CrawlPriceEtfThread.extract(#{}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
 		return "";
 	}
 
