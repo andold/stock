@@ -17,11 +17,9 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class StockDividendHistoryParam extends StockDividendHistoryDomain {
-	private String keyword;
 	private Date start;
 	private Date end;
-	private String type;
-	private Boolean etf;
+	private List<String> codes;
 
 	private List<StockDividendHistoryDomain> creates;
 	private List<StockDividendHistoryDomain> duplicates;
@@ -30,8 +28,8 @@ public class StockDividendHistoryParam extends StockDividendHistoryDomain {
 
 	@Override
 	public String toString() {
-		return String.format("StockDividendHistoryParam(keyword: %s, creates: #%d, duplicates: #%d, updates: #%d, removes: #%d, %s)",
-			getKeyword(), Utility.size(creates), Utility.size(duplicates), Utility.size(updates), Utility.size(removes), super.toString());
+		return String.format("DividendHistory(start: %s, end: %s, codes: #%d, creates: #%d, duplicates: #%d, updates: #%d, removes: #%d, ...)",
+				start, end, Utility.size(codes), Utility.size(creates), Utility.size(duplicates), Utility.size(updates), Utility.size(removes));
 	}
 
 }

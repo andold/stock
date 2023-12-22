@@ -15,11 +15,10 @@ public interface StockDividendHistoryRepository extends JpaRepository<StockDivid
 	final String QUERY_SEARCH_PARAM	=	""
 			+ "	SELECT	x"
 			+ "		FROM	StockDividendHistoryEntity x"
-			//	keyword
+			//	codes
 			+ "		WHERE	("
-			+ "				:#{#param.keyword}	IS NULL"
-			+ "			OR	:#{#param.keyword}	=	''"
-			+ "			OR	x.code		LIKE	CONCAT('%', :#{#param.keyword}, '%')"
+			+ "				:#{#param.codes}	IS NULL"
+			+ "			OR	x.code				IN	:#{#param.codes}"
 			//	start time
 			+ "		)	AND	("
 			+ "				:#{#param.start}	IS NULL"
