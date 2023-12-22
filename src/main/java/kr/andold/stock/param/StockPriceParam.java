@@ -20,6 +20,7 @@ import lombok.experimental.SuperBuilder;
 public class StockPriceParam extends StockPriceDomain {
 	private Date start;
 	private Date end;
+	private List<String> codes;
 
 	private List<StockDividendHistoryDomain> creates;
 	private List<StockDividendHistoryDomain> duplicates;
@@ -28,8 +29,8 @@ public class StockPriceParam extends StockPriceDomain {
 
 	@Override
 	public String toString() {
-		return String.format("StockPriceDomain(start: %s, end: %s, creates: #%d, duplicates: #%d, updates: #%d, removes: #%d, %s)",
-				getStart(), getEnd(), Utility.size(creates), Utility.size(duplicates), Utility.size(updates), Utility.size(removes), super.toString());
+		return String.format("Price(start: %s, end: %s, codes: #%d, creates: #%d, duplicates: #%d, updates: #%d, removes: #%d, ...)",
+				start, end, Utility.size(codes), Utility.size(creates), Utility.size(duplicates), Utility.size(updates), Utility.size(removes));
 	}
 
 }

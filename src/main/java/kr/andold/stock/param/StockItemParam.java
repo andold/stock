@@ -18,6 +18,9 @@ import lombok.experimental.SuperBuilder;
 public class StockItemParam extends StockItemDomain {
 	private String keyword;
 	private Float priceEarningsRatio;
+	private Integer totalPages;
+	
+	private List<StockItemDomain> items;
 
 	private List<StockItemDomain> creates;
 	private List<StockItemDomain> duplicates;
@@ -26,8 +29,8 @@ public class StockItemParam extends StockItemDomain {
 
 	@Override
 	public String toString() {
-		return String.format("StockItemParam(keyword: %s, creates: #%d, duplicates: #%d, updates: #%d, removes: #%d, %s)",
-			getKeyword(), Utility.size(creates), Utility.size(duplicates), Utility.size(updates), Utility.size(removes), super.toString());
+		return String.format("StockItemParam(keyword: %s, totalPages: #%d, items: #%d, creates: #%d, duplicates: #%d, updates: #%d, removes: #%d, %s)",
+				keyword, totalPages, Utility.size(items), Utility.size(creates), Utility.size(duplicates), Utility.size(updates), Utility.size(removes), super.toString());
 	}
 
 }

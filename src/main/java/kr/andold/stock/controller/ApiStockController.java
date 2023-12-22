@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletResponse;
 import kr.andold.stock.domain.StockDividendDomain;
+import kr.andold.stock.param.StockDividendParam;
 import kr.andold.stock.param.StockParam;
 import kr.andold.stock.service.StockCrawlerService;
 import kr.andold.stock.service.StockService;
@@ -59,7 +60,7 @@ public class ApiStockController {
 	}
 
 	@PostMapping(value = {"search"})
-	public List<StockDividendDomain> search(@RequestBody StockDividendDomain param) {
+	public List<StockDividendDomain> search(@RequestBody StockDividendParam param) {
 		log.info("{} search({})", Utility.indentStart(), param);
 
 		List<StockDividendDomain> list = service.search(param);

@@ -1,8 +1,8 @@
 package kr.andold.stock.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -21,20 +21,21 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("api/item")
 public class ApiStockItemController {
-	@Autowired private StockItemService service;
+	@Autowired
+	private StockItemService service;
 
-	@PostMapping(value = {"search"})
-	public List<StockItemDomain> search(@RequestBody StockItemParam param) {
-		log.info("{} search({})", Utility.indentStart(), param.toString());
+	@PostMapping(value = { "search" })
+	public StockItemParam search(@RequestBody StockItemParam param, @PageableDefault(size = 32) Pageable pageable) {
+		log.info("{} search({})", Utility.indentStart(), param);
 
-		List<StockItemDomain> list = service.search(param);
+		StockItemParam result = service.search(param, pageable);
 
-		log.info("{} #{} - search({})", Utility.indentEnd(), Utility.size(list), param.toString());
-		return list;
+		log.info("{} #{} - search({})", Utility.indentEnd(), result, param);
+		return result;
 	}
 
 	@ResponseBody
-	@PutMapping(value = {"{id}"})
+	@PutMapping(value = { "{id}" })
 	public StockItemDomain update(@PathVariable(name = "id") Integer id, @RequestBody StockItemDomain domain) {
 		log.info("{} update({}, {})", Utility.indentStart(), id, domain);
 

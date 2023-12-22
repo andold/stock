@@ -16,11 +16,6 @@ class StockRepository {
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
-	async search(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.post("./api/search", request)
-			.then(response => onSuccess && onSuccess(request, response.data, element))
-			.catch(error => onError && onError(request, error, element));
-	}
 	async update(request: any, onSuccess?: any, onError?: any, element?: any) {
 		return axios.put("./api/" + request.id, request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
@@ -126,7 +121,7 @@ class StockRepository {
 
 	// stock item section
 	async searchItem(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.post("./api/item/search", request)
+		return axios.post(`./api/item/search?page=${request?.page}&size=${request?.size}`, request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
@@ -140,11 +135,6 @@ class StockRepository {
 	// stock dividend section
 
 	// stock dividend history section
-	async searchDividendHistory(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.post("./api/dividend/history/search", request)
-			.then(response => onSuccess && onSuccess(request, response.data, element))
-			.catch(error => onError && onError(request, error, element));
-	}
 	async crawlDividendHistory(request: any, onSuccess?: any, onError?: any, element?: any) {
 		return axios.post(`./api/dividend/history/crawl`, request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))

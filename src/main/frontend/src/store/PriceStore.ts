@@ -1,6 +1,7 @@
 import { makeAutoObservable } from "mobx";
 
 import repository from "../repository/PriceRepository";
+import Price from "../model/Price";
 
 // PriceStore.ts
 class PriceStore {
@@ -12,9 +13,9 @@ class PriceStore {
 		repository.search(request, onSuccess, onError, element);
 	}
 
-	makeMap(prices: any[]) {
+	makeMap(prices: Price[]) {
 		const map = new Map();
-		prices.forEach((price: any) => {
+		prices.forEach((price: Price) => {
 			const prev: any[] = map.get(price.code);
 			if (!prev) {
 				map.set(price.code, [price]);

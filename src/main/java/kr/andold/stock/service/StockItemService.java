@@ -1,11 +1,13 @@
 package kr.andold.stock.service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import kr.andold.stock.domain.StockItemDomain;
@@ -18,14 +20,25 @@ public class StockItemService implements CommonBlockService<StockItemParam, Stoc
 	@Autowired
 	private StockItemRepository repository;
 
+	public StockItemParam search(StockItemParam param, Pageable pageable) {
+		Page<StockItemEntity> page = repository.search(param, pageable);
+		param.setTotalPages(page.getTotalPages());
+		param.setItems(page.get().map(entity -> StockItemDomain.of(entity)).collect(Collectors.toList()));
+		return param;
+	}
+
 	@Override
 	public List<StockItemDomain> search(StockItemParam param) {
-		List<StockItemEntity> entities = param == null ? repository.findAll() : repository.search(param);
-		List<StockItemDomain> domains = new ArrayList<StockItemDomain>();
-		for (StockItemEntity entity : entities) {
-			domains.add(StockItemDomain.of(entity));
+		if (param == null) {
+			param = StockItemParam.builder()
+					.build();
 		}
-		return domains;
+
+		List<StockItemEntity> page = repository.search(param);
+		return page
+				.stream()
+				.map(entity -> StockItemDomain.of(entity))
+				.collect(Collectors.toList());
 	}
 
 	@Override

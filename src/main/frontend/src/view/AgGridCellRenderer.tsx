@@ -114,8 +114,8 @@ export function PriceRecentCellRenderer(param: any) {
 						prices?.sort(compare).map((price: Price) => (
 							<Col key={price.id} className={"px-0 bg-primary"}
 								style={{ marginRight: 1,
-								height: (price.closing - info.min) / (info.max - info.min) * LINE_HEIGHT,
-								marginTop: LINE_HEIGHT - (price.closing - info.min) / (info.max - info.min) * LINE_HEIGHT, }}></Col>
+								height: (price.closing - info.min) / (info.max - info.min) * param?.node?.rowHeight,
+								marginTop: param?.node?.rowHeight - (price.closing - info.min) / (info.max - info.min) * param?.node?.rowHeight, }}></Col>
 						))
 					}</Row>
 				</OverlayTrigger>
@@ -202,7 +202,7 @@ export function PriceEarningsRatioCellRenderer(param: any) {
 	const dividend: StockDividendModel = data.custom?.dividend ? data.custom?.dividend : data;
 	const ref = useRef(null);
 	const [values, setValues] = useState<any>({
-		height: 26,
+		height: param?.node?.rowHeight,
 		max: Math.max(dividend?.dividend, dividend?.dividend1YAgo, dividend?.dividend2YAgo, dividend?.dividend3YAgo),
 		value0: 0,
 		value1: 0,
@@ -213,7 +213,7 @@ export function PriceEarningsRatioCellRenderer(param: any) {
 	useEffect(() => {
 		setValues({
 			...values,
-			height: ref?.current?.offsetHeight || 26,
+			height: ref?.current?.offsetHeight || param?.node?.rowHeight,
 			value0: values.height * dividend?.dividend / values.max,
 			value1: values.height * dividend?.dividend1YAgo / values.max,
 			value2: values.height * dividend?.dividend2YAgo / values.max,
@@ -404,7 +404,7 @@ export function RecentDividendAgGridCellRenderer(param: any) {
 			<Row className="m-0 p-0">
 				{
 					store.range(5).map((cx: number) => (
-						<Row key={Math.random()} className="mx-0 p-0" style={{ height: 4, marginTop: 1 }}>
+						<Row key={Math.random()} className="mx-0 p-0" style={{ height: (param?.node?.rowHeight - 4) / 5 - 2, marginTop: 1 }}>
 							{
 								store.range(12).map((cy: number) => {
 									if (p(end.year() - 5 + cx, cy) > 0) {

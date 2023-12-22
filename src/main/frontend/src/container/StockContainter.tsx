@@ -1,6 +1,6 @@
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { Button, ButtonGroup, Col, Container, InputGroup, Navbar, Offcanvas, Spinner, ToggleButton } from "react-bootstrap";
+import { Button, ButtonGroup, Col, Container, Form, InputGroup, Navbar, Offcanvas, Spinner, ToggleButton } from "react-bootstrap";
 
 // domain
 import { StockDividendFormModel } from "../model/StockModel";
@@ -19,12 +19,17 @@ export default ((props: any) => {
 	const [form, setForm] = useState<StockDividendFormModel>({
 		mode: 0,
 
+		size: 32,
+		page: 0,
+		totalPages: 1,
+		rowHeight: 32,
+
 		filterDividendPayoutRatio: false,
 		filterSigma: false,
 
 		start: null,
 		end: null,
-		keyword: "",
+		keyword: null,
 
 		etf: false,
 		kospi: false,
@@ -186,19 +191,42 @@ function Header(props: any) {
 						</Offcanvas.Title>
 					</Offcanvas.Header>
 					<Offcanvas.Body>
-						<Col xs="auto" className="text-start me-auto">
-							<ButtonGroup>
-								<ToggleButton id="toggle-check-etf" type="checkbox" size="sm" variant="primary" checked={form.etf} value={form.etf}
+						<Col xs="auto" className="mx-1">
+							<InputGroup size="sm">
+							{form.page > 0 &&
+								<Button className="bg-dark px-1" variant="secondary" title={form.page}
+									onClick={() => onChange && onChange({ page: form.page - 1 })}
+								>⇦</Button>
+							}
+								<Form.Select className="border-secondary bg-dark text-white pe-0" value={form.size} title="페이지 크기:: 한 화면에 나오는 데이터의 갯수"
+									onChange={(event: any) => onChange && onChange({ size: event.target.value, page: 0, })}
+								>{[8, 16, 32, 64, 128, 256, 512, 1024].map(x => (<option key={x} value={x}>{x}</option>))}</Form.Select>
+								<Button className="bg-dark px-1" variant="secondary" title={form.page}
+									onClick={() => onChange && onChange({ page: form.page + 1, })}
+								>⇨</Button>
+							</InputGroup>
+						</Col>
+						<Col xs="auto" className="mx-1">
+							<InputGroup size="sm">
+								<Form.Select className="border-secondary bg-dark text-white" value={form.rowHeight} title="한줄이 높이"
+									onChange={(event: any) => onChange && onChange({ rowHeight: event.target.value, })}
+								>{[32, 64, 128, 256, 512, 1024].map(x => (<option key={x} value={x}>{x}</option>))}</Form.Select>
+							</InputGroup>
+						</Col>
+						<Col xs="auto" className="mx-1">
+							<ButtonGroup size="sm">
+								<ToggleButton id="toggle-check-etf" type="checkbox" variant="outline-primary" checked={form.etf} value={form.etf}
 									onChange={(e) => onChange && onChange({ etf: e.currentTarget.checked })}
 								>ETF</ToggleButton>
-								<ToggleButton id="toggle-check-kospi" type="checkbox" size="sm" variant="primary" checked={form.kospi} value={form.kospi}
+								<ToggleButton id="toggle-check-kospi" type="checkbox" variant="outline-primary" checked={form.kospi} value={form.kospi}
 									onChange={(e) => onChange && onChange({ kospi: e.currentTarget.checked })}
 								>KOSPI</ToggleButton>
-								<ToggleButton id="toggle-check-kosdaq" type="checkbox" size="sm" variant="primary" checked={form.kosdaq} value={form.kosdaq}
+								<ToggleButton id="toggle-check-kosdaq" type="checkbox" variant="outline-primary" checked={form.kosdaq} value={form.kosdaq}
 									onChange={(e) => onChange && onChange({ kosdaq: e.currentTarget.checked })}
 								>KOSDAQ</ToggleButton>
 							</ButtonGroup>
 						</Col>
+						<Col xs="auto" className="text-start me-auto" title="divider" />
 						<Col xs="auto" className="mx-0 py-0">
 							<InputGroup size="sm">
 								<Button variant="secondary" size="sm" className="ms-1 text-white" onClick={() => setCollapsed(!collapsed)}>{

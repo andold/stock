@@ -20,9 +20,6 @@ class StockStore {
 	create(request: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.create(request, onSuccess, onError, element);
 	}
-	search(request: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.search(request, onSuccess, onError, element);
-	}
 	update(request: any[], onSuccess?: any, onError?: any, element?: any) {
 		repository.update(request, onSuccess, onError, element);
 	}
@@ -86,9 +83,6 @@ class StockStore {
 	//	stock dividend section
 
 	//	stock dividend history section
-	searchDividendHistory(request: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.searchDividendHistory(request, onSuccess, onError, element);
-	}
 	crawlDividendHistory(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlDividendHistory(request, onSuccess, onError, element);
 	}

@@ -26,7 +26,7 @@ public class ApiPriceController {
 
 		List<StockPriceDomain> list = service.search(param);
 
-		log.info("{} #{} - search({})", Utility.indentEnd(), Utility.size(list));
+		log.info("{} #{} - search({})", Utility.indentEnd(), Utility.size(list), param);
 		return list;
 	}
 

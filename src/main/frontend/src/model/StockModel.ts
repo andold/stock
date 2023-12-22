@@ -33,6 +33,12 @@ export interface StockItemModel {
 export interface StockDividendFormModel {
 	mode: number;
 
+	//	pageable
+	size: number,
+	page: number,
+	totalPages: number,
+	rowHeight: number,
+
 	filterDividendPayoutRatio: boolean;
 	filterSigma: boolean;
 

@@ -27,6 +27,10 @@ public interface StockPriceRepository extends JpaRepository<StockPriceEntity, In
 			+ "		)	AND	("
 			+ "				:#{#param.end}	IS NULL"
 			+ "			OR	x.base		<	:#{#param.end}"
+			//	codes
+			+ "		)	AND	("
+			+ "				:#{#param.codes}	IS NULL"
+			+ "			OR	x.code				IN	:#{#param.codes}"
 			//	updated
 			+ "		)	AND	("
 			+ "				:#{#param.updated}	IS NULL"

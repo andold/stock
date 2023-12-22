@@ -59,7 +59,7 @@ public class StockDividendService implements CommonBlockService<StockDividendPar
 
 	@Override
 	public List<StockDividendDomain> search(StockDividendParam param) {
-		List<StockDividendEntity> entities = param == null ? repository.findAll() : repository.findAll();
+		List<StockDividendEntity> entities = param == null ? repository.findAll() : repository.search(param);
 		List<StockDividendDomain> domains = new ArrayList<StockDividendDomain>();
 		for (StockDividendEntity entity : entities) {
 			domains.add(StockDividendDomain.of(entity));

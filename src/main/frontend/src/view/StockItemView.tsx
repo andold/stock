@@ -8,11 +8,15 @@ import StockDividendModel, { StockDividendFormModel, StockItemModel } from "../m
 // store
 import store from "../store/StockStore";
 import priceStore from "../store/PriceStore";
+import dividendStore from "../store/DividendStore";
+import dividendHistoryStore from "../store/DividendHistoryStore";
+import DividendHistory from "../model/DividendHistory";
+import Price from "../model/Price";
 
 //	StockItemView.tsx
 export default ((props: any) => {
 	const form = props.form as StockDividendFormModel;
-	const { priceEarningsRatio, onChange} = props;
+	const { onChange} = props;
 
 	const gridRef = useRef<AgGridReact>();
 	const [rowData, setRowData] = useState<StockItemModel[]>([]);
@@ -21,32 +25,30 @@ export default ((props: any) => {
 	useEffect(() => {
 		const comlumDefs = store.columnDefs(["id", "symbol", "code", "etf", "type", "volumeOfListedShares", "baseMonth", "dividendCycle", "ipoDate", "sigma", "created",], onChange);
 		setColumnDefs(comlumDefs);
+	}, []);
+	useEffect(() => {
 		const request = {
 			keyword: form.keyword,
 			start: null,
 			end: null,
-			priceEarningsRatio: priceEarningsRatio,
+			size: form.size,
+			page: form.page,
 		};
-		if (form.keyword?.length > 0) {
-			request.start = form.start?.format("YYYY-MM-DDTHH:mm:ss.SSSZZ");
-			request.end = form.end?.format("YYYY-MM-DDTHH:mm:ss.SSSZZ");
-		} else {
-		}
-		store.searchItem(request, (_: any, items: StockItemModel[]) => {
-			whenItemChange(items);
+		store.searchItem(request, (_: any, result: any) => {
+			whenItemChange(result?.items);
 		});
 		return function() { setRowData([]); };
-	}, [form, priceEarningsRatio]);
-	useEffect(() => {
 	}, [form]);
 
 	function whenItemChange(items: StockItemModel[]) {
+		const codes = items?.map((x: any) => x.code);
 		const request = {
 			keyword: null,
 			start: null,
 			end: null,
+			codes: codes,
 		};
-		store.search(request, (_: any, dividends: StockDividendModel[]) => {
+		dividendStore.search(request, (_: any, dividends: StockDividendModel[]) => {
 			const map = store.makeMapDividend(dividends);
 			items.forEach((item: StockItemModel) => {
 				item.custom = {
@@ -56,7 +58,7 @@ export default ((props: any) => {
 			});
 			whenItemDividendChange(items);
 		});
-		priceStore.search({start: moment().subtract(14, "days").format("YYYY-MM-DD")}, (_: any, prices: any[]) => {
+		priceStore.search({codes: codes, start: moment().subtract(14, "days").format("YYYY-MM-DD")}, (_: any, prices: Price[]) => {
 			const map = priceStore.makeMap(prices);
 			items.forEach((item: StockItemModel) => {
 				item.custom = {
@@ -68,11 +70,13 @@ export default ((props: any) => {
 	});
 	}
 	function whenItemDividendChange(items: StockItemModel[]) {
+		const codes = items?.map((x: any) => x.code);
 		const request = {
 			start: moment().subtract(10, "years").startOf("year").format("YYYY-MM-DDTHH:mm:ss.SSSZZ"),
+			codes: codes,
 		};
-		store.searchDividendHistory(request, (_: any, histories: any[]) => {
-			const map = store.makeMapDividendHistory(histories);
+		dividendHistoryStore.search(request, (_: any, histories: DividendHistory[]) => {
+			const map = dividendHistoryStore.makeMap(histories);
 			items.forEach((item: StockItemModel) => {
 				item.custom = {
 					...item.custom,
@@ -95,7 +99,6 @@ export default ((props: any) => {
 			state: [{ colId: 'priceEarningsRatio', sort: 'desc' }],
 			defaultState: { sort: null },
 		});
-		//gridRef?.current?.columnApi?.autoSizeAllColumns();
 		gridRef?.current?.api?.sizeColumnsToFit();
 		gridRef?.current?.api?.setDomLayout("autoHeight");
 	}
@@ -112,6 +115,7 @@ export default ((props: any) => {
 				resizable: true,
 				suppressMenu: true,
 			}}
+			rowHeight={form?.rowHeight}
 			isExternalFilterPresent={() => true}
 			doesExternalFilterPass={doesExternalFilterPass}
 			rowDragManaged={true}

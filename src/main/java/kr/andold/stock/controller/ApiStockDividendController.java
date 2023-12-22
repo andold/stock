@@ -22,11 +22,11 @@ public class ApiStockDividendController {
 
 	@PostMapping(value = {"search"})
 	public List<StockDividendDomain> search(@RequestBody StockDividendParam param) {
-		log.info("{} search({})", Utility.indentStart(), param.toString());
+		log.info("{} search({})", Utility.indentStart(), param);
 
 		List<StockDividendDomain> list = service.search(param);
 
-		log.info("{} #{} - search({})", Utility.indentEnd(), Utility.size(list), param.toString());
+		log.info("{} #{} - search({})", Utility.indentEnd(), Utility.size(list), param);
 		return list;
 	}
 

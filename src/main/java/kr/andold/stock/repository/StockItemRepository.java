@@ -2,6 +2,8 @@ package kr.andold.stock.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -49,9 +51,13 @@ public interface StockItemRepository extends JpaRepository<StockItemEntity, Inte
 			+ "			OR	x.priority									<	8"
 			//	flexable
 			+ "		)"
+			+ "	ORDER BY	x.priority ASC, y.priceEarningsRatio DESC"
 			;
 
 	@Query(value = QUERY_SEARCH_PARAM, nativeQuery = false)
 	List<StockItemEntity> search(@Param("param") StockItemParam param);
+
+	@Query(value = QUERY_SEARCH_PARAM, nativeQuery = false)
+	Page<StockItemEntity> search(@Param("param") StockItemParam param, Pageable pageable);
 
 }

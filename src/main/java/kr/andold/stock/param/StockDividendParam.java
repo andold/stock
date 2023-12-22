@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class StockDividendParam extends StockDividendDomain {
-	private String keyword;
+	private List<String> codes;
 
 	private List<StockDividendDomain> creates;
 	private List<StockDividendDomain> duplicates;
@@ -25,12 +25,8 @@ public class StockDividendParam extends StockDividendDomain {
 
 	@Override
 	public String toString() {
-		return String.format("StockDividendParam(keyword: %s, creates: #%d, duplicates: #%d, updates: #%d, removes: #%d, %s)",
-			getKeyword(), Utility.size(creates), Utility.size(duplicates), Utility.size(updates), Utility.size(removes), super.toString());
-	}
-
-	public String toString(int size) {
-		return Utility.ellipsis(toString(),  size);
+		return String.format("StockDividendParam(creates: #%d, duplicates: #%d, updates: #%d, removes: #%d)",
+			Utility.size(creates), Utility.size(duplicates), Utility.size(updates), Utility.size(removes));
 	}
 
 }
