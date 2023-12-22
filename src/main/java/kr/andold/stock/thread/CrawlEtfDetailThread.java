@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS906032V.xml&menuNo=514";
 	private static String MARK_END_POINT = "KEYWORD\tETF 상세\tURL\t" + URL + "\n";
+	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 8;
 	private static final String MARK_ANDOLD_SINCE = StockCrawlerService.MARK_ANDOLD_SINCE;
 	private static final Boolean debug = StockCrawlerService.debug;
@@ -49,10 +50,10 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 
 		try {
 			driver.navigate().to(URL);
-			symbolSearchElement = driver.findElement(By.xpath("//a[@id='sn_group4']"), 2000);	// 종목명 검색
-			searchElement = driver.findElement(By.xpath("//a[@id='group137']"), 2000);	// 조회
-			popupCloseIconElement = driver.findElement(By.xpath("//div[@id='group241']/a[@id='anchor2']"), 2000); // 검색결과창의 닫기 아이콘
-			driver.findElement(By.xpath("//a[@id='btn_wide']"), 2000).click(); // 넓게 보기 아이콘 크릭
+			symbolSearchElement = driver.findElement(By.xpath("//a[@id='sn_group4']"), TIMEOUT * 4);	// 종목명 검색
+			searchElement = driver.findElement(By.xpath("//a[@id='group137']"), TIMEOUT);	// 조회
+			popupCloseIconElement = driver.findElement(By.xpath("//div[@id='group241']/a[@id='anchor2']"), TIMEOUT); // 검색결과창의 닫기 아이콘
+			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT).click(); // 넓게 보기 아이콘 크릭
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 			driver.quit();
@@ -70,7 +71,7 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 
 				String code = item.getCode();
 				if (code == null || code.isBlank() || item.getEtf() == null || !item.getEtf()) {
-					log.debug("{} {}/{} 대상아님 『{}』 CrawlCompanyDividendHistoryThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
+					log.trace("{} {}/{} 대상아님 『{}』 CrawlCompanyDividendHistoryThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
 				}
@@ -105,10 +106,10 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 
 			driver.switchTo().defaultContent();
 			symbolSearchElement.click();
-			WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"), 2000);
+			WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"), TIMEOUT);
 			driver.switchTo().frame(frame);
-			WebElement inputSearchElement = driver.findElement(By.xpath("//input[@id='search_string']"), 2000);	// 입력창
-			WebElement searchSymbolIconElement = driver.findElement(By.xpath("//a[@id='group236']"), 2000);	// 검색 아이콘
+			WebElement inputSearchElement = driver.findElement(By.xpath("//input[@id='search_string']"), TIMEOUT);	// 입력창
+			WebElement searchSymbolIconElement = driver.findElement(By.xpath("//a[@id='group236']"), TIMEOUT);	// 검색 아이콘
 			inputSearchElement.clear();
 			inputSearchElement.sendKeys("andold"); // 코드 입력
 			searchSymbolIconElement.click();
@@ -120,7 +121,7 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 			Thread.sleep(100);
 
 			String xpathSearchResult = "//ul[@id='contentsList']/li/a";
-			List<WebElement> resultSearch = driver.findElements(By.xpath(xpathSearchResult), 4000);
+			List<WebElement> resultSearch = driver.findElements(By.xpath(xpathSearchResult), TIMEOUT);
 			String oneXpathCandidate1 = String.format("//*[@id='contentsList']//a[contains(text(),'%s']", symbol.strip());
 			String oneXpathCandidate2 = String.format("//*[@id='contentsList']//a[contains(text(),'%s']", symbol.replaceAll("[\s]+", ""));
 			if (resultSearch.size() == 0) {
@@ -129,7 +130,7 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 				log.debug("{} #{} 없는 종목 『{}』 CrawlEtfDividendHistoryThread() - {}", Utility.indentEnd(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
 				return "";
 			} else if (resultSearch.size() == 1) {
-				driver.findElement(By.xpath(xpathSearchResult), 2000).click();
+				driver.findElement(By.xpath(xpathSearchResult), TIMEOUT).click();
 			} else if (!driver.isEmpty(By.xpath(oneXpathCandidate1))) {
 				driver.clickIfExist(By.xpath(oneXpathCandidate1));
 			} else if (!driver.isEmpty(By.xpath(oneXpathCandidate2))) {
@@ -147,13 +148,13 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 
 			StringBuffer sb = new StringBuffer();
 			sb.append(String.format("KEYWORD\t%s\t%s\n", code, symbol));
-			sb.append(driver.findElementIncludeText(By.xpath("//h3[@id='KOR_SECN_NM']"), 2000, code).getText());	// symbol
+			sb.append(driver.findElementIncludeText(By.xpath("//h3[@id='KOR_SECN_NM']"), TIMEOUT, code).getText());	// symbol
 			sb.append(NEWLINE);
-			sb.append(driver.findElement(By.xpath("//div[@id='ETF_BIG_SORT_NM']"), 2000).getText());	// 분류
+			sb.append(driver.findElement(By.xpath("//div[@id='ETF_BIG_SORT_NM']"), TIMEOUT).getText());	// 분류
 			sb.append(NEWLINE);
-			sb.append(driver.findElement(By.xpath("//span[@id='SETUP_DT']"), 2000).getText());	// 설정일
+			sb.append(driver.findElement(By.xpath("//span[@id='SETUP_DT']"), TIMEOUT).getText());	// 설정일
 			sb.append(NEWLINE);
-			sb.append(driver.findElement(By.xpath("//dd[@id='TOT_RECM_RATE']"), 2000).getText());	// 보수(%)
+			sb.append(driver.findElement(By.xpath("//dd[@id='TOT_RECM_RATE']"), TIMEOUT).getText());	// 보수(%)
 			sb.append(NEWLINE);
 
 			sb.append(MARK_ANDOLD_SINCE);
@@ -170,8 +171,13 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 	}
 
 	public static StockParserResult crawl(List<StockItemDomain> items) {
+		log.info("{} CrawlEtfDetailThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
+		long started = System.currentTimeMillis();
+
 		int processors = Runtime.getRuntime().availableProcessors() - 1;
-//		processors = 1;
+		if (debug) {
+			processors = 1;
+		}
 		ExecutorService service = Executors.newFixedThreadPool(processors);
 		List<Future<StockParserResult>> futureList = new ArrayList<>();
 		ConcurrentLinkedQueue<StockItemDomain> queue = new ConcurrentLinkedQueue<StockItemDomain>();
@@ -191,6 +197,8 @@ public class CrawlEtfDetailThread implements Callable<StockParserResult> {
 			} catch (Exception e) {
 			}
 		}
+
+		log.info("{} 『{}』 CrawlEtfDetailThread.crawl(#{}) - {}", Utility.indentEnd(), container, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		return container;
 	}
 

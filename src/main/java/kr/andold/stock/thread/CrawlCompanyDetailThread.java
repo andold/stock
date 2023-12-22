@@ -49,7 +49,7 @@ public class CrawlCompanyDetailThread implements Callable<StockParserResult> {
 
 		try {
 			driver.navigate().to(URL);
-			popupCloseIconElement = driver.findElement(By.xpath("//div[@id='group404']/a[@id='anchor2']"), TIMEOUT * 2); // 검색결과창의 닫기 아이콘
+			popupCloseIconElement = driver.findElement(By.xpath("//div[@id='group404']/a[@id='anchor2']"), TIMEOUT * 4); // 검색결과창의 닫기 아이콘
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 			driver.quit();
@@ -169,6 +169,9 @@ public class CrawlCompanyDetailThread implements Callable<StockParserResult> {
 	}
 
 	public static StockParserResult crawl(List<StockItemDomain> items) {
+		log.info("{} CrawlCompanyDetailThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
+		long started = System.currentTimeMillis();
+
 		int processors = Runtime.getRuntime().availableProcessors() - 1;
 		if (debug) {
 			processors = 1;
@@ -192,6 +195,8 @@ public class CrawlCompanyDetailThread implements Callable<StockParserResult> {
 			} catch (Exception e) {
 			}
 		}
+
+		log.info("{} 『{}』 CrawlCompanyDetailThread.crawl(#{}) - {}", Utility.indentEnd(), container, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		return container;
 	}
 

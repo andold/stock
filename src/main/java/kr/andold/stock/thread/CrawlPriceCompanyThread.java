@@ -71,12 +71,12 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 				
 				String code = item.getCode();
 				if (code == null || code.isBlank() || (item.getEtf() != null && item.getEtf())) {
-					log.debug("{} {}/{} 대상아님 『{}』 CrawlPriceCompanyThread.extract()", Utility.indentMiddle(), cx, Utility.size(items), item);
+					log.trace("{} {}/{} 대상아님 『{}』 CrawlPriceCompanyThread.extract()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
 				}
 				if (debug && new Random().nextDouble() < 0.9) {
-					log.debug("{} {}/{} 테스트 뽑기 제외 『{}』 CrawlPriceCompanyThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
+					log.trace("{} {}/{} 테스트 뽑기 제외 『{}』 CrawlPriceCompanyThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
 				}
@@ -158,6 +158,9 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 	}
 
 	public static StockParserResult crawl(List<StockItemDomain> items) {
+		log.info("{} CrawlPriceCompanyThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
+		long started = System.currentTimeMillis();
+
 		int processors = Runtime.getRuntime().availableProcessors() - 1;
 		if (debug) {
 			processors = 1;
@@ -181,6 +184,8 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 			} catch (Exception e) {
 			}
 		}
+
+		log.info("{} 『{}』 CrawlPriceCompanyThread.crawl(#{}) - {}", Utility.indentEnd(), container, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		return container;
 	}
 

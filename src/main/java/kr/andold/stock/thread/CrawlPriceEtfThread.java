@@ -165,6 +165,9 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 	}
 
 	public static StockParserResult crawl(List<StockItemDomain> items) {
+		log.info("{} CrawlPriceEtfThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
+		long started = System.currentTimeMillis();
+
 		int processors = Runtime.getRuntime().availableProcessors() - 1;
 		if (debug) {
 			processors = 1;
@@ -188,6 +191,8 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 			} catch (Exception e) {
 			}
 		}
+
+		log.info("{} 『{}』 CrawlPriceEtfThread.crawl(#{}) - {}", Utility.indentEnd(), container, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		return container;
 	}
 
