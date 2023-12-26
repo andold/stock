@@ -31,15 +31,14 @@ public class CrawlCompanyDividendHistoryThread implements Callable<StockParserRe
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 4;
 	private static final String MARK_ANDOLD_SINCE = StockCrawlerService.MARK_ANDOLD_SINCE;
+	@Setter private static Boolean debug = StockCrawlerService.debug;
 
 	private ConcurrentLinkedQueue<StockItemDomain> items;
 	private ChromeDriverWrapper driver;
 	private String previous = "andold";
-	@Setter private Boolean debug = StockCrawlerService.debug;
 
 	public CrawlCompanyDividendHistoryThread(ConcurrentLinkedQueue<StockItemDomain> list) {
 		this.items = list;
-		this.debug = StockCrawlerService.debug;
 	}
 
 	@Override
@@ -176,7 +175,9 @@ public class CrawlCompanyDividendHistoryThread implements Callable<StockParserRe
 
 	public static StockParserResult crawl(List<StockItemDomain> items) {
 		int processors = Runtime.getRuntime().availableProcessors() - 1;
-		processors = 1;
+		if (debug) {
+			processors = 1;
+		}
 		ExecutorService service = Executors.newFixedThreadPool(processors);
 		List<Future<StockParserResult>> futureList = new ArrayList<>();
 		ConcurrentLinkedQueue<StockItemDomain> queue = new ConcurrentLinkedQueue<StockItemDomain>();
@@ -206,7 +207,7 @@ public class CrawlCompanyDividendHistoryThread implements Callable<StockParserRe
 		ConcurrentLinkedQueue<StockItemDomain> queue = new ConcurrentLinkedQueue<StockItemDomain>();
 		queue.add(item);
 		CrawlCompanyDividendHistoryThread thread = new CrawlCompanyDividendHistoryThread(queue);
-		thread.setDebug(false);
+		setDebug(false);
 		ExecutorService service = Executors.newFixedThreadPool(1);
 		Future<StockParserResult> future = service.submit(thread);
 		try {

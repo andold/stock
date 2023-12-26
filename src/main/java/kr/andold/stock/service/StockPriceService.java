@@ -9,8 +9,12 @@ import org.springframework.stereotype.Service;
 
 import kr.andold.stock.domain.StockPriceDomain;
 import kr.andold.stock.entity.StockPriceEntity;
+import kr.andold.stock.param.StockItemParam;
 import kr.andold.stock.param.StockPriceParam;
 import kr.andold.stock.repository.StockPriceRepository;
+import kr.andold.stock.service.StockParserService.StockParserResult;
+import kr.andold.stock.thread.CrawlPriceCompanyThread;
+import kr.andold.stock.thread.CrawlPriceEtfThread;
 
 @Service
 public class StockPriceService implements CommonBlockService<StockPriceParam, StockPriceDomain, StockPriceEntity> {
@@ -83,6 +87,13 @@ public class StockPriceService implements CommonBlockService<StockPriceParam, St
 		List<StockPriceEntity> entities = toEntities(domains);
 		List<StockPriceEntity> result = repository.saveAllAndFlush(entities);
 		return toDomains(result);
+	}
+
+	public StockParserResult crawl(StockItemParam param) {
+		StockParserResult result = param.getEtf() ? CrawlPriceEtfThread.crawl(param)
+				: CrawlPriceCompanyThread.crawl(param);
+		put(result.getPrices());
+		return result;
 	}
 
 }

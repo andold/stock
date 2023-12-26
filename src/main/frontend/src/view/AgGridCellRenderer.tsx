@@ -2,12 +2,14 @@ import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Col, OverlayTrigger, Row, Spinner, Table, Tooltip } from "react-bootstrap";
 
+// model
 import StockDividendModel from "../model/StockModel";
+import Price from "../model/Price";
 
 // store
 import store from "../store/StockStore";
 import dividendHistoryStore from "../store/DividendHistoryStore";
-import Price from "../model/Price";
+import priceStore from "../store/PriceStore";
 
 const FILL_COLOR_PRIORITY = [
 	`rgb(128, 0, 0)`,
@@ -55,7 +57,6 @@ const FILL_COLOR_MONTH = [
 // AgGridCellRenderer.tsx
 
 // 주가
-const LINE_HEIGHT = 26;
 export function PriceRecentCellRenderer(param: any) {
 	const prices: Price[] = param.data?.custom?.prices;
 
@@ -428,7 +429,6 @@ export function OperateColumn(props: any) {
 	const { data, onChange } = props;
 
 	const [spinner, setSpinner] = useState<boolean>(false);
-	let jobs = 0;
 
 	async function handleOnClickPriceChart(_: any) {
 		window.open(`https://finance.naver.com/item/fchart.naver?code=${data.code}`, "네이버");
@@ -437,12 +437,12 @@ export function OperateColumn(props: any) {
 		window.open(`https://finance.naver.com/item/coinfo.naver?code=${data.code}`, "네이버");
 	}
 	async function handleOnClickCrawl(_: any) {
+		setSpinner(true);
 		dividendHistoryStore.crawl(data, (_: any) => {
-			jobs--;
-			if (jobs == 0) {
+			priceStore.crawl(data, (_: any) => {
 				setSpinner(false);
 				onChange && onChange({});
-			}
+			});
 		});
 	}
 

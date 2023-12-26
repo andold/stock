@@ -2,21 +2,26 @@
   {
     "name": "data.path",
     "type": "java.lang.String",
-    "description": "some data path'"
+    "description": "사용자 데이터 경로"
   },
   {
     "name": "data.webdriver.chrome.driver",
     "type": "java.lang.String",
-    "description": "A description for 'data.webdriver.chrome.driver'"
+    "description": "크롬 드라이버 설치 경로"
   },
   {
     "name": "app.scheduling.enable",
     "type": "java.lang.String",
-    "description": "A description for 'app.scheduling.enable'"
+    "description": "일정 시간마다 반복적으로 하는 작업. 테스트계에서는 필요없다."
   },
   {
     "name": "app.crawler.debug",
     "type": "java.lang.String",
-    "description": "A description for 'app.crawler.debug'"
+    "description": "크롤링시 테스트계에서 디버깅을 위하여 데이터 샘플링하기 위한"
+  },
+  {
+    "name": "app.crawler.date.start",
+    "type": "java.lang.String",
+    "description": "크롤링 자료를 가져오는 시작 날짜"
   }
 ]}

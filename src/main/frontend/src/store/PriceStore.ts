@@ -12,6 +12,9 @@ class PriceStore {
 	search(request: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.search(request, onSuccess, onError, element);
 	}
+	crawl(request?: any, onSuccess?: any, onError?: any, element?: any) {
+		repository.crawl(request, onSuccess, onError, element);
+	}
 
 	makeMap(prices: Price[]) {
 		const map = new Map();

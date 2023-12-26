@@ -59,6 +59,12 @@ public class StockCrawlerService {
 		debug = value;
 	}
 
+	public static String crawlerDateStart = "20231101";
+	@Value("${app.crawler.date.start=20231101}")
+	public void setCrawlerDateStart(String value) {
+		crawlerDateStart = value;
+	}
+
 	public StockParserResult crawlPriceCompany() {
 		log.info("{} crawlPriceCompany()", Utility.indentStart());
 		long started = System.currentTimeMillis();
