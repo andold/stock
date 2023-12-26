@@ -63,7 +63,7 @@ public class StockCrawlerService {
 		log.info("{} crawlPriceCompany()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		StockParserResult container = new StockParserResult();
+		StockParserResult container = new StockParserResult().clear();;
 
 		StockParserResult resultPrices = CrawlPriceCompanyThread.crawl(stockItemService.search(null));
 		put(resultPrices);
@@ -82,8 +82,7 @@ public class StockCrawlerService {
 		log.info("{} crawlPriceEtf()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		StockParserResult container = new StockParserResult();
-
+		StockParserResult container = new StockParserResult().clear();
 		StockParserResult resultPrices = CrawlPriceEtfThread.crawl(stockItemService.search(null));
 		put(resultPrices);
 		container.addAll(resultPrices);

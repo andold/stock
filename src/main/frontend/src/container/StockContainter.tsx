@@ -1,6 +1,6 @@
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { Button, ButtonGroup, Col, Container, Form, InputGroup, Navbar, Offcanvas, Spinner, ToggleButton } from "react-bootstrap";
+import { Button, ButtonGroup, Col, Container, Form, InputGroup, NavDropdown, Navbar, Offcanvas, Spinner, ToggleButton } from "react-bootstrap";
 
 // domain
 import { StockDividendFormModel } from "../model/StockModel";
@@ -11,6 +11,7 @@ import store from "../store/StockStore";
 // view
 import StockItemView from "../view/StockItemView";
 import UploadButtonView from "../view/UploadButtonView";
+import { Link } from "react-router-dom";
 
 // StockContainter.tsx
 export default ((props: any) => {
@@ -210,7 +211,7 @@ function Header(props: any) {
 							<InputGroup size="sm">
 								<Form.Select className="border-secondary bg-dark text-white" value={form.rowHeight} title="한줄이 높이"
 									onChange={(event: any) => onChange && onChange({ rowHeight: event.target.value, })}
-								>{[32, 64, 128, 256, 512, 1024].map(x => (<option key={x} value={x}>{x}</option>))}</Form.Select>
+								>{store.range(6).map(x => (<option key={x} value={(x + 3) * 8}>{(x + 3) * 8}</option>))}</Form.Select>
 							</InputGroup>
 						</Col>
 						<Col xs="auto" className="mx-1">
@@ -244,14 +245,16 @@ function Header(props: any) {
 								}</Button>
 								{(spinner > 0) && <Spinner animation="grow" variant="warning" className="ms-1 align-middle" title={spinner.toLocaleString()} />}
 								{!collapsed && (<>
+									<NavDropdown title="Crawl" className="mx-1">
+										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItems}>Crawl Items</NavDropdown.Item>
+										<NavDropdown.Item className="mx-1" onClick={crawlItemCompanyDividendTop}>Crawl Item Company Dividend Top</NavDropdown.Item>
+										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemCompanyDetails}>Crawl Item Company Details</NavDropdown.Item>
+										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemEtfDetails}>Crawl Item ETF Details</NavDropdown.Item>
+										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlDividendHistoryEtf}>Crawl Dividend History ETF</NavDropdown.Item>
+										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlPriceCompany}>Crawl Price Company</NavDropdown.Item>
+										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlPriceEtf}>Crawl Price ETF</NavDropdown.Item>
+									</NavDropdown>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCompile}>Compile</Button>
-									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlItems}>Crawl Items</Button>
-									<Button size="sm" variant="secondary" className="ms-1" onClick={crawlItemCompanyDividendTop}>Crawl Item Company Dividend Top</Button>
-									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlItemCompanyDetails}>Crawl Item Company Details</Button>
-									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlItemEtfDetails}>Crawl Item ETF Details</Button>
-									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlDividendHistoryEtf}>Crawl Dividend History ETF</Button>
-									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlPriceCompany}>Crawl Price Company</Button>
-									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCrawlPriceEtf}>Crawl Price ETF</Button>
 								</>)}
 								<Button size="sm" variant="secondary" className="ms-1" title={form.mode.toString()} onClick={handleOnClickDownload}>다운로드</Button>
 								<UploadButtonView />

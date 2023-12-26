@@ -53,7 +53,7 @@ public class StockParserService {
 			return items.isEmpty() && dividends.isEmpty() && histories.isEmpty() && prices.isEmpty();
 		}
 
-		public void clear() {
+		public StockParserResult clear() {
 			if (items == null) {
 				items = new ArrayList<>();
 			} else {
@@ -74,6 +74,8 @@ public class StockParserService {
 			} else {
 				prices.clear();
 			}
+			
+			return this;
 		}
 
 	}
@@ -99,6 +101,7 @@ public class StockParserService {
 				.high(Utility.parseInteger(high, null))
 				.low(Utility.parseInteger(low, null))
 				.volume(Utility.parseInteger(volume, null))
+				.flag(0)
 				.build());
 	}
 

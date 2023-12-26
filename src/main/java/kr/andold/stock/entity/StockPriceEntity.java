@@ -43,6 +43,15 @@ public class StockPriceEntity {
 	private Integer high;		//	고가
 	private Integer low;		//	저가
 	private Integer volume;		//	거래량
+	
+	/*
+	 	bit 0 ~ 3: reserved
+		bit 5: 32, week 주대표
+		bit 6: 64, month 월대표
+		bit 7: 128, year 연대표
+		bit 8: 256, 특정일, 배당일 등
+	 */
+	private Integer flag;
 
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Asia/Seoul")
