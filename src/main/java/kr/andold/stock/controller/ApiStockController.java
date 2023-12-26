@@ -36,7 +36,7 @@ public class ApiStockController {
 	@ResponseBody
 	@GetMapping(value = {"download"})
 	public String download() throws UnsupportedEncodingException {
-		log.info("{} downloadHoushold()", Utility.indentStart());
+		log.info("{} download()", Utility.indentStart());
 
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
 		String filename = URLEncoder.encode(String.format("stock-%s.json", simpleDateFormat.format(Calendar.getInstance().getTime())), "UTF-8").replaceAll("\\+", "%20");
@@ -45,17 +45,17 @@ public class ApiStockController {
 		StockParam param = service.download();
 		String response = Utility.toStringJsonPretty(param);
 
-		log.info("{} {} - downloadHoushold()", Utility.indentEnd(), Utility.ellipsis(response, 64));
+		log.info("{} {} - download()", Utility.indentEnd(), Utility.ellipsisEscape(response, 64));
 		return response;
 	}
 
 	@PostMapping(value = "upload")
 	public boolean upload(@RequestParam("file") MultipartFile file) {
-		log.info("{} upload(『{}』)", Utility.indentStart());
+		log.info("{} upload(『{}』)", Utility.indentStart(), Utility.toStringJson(file, 64));
 
 		boolean result = service.upload(file);
 
-		log.info("{} upload(『{}』)", Utility.indentEnd());
+		log.info("{} upload(『{}』)", Utility.indentEnd(), Utility.toStringJson(file, 64));
 		return result;
 	}
 

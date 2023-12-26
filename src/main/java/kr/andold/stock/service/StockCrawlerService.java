@@ -60,7 +60,7 @@ public class StockCrawlerService {
 	}
 
 	public static String crawlerDateStart = "20231101";
-	@Value("${app.crawler.date.start=20231101}")
+	@Value("${app.crawler.date.start='20231101'}")
 	public void setCrawlerDateStart(String value) {
 		crawlerDateStart = value;
 	}
