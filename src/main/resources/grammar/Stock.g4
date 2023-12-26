@@ -16,8 +16,7 @@ import kr.andold.stock.service.StockParserService;
 }
 
 stockDocument
-:	extractlDividendHistory
-|	seibroDividend					// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당내역전체겁색 > 조회
+:	crawlEtfDividendHistoryThread	// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당내역전체겁색 > 조회
 |	crawlDividendHistoryEtfThread
 |	extractAllEtfFromNaver
 |	crawlEtfDetailThread			// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
@@ -191,59 +190,30 @@ KEYWORD TAB WORD WORD WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEY
 ;
 
 
-extractlDividendHistory:
-	KEYWORD TAB WORD WORD WORD TAB WORD TAB WORD	NEWLINE		//	KEYWORD 	 일반기업 배당금 내역 	 URL 	 "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285
+// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당내역전체겁색 > 조회
+crawlEtfDividendHistoryThread:
+	KEYWORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 일반기업 배당금 내역 	 URL 	 "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285
 	(
-		KEYWORD TAB code=NUMBER TAB word+			NEWLINE		//	KEYWORD 	 000850 	 화천기공 
-		WORD TAB WORD								NEWLINE		//	배정기준일 	 현금배당 
-		WORD TAB WORD								NEWLINE		//	지급일 	 주식 
-		WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE		//	유통(교부)일 	 종목코드 	 종목명 	 시장구분 	 배당구분 	 명의개서대리인 	 주식종류 	 주당배당금 	 주당배당률(일반) 	 주당배당률(차등) 	 액면가 	 결산월 	 
-		WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB															NEWLINE		//	일반 	 차등 	 현금 	 주식 	 현금 	 주식 
-		((
-			TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB											NEWLINE		//		 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 
-		) | (
-			base=DATE TAB pay=DATE? TAB DATE? TAB NUMBER TAB symbol=word+ TAB WORD TAB WORD TAB WORD TAB WORD TAB dividend=NUMBER TAB NUMBER? TAB NUMBER TAB NUMBER TAB NUMBER? TAB TAB NUMBER TAB NUMBER TAB		NEWLINE
-					//	2022/12/31 	 2023/04/21 	 	 000850 	 화천기공 	 유가증권시장 	 현금배당 	 국민은행 	 보통주 	 2,500 	 	 50.00 	 0.00 	 	 	 5,000 	 12 	 
-		) {
-			StockParserService.seibroDividendItem(20231127
-				, $base.text , $pay.text
-				, $code.text , $symbol.text
-				, $dividend.text
-			);
-		})+
+		KEYWORD TAB code=NUMBER TAB word+				NEWLINE		//	KEYWORD 	 000850 	 화천기공 
+		(
+			WORD TAB WORD								NEWLINE		//	배정기준일 	 현금배당 
+			WORD TAB WORD								NEWLINE		//	지급일 	 주식 
+			WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE		//	유통(교부)일 	 종목코드 	 종목명 	 시장구분 	 배당구분 	 명의개서대리인 	 주식종류 	 주당배당금 	 주당배당률(일반) 	 주당배당률(차등) 	 액면가 	 결산월 	 
+			WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB															NEWLINE		//	일반 	 차등 	 현금 	 주식 	 현금 	 주식 
+			((
+				TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB											NEWLINE		//		 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 
+			) | (
+				base=DATE TAB pay=DATE? TAB DATE? TAB NUMBER TAB symbol=word+ TAB WORD TAB WORD TAB WORD TAB WORD TAB dividend=NUMBER TAB NUMBER? TAB NUMBER TAB NUMBER TAB NUMBER? TAB TAB NUMBER TAB NUMBER TAB		NEWLINE
+						//	2022/12/31 	 2023/04/21 	 	 000850 	 화천기공 	 유가증권시장 	 현금배당 	 국민은행 	 보통주 	 2,500 	 	 50.00 	 0.00 	 	 	 5,000 	 12 	 
+			) {
+				StockParserService.seibroDividendItem(20231127
+					, $base.text , $pay.text
+					, $code.text , $symbol.text
+					, $dividend.text
+				);
+			})+
+		)+
 		WORD TAB WORD TAB DATE						NEWLINE		//	andold 	 since 	 2023-11-27 
 	)+
 	KEYWORD TAB WORD WORD WORD TAB WORD TAB WORD	NEWLINE		//	KEYWORD 	 일반기업 배당금 내역 	 URL 	 "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285 
 ;
-
-
-// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당내역전체겁색 > 조회
-seibroDividend:
-	line+
-
-	WORD WORD WORD WORD WORD WORD		NEWLINE		//	일반 차등 현금 주식 현금 주식 
-	seibroDividendItem+
-
-	eof
-;
-seibroDividendItem:
-	base=DATE			NEWLINE		//	2022/12/15 
-	(pay=DATE			NEWLINE)?	//	2022/12/29 
-	code=word			NEWLINE		//	152550 
-	symbol=word word*	NEWLINE		//	한국투자ANKOR유전해외자원개발특별자산투자회사1호(지분증권) 
-	WORD				NEWLINE		//	유가증권시장 
-	WORD				NEWLINE		//	현금배당 
-	WORD				NEWLINE		//	한국예탁결제원 
-	WORD				NEWLINE		//	보통주 
-	dividend=NUMBER		NEWLINE		//	1,670 
-	NUMBER				NEWLINE		//	56.21 
-	NUMBER				NEWLINE		//	0.00 
-	NUMBER				NEWLINE		//	0 
-	NUMBER				NEWLINE		//	12 
-{
-	StockParserService.seibroDividendItem(20231127
-		, $base.text , $pay.text
-		, $code.text , $symbol.text
-		, $dividend.text
-	);
-};

@@ -83,9 +83,6 @@ class StockStore {
 	//	stock dividend section
 
 	//	stock dividend history section
-	crawlDividendHistory(request?: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.crawlDividendHistory(request, onSuccess, onError, element);
-	}
 	crawlDividendHistoryEtf(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlDividendHistoryEtf(request, onSuccess, onError, element);
 	}

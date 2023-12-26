@@ -96,35 +96,15 @@ public interface StockListener extends ParseTreeListener {
 	 */
 	void exitCrawlDividendHistoryEtfThread(StockParser.CrawlDividendHistoryEtfThreadContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link StockParser#extractlDividendHistory}.
+	 * Enter a parse tree produced by {@link StockParser#crawlEtfDividendHistoryThread}.
 	 * @param ctx the parse tree
 	 */
-	void enterExtractlDividendHistory(StockParser.ExtractlDividendHistoryContext ctx);
+	void enterCrawlEtfDividendHistoryThread(StockParser.CrawlEtfDividendHistoryThreadContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link StockParser#extractlDividendHistory}.
+	 * Exit a parse tree produced by {@link StockParser#crawlEtfDividendHistoryThread}.
 	 * @param ctx the parse tree
 	 */
-	void exitExtractlDividendHistory(StockParser.ExtractlDividendHistoryContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link StockParser#seibroDividend}.
-	 * @param ctx the parse tree
-	 */
-	void enterSeibroDividend(StockParser.SeibroDividendContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#seibroDividend}.
-	 * @param ctx the parse tree
-	 */
-	void exitSeibroDividend(StockParser.SeibroDividendContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link StockParser#seibroDividendItem}.
-	 * @param ctx the parse tree
-	 */
-	void enterSeibroDividendItem(StockParser.SeibroDividendItemContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#seibroDividendItem}.
-	 * @param ctx the parse tree
-	 */
-	void exitSeibroDividendItem(StockParser.SeibroDividendItemContext ctx);
+	void exitCrawlEtfDividendHistoryThread(StockParser.CrawlEtfDividendHistoryThreadContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link StockParser#word}.
 	 * @param ctx the parse tree

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -203,6 +204,20 @@ public class CrawlEtfDividendHistoryThread implements Callable<StockParserResult
 
 		log.info("{} 『{}』 CrawlEtfDividendHistoryThread.crawl(#{}) - {}", Utility.indentEnd(), container, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		return container;
+	}
+
+	public static StockParserResult crawl(StockItemDomain item) {
+		ConcurrentLinkedQueue<StockItemDomain> queue = new ConcurrentLinkedQueue<StockItemDomain>();
+		queue.add(item);
+		CrawlEtfDividendHistoryThread thread = new CrawlEtfDividendHistoryThread(queue);
+		ExecutorService service = Executors.newFixedThreadPool(1);
+		Future<StockParserResult> future = service.submit(thread);
+		try {
+			return future.get();
+		} catch (InterruptedException e) {
+		} catch (ExecutionException e) {
+		}
+		return new StockParserResult().clear();
 	}
 
 }

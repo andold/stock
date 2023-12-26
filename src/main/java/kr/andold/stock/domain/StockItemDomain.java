@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class StockItemDomain extends StockItemEntity {
-	private String etc;
+	private String reserved;
 
 	public StockItemDomain(String symbol, String code, String dividendCycle, String volumeOfListedShares, Boolean etf,
 			String type, String category, String ipoDate) {

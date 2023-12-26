@@ -6,6 +6,7 @@ import StockDividendModel from "../model/StockModel";
 
 // store
 import store from "../store/StockStore";
+import dividendHistoryStore from "../store/DividendHistoryStore";
 import Price from "../model/Price";
 
 const FILL_COLOR_PRIORITY = [
@@ -429,45 +430,33 @@ export function OperateColumn(props: any) {
 	const [spinner, setSpinner] = useState<boolean>(false);
 	let jobs = 0;
 
-	async function handleOnClick() {
-		setSpinner(true);
-		jobs++;
-		store.crawlDividendHistory(data, (_: any) => {
-			jobs--;
-			if (jobs == 0) {
-				setSpinner(false);
-				onChange && onChange({});
-			}
-		});
-		store.crawlDividendHistoryEtfMonthly(data, (_: any) => {
-			jobs--;
-			if (jobs == 0) {
-				setSpinner(false);
-				onChange && onChange({});
-			}
-		});
-	}
 	async function handleOnClickPriceChart(_: any) {
 		window.open(`https://finance.naver.com/item/fchart.naver?code=${data.code}`, "네이버");
 	}
 	async function handleOnClickDetail(_: any) {
 		window.open(`https://finance.naver.com/item/coinfo.naver?code=${data.code}`, "네이버");
 	}
+	async function handleOnClickCrawl(_: any) {
+		dividendHistoryStore.crawl(data, (_: any) => {
+			jobs--;
+			if (jobs == 0) {
+				setSpinner(false);
+				onChange && onChange({});
+			}
+		});
+	}
 
+	const style = {
+		fontSize: 9,
+	};
+	const className="py-0 text-white";
 	return (<>
-		<Button size="sm" variant="outline-secondary" className="ms-1 mb-1 py-0 text-white" style={{fontSize: 8}} onClick={handleOnClickPriceChart} title="네이버 증권 시세 차트">차트</Button>
-		<Button size="sm" variant="outline-secondary" className="ms-1 mb-1 py-0 text-white" style={{fontSize: 8}} onClick={handleOnClickDetail} title="네이버 증권 상세">상세</Button>
 		{spinner
 			? (<Spinner animation="grow" variant="warning" size="sm" className="ms-0 me-1 align-middle" />)
-			: (
-				<svg fill="currentColor" style={{ width: 24, }} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" onClick={handleOnClick}>
-					<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-					<g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-					<g id="SVGRepo_iconCarrier">
-						<path d="M18.4721 16.7023C17.3398 18.2608 15.6831 19.3584 13.8064 19.7934C11.9297 20.2284 9.95909 19.9716 8.25656 19.0701C6.55404 18.1687 5.23397 16.6832 4.53889 14.8865C3.84381 13.0898 3.82039 11.1027 4.47295 9.29011C5.12551 7.47756 6.41021 5.96135 8.09103 5.02005C9.77184 4.07875 11.7359 3.77558 13.6223 4.16623C15.5087 4.55689 17.1908 5.61514 18.3596 7.14656C19.5283 8.67797 20.1052 10.5797 19.9842 12.5023M19.9842 12.5023L21.4842 11.0023M19.9842 12.5023L18.4842 11.0023" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
-						<path d="M12 8V12L15 15" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
-					</g>
-				</svg>
-			)}
+			: (<>
+				<Button size="sm" variant="outline-secondary" className={className} style={style} onClick={handleOnClickPriceChart} title="네이버 증권 시세 차트">차트</Button>
+				<Button size="sm" variant="outline-secondary" className={className} style={style} onClick={handleOnClickDetail} title="네이버 증권 상세">상세</Button>
+				<Button size="sm" variant="outline-secondary" className={className} style={style} onClick={handleOnClickCrawl} title="수집">수집</Button>
+			</>)}
 	</>);
 }

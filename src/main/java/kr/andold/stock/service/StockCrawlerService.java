@@ -138,7 +138,7 @@ public class StockCrawlerService {
 		return dividendsRecent;
 	}
 
-	// 네이버 배당 top 50 + 월배당 ETF
+	// 네이버 배당 top(KOSPI, KOSDAQ) 50 + ETF All
 	public StockParserResult crawlItems() {
 		log.info("{} crawlItems()", Utility.indentStart());
 		long started = System.currentTimeMillis();

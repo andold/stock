@@ -11,7 +11,11 @@ import org.springframework.stereotype.Service;
 import kr.andold.stock.domain.StockDividendHistoryDomain;
 import kr.andold.stock.entity.StockDividendHistoryEntity;
 import kr.andold.stock.param.StockDividendHistoryParam;
+import kr.andold.stock.param.StockItemParam;
 import kr.andold.stock.repository.StockDividendHistoryRepository;
+import kr.andold.stock.service.StockParserService.StockParserResult;
+import kr.andold.stock.thread.CrawlCompanyDividendHistoryThread;
+import kr.andold.stock.thread.CrawlEtfDividendHistoryThread;
 
 @Service
 public class StockDividendHistoryService implements CommonBlockService<StockDividendHistoryParam, StockDividendHistoryDomain, StockDividendHistoryEntity> {
@@ -84,6 +88,13 @@ public class StockDividendHistoryService implements CommonBlockService<StockDivi
 		Date now = new Date();
 		domain.setCreated(now);
 		domain.setUpdated(now);		
+	}
+
+	public StockParserResult crawl(StockItemParam param) {
+		StockParserResult result = param.getEtf() ? CrawlEtfDividendHistoryThread.crawl(param)
+				: CrawlCompanyDividendHistoryThread.crawl(param);
+		put(result.getHistories());
+		return result;
 	}
 
 }

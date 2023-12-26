@@ -120,37 +120,13 @@ public class StockBaseListener implements StockListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExtractlDividendHistory(StockParser.ExtractlDividendHistoryContext ctx) { }
+	@Override public void enterCrawlEtfDividendHistoryThread(StockParser.CrawlEtfDividendHistoryThreadContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExtractlDividendHistory(StockParser.ExtractlDividendHistoryContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSeibroDividend(StockParser.SeibroDividendContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSeibroDividend(StockParser.SeibroDividendContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSeibroDividendItem(StockParser.SeibroDividendItemContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSeibroDividendItem(StockParser.SeibroDividendItemContext ctx) { }
+	@Override public void exitCrawlEtfDividendHistoryThread(StockParser.CrawlEtfDividendHistoryThreadContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -20,23 +20,26 @@ import kr.andold.stock.service.StockCrawlerService;
 import kr.andold.stock.service.StockParserService;
 import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.StockParserService.StockParserResult;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-// 기업 배당 내역 KSD 증권정보포털 SEIBro
+// KSD 증권정보포털 SEIBro > 주식 > 배당정보 > 배당내역전체검색
 @Slf4j
 public class CrawlCompanyDividendHistoryThread implements Callable<StockParserResult> {
 	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285";
-	private static final String MARK_END_POINT = "KEYWORD\t일반기업 배당금 내역\tURL\thttps://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285\n";
+	private static final String MARK_END_POINT = "KEYWORD\t주식(기업) 배당금 내역\tURL\t" + URL + "\n";
+	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 4;
 	private static final String MARK_ANDOLD_SINCE = StockCrawlerService.MARK_ANDOLD_SINCE;
-	private static final Boolean debug = StockCrawlerService.debug;
 
 	private ConcurrentLinkedQueue<StockItemDomain> items;
 	private ChromeDriverWrapper driver;
 	private String previous = "andold";
+	@Setter private Boolean debug = StockCrawlerService.debug;
 
 	public CrawlCompanyDividendHistoryThread(ConcurrentLinkedQueue<StockItemDomain> list) {
 		this.items = list;
+		this.debug = StockCrawlerService.debug;
 	}
 
 	@Override
@@ -50,10 +53,10 @@ public class CrawlCompanyDividendHistoryThread implements Callable<StockParserRe
 
 		try {
 			driver.navigate().to(URL);
-			new Select(driver.findElement(By.id("Com_ISIN_input_0"), 2000)).selectByVisibleText("종목"); // 검색항목을 code로
+			new Select(driver.findElement(By.id("Com_ISIN_input_0"), TIMEOUT * 4)).selectByVisibleText("종목"); // 검색항목을 code로
 			driver.findElement(By.id("btn_wide_img")).click(); // 넓게 보기 아이콘 크릭
 
-			WebElement start = driver.findElement(By.id("inputCalendar1_input"), 2000);
+			WebElement start = driver.findElement(By.id("inputCalendar1_input"), TIMEOUT);
 			start.clear();
 			start.sendKeys("2010/01/01"); // 시작일 입력
 			start.sendKeys(Keys.TAB); // 시작일 입력
@@ -81,7 +84,7 @@ public class CrawlCompanyDividendHistoryThread implements Callable<StockParserRe
 
 
 				if (debug && new Random().nextDouble() < 0.9) {
-					log.trace("{} {}/{} 뽑기 제외 『{}』 CrawlEtfDividendHistoryThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
+					log.trace("{} {}/{} 뽑기 제외 『{}』 CrawlCompanyDividendHistoryThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
 				}
@@ -111,47 +114,54 @@ public class CrawlCompanyDividendHistoryThread implements Callable<StockParserRe
 
 			driver.switchTo().defaultContent();
 			driver.findElement(By.id("cc_group4")).click(); // 종목 검색 아이콘 크릭
-			WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframe2']"), 4000);
+			WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframe2']"), TIMEOUT);
 			driver.switchTo().frame(frame);
-			WebElement codeElement = driver.findElement(By.id("search_string"), 2000);
+			WebElement codeElement = driver.findElement(By.id("search_string"), TIMEOUT);
 			codeElement.clear();
 			codeElement.sendKeys(code); // 코드 입력
+
 			driver.clear(By.xpath("//*[@id='P_isinList']/li"));
 			driver.findElement(By.id("P_group100")).click(); // 코드 검색 아이콘 클릭
-			Utility.sleep(1000); // //*[@id="P_isinList_none"]
-			if (driver.findElement(By.id("P_isinList_none")).isDisplayed()) {
-				driver.switchTo().defaultContent();
-				driver.clickIfExist(By.xpath("//a[@id='anchor5']"));
-				log.info("{} #{} 없는 종목 『{}』 CrawlDividendHistoryCompanyThread() - {}", Utility.indentMiddle(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
-				return "";
-			}
 
-			List<WebElement> links = driver.findElements(By.xpath("//a[@class='w2group ']"), previous, 4000);
-			previous = driver.toString(links);
-			By xpath = null;
-			if (links.size() == 1) {
-				xpath = By.xpath("//a[@class='w2group ']/span");
-			} else if (item.getType() == null || "KOSPI".contentEquals(item.getType())) {
-				xpath = By.xpath("//a[@class='w2group ']/span[contains(text(),'(유)')]");
-			} else {
-				xpath = By.xpath("//a[@class='w2group ']/span[contains(text(),'(코)')]"); // KOSDAQ 종목 선택
-			}
-			if (driver.isEmpty(xpath)) {
-				driver.switchTo().defaultContent();
-				driver.clickIfExist(By.xpath("//a[@id='anchor5']"));
-				log.info("{} #{} 결과 없음 『{}』 CrawlDividendHistoryCompanyThread() - {}", Utility.indentMiddle(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
-				return "";
-			}
-			driver.findElements(xpath, 2000).get(0).click();
+			// 조회결과 확인
+			WebElement targetElement = driver.findElementIncludeText(By.xpath("//ul[@id='P_isinList']/li/a/span[@class='w2textbox code']"), TIMEOUT, code);
+			
+			// 클릭
+			targetElement.click();
+
 			driver.switchTo().defaultContent();
 			driver.clickIfExist(By.xpath("//a[@id='anchor5']"));
 			driver.findElement(By.id("group57")).click(); // 조회 클릭
 
-			WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), 2000);
+			// 조회결과 바뀐거 확인
+			driver.findElementIncludeText(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[4]"), TIMEOUT, code);
 
+			// 시작 표시
 			StringBuffer sb = new StringBuffer();
 			sb.append(String.format("KEYWORD\t%s\t%s\n", code, item.getSymbol()));
-			sb.append(driver.extractTextFromTableElement(table));
+
+			// 첫 페이지 결과 내용 저장
+			WebElement table1st = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
+			sb.append(driver.extractTextFromTableElement(table1st));
+
+			// 페이징 처리 - 여기부터
+			for (int cx = 2; cx <= 10; cx++) {
+				// 변경전 내용 저장
+				String prevText = driver.getText(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[1]"), TIMEOUT, previous);
+				if(!driver.clickIfExist(By.xpath(String.format("//div[@id='wframe22']/div/ul/li[@class='w2pageList_li_label']/a[contains(text(),'%d')]", cx)))) {
+					break;
+				}
+
+				// 페이지 변경 확인
+				driver.waitUntilTextNotInclude(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[1]"), TIMEOUT, prevText);
+
+				// 결과 내용 저장
+				WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
+				sb.append(driver.extractTextFromTableElement(table));
+			}
+			// 페이징 처리 - 여기까지
+
+			// 마지막 표시
 			sb.append(MARK_ANDOLD_SINCE);
 			String result = new String(sb);
 
@@ -187,6 +197,29 @@ public class CrawlCompanyDividendHistoryThread implements Callable<StockParserRe
 			}
 		}
 		return container;
+	}
+
+	public static StockParserResult crawl(StockItemDomain item) {
+		log.info("{} CrawlCompanyDividendHistoryThread.crawl({})", Utility.indentStart(), item);
+		long started = System.currentTimeMillis();
+
+		ConcurrentLinkedQueue<StockItemDomain> queue = new ConcurrentLinkedQueue<StockItemDomain>();
+		queue.add(item);
+		CrawlCompanyDividendHistoryThread thread = new CrawlCompanyDividendHistoryThread(queue);
+		thread.setDebug(false);
+		ExecutorService service = Executors.newFixedThreadPool(1);
+		Future<StockParserResult> future = service.submit(thread);
+		try {
+			StockParserResult result = future.get();
+
+			log.info("{} {} CrawlCompanyDividendHistoryThread.crawl({}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
+			return result;
+		} catch (Exception e) {
+			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
+		}
+
+		log.info("{} EMPY CrawlCompanyDividendHistoryThread.crawl({}) - {}", Utility.indentEnd(), item, Utility.toStringPastTimeReadable(started));
+		return new StockParserResult().clear();
 	}
 
 }

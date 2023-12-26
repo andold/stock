@@ -80,6 +80,7 @@ public class ApiStockController {
 		return result;
 	}
 
+	// 네이버 배당 top(KOSPI, KOSDAQ) 50 + ETF All
 	@ResponseBody
 	@GetMapping(value = "crawl/items")
 	public StockParserResult crawlItems() {
