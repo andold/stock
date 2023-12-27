@@ -174,6 +174,7 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 					break;
 				}
 				
+				log.debug("{} #{} 쪽:{} CrawlPriceCompanyThread.extract({}) - {}", Utility.indentMiddle(), Utility.size(items), currentPage, item, Utility.toStringPastTimeReadable(started));
 				currentPage = nextPage;
 			}
 

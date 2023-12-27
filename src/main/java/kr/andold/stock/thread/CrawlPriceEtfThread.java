@@ -178,6 +178,7 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 					break;
 				}
 				
+				log.debug("{} #{} 쪽:{} CrawlPriceEtfThread.extract({}) - {}", Utility.indentMiddle(), Utility.size(items), currentPage, item, Utility.toStringPastTimeReadable(started));
 				currentPage = nextPage;
 			}
 
