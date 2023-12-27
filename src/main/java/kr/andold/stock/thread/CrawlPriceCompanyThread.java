@@ -31,7 +31,6 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 8;
 	private static final String MARK_ANDOLD_SINCE = StockCrawlerService.MARK_ANDOLD_SINCE;
-	private static final String START_DATE = StockCrawlerService.crawlerDateStart;
 
 	private String startDate = null;;
 	private ConcurrentLinkedQueue<StockItemDomain> items;
@@ -232,7 +231,7 @@ public class CrawlPriceCompanyThread implements Callable<StockParserResult> {
 
 		ConcurrentLinkedQueue<StockItemDomain> queue = new ConcurrentLinkedQueue<StockItemDomain>();
 		queue.add(item);
-		CrawlPriceCompanyThread thread = new CrawlPriceCompanyThread(queue, START_DATE);
+		CrawlPriceCompanyThread thread = new CrawlPriceCompanyThread(queue, StockCrawlerService.getCrawlerDateStart());
 		setDebug(false);
 		ExecutorService service = Executors.newFixedThreadPool(1);
 		Future<StockParserResult> future = service.submit(thread);

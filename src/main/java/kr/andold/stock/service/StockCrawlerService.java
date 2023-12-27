@@ -28,6 +28,7 @@ import kr.andold.stock.thread.CrawlPriceCompanyThread;
 import kr.andold.stock.thread.CrawlPriceEtfThread;
 import kr.andold.stock.thread.CrawlEtfDetailThread;
 import kr.andold.stock.thread.CrawlEtfDividendHistoryThread;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -61,7 +62,7 @@ public class StockCrawlerService {
 		debug = value;
 	}
 
-	public static String crawlerDateStart = "20231101";
+	@Getter private static String crawlerDateStart = "20231101";
 	@Value("${app.crawler.date.start:20231101}")
 	public void setCrawlerDateStart(String value) {
 		log.info("{} INIT::StockCrawlerService.setCrawlerDateStart({})", Utility.indentMiddle(), value);
