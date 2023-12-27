@@ -17,8 +17,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletResponse;
 import kr.andold.stock.domain.DividendDomain;
+import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.param.DividendParam;
+import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.StockParam;
+import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.CrawlerService;
 import kr.andold.stock.service.StockService;
 import kr.andold.stock.service.Utility;
@@ -71,12 +74,23 @@ public class ApiStockController {
 
 	@ResponseBody
 	@GetMapping(value = "compile")
-	public String compile() {
+	public CrudList<DividendDomain> compile() {
 		log.info("{} compile()", Utility.indentStart());
 
-		String result = service.compile();
+		CrudList<DividendDomain> result = service.compile();
 
-		log.info("{} {} - compile()", Utility.indentEnd(), result);
+		log.info("{} Dividend:{} - compile()", Utility.indentEnd(), result);
+		return result;
+	}
+
+	@ResponseBody
+	@PostMapping(value = "compile")
+	public CrudList<DividendHistoryDomain> compilePost(@RequestBody ItemParam param) {
+		log.info("{} compilePost({})", Utility.indentStart(), param);
+
+		CrudList<DividendHistoryDomain> result = service.compile(param);
+
+		log.info("{} DividendHistory:{} - compilePost({})", Utility.indentEnd(), result, param);
 		return result;
 	}
 

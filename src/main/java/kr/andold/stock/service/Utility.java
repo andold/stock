@@ -10,12 +10,15 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -1158,6 +1161,23 @@ public class Utility {
 		return left.truncatedTo(ChronoUnit.DAYS).compareTo(right.truncatedTo(ChronoUnit.DAYS)) == 0;
 	}
 
+	public static boolean isSameWeek(Date left, Date right) {
+		LocalDate startWeek = LocalDate.ofInstant(left.toInstant(), Utility.ZONE_ID_KST).with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+		LocalDate nextStartWeek = startWeek.plusDays(7);
+		LocalDate rightLocalDate = LocalDate.ofInstant(right.toInstant(), Utility.ZONE_ID_KST);
+		return rightLocalDate.isEqual(startWeek) && rightLocalDate.isAfter(startWeek) && rightLocalDate.isBefore(nextStartWeek);
+	}
+	public static boolean isSameMonth(Date left, Date right) {
+		LocalDate leftLocalDate = LocalDate.ofInstant(left.toInstant(), Utility.ZONE_ID_KST);
+		LocalDate rightLocalDate = LocalDate.ofInstant(right.toInstant(), Utility.ZONE_ID_KST);
+		return leftLocalDate.getYear() == rightLocalDate.getYear() && leftLocalDate.getMonth() == rightLocalDate.getMonth();
+	}
+	public static boolean isSameYear(Date left, Date right) {
+		LocalDate leftLocalDate = LocalDate.ofInstant(left.toInstant(), Utility.ZONE_ID_KST);
+		LocalDate rightLocalDate = LocalDate.ofInstant(right.toInstant(), Utility.ZONE_ID_KST);
+		return leftLocalDate.getYear() == rightLocalDate.getYear();
+	}
+
 	public static String toString(ZonedDateTime lastUpdated) {
 		return lastUpdated.format(DateTimeFormatter.ISO_DATE_TIME);
 	}
@@ -1168,5 +1188,4 @@ public class Utility {
 		} catch (InterruptedException e) {
 		}
 	}
-
 }

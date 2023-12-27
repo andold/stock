@@ -3,6 +3,7 @@ package kr.andold.stock.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -19,26 +20,29 @@ import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.entity.DividendEntity;
+import kr.andold.stock.param.DividendHistoryParam;
 import kr.andold.stock.param.DividendParam;
+import kr.andold.stock.param.PriceParam;
 import kr.andold.stock.param.StockParam;
 import kr.andold.stock.param.StockParam.InnerDividendHistoryParam;
 import kr.andold.stock.param.StockParam.InnerDividendParam;
 import kr.andold.stock.param.StockParam.InnerItemParam;
 import kr.andold.stock.param.StockParam.InnerPriceParam;
 import kr.andold.stock.repository.StockRepository;
+import kr.andold.stock.service.CommonBlockService.CrudList;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 public class StockService {
 	@Autowired
-	private ItemService stockItemService;
+	private ItemService itemService;
 	@Autowired
-	private DividendService stockDividendService;
+	private DividendService dividendService;
 	@Autowired
-	private DividendHistoryService stockDividendHistoryService;
+	private DividendHistoryService dividendHistoryService;
 	@Autowired
-	private PriceService stockPriceService;
+	private PriceService priceService;
 	@Autowired
 	private StockRepository repository;
 
@@ -63,10 +67,10 @@ public class StockService {
 			for (InnerPriceParam x : param.getPrices()) {
 				prices.add(x.toDomain());
 			}
-			stockItemService.put(items);
-			stockDividendService.put(dividends);
-			stockDividendHistoryService.put(histories);
-			stockPriceService.put(prices);
+			itemService.put(items);
+			dividendService.put(dividends);
+			dividendHistoryService.put(histories);
+			priceService.put(prices);
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -76,19 +80,19 @@ public class StockService {
 	}
 
 	public StockParam download() {
-		List<ItemDomain> items = stockItemService.search(null);
-		List<DividendHistoryDomain> histories = stockDividendHistoryService.search(null);
-		List<PriceDomain> prices = stockPriceService.search(null);
-		List<DividendDomain> dividends = stockDividendService.search(null);
+		List<ItemDomain> items = itemService.search(null);
+		List<DividendHistoryDomain> histories = dividendHistoryService.search(null);
+		List<PriceDomain> prices = priceService.search(null);
+		List<DividendDomain> dividends = dividendService.search(null);
 		return new StockParam(items, dividends, histories, prices);
 	}
 
-	public String compile() {
+	public CrudList<DividendDomain> compile() {
 		Calendar calendar = Calendar.getInstance();
-		List<DividendHistoryDomain> histories = stockDividendHistoryService.search(null);
-		List<PriceDomain> prices = stockPriceService.search(null);
-		List<DividendDomain> dividends = stockDividendService.search(null);
-		Map<String, DividendDomain> map = stockDividendService.makeMap(dividends);
+		List<DividendHistoryDomain> histories = dividendHistoryService.search(null);
+		List<PriceDomain> prices = priceService.search(null);
+		List<DividendDomain> dividends = dividendService.search(null);
+		Map<String, DividendDomain> map = dividendService.makeMap(dividends);
 		for (DividendDomain dividend : dividends) {
 			dividend.setDividend(null);
 			dividend.setDividend1YAgo(null);
@@ -169,8 +173,82 @@ public class StockService {
 			}
 		}
 
-		String result = stockDividendService.put(dividends);
+		CrudList<DividendDomain> result = dividendService.put(dividends);
 		return result;
+	}
+
+	// 주간 대표일자 월간 대표일자 연간 대표일자 특수(현재는 배당일) 대표일자 지정
+	public CrudList<DividendHistoryDomain> compile(ItemDomain param) {
+		log.info("{} compile({})", Utility.indentStart(), param);
+		long started = System.currentTimeMillis();
+
+		List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(param.getCode()).build());
+		List<PriceDomain> prices = priceService.search(PriceParam.builder().code(param.getCode()).build());
+		Map<String, PriceDomain> mapP = priceService.makeMap(prices);
+
+		// 기간 추출
+		Date start = new Date();
+		Date end = new Date(0);
+		for (PriceDomain price : prices) {
+			Date base = price.getBase();
+			if (start.after(base)) {
+				start = base;
+			}
+			if (end.before(base)) {
+				end = base;
+			}
+		}
+
+		prices.sort((left, right) -> (int) (left.getBase().getTime() - right.getBase().getTime()));
+		PriceDomain prevWeek = prices.get(0);
+		prevWeek.setFlagWeek(true);
+		PriceDomain prevMonth = prevWeek;
+		prevMonth.setFlagMonth(true);
+		PriceDomain prevYear = prevWeek;
+		prevYear.setFlagYear(true);
+		for (int cx = 1, sizex = prices.size(); cx < sizex; cx++) {
+			PriceDomain price = prices.get(cx);
+			//  주간 대표일자
+			if (Utility.isSameWeek(prevWeek.getBase(), price.getBase())) {
+				prevWeek.setFlagWeek(false);
+				price.setFlagWeek(true);
+				prevWeek = price;
+			}
+			// 월간 대표일자
+			if (Utility.isSameMonth(prevMonth.getBase(), price.getBase())) {
+				prevMonth.setFlagMonth(false);
+				price.setFlagMonth(true);
+				prevMonth = price;
+			}
+			// 연간 대표일자
+			if (Utility.isSameYear(prevMonth.getBase(), price.getBase())) {
+				prevYear.setFlagYear(false);
+				price.setFlagYear(true);
+				prevYear = price;
+			}
+		}
+		
+		// 특수(현재는 배당일) 대표일자
+		for (DividendHistoryDomain history : histories) {
+			LocalDate base = LocalDate.ofInstant(history.getBase().toInstant(), Utility.ZONE_ID_KST);
+			for (LocalDate cx = base.plusDays(0), sizex = base.minusDays(7); cx.isAfter(sizex); cx = cx.minusDays(1)) {
+				String key = String.format("%s.%s", history.getCode(), cx.format(DateTimeFormatter.ISO_LOCAL_DATE));
+				PriceDomain price = mapP.get(key);
+				if (price == null) {
+					continue;
+				}
+				
+				history.setPriceBase(price.getBase());
+				history.setPriceClosing(price.getClosing());
+				break;
+			}
+		}
+		
+		CrudList<DividendHistoryDomain> listHistories = dividendHistoryService.put(histories);
+		CrudList<PriceDomain> listPrices = priceService.put(prices);
+
+		log.info("{} DividendHistory:{} Price:{} compile({}) - {}", Utility.indentEnd(), listHistories, listPrices, param, Utility.toStringPastTimeReadable(started));
+		return listHistories;
 	}
 
 	public List<DividendDomain> search(DividendDomain param) {

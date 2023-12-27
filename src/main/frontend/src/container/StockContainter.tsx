@@ -109,6 +109,15 @@ function Header(props: any) {
 			onChange && onChange({});
 		});
 	}
+	function handleOnClickCrawlDividendHistoryCompany() {
+		setSpinner(spinner + 1);
+		store.crawlDividendHistoryCompany({}, (_: any) => {
+			if (spinner == 1) {	// 마지막에서만 재검색
+				onChange && onChange({});
+			}
+			setSpinner(spinner - 1);
+		});
+	}
 	function handleOnClickCrawlDividendHistoryEtf() {
 		setSpinner(spinner + 1);
 		store.crawlDividendHistoryEtf({}, (_: any) => {
@@ -250,6 +259,7 @@ function Header(props: any) {
 										<NavDropdown.Item className="mx-1" onClick={crawlItemCompanyDividendTop}>Crawl Item Company Dividend Top</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemCompanyDetails}>Crawl Item Company Details</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemEtfDetails}>Crawl Item ETF Details</NavDropdown.Item>
+										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlDividendHistoryCompany}>Crawl Dividend History Company</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlDividendHistoryEtf}>Crawl Dividend History ETF</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlPriceCompany}>Crawl Price Company</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlPriceEtf}>Crawl Price ETF</NavDropdown.Item>

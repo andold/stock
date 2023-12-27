@@ -33,7 +33,6 @@ public class DividendHistoryEntity {
 	@Column(name = "id")
 	private Integer id;
 
-	@Column(name = "code")
 	private String code;
 
 	@Column(name = "base")
@@ -48,8 +47,14 @@ public class DividendHistoryEntity {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date pay;
 
-	@Column(name = "dividend")
 	private Integer dividend;
+	
+	// price
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Asia/Seoul")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date priceBase;
+	private Integer priceClosing;	//	종가
 
 	@Column(name = "created")
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

@@ -63,8 +63,13 @@ class StockRepository {
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
-	async compile(request: any, onSuccess?: any, onError?: any, element?: any) {
+	async compileGet(request: any, onSuccess?: any, onError?: any, element?: any) {
 		return axios.get("./api/compile", request)
+			.then(response => onSuccess && onSuccess(request, response.data, element))
+			.catch(error => onError && onError(request, error, element));
+	}
+	async compilePost(request: any, onSuccess?: any, onError?: any, element?: any) {
+		return axios.post("./api/compile", request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
@@ -85,6 +90,11 @@ class StockRepository {
 	}
 	async crawlDividendHistories(request: any, onSuccess?: any, onError?: any, element?: any) {
 		return axios.get("./api/crawl/dividend/histories", request)
+			.then(response => onSuccess && onSuccess(request, response.data, element))
+			.catch(error => onError && onError(request, error, element));
+	}
+	async crawlDividendHistoryCompany(request: any, onSuccess?: any, onError?: any, element?: any) {
+		return axios.get(`./api/crawl/dividend/history/company`, request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}

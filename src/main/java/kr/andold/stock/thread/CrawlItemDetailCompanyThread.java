@@ -21,9 +21,9 @@ import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class CrawlCompanyDetailThread implements Callable<ParserResult> {
+public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02006V.xml&menuNo=44";
-	private static String MARK_END_POINT = "KEYWORD\t주식 상세\tCrawlCompanyDetailThread\tURL\t" + URL + "\n";
+	private static String MARK_END_POINT = "KEYWORD\t주식 상세\tCrawlItemDetailCompanyThread\tURL\t" + URL + "\n";
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 4;
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
@@ -34,13 +34,13 @@ public class CrawlCompanyDetailThread implements Callable<ParserResult> {
 	private ChromeDriverWrapper driver;
 	private WebElement popupCloseIconElement; // 검색결과창의 닫기 아이콘
 
-	public CrawlCompanyDetailThread(ConcurrentLinkedQueue<ItemDomain> list) {
+	public CrawlItemDetailCompanyThread(ConcurrentLinkedQueue<ItemDomain> list) {
 		this.items = list;
 	}
 
 	@Override
 	public ParserResult call() throws Exception {
-		log.info("{} CrawlCompanyDetailThread(#{})", Utility.indentStart(), Utility.size(items));
+		log.info("{} CrawlItemDetailCompanyThread(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
 		ParserResult result = ParserResult.builder().build();
@@ -67,33 +67,33 @@ public class CrawlCompanyDetailThread implements Callable<ParserResult> {
 
 				String code = item.getCode();
 				if (code == null || code.isBlank() || (item.getEtf() != null && item.getEtf())) {
-					log.trace("{} {}/{} 대상아님 『{}』 CrawlCompanyDetailThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
+					log.trace("{} {}/{} 대상아님 『{}』 CrawlItemDetailCompanyThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
 				}
 				if (debug && new Random().nextDouble() < 0.90) {
-					log.trace("{} {}/{} 뽑기 제외 『{}』 CrawlCompanyDetailThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
+					log.trace("{} {}/{} 뽑기 제외 『{}』 CrawlItemDetailCompanyThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
 				}
 
 				String text = extract(item);
-				log.debug("{} {}/{} 『{}』 CrawlCompanyDetailThread() - {}", Utility.indentMiddle(), cx, Utility.size(items), item, text);
+				log.debug("{} {}/{} 『{}』 CrawlItemDetailCompanyThread() - {}", Utility.indentMiddle(), cx, Utility.size(items), item, text);
 				sb.append(text);
 			}
 			sb.append(MARK_END_POINT);
 			String text = new String(sb);
 			ParserResult resultDividendHistoryEtf = ParserService.parse(text, true);
 			result.addAll(resultDividendHistoryEtf);
-			log.debug("{} 변경 필요 『{}』 CrawlCompanyDetailThread(#{}) - {}", Utility.indentMiddle(), resultDividendHistoryEtf, Utility.size(items), Utility.toStringPastTimeReadable(started));
+			log.debug("{} 변경 필요 『{}』 CrawlItemDetailCompanyThread(#{}) - {}", Utility.indentMiddle(), resultDividendHistoryEtf, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		}
 		driver.quit();
-		log.info("{} {} CrawlCompanyDetailThread(#{}) - {}", Utility.indentMiddle(), result, Utility.size(items), Utility.toStringPastTimeReadable(started));
+		log.info("{} {} CrawlItemDetailCompanyThread(#{}) - {}", Utility.indentMiddle(), result, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
 	private String extract(ItemDomain item) {
-		log.debug("{} CrawlCompanyDetailThread.extract({})", Utility.indentStart(), item);
+		log.debug("{} CrawlItemDetailCompanyThread.extract({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
 		try {
@@ -156,7 +156,7 @@ public class CrawlCompanyDetailThread implements Callable<ParserResult> {
 			sb.append(MARK_ANDOLD_SINCE);
 			String result = new String(sb);
 
-			log.debug("{} #{} 『{}』 CrawlCompanyDetailThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
+			log.debug("{} #{} 『{}』 CrawlItemDetailCompanyThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
@@ -164,12 +164,12 @@ public class CrawlCompanyDetailThread implements Callable<ParserResult> {
 			popupCloseIconElement.click();
 		}
 
-		log.debug("{} #{} 『{}』 CrawlCompanyDetailThread.extract(#{}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
+		log.debug("{} #{} 『{}』 CrawlItemDetailCompanyThread.extract(#{}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
 		return "";
 	}
 
 	public static ParserResult crawl(List<ItemDomain> items) {
-		log.info("{} CrawlCompanyDetailThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
+		log.info("{} CrawlItemDetailCompanyThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
 		int processors = Runtime.getRuntime().availableProcessors() - 1;
@@ -181,7 +181,7 @@ public class CrawlCompanyDetailThread implements Callable<ParserResult> {
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.addAll(items);
 		for (int cx = 0; cx < processors; cx++) {
-			CrawlCompanyDetailThread thread = new CrawlCompanyDetailThread(queue);
+			CrawlItemDetailCompanyThread thread = new CrawlItemDetailCompanyThread(queue);
 			Future<ParserResult> future = service.submit(thread);
 			futureList.add(future);
 		}
@@ -191,12 +191,12 @@ public class CrawlCompanyDetailThread implements Callable<ParserResult> {
 			try {
 				ParserResult result = task.get();
 				container.addAll(result);
-				log.info("{} 『{}』 CrawlCompanyDetailThread.crawl(#{})", Utility.indentMiddle(), result, Utility.size(items));
+				log.info("{} 『{}』 CrawlItemDetailCompanyThread.crawl(#{})", Utility.indentMiddle(), result, Utility.size(items));
 			} catch (Exception e) {
 			}
 		}
 
-		log.info("{} 『{}』 CrawlCompanyDetailThread.crawl(#{}) - {}", Utility.indentEnd(), container, Utility.size(items), Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』 CrawlItemDetailCompanyThread.crawl(#{}) - {}", Utility.indentEnd(), container, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		return container;
 	}
 

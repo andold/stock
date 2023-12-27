@@ -442,6 +442,10 @@ export function OperateColumn(props: any) {
 			priceStore.crawl(data, (_: any) => {
 				setSpinner(false);
 				onChange && onChange({});
+				store.compile(data, (_: any) => {
+					setSpinner(false);
+					onChange && onChange({});
+				});
 			});
 		});
 	}

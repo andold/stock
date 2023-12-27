@@ -27,8 +27,48 @@ public class PriceDomain extends PriceEntity implements CommonBlockDomain<PriceD
 	}
 
 	@Override
-	public int compare(PriceDomain domain) {
-		return key().compareTo(domain.key());
+	public int compare(PriceDomain you) {
+		int compared = Utility.compare(getCode(), you.getCode());
+		if (compared != 0) {
+			return compared;
+		}
+
+		compared = Utility.compare(getBase(), you.getBase());
+		if (compared != 0) {
+			return compared;
+		}
+
+		compared = Utility.compare(getClosing(), you.getClosing());
+		if (compared != 0) {
+			return compared;
+		}
+
+		compared = Utility.compare(getMarket(), you.getMarket());
+		if (compared != 0) {
+			return compared;
+		}
+
+		compared = Utility.compare(getHigh(), you.getHigh());
+		if (compared != 0) {
+			return compared;
+		}
+
+		compared = Utility.compare(getLow(), you.getLow());
+		if (compared != 0) {
+			return compared;
+		}
+
+		compared = Utility.compare(getVolume(), you.getVolume());
+		if (compared != 0) {
+			return compared;
+		}
+
+		compared = Utility.compare(getFlag(), you.getFlag());
+		if (compared != 0) {
+			return compared;
+		}
+
+		return 0;
 	}
 
 	@Override
@@ -40,6 +80,43 @@ public class PriceDomain extends PriceEntity implements CommonBlockDomain<PriceD
 		PriceDomain domain = new PriceDomain();
 		BeanUtils.copyProperties(entity, domain);
 		return domain;
+	}
+
+	/*
+ 	bit 0 ~ 3: reserved
+	bit 5: 32, week 주대표
+	bit 6: 64, month 월대표
+	bit 7: 128, year 연대표
+	bit 8: 256, 특정일, 배당일 등
+ */
+	public void setFlagWeek(boolean b) {
+		int mask = 32;
+		Integer flag = getFlag() == null ? 0 : getFlag();
+		if (b) {
+			setFlag(flag | mask);
+		} else {
+			setFlag(flag & ~mask);
+		}
+	}
+
+	public void setFlagMonth(boolean b) {
+		int mask = 64;
+		Integer flag = getFlag() == null ? 0 : getFlag();
+		if (b) {
+			setFlag(flag | mask);
+		} else {
+			setFlag(flag & ~mask);
+		}
+	}
+
+	public void setFlagYear(boolean b) {
+		int mask = 128;
+		Integer flag = getFlag() == null ? 0 : getFlag();
+		if (b) {
+			setFlag(flag | mask);
+		} else {
+			setFlag(flag & ~mask);
+		}
 	}
 
 }

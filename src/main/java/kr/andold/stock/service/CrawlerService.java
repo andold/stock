@@ -22,12 +22,12 @@ import kr.andold.stock.domain.DividendDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.service.ParserService.ParserResult;
-import kr.andold.stock.thread.CrawlCompanyDetailThread;
-import kr.andold.stock.thread.CrawlCompanyDividendHistoryThread;
+import kr.andold.stock.thread.CrawlItemDetailCompanyThread;
+import kr.andold.stock.thread.CrawlDividendHistoryCompanyThread;
 import kr.andold.stock.thread.CrawlPriceCompanyThread;
 import kr.andold.stock.thread.CrawlPriceEtfThread;
-import kr.andold.stock.thread.CrawlEtfDetailThread;
-import kr.andold.stock.thread.CrawlEtfDividendHistoryThread;
+import kr.andold.stock.thread.CrawlItemDetailEtfThread;
+import kr.andold.stock.thread.CrawlDividendHistoryEtfThread;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -307,7 +307,7 @@ public class CrawlerService {
 		log.info("{} crawlCompanyDividendHistories()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		ParserResult result = CrawlCompanyDividendHistoryThread.crawl(stockItemService.search(null));
+		ParserResult result = CrawlDividendHistoryCompanyThread.crawl(stockItemService.search(null));
 		put(result);
 
 		log.info("{} {} crawlCompanyDividendHistories() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
@@ -319,7 +319,7 @@ public class CrawlerService {
 		log.info("{} crawlEtfDividendHistories()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		ParserResult result = CrawlEtfDividendHistoryThread.crawl(stockItemService.search(null));
+		ParserResult result = CrawlDividendHistoryEtfThread.crawl(stockItemService.search(null));
 		put(result);
 
 		log.info("{} {} crawlEtfDividendHistories() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
@@ -331,7 +331,7 @@ public class CrawlerService {
 		log.info("{} crawlEtfDetails()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		ParserResult result = CrawlEtfDetailThread.crawl(stockItemService.search(null));
+		ParserResult result = CrawlItemDetailEtfThread.crawl(stockItemService.search(null));
 		put(result);
 
 		log.info("{} {} crawlEtfDetails() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
@@ -343,7 +343,7 @@ public class CrawlerService {
 		log.info("{} crawlItemCompanyDetails()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		ParserResult result = CrawlCompanyDetailThread.crawl(stockItemService.search(null));
+		ParserResult result = CrawlItemDetailCompanyThread.crawl(stockItemService.search(null));
 		put(result);
 
 		log.info("{} {} crawlItemCompanyDetails() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
@@ -368,7 +368,9 @@ public class CrawlerService {
 		options.addArguments("--incognito");
 		options.addArguments("--disable-gpu");
 		options.addArguments("--verbose");
-//		options.addArguments("--headless");
+		if (!debug) {
+			options.addArguments("--headless");
+		}
 		options.addArguments("--window-size=3840,4320");
 		ChromeDriverWrapper driver = new ChromeDriverWrapper(options);
 		return driver;

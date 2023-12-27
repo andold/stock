@@ -20,4 +20,10 @@ public class DividendHistoryServiceTest {
 		log.info("{}", Utility.toStringJson(result));
 	}
 
+	@Test
+	public void testCrawlEtf() {
+		ParserResult result = service.crawl(ItemParam.builder().code("429740").symbol("ARIRANG K리츠Fn").etf(true).type("KOSPI").build());
+		log.info("{}", Utility.toStringJsonPretty(result));
+	}
+
 }

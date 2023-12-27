@@ -46,7 +46,11 @@ class StockStore {
 		repository.parseFile(request, onSuccess, onError, element);
 	}
 	compile(request?: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.compile(request, onSuccess, onError, element);
+		if (request) {
+			repository.compilePost(request, onSuccess, onError, element);
+		} else {
+			repository.compileGet(request, onSuccess, onError, element);
+		}
 	}
 	crawlItems(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlItems(request, onSuccess, onError, element);
@@ -69,6 +73,12 @@ class StockStore {
 	crawlItemCompanyDividendTop(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlItemCompanyDividendTop(request, onSuccess, onError, element);
 	}
+	crawlDividendHistoryCompany(request?: any, onSuccess?: any, onError?: any, element?: any) {
+		repository.crawlDividendHistoryCompany(request, onSuccess, onError, element);
+	}
+	crawlDividendHistoryEtf(request?: any, onSuccess?: any, onError?: any, element?: any) {
+		repository.crawlDividendHistoryEtf(request, onSuccess, onError, element);
+	}
 	// 
 
 	//	stock item section
@@ -83,9 +93,6 @@ class StockStore {
 	//	stock dividend section
 
 	//	stock dividend history section
-	crawlDividendHistoryEtf(request?: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.crawlDividendHistoryEtf(request, onSuccess, onError, element);
-	}
 
 	//	utils
 	range(size: number): number[] {

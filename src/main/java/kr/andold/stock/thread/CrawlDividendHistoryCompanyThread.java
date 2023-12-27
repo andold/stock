@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 
 // KSD 증권정보포털 SEIBro > 주식 > 배당정보 > 배당내역전체검색
 @Slf4j
-public class CrawlCompanyDividendHistoryThread implements Callable<ParserResult> {
+public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult> {
 	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285";
 	private static final String MARK_END_POINT = "KEYWORD\t주식(기업) 배당금 내역\tURL\t" + URL + "\n";
 	private static final int TIMEOUT = 4000;
@@ -37,13 +37,13 @@ public class CrawlCompanyDividendHistoryThread implements Callable<ParserResult>
 	private ChromeDriverWrapper driver;
 	private String previous = "andold";
 
-	public CrawlCompanyDividendHistoryThread(ConcurrentLinkedQueue<ItemDomain> list) {
+	public CrawlDividendHistoryCompanyThread(ConcurrentLinkedQueue<ItemDomain> list) {
 		this.items = list;
 	}
 
 	@Override
 	public ParserResult call() throws Exception {
-		log.info("{} CrawlCompanyDividendHistoryThread(#{})", Utility.indentStart(), Utility.size(items));
+		log.info("{} CrawlDividendHistoryCompanyThread(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
 		ParserResult result = ParserResult.builder().build();
@@ -76,14 +76,14 @@ public class CrawlCompanyDividendHistoryThread implements Callable<ParserResult>
 				
 				String code = item.getCode();
 				if (code == null || code.isBlank() || item.getEtf()) {
-					log.info("{} {}/{} 대상아님 『{}』 CrawlCompanyDividendHistoryThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
+					log.info("{} {}/{} 대상아님 『{}』 CrawlDividendHistoryCompanyThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
 				}
 
 
 				if (debug && new Random().nextDouble() < 0.9) {
-					log.trace("{} {}/{} 뽑기 제외 『{}』 CrawlCompanyDividendHistoryThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
+					log.trace("{} {}/{} 뽑기 제외 『{}』 CrawlDividendHistoryCompanyThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
 				}
@@ -96,24 +96,28 @@ public class CrawlCompanyDividendHistoryThread implements Callable<ParserResult>
 			String text = new String(sb);
 			ParserResult resultDividendHistory = ParserService.parse(text, debug);
 			result.addAll(resultDividendHistory);
-			log.debug("{} #{} {} CrawlCompanyDividendHistoryThread() - {}", Utility.indentMiddle(), Utility.size(items), resultDividendHistory, Utility.toStringPastTimeReadable(started));
+			log.debug("{} #{} {} CrawlDividendHistoryCompanyThread() - {}", Utility.indentMiddle(), Utility.size(items), resultDividendHistory, Utility.toStringPastTimeReadable(started));
 		}
 		driver.quit();
 
-		log.info("{} {} CrawlCompanyDividendHistoryThread(#{}) - {}", Utility.indentEnd(), result, Utility.size(items), Utility.toStringPastTimeReadable(started));
+		log.info("{} {} CrawlDividendHistoryCompanyThread(#{}) - {}", Utility.indentEnd(), result, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
 	private String extract(ItemDomain item) {
-		log.info("{} CrawlCompanyDividendHistoryThread.extract({})", Utility.indentStart(), item);
+		log.info("{} CrawlDividendHistoryCompanyThread.extract({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
 		try {
 			String code = item.getCode();
 
 			driver.switchTo().defaultContent();
-			driver.findElement(By.id("cc_group4")).click(); // 종목 검색 아이콘 크릭
+			
+			// 종목 검색 아이콘 클릭
+			driver.findElement(By.id("cc_group4")).click();
+
 			WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframe2']"), TIMEOUT);
+
 			driver.switchTo().frame(frame);
 			WebElement codeElement = driver.findElement(By.id("search_string"), TIMEOUT);
 			codeElement.clear();
@@ -164,7 +168,7 @@ public class CrawlCompanyDividendHistoryThread implements Callable<ParserResult>
 			sb.append(MARK_ANDOLD_SINCE);
 			String result = new String(sb);
 
-			log.info("{} #{} 『{}』 CrawlCompanyDividendHistoryThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
+			log.info("{} #{} 『{}』 CrawlDividendHistoryCompanyThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
@@ -183,7 +187,7 @@ public class CrawlCompanyDividendHistoryThread implements Callable<ParserResult>
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.addAll(items);
 		for (int cx = 0; cx < processors; cx++) {
-			CrawlCompanyDividendHistoryThread thread = new CrawlCompanyDividendHistoryThread(queue);
+			CrawlDividendHistoryCompanyThread thread = new CrawlDividendHistoryCompanyThread(queue);
 			Future<ParserResult> future = service.submit(thread);
 			futureList.add(future);
 		}
@@ -193,7 +197,7 @@ public class CrawlCompanyDividendHistoryThread implements Callable<ParserResult>
 			try {
 				ParserResult result = task.get();
 				container.addAll(result);
-				log.info("{} 『{}』 CrawlCompanyDividendHistoryThread.crawl(#{})", Utility.indentMiddle(), result, Utility.size(items));
+				log.info("{} 『{}』 CrawlDividendHistoryCompanyThread.crawl(#{})", Utility.indentMiddle(), result, Utility.size(items));
 			} catch (Exception e) {
 			}
 		}
@@ -201,25 +205,25 @@ public class CrawlCompanyDividendHistoryThread implements Callable<ParserResult>
 	}
 
 	public static ParserResult crawl(ItemDomain item) {
-		log.info("{} CrawlCompanyDividendHistoryThread.crawl({})", Utility.indentStart(), item);
+		log.info("{} CrawlDividendHistoryCompanyThread.crawl({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.add(item);
-		CrawlCompanyDividendHistoryThread thread = new CrawlCompanyDividendHistoryThread(queue);
+		CrawlDividendHistoryCompanyThread thread = new CrawlDividendHistoryCompanyThread(queue);
 		setDebug(false);
 		ExecutorService service = Executors.newFixedThreadPool(1);
 		Future<ParserResult> future = service.submit(thread);
 		try {
 			ParserResult result = future.get();
 
-			log.info("{} {} CrawlCompanyDividendHistoryThread.crawl({}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
+			log.info("{} {} CrawlDividendHistoryCompanyThread.crawl({}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
 		}
 
-		log.info("{} EMPY CrawlCompanyDividendHistoryThread.crawl({}) - {}", Utility.indentEnd(), item, Utility.toStringPastTimeReadable(started));
+		log.info("{} EMPY CrawlDividendHistoryCompanyThread.crawl({}) - {}", Utility.indentEnd(), item, Utility.toStringPastTimeReadable(started));
 		return new ParserResult().clear();
 	}
 

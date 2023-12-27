@@ -14,8 +14,8 @@ import kr.andold.stock.param.DividendHistoryParam;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.repository.DividendHistoryRepository;
 import kr.andold.stock.service.ParserService.ParserResult;
-import kr.andold.stock.thread.CrawlCompanyDividendHistoryThread;
-import kr.andold.stock.thread.CrawlEtfDividendHistoryThread;
+import kr.andold.stock.thread.CrawlDividendHistoryCompanyThread;
+import kr.andold.stock.thread.CrawlDividendHistoryEtfThread;
 
 @Service
 public class DividendHistoryService implements CommonBlockService<DividendHistoryParam, DividendHistoryDomain, DividendHistoryEntity> {
@@ -23,7 +23,7 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 	private DividendHistoryRepository repository;
 	
 	@Override
-	public String put(List<DividendHistoryDomain> domains) {
+	public CrudList<DividendHistoryDomain> put(List<DividendHistoryDomain> domains) {
 		return CommonBlockService.super.put(domains.stream().filter(domain -> domain.getDividend() != null && domain.getDividend() > 0).collect(Collectors.toList()));
 	}
 
@@ -77,9 +77,9 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 	}
 
 	@Override
-	public void prepareUpdate(DividendHistoryDomain source, DividendHistoryDomain target) {
-		Utility.copyPropertiesNotNull(source, target);
-		target.setUpdated(new Date());		
+	public void prepareUpdate(DividendHistoryDomain before, DividendHistoryDomain after) {
+		Utility.copyPropertiesNotNull(after, before);
+		before.setUpdated(new Date());		
 	}
 
 	@Override
@@ -91,8 +91,8 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 	}
 
 	public ParserResult crawl(ItemParam param) {
-		ParserResult result = param.getEtf() ? CrawlEtfDividendHistoryThread.crawl(param)
-				: CrawlCompanyDividendHistoryThread.crawl(param);
+		ParserResult result = param.getEtf() ? CrawlDividendHistoryEtfThread.crawl(param)
+				: CrawlDividendHistoryCompanyThread.crawl(param);
 		put(result.getHistories());
 		return result;
 	}

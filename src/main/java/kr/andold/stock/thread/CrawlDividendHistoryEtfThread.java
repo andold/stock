@@ -20,31 +20,30 @@ import kr.andold.stock.service.CrawlerService;
 import kr.andold.stock.service.ParserService;
 import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class CrawlEtfDividendHistoryThread implements Callable<ParserResult> {
+public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179";
 	private static final String MARK_END_POINT = "KEYWORD\tETF 배당금 내역\tKSD 증권정보포털 SEIBro\tURL\thttps://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179\n";
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 4;
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
-	private static final Boolean debug = CrawlerService.debug;
+	@Setter private static Boolean debug = CrawlerService.debug;
 
 	private ConcurrentLinkedQueue<ItemDomain> items;
 
 	private ChromeDriverWrapper driver;
 	private WebElement startDateElement; // 조회기간 시작일
-	private WebElement searchSymbolIconElement; // 종목명 검색 아이콘
-	private WebElement seachButton; // 조회 버튼
 	private WebElement popupCloseIconElement; // 검색결과창의 닫기 아이콘
 
-	public CrawlEtfDividendHistoryThread(ConcurrentLinkedQueue<ItemDomain> list) {
+	public CrawlDividendHistoryEtfThread(ConcurrentLinkedQueue<ItemDomain> list) {
 		this.items = list;
 	}
 
 	public ParserResult call() throws Exception {
-		log.info("{} CrawlEtfDividendHistoryThread(#{})", Utility.indentStart(), Utility.size(items));
+		log.info("{} CrawlDividendHistoryEtfThread(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
 		ParserResult result = ParserResult.builder().build();
@@ -53,8 +52,6 @@ public class CrawlEtfDividendHistoryThread implements Callable<ParserResult> {
 		try {
 			driver.navigate().to(URL);
 			startDateElement = driver.findElement(By.xpath("//input[@id='sd1_inputCalendar1_input']"), TIMEOUT * 4); // 조회기간 시작일
-			searchSymbolIconElement = driver.findElement(By.xpath("//dd[@id='sn_group2']/a[@id='sn_group4']"), TIMEOUT); // 종목명 검색 아이콘
-			seachButton = driver.findElement(By.xpath("//*[@id='image17']"), TIMEOUT); // 조회 버튼
 			popupCloseIconElement = driver.findElement(By.xpath("//div[@id='group164']/a[@id='anchor3']"), TIMEOUT); // 검색결과창의 닫기 아이콘
 
 			startDateElement.clear();
@@ -79,13 +76,13 @@ public class CrawlEtfDividendHistoryThread implements Callable<ParserResult> {
 				String code = item.getCode();
 				String symbol = item.getSymbol();
 				if (code == null || code.isBlank() || symbol == null || symbol.isBlank() || (item.getEtf() != null && !item.getEtf())) {
-					log.trace("{} {}/{} 대상아님 『{}』 CrawlEtfDividendHistoryThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
+					log.trace("{} {}/{} 대상아님 『{}』 CrawlDividendHistoryEtfThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
 				}
 				
 				if (debug && new Random().nextDouble() < 0.9) {
-					log.trace("{} {}/{} 뽑기 제외 『{}』 CrawlEtfDividendHistoryThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
+					log.trace("{} {}/{} 뽑기 제외 『{}』 CrawlDividendHistoryEtfThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
 				}
@@ -97,15 +94,15 @@ public class CrawlEtfDividendHistoryThread implements Callable<ParserResult> {
 			String text = new String(sb);
 			ParserResult resultDividendHistoryEtf = ParserService.parse(text, debug);
 			result.addAll(resultDividendHistoryEtf);
-			log.debug("{} #{} {} CrawlEtfDividendHistoryThread() - {}", Utility.indentMiddle(), Utility.size(items), resultDividendHistoryEtf, Utility.toStringPastTimeReadable(started));
+			log.debug("{} #{} {} CrawlDividendHistoryEtfThread() - {}", Utility.indentMiddle(), Utility.size(items), resultDividendHistoryEtf, Utility.toStringPastTimeReadable(started));
 		}
 		driver.quit();
-		log.info("{} 『{}』 CrawlEtfDividendHistoryThread(#{}) - {}", Utility.indentEnd(), result, Utility.size(items), Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』 CrawlDividendHistoryEtfThread(#{}) - {}", Utility.indentEnd(), result, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
 	private String extract(ItemDomain item) {
-		log.debug("{} CrawlEtfDividendHistoryThread({})", Utility.indentStart(), item);
+		log.debug("{} CrawlDividendHistoryEtfThread({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
 		try {
@@ -113,30 +110,35 @@ public class CrawlEtfDividendHistoryThread implements Callable<ParserResult> {
 			String symbol = item.getSymbol();
 
 			driver.switchTo().defaultContent();
-			searchSymbolIconElement.click(); // 종목명 검색 아이콘
+			
+			// 종목명 검색 아이콘 클릭
+			driver.findElement(By.xpath("//dd[@id='sn_group2']/a[@id='sn_group4']"), TIMEOUT).click();
 			
 			WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"), TIMEOUT);
 			driver.switchTo().frame(frame);
 
+			// 종목명 입력
 			WebElement keywordElement = driver.findElement(By.xpath("//input[@id='search_string']"), TIMEOUT); // 종목명 검색어 입력창
-			WebElement searchSymbolIconInnerFrameElement = driver.findElement(By.xpath("//div[@id='group252']/a[@id='group236']"), TIMEOUT); // 종목명 검색 아이콘
-			driver.clear(By.xpath("//ul[@id='contentsList']/li"));
-			keywordElement.clear();
-			keywordElement.sendKeys("andold");
-			searchSymbolIconInnerFrameElement.click();
+			By BY_MARK_CODE_SEARCH_DONE = By.xpath("//ul[@id='contentsList']/li");
+			String textPrevious = driver.getText(BY_MARK_CODE_SEARCH_DONE, 1, "andold");
 			keywordElement.clear();
 			keywordElement.sendKeys(code);
-			searchSymbolIconInnerFrameElement.click();
+			
+			// 검색 아이콘 클릭
+			driver.findElement(By.xpath("//div[@id='group252']/a[@id='group236']"), TIMEOUT).click();
+			
+			// 이전 내용이 지워질 때까지
+			driver.waitUntilTextNotInclude(BY_MARK_CODE_SEARCH_DONE, TIMEOUT, textPrevious);
 
+			// 검색 결과에서 선택
 			String xpathSearchResult = "//ul[@id='contentsList']/li/a";
 			List<WebElement> resultSearch = driver.findElements(By.xpath(xpathSearchResult), TIMEOUT);
 			String oneXpathCandidate1 = String.format("//*[@id='contentsList']//a[contains(text(),'%s']", symbol.strip());
 			String oneXpathCandidate2 = String.format("//*[@id='contentsList']//a[contains(text(),'%s']", symbol.replaceAll("[\s]+", ""));
-			
 			if (resultSearch.size() == 0) {
 				driver.switchTo().defaultContent();
 				popupCloseIconElement.click();
-				log.info("{} #{} 없는 종목 『{}』 CrawlEtfDividendHistoryThread() - {}", Utility.indentEnd(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
+				log.info("{} #{} 없는 종목 『{}』 CrawlDividendHistoryEtfThread() - {}", Utility.indentEnd(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
 				return "";
 			} else if (resultSearch.size() == 1) {
 				driver.findElement(By.xpath(xpathSearchResult)).click();
@@ -147,24 +149,30 @@ public class CrawlEtfDividendHistoryThread implements Callable<ParserResult> {
 			} else {
 				driver.switchTo().defaultContent();
 				popupCloseIconElement.click();
-				log.info("{} #{} 모호한 검색 결과 『{}』 CrawlEtfDividendHistoryThread() - {}", Utility.indentEnd(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
+				log.info("{} #{} 모호한 검색 결과 『{}』 CrawlDividendHistoryEtfThread() - {}", Utility.indentEnd(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
 				return "";
 			}
 
 			driver.switchTo().defaultContent();
-			seachButton.click();
-			Thread.sleep(100);
+			
+			// 조회 아이콘 클릭
+			By BY_MARK_DIVIDEND_SEARCH_DONE = By.xpath("//*[@id='grid1_body_table']//td[3]");
+			textPrevious = driver.getText(BY_MARK_DIVIDEND_SEARCH_DONE, 1, "andold");
+			driver.findElement(By.xpath("//*[@id='image17']"), TIMEOUT).click();
+
+			// 내용이 바뀔 때까지
+			driver.waitUntilTextNotInclude(BY_MARK_DIVIDEND_SEARCH_DONE, TIMEOUT, textPrevious);
+
+			// 내용 저장
 			WebElement table = driver.findElement(By.xpath("//*[@id='grid1_body_table']"), TIMEOUT);
-
-
 			StringBuffer sb = new StringBuffer();
-			sb.append(String.format("KEYWORD\t%s\n",  item.getCode()));
+			sb.append(String.format("KEYWORD\t%s\n", item.getCode()));
 			sb.append(driver.extractTextFromTableElement(table));
 			sb.append(MARK_ANDOLD_SINCE);
 
 			String result = new String(sb);
 
-			log.debug("{} #{} 『{}』 CrawlEtfDividendHistoryThread({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
+			log.debug("{} #{} 『{}』 CrawlDividendHistoryEtfThread({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
@@ -175,7 +183,7 @@ public class CrawlEtfDividendHistoryThread implements Callable<ParserResult> {
 
 
 	public static ParserResult crawl(List<ItemDomain> items) {
-		log.info("{} CrawlEtfDividendHistoryThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
+		log.info("{} CrawlDividendHistoryEtfThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
 		int processors = Runtime.getRuntime().availableProcessors() - 1;
@@ -187,7 +195,7 @@ public class CrawlEtfDividendHistoryThread implements Callable<ParserResult> {
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.addAll(items);
 		for (int cx = 0; cx < processors; cx++) {
-			CrawlEtfDividendHistoryThread thread = new CrawlEtfDividendHistoryThread(queue);
+			CrawlDividendHistoryEtfThread thread = new CrawlDividendHistoryEtfThread(queue);
 			Future<ParserResult> future = service.submit(thread);
 			futureList.add(future);
 		}
@@ -197,19 +205,20 @@ public class CrawlEtfDividendHistoryThread implements Callable<ParserResult> {
 			try {
 				ParserResult result = task.get();
 				container.addAll(result);
-				log.info("{} 『{}』 CrawlEtfDividendHistoryThread.crawl(#{})", Utility.indentMiddle(), result, Utility.size(items));
+				log.info("{} 『{}』 CrawlDividendHistoryEtfThread.crawl(#{})", Utility.indentMiddle(), result, Utility.size(items));
 			} catch (Exception e) {
 			}
 		}
 
-		log.info("{} 『{}』 CrawlEtfDividendHistoryThread.crawl(#{}) - {}", Utility.indentEnd(), container, Utility.size(items), Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』 CrawlDividendHistoryEtfThread.crawl(#{}) - {}", Utility.indentEnd(), container, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		return container;
 	}
 
 	public static ParserResult crawl(ItemDomain item) {
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.add(item);
-		CrawlEtfDividendHistoryThread thread = new CrawlEtfDividendHistoryThread(queue);
+		CrawlDividendHistoryEtfThread thread = new CrawlDividendHistoryEtfThread(queue);
+		setDebug(false);
 		ExecutorService service = Executors.newFixedThreadPool(1);
 		Future<ParserResult> future = service.submit(thread);
 		try {

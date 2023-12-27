@@ -5,7 +5,54 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 public interface CommonBlockService<X, Y, Z> {
+	@Builder
+	@Data
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public class CrudList<Y> {
+		private List<Y> creates;
+		private List<Y> duplicates;
+		private List<Y> updates;
+		private List<Y> removes;
+		CrudList<Y> clear() {
+			if (creates == null) {
+				creates = new ArrayList<>();
+			} else {
+				creates.clear();
+			}
+			if (duplicates == null) {
+				duplicates = new ArrayList<>();
+			} else {
+				duplicates.clear();
+			}
+			if (updates == null) {
+				updates = new ArrayList<>();
+			} else {
+				updates.clear();
+			}
+			if (removes == null) {
+				removes = new ArrayList<>();
+			} else {
+				removes.clear();
+			}
+			
+			return this;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("CrudList(creates: #%d, duplicates: #%d, updates: #%d, removes: #%d)"
+					, Utility.size(creates), Utility.size(duplicates), Utility.size(updates), Utility.size(removes));
+		}
+
+	}
+
 	List<Y> update(List<Y> domains);
 	Y toDomain(Z entity);
 	Z toEntity(Y domain);
@@ -22,27 +69,24 @@ public interface CommonBlockService<X, Y, Z> {
 		return Utility.toStringJsonLine(domains);
 	}
 
-	default String put(List<Y> items) {
+	default CrudList<Y> put(List<Y> items) {
 		List<Y> before = search(null);
-		List<Y> creates = new ArrayList<>();
-		List<Y> duplicates = new ArrayList<>();
-		List<Y> updates = new ArrayList<>();
-		List<Y> removes = new ArrayList<>();
-		differ(before, items, creates, duplicates, updates, removes);
-		return batch(creates, duplicates, updates, removes).toString();
+		CrudList<Y> list = differ(before, items);
+		batch(list);
+		return list;
 	}
 
-	default Integer batch(List<Y> creates, List<Y> duplicates, List<Y> updates, List<Y> removes) {
+	default Integer batch(CrudList<Y> list) {
 		int count = 0;
-		if (creates != null) {
-			List<Y> created = create(creates);
+		if (list.getCreates() != null) {
+			List<Y> created = create(list.getCreates());
 			count += Utility.size(created);
 		}
-		if (removes != null) {
-			count += remove(removes);
+		if (list.getRemoves() != null) {
+			count += remove(list.getRemoves());
 		}
-		if (updates != null) {
-			count += Utility.size(update(updates));
+		if (list.getUpdates() != null) {
+			count += Utility.size(update(list.getUpdates()));
 		}
 
 		return count;
@@ -64,13 +108,14 @@ public interface CommonBlockService<X, Y, Z> {
 		return entities;
 	}
 
-	default void differ(List<Y> befores, List<Y> afters, List<Y> creates, List<Y> duplicates, List<Y> updates, List<Y> removes) {
+	default CrudList<Y> differ(List<Y> befores, List<Y> afters) {
+		CrudList<Y> result = new CrudList<Y>().clear();
 		Map<String, Y> mapBefore = makeMap(befores);
 		Map<String, Y> mapAfter = makeMap(afters);
 		for (String key : mapBefore.keySet()) {
 			Y after = mapAfter.get(key);
 			if (after == null) {
-				removes.add(mapBefore.get(key));
+				result.getRemoves().add(mapBefore.get(key));
 				continue;
 			}
 		}
@@ -79,18 +124,19 @@ public interface CommonBlockService<X, Y, Z> {
 			Y after = mapAfter.get(key);
 			if (before == null) {
 				prepareCreate(after);
-				creates.add(after);
+				result.getCreates().add(after);
 				continue;
 			}
 
 			if (compare(after, before) == 0) {
-				duplicates.add(before);
+				result.getDuplicates().add(before);
 				continue;
 			}
 
 			prepareUpdate(before, after);
-			updates.add(before);
+			result.getUpdates().add(before);
 		}
+		return result;
 	}
 
 	default Map<String, Y> makeMap(List<Y> domains) {
