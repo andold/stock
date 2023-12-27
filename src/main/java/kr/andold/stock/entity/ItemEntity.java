@@ -6,6 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,43 +22,63 @@ import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Entity
-@Table(name = "stock_price")
+@Table(name = "stock_item")
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Data
-public class StockPriceEntity {
+public class ItemEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
 	private Integer id;
 
+	// 종목이름
+	@Column(name = "symbol")
+	private String symbol;
+
+	// 종목코드
+	@Column(name = "code")
 	private String code;
 
+	// 표시 우선 순위
+	@Column(name = "priority")
+	private Integer priority;
+
+	// 배당주기
+	@Column(name = "dividend_cycle")
+	private String dividendCycle;
+
+	// 상장주식수
+	@Column(name = "volume_of_listed_shares")
+	private Integer volumeOfListedShares;
+	
+	// etf?: 개별기업
+	@Column(name = "etf")
+	private Boolean etf;
+
+	// 코스피, 코스닥
+	@Column(name = "field_type")
+	private String type;
+
+	// 분류
+	@Column(name = "category")
+	private String category;
+
+	// 상장일
+	@Column(name = "ipo_date")
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Asia/Seoul")
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date base;
+	private Date ipoDate;
 
-	private Integer closing;	//	종가
-	private Integer market;		//	시가
-	private Integer high;		//	고가
-	private Integer low;		//	저가
-	private Integer volume;		//	거래량
-	
-	/*
-	 	bit 0 ~ 3: reserved
-		bit 5: 32, week 주대표
-		bit 6: 64, month 월대표
-		bit 7: 128, year 연대표
-		bit 8: 256, 특정일, 배당일 등
-	 */
-	private Integer flag;
-
+	@Column(name = "created")
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Asia/Seoul")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date created;
 
+	@Column(name = "updated")
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Asia/Seoul")
 	@Temporal(TemporalType.TIMESTAMP)

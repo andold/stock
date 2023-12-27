@@ -2,7 +2,7 @@ package kr.andold.stock.domain;
 
 import org.springframework.beans.BeanUtils;
 
-import kr.andold.stock.entity.StockItemEntity;
+import kr.andold.stock.entity.ItemEntity;
 import kr.andold.stock.service.Utility;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,10 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class StockItemDomain extends StockItemEntity {
+public class ItemDomain extends ItemEntity {
 	private String reserved;
 
-	public StockItemDomain(String symbol, String code, String dividendCycle, String volumeOfListedShares, Boolean etf,
+	public ItemDomain(String symbol, String code, String dividendCycle, String volumeOfListedShares, Boolean etf,
 			String type, String category, String ipoDate) {
 		super(null, symbol, code, null, dividendCycle, Utility.parseInteger(volumeOfListedShares, null), etf, type, category,
 				Utility.parseDateTime(ipoDate), null, null);
@@ -95,8 +95,8 @@ public class StockItemDomain extends StockItemEntity {
 		return String.format("%s %s", getCode(), getSymbol());
 	}
 
-	public static StockItemDomain of(StockItemEntity entity) {
-		StockItemDomain domain = new StockItemDomain();
+	public static ItemDomain of(ItemEntity entity) {
+		ItemDomain domain = new ItemDomain();
 		BeanUtils.copyProperties(entity, domain);
 		return domain;
 	}
@@ -110,7 +110,7 @@ public class StockItemDomain extends StockItemEntity {
 	}
 
 	public int compare(Object domain) {
-		StockItemDomain you = (StockItemDomain) domain;
+		ItemDomain you = (ItemDomain) domain;
 		int compared = Utility.compare(getCode(), you.getCode());
 		if (compared != 0) {
 			return compared;
@@ -154,8 +154,8 @@ public class StockItemDomain extends StockItemEntity {
 		return 0;
 	}
 
-	public StockItemEntity toEntity() {
-		StockItemEntity entity = new StockItemEntity();
+	public ItemEntity toEntity() {
+		ItemEntity entity = new ItemEntity();
 		BeanUtils.copyProperties(this, entity);
 		return entity;
 	}

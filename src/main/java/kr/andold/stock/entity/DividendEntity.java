@@ -22,55 +22,56 @@ import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Entity
-@Table(name = "stock_item")
+@Table(name = "stock_dividend")
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Data
-public class StockItemEntity {
+public class DividendEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private Integer id;
 
-	// 종목이름
-	@Column(name = "symbol")
-	private String symbol;
-
 	// 종목코드
 	@Column(name = "code")
 	private String code;
 
-	// 표시 우선 순위
-	@Column(name = "priority")
-	private Integer priority;
+	@Column(name = "currentPrice")
+	private Integer currentPrice;
 
-	// 배당주기
-	@Column(name = "dividend_cycle")
-	private String dividendCycle;
-
-	// 상장주식수
-	@Column(name = "volume_of_listed_shares")
-	private Integer volumeOfListedShares;
-	
-	// etf?: 개별기업
-	@Column(name = "etf")
-	private Boolean etf;
-
-	// 코스피, 코스닥
-	@Column(name = "field_type")
-	private String type;
-
-	// 분류
-	@Column(name = "category")
-	private String category;
-
-	// 상장일
-	@Column(name = "ipo_date")
+	@Column(name = "baseMonth")
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Asia/Seoul")
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date ipoDate;
+	private Date baseMonth;
+
+	@Column(name = "dividend")
+	private Integer dividend;
+
+	@Column(name = "priceEarningsRatio")
+	private Float priceEarningsRatio;
+
+	@Column(name = "dividendPayoutRatio")
+	private Float dividendPayoutRatio;
+
+	@Column(name = "roe")
+	private Float roe;
+
+	@Column(name = "per")
+	private Float per;
+
+	@Column(name = "pbr")
+	private Float pbr;
+
+	@Column(name = "dividend1YAgo")
+	private Integer dividend1YAgo;
+
+	@Column(name = "dividend2YAgo")
+	private Integer dividend2YAgo;
+
+	@Column(name = "dividend3YAgo")
+	private Integer dividend3YAgo;
 
 	@Column(name = "created")
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

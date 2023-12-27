@@ -18,10 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import kr.andold.stock.domain.StockDividendDomain;
-import kr.andold.stock.domain.StockItemDomain;
-import kr.andold.stock.domain.StockPriceDomain;
-import kr.andold.stock.service.StockParserService.StockParserResult;
+import kr.andold.stock.domain.DividendDomain;
+import kr.andold.stock.domain.ItemDomain;
+import kr.andold.stock.domain.PriceDomain;
+import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.stock.thread.CrawlCompanyDetailThread;
 import kr.andold.stock.thread.CrawlCompanyDividendHistoryThread;
 import kr.andold.stock.thread.CrawlPriceCompanyThread;
@@ -33,54 +33,54 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class StockCrawlerService {
+public class CrawlerService {
 	public static final String MARK_ANDOLD_SINCE = "\n andold \t since \t 2023-11-27 \n";
 
 	@Autowired
-	private StockItemService stockItemService;
+	private ItemService stockItemService;
 
 	@Autowired
-	private StockDividendService stockDividendService;
+	private DividendService stockDividendService;
 
 	@Autowired
-	private StockDividendHistoryService stockDividendHistoryService;
+	private DividendHistoryService stockDividendHistoryService;
 
 	@Autowired
-	private StockPriceService stockPriceService;
+	private PriceService stockPriceService;
 
 	private static String webdriverPath;
 	@Value("${data.webdriver.chrome.driver:C:/src/eclipse-workspace/stock/src/main/resources/bin/chromedriver.exe}")
 	public void setWebdriverPath(String value) {
-		log.info("{} INIT::StockCrawlerService.setWebdriverPath({})", Utility.indentMiddle(), value);
+		log.info("{} INIT::CrawlerService.setWebdriverPath({})", Utility.indentMiddle(), value);
 		webdriverPath = value;
 	}
 
 	public static Boolean debug = false;
 	@Value("${app.crawler.debug:false}")
 	public void setDegug(Boolean value) {
-		log.info("{} INIT::StockCrawlerService.setDegug({})", Utility.indentMiddle(), value);
+		log.info("{} INIT::CrawlerService.setDegug({})", Utility.indentMiddle(), value);
 		debug = value;
 	}
 
 	@Getter private static String crawlerDateStart = "20231101";
 	@Value("${app.crawler.date.start:20231101}")
 	public void setCrawlerDateStart(String value) {
-		log.info("{} INIT::StockCrawlerService.setCrawlerDateStart({})", Utility.indentMiddle(), value);
+		log.info("{} INIT::CrawlerService.setCrawlerDateStart({})", Utility.indentMiddle(), value);
 		crawlerDateStart = value;
 	}
 
-	public StockParserResult crawlPriceCompany() {
+	public ParserResult crawlPriceCompany() {
 		log.info("{} crawlPriceCompany()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		StockParserResult container = new StockParserResult().clear();;
+		ParserResult container = new ParserResult().clear();;
 
-		StockParserResult resultPrices = CrawlPriceCompanyThread.crawl(stockItemService.search(null));
+		ParserResult resultPrices = CrawlPriceCompanyThread.crawl(stockItemService.search(null));
 		put(resultPrices);
 		container.addAll(resultPrices);
 
 		// 현재가 적용 to dividend
-		List<StockDividendDomain> resultRecent = currentPriceFromPrices(resultPrices.getPrices());
+		List<DividendDomain> resultRecent = currentPriceFromPrices(resultPrices.getPrices());
 		stockDividendService.put(resultRecent);
 		container.getDividends().addAll(resultRecent);
 
@@ -88,17 +88,17 @@ public class StockCrawlerService {
 		return container;
 	}
 
-	public StockParserResult crawlPriceEtf() {
+	public ParserResult crawlPriceEtf() {
 		log.info("{} crawlPriceEtf()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		StockParserResult container = new StockParserResult().clear();
-		StockParserResult resultPrices = CrawlPriceEtfThread.crawl(stockItemService.search(null));
+		ParserResult container = new ParserResult().clear();
+		ParserResult resultPrices = CrawlPriceEtfThread.crawl(stockItemService.search(null));
 		put(resultPrices);
 		container.addAll(resultPrices);
 
 		// 현재가 적용 to dividend
-		List<StockDividendDomain> resultRecent = currentPriceFromPrices(resultPrices.getPrices());
+		List<DividendDomain> resultRecent = currentPriceFromPrices(resultPrices.getPrices());
 		stockDividendService.put(resultRecent);
 		container.getDividends().addAll(resultRecent);
 		container.getDividends().addAll(resultRecent);
@@ -107,7 +107,7 @@ public class StockCrawlerService {
 		return container;
 	}
 
-	private void put(StockParserResult result) {
+	private void put(ParserResult result) {
 		if (debug) {
 			result.getItems().forEach(x -> log.info("{} item: {}", Utility.indentMiddle(), x));
 			result.getDividends().forEach(x -> log.info("{} dividend: {}", Utility.indentMiddle(), x));
@@ -121,13 +121,13 @@ public class StockCrawlerService {
 		stockPriceService.put(result.getPrices());
 	}
 
-	private List<StockDividendDomain> currentPriceFromPrices(List<StockPriceDomain> prices) {
+	private List<DividendDomain> currentPriceFromPrices(List<PriceDomain> prices) {
 		log.info("{} currentPriceFromPrices(#{})", Utility.indentStart(), Utility.size(prices));
 
-		Map<String, StockPriceDomain> map = new HashMap<>();
+		Map<String, PriceDomain> map = new HashMap<>();
 		prices.forEach(price -> {
 			String code = price.getCode();
-			StockPriceDomain previous = map.get(code);
+			PriceDomain previous = map.get(code);
 			if (previous == null) {
 				map.put(code, price);
 				return;
@@ -138,9 +138,9 @@ public class StockCrawlerService {
 				return;
 			}
 		});
-		List<StockDividendDomain> dividendsRecent = new ArrayList<>();
+		List<DividendDomain> dividendsRecent = new ArrayList<>();
 		map.forEach((code, price) -> {
-			StockDividendDomain dividend = StockDividendDomain.builder().code(code).currentPrice(price.getClosing()).build();
+			DividendDomain dividend = DividendDomain.builder().code(code).currentPrice(price.getClosing()).build();
 			dividendsRecent.add(dividend);
 		});
 
@@ -149,32 +149,32 @@ public class StockCrawlerService {
 	}
 
 	// 네이버 배당 top(KOSPI, KOSDAQ) 50 + ETF All
-	public StockParserResult crawlItems() {
+	public ParserResult crawlItems() {
 		log.info("{} crawlItems()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
 		Map<String, Boolean> mapWithHref = new HashMap<>();
 		mapWithHref.put("a", true);
-		StockParserResult all = StockParserResult.builder().items(new ArrayList<>()).dividends(new ArrayList<>()).histories(new ArrayList<>()).prices(new ArrayList<>()).build();
+		ParserResult all = ParserResult.builder().items(new ArrayList<>()).dividends(new ArrayList<>()).histories(new ArrayList<>()).prices(new ArrayList<>()).build();
 
 		String textFromUrl = extractTextFromUrl("https://finance.naver.com/sise/dividend_list.naver?sosok=KOSPI", mapWithHref);
-		StockParserResult result = StockParserService.parse(textFromUrl, debug);
-		for (StockItemDomain domain : result.getItems()) {
+		ParserResult result = ParserService.parse(textFromUrl, debug);
+		for (ItemDomain domain : result.getItems()) {
 			domain.setType("KOSPI");
 			domain.setEtf(false);
 		}
 		all.addAll(result);
 
 		textFromUrl = extractTextFromUrl("https://finance.naver.com/sise/dividend_list.naver?sosok=KOSDAQ", mapWithHref);
-		result = StockParserService.parse(textFromUrl, debug);
-		for (StockItemDomain domain : result.getItems()) {
+		result = ParserService.parse(textFromUrl, debug);
+		for (ItemDomain domain : result.getItems()) {
 			domain.setType("KOSDAQ");
 			domain.setEtf(false);
 		}
 		all.addAll(result);
 
 		String textFromNaverAllEtf = extractAllEtfFromNaver();
-		StockParserResult resultNaverAllEtf = StockParserService.parse(textFromNaverAllEtf, debug);
+		ParserResult resultNaverAllEtf = ParserService.parse(textFromNaverAllEtf, debug);
 		all.addAll(resultNaverAllEtf);
 		put(all);
 
@@ -182,7 +182,7 @@ public class StockCrawlerService {
 		return all;
 	}
 
-	public StockParserResult crawlItemCompanyDividendTop() {
+	public ParserResult crawlItemCompanyDividendTop() {
 		log.info("{} crawlItemCompanyDividendTop()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
@@ -192,7 +192,7 @@ public class StockCrawlerService {
 
 		StringBuffer sb = new StringBuffer();
 		sb.append(MARK_START_END_POINT);
-		ChromeDriverWrapper driver = StockCrawlerService.defaultChromeDriver();
+		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
 		try {
 			driver.navigate().to(URL);
 			driver.findElement(By.xpath("//a[@id='btn_wide']"), 2000).click();
@@ -240,7 +240,7 @@ public class StockCrawlerService {
 
 		sb.append(MARK_START_END_POINT);
 		String text = new String(sb);
-		StockParserResult result = StockParserService.parse(text, debug);
+		ParserResult result = ParserService.parse(text, debug);
 
 		log.info("{} {} crawlItemCompanyDividendTop() - {}", Utility.indentMiddle(), result, Utility.toStringPastTimeReadable(started));
 		return result;
@@ -280,7 +280,7 @@ public class StockCrawlerService {
 		long started = System.currentTimeMillis();
 
 		StringBuffer sb = new StringBuffer();
-		ChromeDriverWrapper driver = StockCrawlerService.defaultChromeDriver();
+		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
 		final String url = "https://finance.naver.com/sise/etf.naver";
 		try {
 			driver.navigate().to(url);
@@ -303,11 +303,11 @@ public class StockCrawlerService {
 	}
 
 	// 주식=일반기업 배당금 내역 by KSD 증권정보포털 SEIBro
-	public StockParserResult crawlCompanyDividendHistories() {
+	public ParserResult crawlCompanyDividendHistories() {
 		log.info("{} crawlCompanyDividendHistories()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		StockParserResult result = CrawlCompanyDividendHistoryThread.crawl(stockItemService.search(null));
+		ParserResult result = CrawlCompanyDividendHistoryThread.crawl(stockItemService.search(null));
 		put(result);
 
 		log.info("{} {} crawlCompanyDividendHistories() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
@@ -315,11 +315,11 @@ public class StockCrawlerService {
 	}
 
 	// ETF 배당금 내역 by KSD 증권정보포털 SEIBro
-	public StockParserResult crawlEtfDividendHistories() {
+	public ParserResult crawlEtfDividendHistories() {
 		log.info("{} crawlEtfDividendHistories()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		StockParserResult result = CrawlEtfDividendHistoryThread.crawl(stockItemService.search(null));
+		ParserResult result = CrawlEtfDividendHistoryThread.crawl(stockItemService.search(null));
 		put(result);
 
 		log.info("{} {} crawlEtfDividendHistories() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
@@ -327,11 +327,11 @@ public class StockCrawlerService {
 	}
 
 	// ETF 상세 by KSD 증권정보포털 SEIBro
-	public StockParserResult crawlEtfDetails() {
+	public ParserResult crawlEtfDetails() {
 		log.info("{} crawlEtfDetails()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		StockParserResult result = CrawlEtfDetailThread.crawl(stockItemService.search(null));
+		ParserResult result = CrawlEtfDetailThread.crawl(stockItemService.search(null));
 		put(result);
 
 		log.info("{} {} crawlEtfDetails() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
@@ -339,19 +339,19 @@ public class StockCrawlerService {
 	}
 
 	// 주식 상세 by KSD 증권정보포털 SEIBro
-	public StockParserResult crawlItemCompanyDetails() {
+	public ParserResult crawlItemCompanyDetails() {
 		log.info("{} crawlItemCompanyDetails()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		StockParserResult result = CrawlCompanyDetailThread.crawl(stockItemService.search(null));
+		ParserResult result = CrawlCompanyDetailThread.crawl(stockItemService.search(null));
 		put(result);
 
 		log.info("{} {} crawlItemCompanyDetails() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
-	public static List<List<StockItemDomain>> split(List<StockItemDomain> items, int count) {
-		List<List<StockItemDomain>> container = new ArrayList<>();
+	public static List<List<ItemDomain>> split(List<ItemDomain> items, int count) {
+		List<List<ItemDomain>> container = new ArrayList<>();
 		for (int cx = 0; cx < count; cx++) {
 			container.add(new ArrayList<>());
 		}
@@ -368,7 +368,7 @@ public class StockCrawlerService {
 		options.addArguments("--incognito");
 		options.addArguments("--disable-gpu");
 		options.addArguments("--verbose");
-		options.addArguments("--headless");
+//		options.addArguments("--headless");
 		options.addArguments("--window-size=3840,4320");
 		ChromeDriverWrapper driver = new ChromeDriverWrapper(options);
 		return driver;
@@ -376,9 +376,9 @@ public class StockCrawlerService {
 
 	// 종목 상세 네이버
 	public static class CrawlItemDetailThread implements Callable<String> {
-		private List<StockItemDomain> items;
+		private List<ItemDomain> items;
 
-		public CrawlItemDetailThread(List<StockItemDomain> list) {
+		public CrawlItemDetailThread(List<ItemDomain> list) {
 			this.items = list;
 		}
 
@@ -390,7 +390,7 @@ public class StockCrawlerService {
 			ChromeDriverWrapper driver = defaultChromeDriver();
 			for (int cx = 0, sizex = items.size(); cx < sizex; cx++) {
 				long loopStarted = System.currentTimeMillis();
-				StockItemDomain item = items.get(cx);
+				ItemDomain item = items.get(cx);
 				try {
 					String url = String.format("%s%s", "https://finance.naver.com/item/coinfo.naver?code=", item.getCode());
 					driver.navigate().to(url);

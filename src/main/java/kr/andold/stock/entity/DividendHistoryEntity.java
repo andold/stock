@@ -22,56 +22,34 @@ import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Entity
-@Table(name = "stock_dividend")
+@Table(name = "stock_dividend_history")
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Data
-public class StockDividendEntity {
+public class DividendHistoryEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private Integer id;
 
-	// 종목코드
 	@Column(name = "code")
 	private String code;
 
-	@Column(name = "currentPrice")
-	private Integer currentPrice;
-
-	@Column(name = "baseMonth")
+	@Column(name = "base")
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Asia/Seoul")
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date baseMonth;
+	private Date base;
+
+	@Column(name = "pay")
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Asia/Seoul")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date pay;
 
 	@Column(name = "dividend")
 	private Integer dividend;
-
-	@Column(name = "priceEarningsRatio")
-	private Float priceEarningsRatio;
-
-	@Column(name = "dividendPayoutRatio")
-	private Float dividendPayoutRatio;
-
-	@Column(name = "roe")
-	private Float roe;
-
-	@Column(name = "per")
-	private Float per;
-
-	@Column(name = "pbr")
-	private Float pbr;
-
-	@Column(name = "dividend1YAgo")
-	private Integer dividend1YAgo;
-
-	@Column(name = "dividend2YAgo")
-	private Integer dividend2YAgo;
-
-	@Column(name = "dividend3YAgo")
-	private Integer dividend3YAgo;
 
 	@Column(name = "created")
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

@@ -7,14 +7,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import kr.andold.stock.entity.StockDividendEntity;
-import kr.andold.stock.param.StockDividendParam;
+import kr.andold.stock.entity.DividendEntity;
+import kr.andold.stock.param.DividendParam;
 
 @Repository
-public interface StockDividendRepository extends JpaRepository<StockDividendEntity, Integer> {
+public interface DividendRepository extends JpaRepository<DividendEntity, Integer> {
 	final String QUERY_SEARCH_PARAM	=	""
 			+ "	SELECT	x"
-			+ "		FROM	StockDividendEntity	x"
+			+ "		FROM	DividendEntity	x"
 			//	codes
 			+ "		WHERE	("
 			+ "				:#{#param.codes}	IS NULL"
@@ -29,6 +29,6 @@ public interface StockDividendRepository extends JpaRepository<StockDividendEnti
 			;
 
 	@Query(value = QUERY_SEARCH_PARAM, nativeQuery = false)
-	List<StockDividendEntity> search(@Param("param") StockDividendParam param);
+	List<DividendEntity> search(@Param("param") DividendParam param);
 
 }

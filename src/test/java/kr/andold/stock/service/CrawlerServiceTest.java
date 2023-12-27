@@ -4,64 +4,64 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import kr.andold.stock.domain.StockItemDomain;
-import kr.andold.stock.service.StockParserService.StockParserResult;
+import kr.andold.stock.domain.ItemDomain;
+import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class StockCrawlerServiceTest {
+public class CrawlerServiceTest {
 	@Autowired
-	private StockCrawlerService service;
+	private CrawlerService service;
 
 	@Test
 	public void testExtractAllEtfFromNaver() {
 		String text = service.extractAllEtfFromNaver();
-		StockParserResult result = StockParserService.parse(text, true);
-		for (StockItemDomain item : result.getItems()) {
+		ParserResult result = ParserService.parse(text, true);
+		for (ItemDomain item : result.getItems()) {
 			log.info("{}", item);
 		}
 	}
 
 	@Test
 		public void testCrawlEtfDividendHistories() {
-			StockParserResult result = service.crawlEtfDividendHistories();
+			ParserResult result = service.crawlEtfDividendHistories();
 			log.info("{}", result);
 		}
 
 	@Test
 	public void testCrawlCompanyDividendHistories() {
-		StockParserResult result = service.crawlCompanyDividendHistories();
+		ParserResult result = service.crawlCompanyDividendHistories();
 		log.info("{}", result);
 	}
 
 	@Test
 	public void testCrawlEtfDetails() {
-		StockParserResult result = service.crawlEtfDetails();
+		ParserResult result = service.crawlEtfDetails();
 		log.info("{}", result);
 	}
 
 	@Test
 	public void testCrawlCompanyTopDividend() {
-		StockParserResult result = service.crawlItemCompanyDividendTop();
+		ParserResult result = service.crawlItemCompanyDividendTop();
 		log.info("{}", result);
 	}
 
 	@Test
 	public void testCrawlCompanyDetails() {
-		StockParserResult result = service.crawlItemCompanyDetails();
+		ParserResult result = service.crawlItemCompanyDetails();
 		log.info("{}", result);
 	}
 
 	@Test
 		public void testCrawlPriceCompany() {
-			StockParserResult result = service.crawlPriceCompany();
+			ParserResult result = service.crawlPriceCompany();
 			log.info("{}", result);
 		}
 
 	@Test
 	public void testCrawlPriceEtf() {
-		StockParserResult result = service.crawlPriceEtf();
+		ParserResult result = service.crawlPriceEtf();
 		log.info("{}", result);
 	}
 

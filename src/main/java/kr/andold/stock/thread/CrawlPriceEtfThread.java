@@ -14,47 +14,47 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 
-import kr.andold.stock.domain.StockItemDomain;
+import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.service.ChromeDriverWrapper;
-import kr.andold.stock.service.StockCrawlerService;
-import kr.andold.stock.service.StockParserService;
+import kr.andold.stock.service.CrawlerService;
+import kr.andold.stock.service.ParserService;
 import kr.andold.stock.service.Utility;
-import kr.andold.stock.service.StockParserService.StockParserResult;
+import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 // KSD 증권정보포털 SEIBro > ETF > ETF종합정보 > 기준가추이 :: 일별시세
 @Slf4j
-public class CrawlPriceEtfThread implements Callable<StockParserResult> {
+public class CrawlPriceEtfThread implements Callable<ParserResult> {
 	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06033V.xml&menuNo=182";
 	private static String MARK_START_END_POINT = "KEYWORD\tETF 일별시세\tCrawlPriceEtfThread\tURL\t" + URL + "\n";
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 8;
-	private static final String MARK_ANDOLD_SINCE = StockCrawlerService.MARK_ANDOLD_SINCE;
+	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
 
 	private String startDate = null;;
-	private ConcurrentLinkedQueue<StockItemDomain> items;
+	private ConcurrentLinkedQueue<ItemDomain> items;
 	private ChromeDriverWrapper driver;
 	private WebElement frame;
 	private WebElement iconClosePopupedElement; // 검색결과창의 닫기 아이콘
-	@Setter private static Boolean debug = StockCrawlerService.debug;
+	@Setter private static Boolean debug = CrawlerService.debug;
 
-	public CrawlPriceEtfThread(ConcurrentLinkedQueue<StockItemDomain> list) {
+	public CrawlPriceEtfThread(ConcurrentLinkedQueue<ItemDomain> list) {
 		this.items = list;
 	}
 
-	public CrawlPriceEtfThread(ConcurrentLinkedQueue<StockItemDomain> list, String startDate) {
+	public CrawlPriceEtfThread(ConcurrentLinkedQueue<ItemDomain> list, String startDate) {
 		this.items = list;
 		this.startDate = startDate;
 	}
 
-	public StockParserResult call() throws Exception {
+	public ParserResult call() throws Exception {
 		log.info("{} CrawlPriceEtfThread(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
-		StockParserResult result = StockParserResult.builder().build();
+		ParserResult result = ParserResult.builder().build();
 		result.clear();
-		driver = StockCrawlerService.defaultChromeDriver();
+		driver = CrawlerService.defaultChromeDriver();
 
 		try {
 			driver.navigate().to(URL);
@@ -64,7 +64,7 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 			} else {
 				WebElement start = driver.findElement(By.xpath("//input[@id='inputCalendar1_input']"), TIMEOUT);
 				start.clear();
-				start.sendKeys("20231101"); // 시작일 입력
+				start.sendKeys(startDate); // 시작일 입력
 				start.sendKeys(Keys.TAB); // 시작일 입력
 			}
 			iconClosePopupedElement = driver.findElement(By.xpath("//div[@id='group1520']/a[@id='anchor2']"), TIMEOUT); // 검색결과창의 닫기 아이콘
@@ -79,7 +79,7 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 			StringBuffer sb = new StringBuffer();
 			sb.append(MARK_START_END_POINT);
 			for (int cx = 0; cx < JOB_SIZE; cx++) {
-				StockItemDomain item = items.poll();
+				ItemDomain item = items.poll();
 				if (item == null) {
 					break;
 				}
@@ -102,7 +102,7 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 			}
 			sb.append(MARK_START_END_POINT);
 			String text = new String(sb);
-			StockParserResult resultParsed = StockParserService.parse(text, debug);
+			ParserResult resultParsed = ParserService.parse(text, debug);
 			result.addAll(resultParsed);
 		}
 		driver.quit();
@@ -110,7 +110,7 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 		return result;
 	}
 
-	private String extract(StockItemDomain item) {
+	private String extract(ItemDomain item) {
 		log.debug("{} CrawlPriceEtfThread.extract({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
@@ -197,7 +197,7 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 		return "";
 	}
 
-	public static StockParserResult crawl(List<StockItemDomain> items) {
+	public static ParserResult crawl(List<ItemDomain> items) {
 		log.info("{} CrawlPriceEtfThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
@@ -206,19 +206,19 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 			processors = 1;
 		}
 		ExecutorService service = Executors.newFixedThreadPool(processors);
-		List<Future<StockParserResult>> futureList = new ArrayList<>();
-		ConcurrentLinkedQueue<StockItemDomain> queue = new ConcurrentLinkedQueue<StockItemDomain>();
+		List<Future<ParserResult>> futureList = new ArrayList<>();
+		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.addAll(items);
 		for (int cx = 0; cx < processors; cx++) {
 			CrawlPriceEtfThread thread = new CrawlPriceEtfThread(queue);
-			Future<StockParserResult> future = service.submit(thread);
+			Future<ParserResult> future = service.submit(thread);
 			futureList.add(future);
 		}
-		StockParserResult container = StockParserResult.builder().build();
+		ParserResult container = ParserResult.builder().build();
 		container.clear();
-		for (Future<StockParserResult> task : futureList) {
+		for (Future<ParserResult> task : futureList) {
 			try {
-				StockParserResult result = task.get();
+				ParserResult result = task.get();
 				container.addAll(result);
 				log.info("{} 『{}』 CrawlPriceEtfThread.crawl(#{})", Utility.indentMiddle(), result, Utility.size(items));
 			} catch (Exception e) {
@@ -229,18 +229,18 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 		return container;
 	}
 
-	public static StockParserResult crawl(StockItemDomain item) {
+	public static ParserResult crawl(ItemDomain item) {
 		log.info("{} CrawlPriceEtfThread.crawl({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
-		ConcurrentLinkedQueue<StockItemDomain> queue = new ConcurrentLinkedQueue<StockItemDomain>();
+		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.add(item);
-		CrawlPriceEtfThread thread = new CrawlPriceEtfThread(queue, StockCrawlerService.getCrawlerDateStart());
+		CrawlPriceEtfThread thread = new CrawlPriceEtfThread(queue, CrawlerService.getCrawlerDateStart());
 		setDebug(false);
 		ExecutorService service = Executors.newFixedThreadPool(1);
-		Future<StockParserResult> future = service.submit(thread);
+		Future<ParserResult> future = service.submit(thread);
 		try {
-			StockParserResult result = future.get();
+			ParserResult result = future.get();
 
 			log.info("{} {} CrawlPriceEtfThread.crawl({}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
 			return result;
@@ -249,7 +249,7 @@ public class CrawlPriceEtfThread implements Callable<StockParserResult> {
 		}
 
 		log.info("{} EMPY CrawlPriceEtfThread.crawl({}) - {}", Utility.indentEnd(), item, Utility.toStringPastTimeReadable(started));
-		return new StockParserResult().clear();
+		return new ParserResult().clear();
 	}
 
 }

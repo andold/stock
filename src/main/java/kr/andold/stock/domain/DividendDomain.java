@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import kr.andold.stock.entity.StockDividendEntity;
+import kr.andold.stock.entity.DividendEntity;
 import kr.andold.stock.service.Utility;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,10 +23,10 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class StockDividendDomain extends StockDividendEntity {
+public class DividendDomain extends DividendEntity {
 	private String etc;
 
-	public StockDividendDomain(String code, String currentPrice,
+	public DividendDomain(String code, String currentPrice,
 		String baseMonth, String dividend, String priceEarningsRatio, String dividendPayoutRatio,
 		String roe, String per, String pbr,
 		String dividend1YAgo, String dividend2YAgo, String dividend3YAgo) {
@@ -106,16 +106,16 @@ public class StockDividendDomain extends StockDividendEntity {
 		setTitle(new String(stringBuffer).trim());
 	}
 
-	public static StockDividendDomain of(String string) {
+	public static DividendDomain of(String string) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.setSerializationInclusion(Include.NON_NULL);
 		objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		try {
-			return objectMapper.readValue(string, StockDividendDomain.class);
+			return objectMapper.readValue(string, DividendDomain.class);
 		} catch (Exception e) {
 			try {
-				return objectMapper.readValue(URLDecoder.decode(string, "UTF-8"), StockDividendDomain.class);
+				return objectMapper.readValue(URLDecoder.decode(string, "UTF-8"), DividendDomain.class);
 			} catch (Exception f) {
 				log.error("Exception:: - {}", e.getLocalizedMessage());
 				log.error("Exception:: - {}", f.getLocalizedMessage());
@@ -125,8 +125,8 @@ public class StockDividendDomain extends StockDividendEntity {
 		return null;
 	}
 
-	public static StockDividendDomain of(StockDividendEntity entity) {
-		StockDividendDomain domain = new StockDividendDomain();
+	public static DividendDomain of(DividendEntity entity) {
+		DividendDomain domain = new DividendDomain();
 		BeanUtils.copyProperties(entity, domain);
 		return domain;
 	}
@@ -135,13 +135,13 @@ public class StockDividendDomain extends StockDividendEntity {
 		return String.format("%s", getCode());
 	}
 
-	public StockDividendEntity toEntity() {
-		StockDividendEntity entity = new StockDividendEntity();
+	public DividendEntity toEntity() {
+		DividendEntity entity = new DividendEntity();
 		BeanUtils.copyProperties(this, entity);
 		return entity;
 	}
 
-	public int compare(StockDividendDomain you) {
+	public int compare(DividendDomain you) {
 		int compared = Utility.compare(key(), you.key());
 		if (compared != 0) {
 			return compared;

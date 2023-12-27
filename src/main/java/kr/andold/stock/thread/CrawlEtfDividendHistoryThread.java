@@ -14,24 +14,24 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 
-import kr.andold.stock.domain.StockItemDomain;
+import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.service.ChromeDriverWrapper;
-import kr.andold.stock.service.StockCrawlerService;
-import kr.andold.stock.service.StockParserService;
+import kr.andold.stock.service.CrawlerService;
+import kr.andold.stock.service.ParserService;
 import kr.andold.stock.service.Utility;
-import kr.andold.stock.service.StockParserService.StockParserResult;
+import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class CrawlEtfDividendHistoryThread implements Callable<StockParserResult> {
+public class CrawlEtfDividendHistoryThread implements Callable<ParserResult> {
 	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179";
 	private static final String MARK_END_POINT = "KEYWORD\tETF 배당금 내역\tKSD 증권정보포털 SEIBro\tURL\thttps://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179\n";
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 4;
-	private static final String MARK_ANDOLD_SINCE = StockCrawlerService.MARK_ANDOLD_SINCE;
-	private static final Boolean debug = StockCrawlerService.debug;
+	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
+	private static final Boolean debug = CrawlerService.debug;
 
-	private ConcurrentLinkedQueue<StockItemDomain> items;
+	private ConcurrentLinkedQueue<ItemDomain> items;
 
 	private ChromeDriverWrapper driver;
 	private WebElement startDateElement; // 조회기간 시작일
@@ -39,17 +39,17 @@ public class CrawlEtfDividendHistoryThread implements Callable<StockParserResult
 	private WebElement seachButton; // 조회 버튼
 	private WebElement popupCloseIconElement; // 검색결과창의 닫기 아이콘
 
-	public CrawlEtfDividendHistoryThread(ConcurrentLinkedQueue<StockItemDomain> list) {
+	public CrawlEtfDividendHistoryThread(ConcurrentLinkedQueue<ItemDomain> list) {
 		this.items = list;
 	}
 
-	public StockParserResult call() throws Exception {
+	public ParserResult call() throws Exception {
 		log.info("{} CrawlEtfDividendHistoryThread(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
-		StockParserResult result = StockParserResult.builder().build();
+		ParserResult result = ParserResult.builder().build();
 		result.clear();
-		driver = StockCrawlerService.defaultChromeDriver();
+		driver = CrawlerService.defaultChromeDriver();
 		try {
 			driver.navigate().to(URL);
 			startDateElement = driver.findElement(By.xpath("//input[@id='sd1_inputCalendar1_input']"), TIMEOUT * 4); // 조회기간 시작일
@@ -71,7 +71,7 @@ public class CrawlEtfDividendHistoryThread implements Callable<StockParserResult
 			StringBuffer sb = new StringBuffer();
 			sb.append(MARK_END_POINT);
 			for (int cx = 0; cx < JOB_SIZE; cx++) {
-				StockItemDomain item = items.poll();
+				ItemDomain item = items.poll();
 				if (item == null) {
 					break;
 				}
@@ -95,7 +95,7 @@ public class CrawlEtfDividendHistoryThread implements Callable<StockParserResult
 			}
 			sb.append(MARK_END_POINT);
 			String text = new String(sb);
-			StockParserResult resultDividendHistoryEtf = StockParserService.parse(text, debug);
+			ParserResult resultDividendHistoryEtf = ParserService.parse(text, debug);
 			result.addAll(resultDividendHistoryEtf);
 			log.debug("{} #{} {} CrawlEtfDividendHistoryThread() - {}", Utility.indentMiddle(), Utility.size(items), resultDividendHistoryEtf, Utility.toStringPastTimeReadable(started));
 		}
@@ -104,7 +104,7 @@ public class CrawlEtfDividendHistoryThread implements Callable<StockParserResult
 		return result;
 	}
 
-	private String extract(StockItemDomain item) {
+	private String extract(ItemDomain item) {
 		log.debug("{} CrawlEtfDividendHistoryThread({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
@@ -174,7 +174,7 @@ public class CrawlEtfDividendHistoryThread implements Callable<StockParserResult
 	}
 
 
-	public static StockParserResult crawl(List<StockItemDomain> items) {
+	public static ParserResult crawl(List<ItemDomain> items) {
 		log.info("{} CrawlEtfDividendHistoryThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
@@ -183,19 +183,19 @@ public class CrawlEtfDividendHistoryThread implements Callable<StockParserResult
 			processors = 1;
 		}
 		ExecutorService service = Executors.newFixedThreadPool(processors);
-		List<Future<StockParserResult>> futureList = new ArrayList<>();
-		ConcurrentLinkedQueue<StockItemDomain> queue = new ConcurrentLinkedQueue<StockItemDomain>();
+		List<Future<ParserResult>> futureList = new ArrayList<>();
+		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.addAll(items);
 		for (int cx = 0; cx < processors; cx++) {
 			CrawlEtfDividendHistoryThread thread = new CrawlEtfDividendHistoryThread(queue);
-			Future<StockParserResult> future = service.submit(thread);
+			Future<ParserResult> future = service.submit(thread);
 			futureList.add(future);
 		}
-		StockParserResult container = StockParserResult.builder().build();
+		ParserResult container = ParserResult.builder().build();
 		container.clear();
-		for (Future<StockParserResult> task : futureList) {
+		for (Future<ParserResult> task : futureList) {
 			try {
-				StockParserResult result = task.get();
+				ParserResult result = task.get();
 				container.addAll(result);
 				log.info("{} 『{}』 CrawlEtfDividendHistoryThread.crawl(#{})", Utility.indentMiddle(), result, Utility.size(items));
 			} catch (Exception e) {
@@ -206,18 +206,18 @@ public class CrawlEtfDividendHistoryThread implements Callable<StockParserResult
 		return container;
 	}
 
-	public static StockParserResult crawl(StockItemDomain item) {
-		ConcurrentLinkedQueue<StockItemDomain> queue = new ConcurrentLinkedQueue<StockItemDomain>();
+	public static ParserResult crawl(ItemDomain item) {
+		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.add(item);
 		CrawlEtfDividendHistoryThread thread = new CrawlEtfDividendHistoryThread(queue);
 		ExecutorService service = Executors.newFixedThreadPool(1);
-		Future<StockParserResult> future = service.submit(thread);
+		Future<ParserResult> future = service.submit(thread);
 		try {
 			return future.get();
 		} catch (InterruptedException e) {
 		} catch (ExecutionException e) {
 		}
-		return new StockParserResult().clear();
+		return new ParserResult().clear();
 	}
 
 }

@@ -9,25 +9,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import kr.andold.stock.domain.StockDividendHistoryDomain;
-import kr.andold.stock.param.StockDividendHistoryParam;
-import kr.andold.stock.param.StockItemParam;
-import kr.andold.stock.service.StockDividendHistoryService;
+import kr.andold.stock.domain.DividendHistoryDomain;
+import kr.andold.stock.param.DividendHistoryParam;
+import kr.andold.stock.param.ItemParam;
+import kr.andold.stock.service.DividendHistoryService;
 import kr.andold.stock.service.Utility;
-import kr.andold.stock.service.StockParserService.StockParserResult;
+import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
 @RequestMapping("api/dividend/history")
-public class ApiStockDividendHistoryController {
-	@Autowired private StockDividendHistoryService service;
+public class ApiDividendHistoryController {
+	@Autowired private DividendHistoryService service;
 
 	@PostMapping(value = {"search"})
-	public List<StockDividendHistoryDomain> search(@RequestBody StockDividendHistoryParam param) {
+	public List<DividendHistoryDomain> search(@RequestBody DividendHistoryParam param) {
 		log.info("{} search({})", Utility.indentStart(), param.toString());
 
-		List<StockDividendHistoryDomain> list = service.search(param);
+		List<DividendHistoryDomain> list = service.search(param);
 
 		log.info("{} #{} - search({})", Utility.indentEnd(), Utility.size(list), param.toString());
 		return list;
@@ -35,10 +35,10 @@ public class ApiStockDividendHistoryController {
 
 	@ResponseBody
 	@PostMapping(value = "crawl")
-	public StockParserResult crawl(@RequestBody StockItemParam param) {
+	public ParserResult crawl(@RequestBody ItemParam param) {
 		log.info("{} crawl({})", Utility.indentStart(), param);
 
-		StockParserResult result = service.crawl(param);
+		ParserResult result = service.crawl(param);
 
 		log.info("{} {} - crawl({})", Utility.indentEnd(), result, param);
 		return result;

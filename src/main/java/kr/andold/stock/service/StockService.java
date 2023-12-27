@@ -9,21 +9,22 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import kr.andold.stock.domain.StockDividendDomain;
-import kr.andold.stock.domain.StockDividendHistoryDomain;
-import kr.andold.stock.domain.StockItemDomain;
-import kr.andold.stock.domain.StockPriceDomain;
-import kr.andold.stock.entity.StockDividendEntity;
-import kr.andold.stock.param.StockDividendParam;
+import kr.andold.stock.domain.DividendDomain;
+import kr.andold.stock.domain.DividendHistoryDomain;
+import kr.andold.stock.domain.ItemDomain;
+import kr.andold.stock.domain.PriceDomain;
+import kr.andold.stock.entity.DividendEntity;
+import kr.andold.stock.param.DividendParam;
 import kr.andold.stock.param.StockParam;
-import kr.andold.stock.param.StockParam.DividendHistoryParam;
-import kr.andold.stock.param.StockParam.DividendParam;
-import kr.andold.stock.param.StockParam.ItemParam;
-import kr.andold.stock.param.StockParam.PriceParam;
+import kr.andold.stock.param.StockParam.InnerDividendHistoryParam;
+import kr.andold.stock.param.StockParam.InnerDividendParam;
+import kr.andold.stock.param.StockParam.InnerItemParam;
+import kr.andold.stock.param.StockParam.InnerPriceParam;
 import kr.andold.stock.repository.StockRepository;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,13 +32,13 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class StockService {
 	@Autowired
-	private StockItemService stockItemService;
+	private ItemService stockItemService;
 	@Autowired
-	private StockDividendService stockDividendService;
+	private DividendService stockDividendService;
 	@Autowired
-	private StockDividendHistoryService stockDividendHistoryService;
+	private DividendHistoryService stockDividendHistoryService;
 	@Autowired
-	private StockPriceService stockPriceService;
+	private PriceService stockPriceService;
 	@Autowired
 	private StockRepository repository;
 
@@ -46,20 +47,20 @@ public class StockService {
 			InputStream inputStream = file.getInputStream();
 			String text = Utility.extractStringFromText(inputStream);
 			StockParam param = StockParam.of(text);
-			List<StockItemDomain> items = new ArrayList<>();
-			List<StockDividendDomain> dividends = new ArrayList<>();
-			List<StockDividendHistoryDomain> histories = new ArrayList<>();
-			List<StockPriceDomain> prices = new ArrayList<>();
-			for (ItemParam x : param.getItems()) {
+			List<ItemDomain> items = new ArrayList<>();
+			List<DividendDomain> dividends = new ArrayList<>();
+			List<DividendHistoryDomain> histories = new ArrayList<>();
+			List<PriceDomain> prices = new ArrayList<>();
+			for (InnerItemParam x : param.getItems()) {
 				items.add(x.toDomain());
 			}
-			for (DividendParam x : param.getDividends()) {
+			for (InnerDividendParam x : param.getDividends()) {
 				dividends.add(x.toDomain());
 			}
-			for (DividendHistoryParam x : param.getHistories()) {
+			for (InnerDividendHistoryParam x : param.getHistories()) {
 				histories.add(x.toDomain());
 			}
-			for (PriceParam x : param.getPrices()) {
+			for (InnerPriceParam x : param.getPrices()) {
 				prices.add(x.toDomain());
 			}
 			stockItemService.put(items);
@@ -75,31 +76,31 @@ public class StockService {
 	}
 
 	public StockParam download() {
-		List<StockItemDomain> items = stockItemService.search(null);
-		List<StockDividendHistoryDomain> histories = stockDividendHistoryService.search(null);
-		List<StockPriceDomain> prices = stockPriceService.search(null);
-		List<StockDividendDomain> dividends = stockDividendService.search(null);
+		List<ItemDomain> items = stockItemService.search(null);
+		List<DividendHistoryDomain> histories = stockDividendHistoryService.search(null);
+		List<PriceDomain> prices = stockPriceService.search(null);
+		List<DividendDomain> dividends = stockDividendService.search(null);
 		return new StockParam(items, dividends, histories, prices);
 	}
 
 	public String compile() {
 		Calendar calendar = Calendar.getInstance();
-		List<StockDividendHistoryDomain> histories = stockDividendHistoryService.search(null);
-		List<StockPriceDomain> prices = stockPriceService.search(null);
-		List<StockDividendDomain> dividends = stockDividendService.search(null);
-		Map<String, StockDividendDomain> map = stockDividendService.makeMap(dividends);
-		for (StockDividendDomain dividend : dividends) {
+		List<DividendHistoryDomain> histories = stockDividendHistoryService.search(null);
+		List<PriceDomain> prices = stockPriceService.search(null);
+		List<DividendDomain> dividends = stockDividendService.search(null);
+		Map<String, DividendDomain> map = stockDividendService.makeMap(dividends);
+		for (DividendDomain dividend : dividends) {
 			dividend.setDividend(null);
 			dividend.setDividend1YAgo(null);
 			dividend.setDividend2YAgo(null);
 			dividend.setDividend3YAgo(null);
 		}
-		for (StockPriceDomain price : prices) {
+		for (PriceDomain price : prices) {
 			Date base = price.getBase();
 			String code = price.getCode();
-			StockDividendDomain dividend = map.get(code);
+			DividendDomain dividend = map.get(code);
 			if (dividend == null) {
-				dividend = StockDividendDomain.builder().code(code).build();
+				dividend = DividendDomain.builder().code(code).build();
 				map.put(code, dividend);
 			}
 			Date baseMonth = dividend.getBaseMonth();
@@ -108,7 +109,7 @@ public class StockService {
 				dividend.setCurrentPrice(price.getClosing());
 			}
 		}
-		for (StockDividendHistoryDomain history : histories) {
+		for (DividendHistoryDomain history : histories) {
 			Date base = history.getBase();
 			calendar.setTime(base);
 			int index = LocalDate.now().getYear() - calendar.get(Calendar.YEAR);
@@ -118,9 +119,9 @@ public class StockService {
 				continue;
 			}
 
-			StockDividendDomain dividend = map.get(code);
+			DividendDomain dividend = map.get(code);
 			if (dividend == null) {
-				dividend = StockDividendDomain.builder().code(code).build();
+				dividend = DividendDomain.builder().code(code).build();
 				map.put(code, dividend);
 			}
 			Integer currentPrice = dividend.getCurrentPrice();
@@ -172,35 +173,35 @@ public class StockService {
 		return result;
 	}
 
-	public List<StockDividendDomain> search(StockDividendDomain param) {
-		List<StockDividendEntity> entities = repository.findAll();
-		List<StockDividendDomain> domains = new ArrayList<StockDividendDomain>();
-		for (StockDividendEntity entity : entities) {
-			domains.add(StockDividendDomain.of(entity));
+	public List<DividendDomain> search(DividendDomain param) {
+		List<DividendEntity> entities = repository.findAll();
+		List<DividendDomain> domains = new ArrayList<DividendDomain>();
+		for (DividendEntity entity : entities) {
+			domains.add(DividendDomain.of(entity));
 		}
 		return domains;
 	}
 
-	private Map<String, StockDividendDomain> makeMap(List<StockDividendDomain> domains) {
-		Map<String, StockDividendDomain> map = new HashMap<>();
-		for (StockDividendDomain domain : domains) {
+	private Map<String, DividendDomain> makeMap(List<DividendDomain> domains) {
+		Map<String, DividendDomain> map = new HashMap<>();
+		for (DividendDomain domain : domains) {
 			map.put(domain.key(), domain);
 		}
 		return map;
 	}
 
-	public int batch(StockDividendParam param) {
+	public int batch(DividendParam param) {
 		if (param == null) {
 			return 0;
 		}
 
 		int count = 0;
-		List<StockDividendDomain> creates = param.getCreates();
-		List<StockDividendDomain> updates = param.getUpdates();
-		List<StockDividendDomain> removes = param.getRemoves();
+		List<DividendDomain> creates = param.getCreates();
+		List<DividendDomain> updates = param.getUpdates();
+		List<DividendDomain> removes = param.getRemoves();
 
 		if (creates != null) {
-			List<StockDividendDomain> created = create(creates);
+			List<DividendDomain> created = create(creates);
 			count += Utility.size(created);
 		}
 		if (removes != null) {
@@ -213,50 +214,50 @@ public class StockService {
 		return count;
 	}
 
-	private List<?> update(List<StockDividendDomain> domains) {
-		List<StockDividendEntity> entities = toEntities(domains);
-		List<StockDividendEntity> result = repository.saveAllAndFlush(entities);
+	private List<?> update(List<DividendDomain> domains) {
+		List<DividendEntity> entities = toEntities(domains);
+		List<DividendEntity> result = repository.saveAllAndFlush(entities);
 		return toDomains(result);
 	}
 
-	private int remove(List<StockDividendDomain> domains) {
-		List<StockDividendEntity> entities = toEntities(domains);
+	private int remove(List<DividendDomain> domains) {
+		List<DividendEntity> entities = toEntities(domains);
 		repository.deleteAll(entities);
 		repository.flush();
 		return entities.size();
 	}
 
-	private List<StockDividendDomain> create(List<StockDividendDomain> domains) {
-		List<StockDividendEntity> entities = toEntities(domains);
-		List<StockDividendEntity> result = repository.saveAllAndFlush(entities);
+	private List<DividendDomain> create(List<DividendDomain> domains) {
+		List<DividendEntity> entities = toEntities(domains);
+		List<DividendEntity> result = repository.saveAllAndFlush(entities);
 		return toDomains(result);
 	}
 
-	private List<StockDividendEntity> toEntities(List<StockDividendDomain> domains) {
-		List<StockDividendEntity> entities = new ArrayList<StockDividendEntity>();
-		for (StockDividendDomain domain : domains) {
+	private List<DividendEntity> toEntities(List<DividendDomain> domains) {
+		List<DividendEntity> entities = new ArrayList<DividendEntity>();
+		for (DividendDomain domain : domains) {
 			entities.add(domain.toEntity());
 		}
 		return entities;
 	}
 
-	private List<StockDividendDomain> toDomains(List<StockDividendEntity> entities) {
-		List<StockDividendDomain> domains = new ArrayList<StockDividendDomain>();
-		for (StockDividendEntity entity : entities) {
-			domains.add(StockDividendDomain.of(entity));
+	private List<DividendDomain> toDomains(List<DividendEntity> entities) {
+		List<DividendDomain> domains = new ArrayList<DividendDomain>();
+		for (DividendEntity entity : entities) {
+			domains.add(DividendDomain.of(entity));
 		}
 		return domains;
 	}
 
-	public StockDividendParam deduplicate() {
+	public DividendParam deduplicate() {
 		log.info("{} deduplicate()", Utility.indentStart());
-		List<StockDividendDomain> domains = search(null);
-		Map<String, StockDividendDomain> map = makeMap(domains);
-		Map<String, StockDividendDomain> mapDuplicate = new HashMap<>();
-		List<StockDividendDomain> removes = new ArrayList<StockDividendDomain>();
-		for (StockDividendDomain domain : domains) {
+		List<DividendDomain> domains = search(null);
+		Map<String, DividendDomain> map = makeMap(domains);
+		Map<String, DividendDomain> mapDuplicate = new HashMap<>();
+		List<DividendDomain> removes = new ArrayList<DividendDomain>();
+		for (DividendDomain domain : domains) {
 			String key = domain.key();
-			StockDividendDomain before = map.get(key);
+			DividendDomain before = map.get(key);
 			if (before == null) {
 				map.put(key, domain);
 				continue;
@@ -279,7 +280,7 @@ public class StockService {
 		}
 
 		log.info("{} deduplicate()", Utility.indentEnd());
-		return StockDividendParam.builder().duplicates(new ArrayList<>(mapDuplicate.values())).removes(removes).build();
+		return DividendParam.builder().duplicates(new ArrayList<>(mapDuplicate.values())).removes(removes).build();
 	}
 
 }

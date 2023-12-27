@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletResponse;
-import kr.andold.stock.domain.StockDividendDomain;
-import kr.andold.stock.param.StockDividendParam;
+import kr.andold.stock.domain.DividendDomain;
+import kr.andold.stock.param.DividendParam;
 import kr.andold.stock.param.StockParam;
-import kr.andold.stock.service.StockCrawlerService;
+import kr.andold.stock.service.CrawlerService;
 import kr.andold.stock.service.StockService;
 import kr.andold.stock.service.Utility;
-import kr.andold.stock.service.StockParserService.StockParserResult;
+import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ApiStockController {
 	@Autowired private HttpServletResponse httpServletResponse;
 	@Autowired private StockService service;
-	@Autowired private StockCrawlerService stockCrawlerService;
+	@Autowired private CrawlerService stockCrawlerService;
 
 	@ResponseBody
 	@GetMapping(value = {"download"})
@@ -60,10 +60,10 @@ public class ApiStockController {
 	}
 
 	@PostMapping(value = {"search"})
-	public List<StockDividendDomain> search(@RequestBody StockDividendParam param) {
+	public List<DividendDomain> search(@RequestBody DividendParam param) {
 		log.info("{} search({})", Utility.indentStart(), param);
 
-		List<StockDividendDomain> list = service.search(param);
+		List<DividendDomain> list = service.search(param);
 
 		log.info("{} #{} - search({})", Utility.indentEnd(), Utility.size(list));
 		return list;
@@ -83,10 +83,10 @@ public class ApiStockController {
 	// 네이버 배당 top(KOSPI, KOSDAQ) 50 + ETF All
 	@ResponseBody
 	@GetMapping(value = "crawl/items")
-	public StockParserResult crawlItems() {
+	public ParserResult crawlItems() {
 		log.info("{} crawlItems()", Utility.indentStart());
 
-		StockParserResult result = stockCrawlerService.crawlItems();
+		ParserResult result = stockCrawlerService.crawlItems();
 
 		log.info("{} {} - crawlItems()", Utility.indentEnd(), result);
 		return result;
@@ -94,10 +94,10 @@ public class ApiStockController {
 
 	@ResponseBody
 	@GetMapping(value = "crawl/item/etf/details")
-	public StockParserResult crawlItemEtfDetails() {
+	public ParserResult crawlItemEtfDetails() {
 		log.info("{} crawlItemEtfDetails()", Utility.indentStart());
 
-		StockParserResult result = stockCrawlerService.crawlEtfDetails();
+		ParserResult result = stockCrawlerService.crawlEtfDetails();
 
 		log.info("{} {} - crawlItemEtfDetails()", Utility.indentEnd(), result);
 		return result;
@@ -105,10 +105,10 @@ public class ApiStockController {
 
 	@ResponseBody
 	@GetMapping(value = "crawl/item/company/details")
-	public StockParserResult crawlItemCompanyDetails() {
+	public ParserResult crawlItemCompanyDetails() {
 		log.info("{} crawlItemCompanyDetails()", Utility.indentStart());
 
-		StockParserResult result = stockCrawlerService.crawlItemCompanyDetails();
+		ParserResult result = stockCrawlerService.crawlItemCompanyDetails();
 
 		log.info("{} {} - crawlItemCompanyDetails()", Utility.indentEnd(), result);
 		return result;
@@ -116,10 +116,10 @@ public class ApiStockController {
 
 	@ResponseBody
 	@GetMapping(value = "crawl/item/company/dividend/top")
-	public StockParserResult crawlCompanyDividendTop() {
+	public ParserResult crawlCompanyDividendTop() {
 		log.info("{} crawlCompanyDividendTop()", Utility.indentStart());
 
-		StockParserResult result = stockCrawlerService.crawlItemCompanyDividendTop();
+		ParserResult result = stockCrawlerService.crawlItemCompanyDividendTop();
 
 		log.info("{} {} - crawlCompanyDividendTop()", Utility.indentEnd(), result);
 		return result;
@@ -127,10 +127,10 @@ public class ApiStockController {
 
 	@ResponseBody
 	@GetMapping(value = "crawl/price/company")
-	public StockParserResult crawlPriceCompay() {
+	public ParserResult crawlPriceCompay() {
 		log.info("{} crawlPriceCompay()", Utility.indentStart());
 
-		StockParserResult result = stockCrawlerService.crawlPriceCompany();
+		ParserResult result = stockCrawlerService.crawlPriceCompany();
 
 		log.info("{} {} - crawlPriceCompay()", Utility.indentEnd(), result);
 		return result;
@@ -138,10 +138,10 @@ public class ApiStockController {
 
 	@ResponseBody
 	@GetMapping(value = "crawl/price/etf")
-	public StockParserResult crawlPriceEtf() {
+	public ParserResult crawlPriceEtf() {
 		log.info("{} crawlPriceEtf()", Utility.indentStart());
 
-		StockParserResult result = stockCrawlerService.crawlPriceEtf();
+		ParserResult result = stockCrawlerService.crawlPriceEtf();
 
 		log.info("{} {} - crawlPriceEtf()", Utility.indentEnd(), result);
 		return result;
@@ -149,10 +149,10 @@ public class ApiStockController {
 
 	@ResponseBody
 	@GetMapping(value = "crawl/dividend/history/etf")
-	public StockParserResult crawlDividendHistoryEtf() {
+	public ParserResult crawlDividendHistoryEtf() {
 		log.info("{} crawlDividendHistoryEtf()", Utility.indentStart());
 
-		StockParserResult result = stockCrawlerService.crawlEtfDividendHistories();
+		ParserResult result = stockCrawlerService.crawlEtfDividendHistories();
 
 		log.info("{} {} - crawlDividendHistoryEtf()", Utility.indentEnd(), result);
 		return result;

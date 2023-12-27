@@ -7,18 +7,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import kr.andold.stock.entity.StockDividendHistoryEntity;
-import kr.andold.stock.param.StockDividendHistoryParam;
+import kr.andold.stock.entity.PriceEntity;
+import kr.andold.stock.param.PriceParam;
 
 @Repository
-public interface StockDividendHistoryRepository extends JpaRepository<StockDividendHistoryEntity, Integer> {
+public interface PriceRepository extends JpaRepository<PriceEntity, Integer> {
 	final String QUERY_SEARCH_PARAM	=	""
 			+ "	SELECT	x"
-			+ "		FROM	StockDividendHistoryEntity x"
-			//	codes
-			+ "		WHERE	("
-			+ "				:#{#param.codes}	IS NULL"
-			+ "			OR	x.code				IN	:#{#param.codes}"
+			+ "		FROM	PriceEntity x"
+			//	code
+			+ "	WHERE	("
+			+ "				:#{#param.code}	IS NULL"
+			+ "			OR	x.code			=	:#{#param.code}"
 			//	start time
 			+ "		)	AND	("
 			+ "				:#{#param.start}	IS NULL"
@@ -27,6 +27,10 @@ public interface StockDividendHistoryRepository extends JpaRepository<StockDivid
 			+ "		)	AND	("
 			+ "				:#{#param.end}	IS NULL"
 			+ "			OR	x.base		<	:#{#param.end}"
+			//	codes
+			+ "		)	AND	("
+			+ "				:#{#param.codes}	IS NULL"
+			+ "			OR	x.code				IN	:#{#param.codes}"
 			//	updated
 			+ "		)	AND	("
 			+ "				:#{#param.updated}	IS NULL"
@@ -36,6 +40,6 @@ public interface StockDividendHistoryRepository extends JpaRepository<StockDivid
 			;
 
 	@Query(value = QUERY_SEARCH_PARAM, nativeQuery = false)
-	List<StockDividendHistoryEntity> search(@Param("param") StockDividendHistoryParam param);
+	List<PriceEntity> search(@Param("param") PriceParam param);
 
 }

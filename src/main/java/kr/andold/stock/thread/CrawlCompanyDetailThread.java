@@ -12,40 +12,40 @@ import java.util.concurrent.Future;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import kr.andold.stock.domain.StockItemDomain;
+import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.service.ChromeDriverWrapper;
-import kr.andold.stock.service.StockCrawlerService;
-import kr.andold.stock.service.StockParserService;
+import kr.andold.stock.service.CrawlerService;
+import kr.andold.stock.service.ParserService;
 import kr.andold.stock.service.Utility;
-import kr.andold.stock.service.StockParserService.StockParserResult;
+import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class CrawlCompanyDetailThread implements Callable<StockParserResult> {
+public class CrawlCompanyDetailThread implements Callable<ParserResult> {
 	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02006V.xml&menuNo=44";
 	private static String MARK_END_POINT = "KEYWORD\t주식 상세\tCrawlCompanyDetailThread\tURL\t" + URL + "\n";
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 4;
-	private static final String MARK_ANDOLD_SINCE = StockCrawlerService.MARK_ANDOLD_SINCE;
-	private static final Boolean debug = StockCrawlerService.debug && false;
+	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
+	private static final Boolean debug = CrawlerService.debug && false;
 	private static final String NEWLINE = "\n";
 
-	private ConcurrentLinkedQueue<StockItemDomain> items;
+	private ConcurrentLinkedQueue<ItemDomain> items;
 	private ChromeDriverWrapper driver;
 	private WebElement popupCloseIconElement; // 검색결과창의 닫기 아이콘
 
-	public CrawlCompanyDetailThread(ConcurrentLinkedQueue<StockItemDomain> list) {
+	public CrawlCompanyDetailThread(ConcurrentLinkedQueue<ItemDomain> list) {
 		this.items = list;
 	}
 
 	@Override
-	public StockParserResult call() throws Exception {
+	public ParserResult call() throws Exception {
 		log.info("{} CrawlCompanyDetailThread(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
-		StockParserResult result = StockParserResult.builder().build();
+		ParserResult result = ParserResult.builder().build();
 		result.clear();
-		driver = StockCrawlerService.defaultChromeDriver();
+		driver = CrawlerService.defaultChromeDriver();
 
 		try {
 			driver.navigate().to(URL);
@@ -60,7 +60,7 @@ public class CrawlCompanyDetailThread implements Callable<StockParserResult> {
 			StringBuffer sb = new StringBuffer();
 			sb.append(MARK_END_POINT);
 			for (int cx = 0; cx < JOB_SIZE; cx++) {
-				StockItemDomain item = items.poll();
+				ItemDomain item = items.poll();
 				if (item == null) {
 					break;
 				}
@@ -83,7 +83,7 @@ public class CrawlCompanyDetailThread implements Callable<StockParserResult> {
 			}
 			sb.append(MARK_END_POINT);
 			String text = new String(sb);
-			StockParserResult resultDividendHistoryEtf = StockParserService.parse(text, true);
+			ParserResult resultDividendHistoryEtf = ParserService.parse(text, true);
 			result.addAll(resultDividendHistoryEtf);
 			log.debug("{} 변경 필요 『{}』 CrawlCompanyDetailThread(#{}) - {}", Utility.indentMiddle(), resultDividendHistoryEtf, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		}
@@ -92,7 +92,7 @@ public class CrawlCompanyDetailThread implements Callable<StockParserResult> {
 		return result;
 	}
 
-	private String extract(StockItemDomain item) {
+	private String extract(ItemDomain item) {
 		log.debug("{} CrawlCompanyDetailThread.extract({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
@@ -168,7 +168,7 @@ public class CrawlCompanyDetailThread implements Callable<StockParserResult> {
 		return "";
 	}
 
-	public static StockParserResult crawl(List<StockItemDomain> items) {
+	public static ParserResult crawl(List<ItemDomain> items) {
 		log.info("{} CrawlCompanyDetailThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
@@ -177,19 +177,19 @@ public class CrawlCompanyDetailThread implements Callable<StockParserResult> {
 			processors = 1;
 		}
 		ExecutorService service = Executors.newFixedThreadPool(processors);
-		List<Future<StockParserResult>> futureList = new ArrayList<>();
-		ConcurrentLinkedQueue<StockItemDomain> queue = new ConcurrentLinkedQueue<StockItemDomain>();
+		List<Future<ParserResult>> futureList = new ArrayList<>();
+		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.addAll(items);
 		for (int cx = 0; cx < processors; cx++) {
 			CrawlCompanyDetailThread thread = new CrawlCompanyDetailThread(queue);
-			Future<StockParserResult> future = service.submit(thread);
+			Future<ParserResult> future = service.submit(thread);
 			futureList.add(future);
 		}
-		StockParserResult container = new StockParserResult();
+		ParserResult container = new ParserResult();
 		container.clear();
-		for (Future<StockParserResult> task : futureList) {
+		for (Future<ParserResult> task : futureList) {
 			try {
-				StockParserResult result = task.get();
+				ParserResult result = task.get();
 				container.addAll(result);
 				log.info("{} 『{}』 CrawlCompanyDetailThread.crawl(#{})", Utility.indentMiddle(), result, Utility.size(items));
 			} catch (Exception e) {

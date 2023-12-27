@@ -10,10 +10,10 @@ import org.antlr.v4.runtime.Vocabulary;
 
 import kr.andold.stock.antlr.StockLexer;
 import kr.andold.stock.antlr.StockParser;
-import kr.andold.stock.domain.StockDividendDomain;
-import kr.andold.stock.domain.StockDividendHistoryDomain;
-import kr.andold.stock.domain.StockItemDomain;
-import kr.andold.stock.domain.StockPriceDomain;
+import kr.andold.stock.domain.DividendDomain;
+import kr.andold.stock.domain.DividendHistoryDomain;
+import kr.andold.stock.domain.ItemDomain;
+import kr.andold.stock.domain.PriceDomain;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,28 +21,28 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class StockParserService {
-	private static final List<StockItemDomain> LIST_STOCK_ITEM = new ArrayList<>();
-	private static final List<StockDividendDomain> LIST_STOCK_DIVIDEND = new ArrayList<>();
-	private static final List<StockDividendHistoryDomain> LIST_STOCK_DIVIDEND_HOSTORY = new ArrayList<>();
-	private static final List<StockPriceDomain> LIST_STOCK_PRICE = new ArrayList<>();
+public class ParserService {
+	private static final List<ItemDomain> LIST_STOCK_ITEM = new ArrayList<>();
+	private static final List<DividendDomain> LIST_STOCK_DIVIDEND = new ArrayList<>();
+	private static final List<DividendHistoryDomain> LIST_STOCK_DIVIDEND_HOSTORY = new ArrayList<>();
+	private static final List<PriceDomain> LIST_STOCK_PRICE = new ArrayList<>();
 
 	@Builder
 	@Data
 	@NoArgsConstructor
 	@AllArgsConstructor
-	static public class StockParserResult {
-		private List<StockItemDomain> items;
-		private List<StockDividendDomain> dividends;
-		private List<StockDividendHistoryDomain> histories;
-		private List<StockPriceDomain> prices;
+	static public class ParserResult {
+		private List<ItemDomain> items;
+		private List<DividendDomain> dividends;
+		private List<DividendHistoryDomain> histories;
+		private List<PriceDomain> prices;
 
 		@Override
 		public String toString() {
-			return String.format("StockParserResult(items: #%d, dividends: #%d, histories: #%d, prices: #%d)", Utility.size(items), Utility.size(dividends), Utility.size(histories), Utility.size(prices));
+			return String.format("ParserResult(items: #%d, dividends: #%d, histories: #%d, prices: #%d)", Utility.size(items), Utility.size(dividends), Utility.size(histories), Utility.size(prices));
 		}
 
-		public void addAll(StockParserResult source) {
+		public void addAll(ParserResult source) {
 			items.addAll(source.getItems());
 			dividends.addAll(source.getDividends());
 			histories.addAll(source.getHistories());
@@ -53,7 +53,7 @@ public class StockParserService {
 			return items.isEmpty() && dividends.isEmpty() && histories.isEmpty() && prices.isEmpty();
 		}
 
-		public StockParserResult clear() {
+		public ParserResult clear() {
 			if (items == null) {
 				items = new ArrayList<>();
 			} else {
@@ -93,7 +93,7 @@ public class StockParserService {
 			return;
 		}
 
-		LIST_STOCK_PRICE.add(StockPriceDomain.builder()
+		LIST_STOCK_PRICE.add(PriceDomain.builder()
 				.code(code)
 				.base(Utility.parseDateTime(base, null))
 				.closing(Utility.parseInteger(closing, null))
@@ -121,7 +121,7 @@ public class StockParserService {
 				, fics
 				, ea
 				, ipo);
-		StockItemDomain item = StockItemDomain.builder()
+		ItemDomain item = ItemDomain.builder()
 				.code(code)
 				.volumeOfListedShares(Utility.parseInteger(ea, null))
 				.ipoDate(Utility.parseDateTime(ipo, null))
@@ -134,7 +134,7 @@ public class StockParserService {
 	// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당순위
 	public static void crawlCompanyTopDividend(Integer date
 			, String code, String type) {
-		LIST_STOCK_ITEM.add(StockItemDomain.builder().code(code).type(type).build());
+		LIST_STOCK_ITEM.add(ItemDomain.builder().code(code).type(type).build());
 	}
 
 	// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
@@ -145,7 +145,7 @@ public class StockParserService {
 			, String fee) {
 		log.info("{} crawlEtfDetailThread(『{} {}』『{} {} {} {} {} {} {} {}』『{} {} {} {} {} {} {} {} {}』『{}』)", Utility.indentMiddle()
 				, mark, code, symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7, date, category, category1, fee);
-		StockItemDomain item = StockItemDomain.builder().code(code).build();
+		ItemDomain item = ItemDomain.builder().code(code).build();
 		item.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
 		item.setSymbol(item.getSymbol().split("\\[[0-9]+")[0]);
 		item.setCategory(category, category1, category2, category3, category4, category5, category6, category7);
@@ -155,23 +155,23 @@ public class StockParserService {
 
 	public static void extractAllEtfFromNaver(Integer date, String codeString, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7) {
 		String code = codeString.split("=")[1];
-		StockItemDomain stockItem = new StockItemDomain(null, code, null, null, true, null, null, null);
+		ItemDomain stockItem = new ItemDomain(null, code, null, null, true, null, null, null);
 		LIST_STOCK_ITEM.add(stockItem);
 	}
 
 	public static void crawlDividendHistoryEtfThread(Integer date, String code, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7, String base, String pay, String dividend,
 			String price, String ratio) {
-		LIST_STOCK_DIVIDEND_HOSTORY.add(StockDividendHistoryDomain.builder().code(code).base(Utility.parseDateTime(base)).pay(Utility.parseDateTime(pay)).dividend(Utility.parseInteger(dividend, null)).build());
+		LIST_STOCK_DIVIDEND_HOSTORY.add(DividendHistoryDomain.builder().code(code).base(Utility.parseDateTime(base)).pay(Utility.parseDateTime(pay)).dividend(Utility.parseInteger(dividend, null)).build());
 	}
 
 	public static void seibroDividendItem(Integer date, String base, String pay, String code, String symbol, String dividend) {
-		StockDividendHistoryDomain history = new StockDividendHistoryDomain(code, base, pay, dividend);
+		DividendHistoryDomain history = new DividendHistoryDomain(code, base, pay, dividend);
 		LIST_STOCK_DIVIDEND_HOSTORY.add(history);
 		log.trace("{} seibroDividendItem(...) - {}", Utility.indentMiddle(), history);
 	}
 
-	public static StockParserResult testText(String text) {
-		StockParserResult result = parse(text, true);
+	public static ParserResult testText(String text) {
+		ParserResult result = parse(text, true);
 		log.info("{} text = 『\n{}\n』", Utility.indentMiddle(), text);
 		return result;
 	}
@@ -226,7 +226,7 @@ public class StockParserService {
 		return result;
 	}
 
-	public static synchronized StockParserResult parse(String text, boolean debug) {
+	public static synchronized ParserResult parse(String text, boolean debug) {
 		log.debug("{} parse(『{}』, {}』)", Utility.indentStart(), Utility.ellipsisEscape(text, 16), debug);
 		long started = System.currentTimeMillis();
 
@@ -237,7 +237,7 @@ public class StockParserService {
 
 		if (text == null || text.isBlank()) {
 			log.debug("{} PARAMETER parse(『{}』, 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));
-			return StockParserResult.builder().items(new ArrayList<>()).dividends(new ArrayList<>()).histories(new ArrayList<>()).prices(new ArrayList<>()).build();
+			return ParserResult.builder().items(new ArrayList<>()).dividends(new ArrayList<>()).histories(new ArrayList<>()).prices(new ArrayList<>()).build();
 		}
 
 		StockLexer lexer = new StockLexer(CharStreams.fromString(text));
@@ -251,7 +251,7 @@ public class StockParserService {
 		parser.setTrace(false);
 		parser.stockDocument();
 
-		StockParserResult result = StockParserResult.builder().items(new ArrayList<>(LIST_STOCK_ITEM)).dividends(new ArrayList<>(LIST_STOCK_DIVIDEND)).histories(new ArrayList<>(LIST_STOCK_DIVIDEND_HOSTORY)).prices(new ArrayList<>(LIST_STOCK_PRICE))
+		ParserResult result = ParserResult.builder().items(new ArrayList<>(LIST_STOCK_ITEM)).dividends(new ArrayList<>(LIST_STOCK_DIVIDEND)).histories(new ArrayList<>(LIST_STOCK_DIVIDEND_HOSTORY)).prices(new ArrayList<>(LIST_STOCK_PRICE))
 				.build();
 
 		if (debug || result.isEmpty()) {

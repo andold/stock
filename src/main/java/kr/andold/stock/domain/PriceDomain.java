@@ -2,7 +2,7 @@ package kr.andold.stock.domain;
 
 import org.springframework.beans.BeanUtils;
 
-import kr.andold.stock.entity.StockPriceEntity;
+import kr.andold.stock.entity.PriceEntity;
 import kr.andold.stock.service.Utility;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,21 +13,21 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class StockPriceDomain extends StockPriceEntity implements CommonBlockDomain<StockPriceDomain, StockPriceEntity> {
+public class PriceDomain extends PriceEntity implements CommonBlockDomain<PriceDomain, PriceEntity> {
 	@Override
 	public String toString() {
 		return Utility.toStringJson(this);
 	}
 
 	@Override
-	public StockPriceEntity toEntity() {
-		StockPriceEntity entity = new StockPriceEntity();
+	public PriceEntity toEntity() {
+		PriceEntity entity = new PriceEntity();
 		BeanUtils.copyProperties(this, entity);
 		return entity;
 	}
 
 	@Override
-	public int compare(StockPriceDomain domain) {
+	public int compare(PriceDomain domain) {
 		return key().compareTo(domain.key());
 	}
 
@@ -36,8 +36,8 @@ public class StockPriceDomain extends StockPriceEntity implements CommonBlockDom
 		return String.format("%s.%tF", getCode(), getBase());
 	}
 
-	public static StockPriceDomain of(StockPriceEntity entity) {
-		StockPriceDomain domain = new StockPriceDomain();
+	public static PriceDomain of(PriceEntity entity) {
+		PriceDomain domain = new PriceDomain();
 		BeanUtils.copyProperties(entity, domain);
 		return domain;
 	}

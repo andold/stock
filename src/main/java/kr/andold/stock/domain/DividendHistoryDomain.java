@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.springframework.beans.BeanUtils;
 
-import kr.andold.stock.entity.StockDividendHistoryEntity;
+import kr.andold.stock.entity.DividendHistoryEntity;
 import kr.andold.stock.service.Utility;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,17 +15,17 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class StockDividendHistoryDomain extends StockDividendHistoryEntity implements CommonBlockDomain<StockDividendHistoryDomain, StockDividendHistoryEntity> {
+public class DividendHistoryDomain extends DividendHistoryEntity implements CommonBlockDomain<DividendHistoryDomain, DividendHistoryEntity> {
 
 	@Override
-	public StockDividendHistoryEntity toEntity() {
-		StockDividendHistoryEntity entity = new StockDividendHistoryEntity();
+	public DividendHistoryEntity toEntity() {
+		DividendHistoryEntity entity = new DividendHistoryEntity();
 		BeanUtils.copyProperties(this, entity);
 		return entity;
 	}
 
 	@Override
-	public int compare(StockDividendHistoryDomain domain) {
+	public int compare(DividendHistoryDomain domain) {
 		return key().compareTo(domain.key());
 	}
 
@@ -39,7 +39,7 @@ public class StockDividendHistoryDomain extends StockDividendHistoryEntity imple
 		return Utility.toStringJson(this);
 	}
 
-	public StockDividendHistoryDomain(String code, String base, String pay, String dividend) {
+	public DividendHistoryDomain(String code, String base, String pay, String dividend) {
 		setCode(code);
 		setBase(Utility.parseDateTime(base));
 		setPay(Utility.parseDateTime(pay));
@@ -49,8 +49,8 @@ public class StockDividendHistoryDomain extends StockDividendHistoryEntity imple
 		setCreated(now);
 	}
 
-	public static StockDividendHistoryDomain of(StockDividendHistoryEntity entity) {
-		StockDividendHistoryDomain domain = new StockDividendHistoryDomain();
+	public static DividendHistoryDomain of(DividendHistoryEntity entity) {
+		DividendHistoryDomain domain = new DividendHistoryDomain();
 		BeanUtils.copyProperties(entity, domain);
 		return domain;
 	}

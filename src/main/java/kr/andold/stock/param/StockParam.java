@@ -12,10 +12,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import kr.andold.stock.domain.StockDividendDomain;
-import kr.andold.stock.domain.StockDividendHistoryDomain;
-import kr.andold.stock.domain.StockItemDomain;
-import kr.andold.stock.domain.StockPriceDomain;
+import kr.andold.stock.domain.DividendDomain;
+import kr.andold.stock.domain.DividendHistoryDomain;
+import kr.andold.stock.domain.ItemDomain;
+import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.service.Utility;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,13 +23,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class StockParam {
-	private List<ItemParam> items;
-	private List<DividendParam> dividends;
-	private List<DividendHistoryParam> histories;
-	private List<PriceParam> prices;
+	private List<InnerItemParam> items;
+	private List<InnerDividendParam> dividends;
+	private List<InnerDividendHistoryParam> histories;
+	private List<InnerPriceParam> prices;
 
 	@Data
-	public static class ItemParam {
+	public static class InnerItemParam {
 		private String symbol;
 		private String code;
 		private Integer priority;
@@ -39,14 +39,14 @@ public class StockParam {
 		private String category;
 		private Date ipoDate;
 
-		public static ItemParam of(StockItemDomain domain) {
-			ItemParam param = new ItemParam();
+		public static InnerItemParam of(ItemDomain domain) {
+			InnerItemParam param = new InnerItemParam();
 			BeanUtils.copyProperties(domain, param);
 			return param;
 		}
 
-		public StockItemDomain toDomain() {
-			StockItemDomain domain = new StockItemDomain();
+		public ItemDomain toDomain() {
+			ItemDomain domain = new ItemDomain();
 			BeanUtils.copyProperties(this, domain);
 			return domain;
 		}
@@ -54,7 +54,7 @@ public class StockParam {
 	}
 
 	@Data
-	public static class DividendParam {
+	public static class InnerDividendParam {
 		private String code;
 		private Integer currentPrice;
 		private Integer dividend;
@@ -64,14 +64,14 @@ public class StockParam {
 		private Integer dividend2YAgo;
 		private Integer dividend3YAgo;
 
-		public static DividendParam of(StockDividendDomain domain) {
-			DividendParam param = new DividendParam();
+		public static InnerDividendParam of(DividendDomain domain) {
+			InnerDividendParam param = new InnerDividendParam();
 			BeanUtils.copyProperties(domain, param);
 			return param;
 		}
 
-		public StockDividendDomain toDomain() {
-			StockDividendDomain domain = new StockDividendDomain();
+		public DividendDomain toDomain() {
+			DividendDomain domain = new DividendDomain();
 			BeanUtils.copyProperties(this, domain);
 			return domain;
 		}
@@ -79,20 +79,20 @@ public class StockParam {
 	}
 
 	@Data
-	public static class DividendHistoryParam {
+	public static class InnerDividendHistoryParam {
 		private String code;
 		private Date base;
 		private Date pay;
 		private Integer dividend;
 
-		public static DividendHistoryParam of(StockDividendHistoryDomain domain) {
-			DividendHistoryParam param = new DividendHistoryParam();
+		public static InnerDividendHistoryParam of(DividendHistoryDomain domain) {
+			InnerDividendHistoryParam param = new InnerDividendHistoryParam();
 			BeanUtils.copyProperties(domain, param);
 			return param;
 		}
 
-		public StockDividendHistoryDomain toDomain() {
-			StockDividendHistoryDomain domain = new StockDividendHistoryDomain();
+		public DividendHistoryDomain toDomain() {
+			DividendHistoryDomain domain = new DividendHistoryDomain();
 			BeanUtils.copyProperties(this, domain);
 			return domain;
 		}
@@ -100,7 +100,7 @@ public class StockParam {
 	}
 
 	@Data
-	public static class PriceParam {
+	public static class InnerPriceParam {
 		private String code;
 		private Date base;
 		private Integer closing; // 종가
@@ -109,14 +109,14 @@ public class StockParam {
 		private Integer low; // 저가
 		private Integer volume; // 거래량
 
-		public static PriceParam of(StockPriceDomain domain) {
-			PriceParam param = new PriceParam();
+		public static InnerPriceParam of(PriceDomain domain) {
+			InnerPriceParam param = new InnerPriceParam();
 			BeanUtils.copyProperties(domain, param);
 			return param;
 		}
 
-		public StockPriceDomain toDomain() {
-			StockPriceDomain domain = new StockPriceDomain();
+		public PriceDomain toDomain() {
+			PriceDomain domain = new PriceDomain();
 			BeanUtils.copyProperties(this, domain);
 			return domain;
 		}
@@ -128,25 +128,25 @@ public class StockParam {
 		return Utility.toStringJsonPretty(this);
 	}
 
-	public StockParam(List<StockItemDomain> items, List<StockDividendDomain> dividends, List<StockDividendHistoryDomain> histories, List<StockPriceDomain> prices) {
+	public StockParam(List<ItemDomain> items, List<DividendDomain> dividends, List<DividendHistoryDomain> histories, List<PriceDomain> prices) {
 		this.items = new ArrayList<>();
-		for (StockItemDomain item : items) {
-			this.items.add(ItemParam.of(item));
+		for (ItemDomain item : items) {
+			this.items.add(InnerItemParam.of(item));
 		}
 
 		this.dividends = new ArrayList<>();
-		for (StockDividendDomain item : dividends) {
-			this.dividends.add(DividendParam.of(item));
+		for (DividendDomain item : dividends) {
+			this.dividends.add(InnerDividendParam.of(item));
 		}
 
 		this.histories = new ArrayList<>();
-		for (StockDividendHistoryDomain item : histories) {
-			this.histories.add(DividendHistoryParam.of(item));
+		for (DividendHistoryDomain item : histories) {
+			this.histories.add(InnerDividendHistoryParam.of(item));
 		}
 
 		this.prices = new ArrayList<>();
-		for (StockPriceDomain item : prices) {
-			this.prices.add(PriceParam.of(item));
+		for (PriceDomain item : prices) {
+			this.prices.add(InnerPriceParam.of(item));
 		}
 
 	}

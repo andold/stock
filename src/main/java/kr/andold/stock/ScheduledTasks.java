@@ -6,14 +6,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import kr.andold.stock.service.StockCrawlerService;
+import kr.andold.stock.service.CrawlerService;
 
 @Configuration
 @EnableScheduling
 @ConditionalOnProperty(value = "app.scheduling.enable", havingValue = "true", matchIfMissing = true)
 public class ScheduledTasks {
 	@Autowired
-	private StockCrawlerService stockCrawlerService;
+	private CrawlerService stockCrawlerService;
 
 	// 매시마다
 	@Scheduled(cron = "15 30 8-16 * * *")

@@ -14,41 +14,41 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 
-import kr.andold.stock.domain.StockItemDomain;
+import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.service.ChromeDriverWrapper;
-import kr.andold.stock.service.StockCrawlerService;
-import kr.andold.stock.service.StockParserService;
+import kr.andold.stock.service.CrawlerService;
+import kr.andold.stock.service.ParserService;
 import kr.andold.stock.service.Utility;
-import kr.andold.stock.service.StockParserService.StockParserResult;
+import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 // KSD 증권정보포털 SEIBro > 주식 > 배당정보 > 배당내역전체검색
 @Slf4j
-public class CrawlCompanyDividendHistoryThread implements Callable<StockParserResult> {
+public class CrawlCompanyDividendHistoryThread implements Callable<ParserResult> {
 	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285";
 	private static final String MARK_END_POINT = "KEYWORD\t주식(기업) 배당금 내역\tURL\t" + URL + "\n";
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 4;
-	private static final String MARK_ANDOLD_SINCE = StockCrawlerService.MARK_ANDOLD_SINCE;
-	@Setter private static Boolean debug = StockCrawlerService.debug;
+	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
+	@Setter private static Boolean debug = CrawlerService.debug;
 
-	private ConcurrentLinkedQueue<StockItemDomain> items;
+	private ConcurrentLinkedQueue<ItemDomain> items;
 	private ChromeDriverWrapper driver;
 	private String previous = "andold";
 
-	public CrawlCompanyDividendHistoryThread(ConcurrentLinkedQueue<StockItemDomain> list) {
+	public CrawlCompanyDividendHistoryThread(ConcurrentLinkedQueue<ItemDomain> list) {
 		this.items = list;
 	}
 
 	@Override
-	public StockParserResult call() throws Exception {
+	public ParserResult call() throws Exception {
 		log.info("{} CrawlCompanyDividendHistoryThread(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
-		StockParserResult result = StockParserResult.builder().build();
+		ParserResult result = ParserResult.builder().build();
 		result.clear();
-		driver = StockCrawlerService.defaultChromeDriver();
+		driver = CrawlerService.defaultChromeDriver();
 
 		try {
 			driver.navigate().to(URL);
@@ -69,7 +69,7 @@ public class CrawlCompanyDividendHistoryThread implements Callable<StockParserRe
 			StringBuffer sb = new StringBuffer();
 			sb.append(MARK_END_POINT);
 			for (int cx = 0; cx < JOB_SIZE; cx++) {
-				StockItemDomain item = items.poll();
+				ItemDomain item = items.poll();
 				if (item == null) {
 					break;
 				}
@@ -94,7 +94,7 @@ public class CrawlCompanyDividendHistoryThread implements Callable<StockParserRe
 			sb.append(MARK_END_POINT);
 
 			String text = new String(sb);
-			StockParserResult resultDividendHistory = StockParserService.parse(text, debug);
+			ParserResult resultDividendHistory = ParserService.parse(text, debug);
 			result.addAll(resultDividendHistory);
 			log.debug("{} #{} {} CrawlCompanyDividendHistoryThread() - {}", Utility.indentMiddle(), Utility.size(items), resultDividendHistory, Utility.toStringPastTimeReadable(started));
 		}
@@ -104,7 +104,7 @@ public class CrawlCompanyDividendHistoryThread implements Callable<StockParserRe
 		return result;
 	}
 
-	private String extract(StockItemDomain item) {
+	private String extract(ItemDomain item) {
 		log.info("{} CrawlCompanyDividendHistoryThread.extract({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
@@ -173,25 +173,25 @@ public class CrawlCompanyDividendHistoryThread implements Callable<StockParserRe
 		return "";
 	}
 
-	public static StockParserResult crawl(List<StockItemDomain> items) {
+	public static ParserResult crawl(List<ItemDomain> items) {
 		int processors = Runtime.getRuntime().availableProcessors() - 1;
 		if (debug) {
 			processors = 1;
 		}
 		ExecutorService service = Executors.newFixedThreadPool(processors);
-		List<Future<StockParserResult>> futureList = new ArrayList<>();
-		ConcurrentLinkedQueue<StockItemDomain> queue = new ConcurrentLinkedQueue<StockItemDomain>();
+		List<Future<ParserResult>> futureList = new ArrayList<>();
+		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.addAll(items);
 		for (int cx = 0; cx < processors; cx++) {
 			CrawlCompanyDividendHistoryThread thread = new CrawlCompanyDividendHistoryThread(queue);
-			Future<StockParserResult> future = service.submit(thread);
+			Future<ParserResult> future = service.submit(thread);
 			futureList.add(future);
 		}
-		StockParserResult container = StockParserResult.builder().build();
+		ParserResult container = ParserResult.builder().build();
 		container.clear();
-		for (Future<StockParserResult> task : futureList) {
+		for (Future<ParserResult> task : futureList) {
 			try {
-				StockParserResult result = task.get();
+				ParserResult result = task.get();
 				container.addAll(result);
 				log.info("{} 『{}』 CrawlCompanyDividendHistoryThread.crawl(#{})", Utility.indentMiddle(), result, Utility.size(items));
 			} catch (Exception e) {
@@ -200,18 +200,18 @@ public class CrawlCompanyDividendHistoryThread implements Callable<StockParserRe
 		return container;
 	}
 
-	public static StockParserResult crawl(StockItemDomain item) {
+	public static ParserResult crawl(ItemDomain item) {
 		log.info("{} CrawlCompanyDividendHistoryThread.crawl({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
-		ConcurrentLinkedQueue<StockItemDomain> queue = new ConcurrentLinkedQueue<StockItemDomain>();
+		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.add(item);
 		CrawlCompanyDividendHistoryThread thread = new CrawlCompanyDividendHistoryThread(queue);
 		setDebug(false);
 		ExecutorService service = Executors.newFixedThreadPool(1);
-		Future<StockParserResult> future = service.submit(thread);
+		Future<ParserResult> future = service.submit(thread);
 		try {
-			StockParserResult result = future.get();
+			ParserResult result = future.get();
 
 			log.info("{} {} CrawlCompanyDividendHistoryThread.crawl({}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
 			return result;
@@ -220,7 +220,7 @@ public class CrawlCompanyDividendHistoryThread implements Callable<StockParserRe
 		}
 
 		log.info("{} EMPY CrawlCompanyDividendHistoryThread.crawl({}) - {}", Utility.indentEnd(), item, Utility.toStringPastTimeReadable(started));
-		return new StockParserResult().clear();
+		return new ParserResult().clear();
 	}
 
 }

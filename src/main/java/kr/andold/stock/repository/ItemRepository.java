@@ -9,14 +9,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import kr.andold.stock.entity.StockItemEntity;
-import kr.andold.stock.param.StockItemParam;
+import kr.andold.stock.entity.ItemEntity;
+import kr.andold.stock.param.ItemParam;
 
 @Repository
-public interface StockItemRepository extends JpaRepository<StockItemEntity, Integer> {
+public interface ItemRepository extends JpaRepository<ItemEntity, Integer> {
 	final String QUERY_SEARCH_PARAM	=	""
 			+ "	SELECT	x"
-			+ "		FROM	StockItemEntity x	LEFT JOIN StockDividendEntity	y ON y.code	=	x.code"
+			+ "		FROM	ItemEntity x	LEFT JOIN DividendEntity	y ON y.code	=	x.code"
 			//	keyword
 			+ "		WHERE	("
 			+ "				:#{#param.keyword}	IS NULL"
@@ -55,9 +55,9 @@ public interface StockItemRepository extends JpaRepository<StockItemEntity, Inte
 			;
 
 	@Query(value = QUERY_SEARCH_PARAM, nativeQuery = false)
-	List<StockItemEntity> search(@Param("param") StockItemParam param);
+	List<ItemEntity> search(@Param("param") ItemParam param);
 
 	@Query(value = QUERY_SEARCH_PARAM, nativeQuery = false)
-	Page<StockItemEntity> search(@Param("param") StockItemParam param, Pageable pageable);
+	Page<ItemEntity> search(@Param("param") ItemParam param, Pageable pageable);
 
 }
