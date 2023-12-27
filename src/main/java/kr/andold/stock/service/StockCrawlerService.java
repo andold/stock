@@ -50,18 +50,21 @@ public class StockCrawlerService {
 	private static String webdriverPath;
 	@Value("${data.webdriver.chrome.driver:C:/src/eclipse-workspace/stock/src/main/resources/bin/chromedriver.exe}")
 	public void setWebdriverPath(String value) {
+		log.info("{} INIT::StockCrawlerService.setWebdriverPath({})", Utility.indentMiddle(), value);
 		webdriverPath = value;
 	}
 
 	public static Boolean debug = false;
 	@Value("${app.crawler.debug:false}")
 	public void setDegug(Boolean value) {
+		log.info("{} INIT::StockCrawlerService.setDegug({})", Utility.indentMiddle(), value);
 		debug = value;
 	}
 
 	public static String crawlerDateStart = "20231101";
 	@Value("${app.crawler.date.start:20231101}")
 	public void setCrawlerDateStart(String value) {
+		log.info("{} INIT::StockCrawlerService.setCrawlerDateStart({})", Utility.indentMiddle(), value);
 		crawlerDateStart = value;
 	}
 
