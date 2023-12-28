@@ -19,8 +19,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import kr.andold.stock.domain.DividendDomain;
+import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
+import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.stock.thread.CrawlItemDetailCompanyThread;
 import kr.andold.stock.thread.CrawlDividendHistoryCompanyThread;
@@ -108,17 +110,16 @@ public class CrawlerService {
 	}
 
 	private void put(ParserResult result) {
-		if (debug) {
-			result.getItems().forEach(x -> log.info("{} item: {}", Utility.indentMiddle(), x));
-			result.getDividends().forEach(x -> log.info("{} dividend: {}", Utility.indentMiddle(), x));
-			result.getHistories().forEach(x -> log.info("{} history: {}", Utility.indentMiddle(), x));
-			result.getPrices().forEach(x -> log.info("{} price: {}", Utility.indentMiddle(), x));
-		}
+		log.debug("{} put({})", Utility.indentStart(), result);
+		long started = System.currentTimeMillis();
 
-		stockItemService.put(result.getItems());
-		stockDividendService.put(result.getDividends());
-		stockDividendHistoryService.put(result.getHistories());
-		stockPriceService.put(result.getPrices());
+		CrudList<ItemDomain> items = stockItemService.put(result.getItems());
+		CrudList<DividendDomain> dividends = stockDividendService.put(result.getDividends());
+		CrudList<DividendHistoryDomain> histories = stockDividendHistoryService.put(result.getHistories());
+		CrudList<PriceDomain> prices = stockPriceService.put(result.getPrices());
+		log.debug("{} put({}) - items:{}, dividends:{}, histories:{}, prices:{}", Utility.indentMiddle(), result, items, dividends, histories, prices);
+
+		log.debug("{} put({}) - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 	}
 
 	private List<DividendDomain> currentPriceFromPrices(List<PriceDomain> prices) {
@@ -176,6 +177,7 @@ public class CrawlerService {
 		String textFromNaverAllEtf = extractAllEtfFromNaver();
 		ParserResult resultNaverAllEtf = ParserService.parse(textFromNaverAllEtf, debug);
 		all.addAll(resultNaverAllEtf);
+	
 		put(all);
 
 		log.info("{} {} crawlItems() - {}", Utility.indentEnd(), all, Utility.toStringPastTimeReadable(started));
@@ -240,7 +242,8 @@ public class CrawlerService {
 
 		sb.append(MARK_START_END_POINT);
 		String text = new String(sb);
-		ParserResult result = ParserService.parse(text, debug);
+		ParserResult result = ParserService.parse(text, false);
+		put(result);
 
 		log.info("{} {} crawlItemCompanyDividendTop() - {}", Utility.indentMiddle(), result, Utility.toStringPastTimeReadable(started));
 		return result;
