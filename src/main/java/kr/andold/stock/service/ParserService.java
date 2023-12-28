@@ -143,8 +143,12 @@ public class ParserService {
 			, String category, String category1, String category2, String category3, String category4, String category5, String category6, String category7
 			, String date
 			, String fee) {
-		log.info("{} crawlEtfDetailThread(『{} {}』『{} {} {} {} {} {} {} {}』『{} {} {} {} {} {} {} {} {}』『{}』)", Utility.indentMiddle()
-				, mark, code, symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7, date, category, category1, fee);
+		log.info("{} crawlEtfDetailThread(『{} {}』『{} {} {} {} {} {} {} {}』『{}』『{} {}』 『{}』)", Utility.indentMiddle()
+				, mark, code
+				, symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7
+				, date
+				, category, category1
+				, fee);
 		ItemDomain item = ItemDomain.builder().code(code).build();
 		item.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
 		item.setSymbol(item.getSymbol().split("\\[[0-9]+")[0]);
