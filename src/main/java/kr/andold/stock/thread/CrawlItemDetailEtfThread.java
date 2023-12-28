@@ -31,8 +31,6 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 
 	private ConcurrentLinkedQueue<ItemDomain> items;
 	private ChromeDriverWrapper driver;
-	private WebElement symbolSearchElement;
-	private WebElement searchElement;
 	private WebElement popupCloseIconElement; // 검색결과창의 닫기 아이콘
 
 	public CrawlItemDetailEtfThread(ConcurrentLinkedQueue<ItemDomain> list) {
@@ -49,11 +47,16 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 		driver = CrawlerService.defaultChromeDriver();
 
 		try {
+			// 화면 열기
 			driver.navigate().to(URL);
-			symbolSearchElement = driver.findElement(By.xpath("//a[@id='sn_group4']"), TIMEOUT * 4);	// 종목명 검색
-			searchElement = driver.findElement(By.xpath("//a[@id='group137']"), TIMEOUT);	// 조회
+			
+			// 화면이 표시될 때까지
+			driver.waitUntilIsDisplayed(By.xpath("//a[@id='btn_wide']"), true, TIMEOUT * 4);
+
 			popupCloseIconElement = driver.findElement(By.xpath("//div[@id='group241']/a[@id='anchor2']"), TIMEOUT); // 검색결과창의 닫기 아이콘
-			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT).click(); // 넓게 보기 아이콘 크릭
+			
+			// 넓게 보기 아이콘 클릭
+			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT).click();
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 			driver.quit();
@@ -105,25 +108,28 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 			String symbol = item.getSymbol();
 
 			driver.switchTo().defaultContent();
-			symbolSearchElement.click();
+			
+			// 종목명 검색 아이콘 클릭
+			driver.waitUntilIsDisplayed(By.xpath("//div[@id='group239']"), false, TIMEOUT);
+			driver.findElement(By.xpath("//div[@id='content']//a[@id='sn_group4']/img"), TIMEOUT).click();
+
 			WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"), TIMEOUT);
 			driver.switchTo().frame(frame);
+
+			// 코드 입력
 			WebElement inputSearchElement = driver.findElement(By.xpath("//input[@id='search_string']"), TIMEOUT);	// 입력창
-			WebElement searchSymbolIconElement = driver.findElement(By.xpath("//a[@id='group236']"), TIMEOUT);	// 검색 아이콘
 			inputSearchElement.clear();
-			inputSearchElement.sendKeys("andold"); // 코드 입력
-			searchSymbolIconElement.click();
-			Thread.sleep(100);
+			inputSearchElement.sendKeys(code);
 
-			inputSearchElement.clear();
-			inputSearchElement.sendKeys(code); // 코드 입력
-			searchSymbolIconElement.click();
-			Thread.sleep(100);
+			// 검색 아이콘 클릭
+			By BY_CODE_SEARCH_RESULT = By.xpath("//ul[@id='contentsList']/li/a");
+			String previousSearchResultText = driver.getText(BY_CODE_SEARCH_RESULT, TIMEOUT, "andold");
+			driver.findElement(By.xpath("//a[@id='group236']"), TIMEOUT).click();
+			driver.waitUntilTextNotInclude(BY_CODE_SEARCH_RESULT, TIMEOUT, previousSearchResultText);
 
+			// 검색 결과
 			String xpathSearchResult = "//ul[@id='contentsList']/li/a";
 			List<WebElement> resultSearch = driver.findElements(By.xpath(xpathSearchResult), TIMEOUT);
-			String oneXpathCandidate1 = String.format("//*[@id='contentsList']//a[contains(text(),'%s']", symbol.strip());
-			String oneXpathCandidate2 = String.format("//*[@id='contentsList']//a[contains(text(),'%s']", symbol.replaceAll("[\s]+", ""));
 			if (resultSearch.size() == 0) {
 				driver.switchTo().defaultContent();
 				popupCloseIconElement.click();
@@ -131,20 +137,17 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 				return "";
 			} else if (resultSearch.size() == 1) {
 				driver.findElement(By.xpath(xpathSearchResult), TIMEOUT).click();
-			} else if (!driver.isEmpty(By.xpath(oneXpathCandidate1))) {
-				driver.clickIfExist(By.xpath(oneXpathCandidate1));
-			} else if (!driver.isEmpty(By.xpath(oneXpathCandidate2))) {
-				driver.clickIfExist(By.xpath(oneXpathCandidate2));
 			} else {
 				driver.switchTo().defaultContent();
 				popupCloseIconElement.click();
 				log.debug("{} #{} 모호한 검색 결과 『{}』 CrawlItemDetailEtfThread() - {}", Utility.indentEnd(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
 				return "";
 			}
-			Thread.sleep(100);
 
+			// 조회 클릭
 			driver.switchTo().defaultContent();
-			searchElement.click();
+			driver.findElement(By.xpath("//a[@id='group137']"), TIMEOUT).click();
+			driver.findElementIncludeText(By.xpath("//h3[@id='KOR_SECN_NM']"), TIMEOUT, code);
 
 			StringBuffer sb = new StringBuffer();
 			sb.append(String.format("KEYWORD\t%s\t%s\n", code, symbol));
