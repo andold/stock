@@ -1165,7 +1165,7 @@ public class Utility {
 		LocalDate startWeek = LocalDate.ofInstant(left.toInstant(), Utility.ZONE_ID_KST).with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
 		LocalDate nextStartWeek = startWeek.plusDays(7);
 		LocalDate rightLocalDate = LocalDate.ofInstant(right.toInstant(), Utility.ZONE_ID_KST);
-		return rightLocalDate.isEqual(startWeek) && rightLocalDate.isAfter(startWeek) && rightLocalDate.isBefore(nextStartWeek);
+		return rightLocalDate.isEqual(startWeek) || (rightLocalDate.isAfter(startWeek) && rightLocalDate.isBefore(nextStartWeek));
 	}
 	public static boolean isSameMonth(Date left, Date right) {
 		LocalDate leftLocalDate = LocalDate.ofInstant(left.toInstant(), Utility.ZONE_ID_KST);

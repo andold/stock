@@ -90,8 +90,29 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 	}
 
 	public ParserResult crawl(ItemParam param) {
-		ParserResult result = param.getEtf() ? CrawlPriceEtfThread.crawl(param)
-				: CrawlPriceCompanyThread.crawl(param);
+		Boolean etf = param.getEtf();
+		ParserResult result = null;
+		if (etf == null) {
+			String type = param.getType();
+			if (type == null) {
+				result = CrawlPriceEtfThread.crawl(param);
+				if (result.getPrices().isEmpty()) {
+					result = CrawlPriceCompanyThread.crawl(param);
+				}
+			} else if ("KOSDAQ".equalsIgnoreCase(type)) {
+				result = CrawlPriceCompanyThread.crawl(param);
+			} else {
+				result = CrawlPriceEtfThread.crawl(param);
+				if (result.getPrices().isEmpty()) {
+					result = CrawlPriceCompanyThread.crawl(param);
+				}
+			}
+		} else if (etf) {
+			result = CrawlPriceEtfThread.crawl(param);
+		} else {
+			result = CrawlPriceCompanyThread.crawl(param);
+		}
+
 		put(result.getPrices());
 		return result;
 	}

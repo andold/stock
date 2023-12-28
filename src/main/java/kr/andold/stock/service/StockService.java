@@ -213,18 +213,28 @@ public class StockService {
 				prevWeek.setFlagWeek(false);
 				price.setFlagWeek(true);
 				prevWeek = price;
+			} else {
+				prevWeek = price;
+				prevWeek.setFlagWeek(true);
 			}
+
 			// 월간 대표일자
 			if (Utility.isSameMonth(prevMonth.getBase(), price.getBase())) {
 				prevMonth.setFlagMonth(false);
 				price.setFlagMonth(true);
 				prevMonth = price;
+			} else {
+				prevMonth = price;
+				prevMonth.setFlagMonth(true);
 			}
 			// 연간 대표일자
 			if (Utility.isSameYear(prevMonth.getBase(), price.getBase())) {
 				prevYear.setFlagYear(false);
 				price.setFlagYear(true);
 				prevYear = price;
+			} else {
+				prevYear = price;
+				prevYear.setFlagYear(true);
 			}
 		}
 		
