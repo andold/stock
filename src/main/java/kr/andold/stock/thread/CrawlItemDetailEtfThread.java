@@ -90,7 +90,7 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 			}
 			sb.append(MARK_END_POINT);
 			String text = new String(sb);
-			ParserResult resultDividendHistoryEtf = ParserService.parse(text, debug);
+			ParserResult resultDividendHistoryEtf = ParserService.parse(text, false);
 			result.addAll(resultDividendHistoryEtf);
 			log.info("{} 수정되어야해 『{}』 CrawlItemDetailEtfThread(#{}) - {}", Utility.indentMiddle(), resultDividendHistoryEtf, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		}

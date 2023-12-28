@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Lists;
+
 import kr.andold.stock.domain.DividendDomain;
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
@@ -329,16 +331,22 @@ public class CrawlerService {
 		return result;
 	}
 
-	// ETF 상세 by KSD 증권정보포털 SEIBro
+	// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
 	public ParserResult crawlEtfDetails() {
 		log.info("{} crawlEtfDetails()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		ParserResult result = CrawlItemDetailEtfThread.crawl(stockItemService.search(null));
-		put(result);
+		ParserResult container = new ParserResult().clear();
+		List<ItemDomain> items = stockItemService.search(null);
+		List<List<ItemDomain>> partitions = Lists.partition(items, 128);
+		for (List<ItemDomain> partition: partitions) {
+			ParserResult result = CrawlItemDetailEtfThread.crawl(partition);
+			container.addAll(result);
+			put(result);
+		}
 
-		log.info("{} {} crawlEtfDetails() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
-		return result;
+		log.info("{} {} crawlEtfDetails() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
+		return container;
 	}
 
 	// 주식 상세 by KSD 증권정보포털 SEIBro
