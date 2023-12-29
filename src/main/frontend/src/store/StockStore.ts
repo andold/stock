@@ -1,9 +1,10 @@
 import { makeAutoObservable } from "mobx";
 import moment from "moment";
-import StockDividendModel, { StockItemModel } from "../model/StockModel";
+import StockDividendModel from "../model/StockModel";
 
 import repository from "../repository/StockRepository";
 import { PriceEarningsRatioCellRenderer, PriorityCellRenderer, RecentDividendAgGridCellRenderer, OperateColumn, SymbolTypeCode as SymbolEtfTypeCode, PriceRecentCellRenderer } from "../view/AgGridCellRenderer";
+import Item from "../model/Item";
 
 const CELL_STYLE_LEFT = { textAlign: "left", padding: 1, };
 const CELL_STYLE_RIGHT = { textAlign: "right", padding: 1, paddingRight: 4, };
@@ -85,7 +86,7 @@ class StockStore {
 	searchItem(request: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.searchItem(request, onSuccess, onError, element);
 	}
-	updateItem(request: StockItemModel, onSuccess?: any, onError?: any, element?: any) {
+	updateItem(request: Item, onSuccess?: any, onError?: any, element?: any) {
 		repository.updateItem(request, onSuccess, onError, element);
 	}
 

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { StockItemModel } from "../model/StockModel";
+import Item from "../model/Item";
 
 // StockRepository.ts
 class StockRepository {
@@ -135,7 +135,7 @@ class StockRepository {
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
-	async updateItem(request: StockItemModel, onSuccess?: any, onError?: any, element?: any) {
+	async updateItem(request: Item, onSuccess?: any, onError?: any, element?: any) {
 		return axios.put(`./api/item/${request.id}`, request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));

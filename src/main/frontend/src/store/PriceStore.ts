@@ -2,6 +2,7 @@ import { makeAutoObservable } from "mobx";
 
 import repository from "../repository/PriceRepository";
 import Price from "../model/Price";
+import moment from "moment";
 
 // PriceStore.ts
 class PriceStore {
@@ -28,6 +29,9 @@ class PriceStore {
 			prev.push(price);
 		});
 		return map;
+	}
+	compare(left: Price, right: Price) {
+		return moment(left.base).diff(moment(right.base));
 	}
 
 }

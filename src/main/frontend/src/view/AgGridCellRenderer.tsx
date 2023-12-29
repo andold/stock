@@ -10,6 +10,7 @@ import Price from "../model/Price";
 import store from "../store/StockStore";
 import dividendHistoryStore from "../store/DividendHistoryStore";
 import priceStore from "../store/PriceStore";
+import DividendHistory from "../model/DividendHistory";
 
 const FILL_COLOR_PRIORITY = [
 	`rgb(128, 0, 0)`,
@@ -59,26 +60,14 @@ const FILL_COLOR_MONTH = [
 // 주가
 export function PriceRecentCellRenderer(param: any) {
 	const prices: Price[] = param.data?.custom?.prices;
+	const info = {
+		min : param.data?.custom?.minPrice + 1,
+		max : param.data?.custom?.maxPrice,
+	};
 
 	const FONT_SIZE = 10;
 	const ref = useRef(null);
-	const [info, setInfo] = useState<any>({min: 1, max: 1});
 
-	useEffect(() => {
-		let max = Number.MIN_SAFE_INTEGER;
-		let min = Number.MAX_SAFE_INTEGER;
-		prices?.forEach((price: Price) => {
-			max = Math.max(max, price.closing);
-			min = Math.min(min, price.closing);
-		});
-		setInfo({min: min + 1, max: max});
-	}, [param]);
-
-	// 종가로 정렬
-	function compare(left: Price, right: Price) {
-		return moment(left.base).diff(moment(right.base));
-	}
-	
 	//	툴팁
 	function renderTooltip(props: any) {
 		return (
@@ -93,7 +82,7 @@ export function PriceRecentCellRenderer(param: any) {
 						<th>거래량</th>
 					</tr></thead><tbody>
 						{
-							prices?.sort(compare).map((price: Price) => (
+							prices?.map((price: Price) => (
 								<tr key={price.id}>
 									<th className="px-1">{moment(price.base).format("YYYY-MM-DD (dd)")}</th>
 									<td className="text-end px-1">{price.closing.toLocaleString()}</td>
@@ -129,7 +118,7 @@ export function PriceRecentCellRenderer(param: any) {
 			<Col ref={ref} className="ms-2 p-0">
 				<OverlayTrigger overlay={renderTooltip} trigger={["hover", "hover"]} placement="auto">
 					<Row className="m-0 p-0"> {
-						prices?.sort(compare).map((price: Price) => (
+						prices?.map((price: Price) => (
 							<Col key={price.id} className={"px-0 bg-primary"}
 								style={{
 									marginRight: 1,
@@ -218,13 +207,83 @@ export function PriorityCellRenderer(param: any) {
 
 // 최근 수익율
 export function PriceEarningsRatioCellRenderer(param: any) {
+	const mapHistory = param?.data?.custom?.mapHistory;
+	if (!mapHistory) {
+		return (<></>);
+	}
+	
+	const currentPrice = param?.data?.custom?.currentPrice;
+	const ref = useRef(null);
+
+	const thisYear = moment().year();
+	const d0 = mapHistory.get(thisYear);
+	const d1 = mapHistory.get(thisYear - 1);
+	const d2 = mapHistory.get(thisYear - 2);
+	const d3 = mapHistory.get(thisYear - 3);
+	const d4 = mapHistory.get(thisYear - 4);
+	const max = Math.max(d0, d1, d2, d3, d4);
+	
+	function height(limit: number, max: number, value: number): number {
+		if (isNaN(limit) || isNaN(max) || isNaN(value)) {
+			return 0;
+		}
+
+		return limit * value / max;
+	}
+	function renderTooltipTheme1(props: any) {
+		return (<Tooltip id="button-tooltip" {...props}>
+			<Row className="mx-1 px-0 fw-bold text-warning" style={{ fontSize: 10 }}>
+				<Col xs={2} className="mx-1 px-0">항목</Col>
+				<Col className="mx-1 px-0 text-right">3년전</Col>
+				<Col className="mx-1 px-0 text-right">2년전</Col>
+				<Col className="mx-1 px-0 text-right">1년전</Col>
+				<Col className="mx-1 px-0 text-right">올해</Col>
+			</Row>
+			<Row className="mx-1 px-0" style={{ fontSize: 8 }}>
+				<Col xs={2} className="mx-1 px-0">배당금 (원)</Col>
+				<Col className="mx-1 px-0 text-right">{d3?.toLocaleString()}</Col>
+				<Col className="mx-1 px-0 text-right">{d2?.toLocaleString()}</Col>
+				<Col className="mx-1 px-0 text-right">{d1?.toLocaleString()}</Col>
+				<Col className="mx-1 px-0 text-right">{d0?.toLocaleString()}</Col>
+			</Row>
+			<Row className="mx-1 px-0" style={{ fontSize: 8 }}>
+				<Col xs={2} className="mx-1 px-0">수익률 (%)</Col>
+				<Col className="mx-1 px-0 text-right">{(d3 / currentPrice * 100).toFixed(2)}</Col>
+				<Col className="mx-1 px-0 text-right">{(d2 / currentPrice * 100).toFixed(2)}</Col>
+				<Col className="mx-1 px-0 text-right">{(d1 / currentPrice * 100).toFixed(2)}</Col>
+				<Col className="mx-1 px-0 text-right">{(d0 / currentPrice * 100).toFixed(2)}</Col>
+			</Row>
+		</Tooltip>
+		);
+	}
+
+	if (max > 0) {
+		return (<>
+			<Row className="mx-0 text-right">
+				<Col sm="4" md="3" xl="2" xxl="2" className="m-0 p-0">
+					<span>{(d1 / currentPrice).toFixed(2)}</span>
+				</Col>
+				<Col ref={ref} sm="8" md="9" xl="10" xxl="10">
+					<OverlayTrigger overlay={renderTooltipTheme1}>
+						<Row className="m-0 p-0">
+							<Col className="px-0 bg-primary" style={{ marginRight: 2, height: height(param.node.rowHeight, max, d4), marginTop: param.node.rowHeight - height(param.node.rowHeight, max, d4), }}></Col>
+							<Col className="px-0 bg-primary" style={{ marginRight: 2, height: height(param.node.rowHeight, max, d3), marginTop: param.node.rowHeight - height(param.node.rowHeight, max, d3), }}></Col>
+							<Col className="px-0 bg-primary" style={{ marginRight: 2, height: height(param.node.rowHeight, max, d2), marginTop: param.node.rowHeight - height(param.node.rowHeight, max, d2), }}></Col>
+							<Col className="px-0 bg-primary" style={{ marginRight: 2, height: height(param.node.rowHeight, max, d1), marginTop: param.node.rowHeight - height(param.node.rowHeight, max, d1), }}></Col>
+							<Col className="px-0 bg-danger" style={{ marginRight: 2, height: height(param.node.rowHeight, max, d0), marginTop: param.node.rowHeight - height(param.node.rowHeight, max, d0), }}></Col>
+						</Row>
+					</OverlayTrigger>
+				</Col>
+			</Row>
+		</>);
+	}
+
 	const { data } = param;
 
 	const dividend: StockDividendModel = data.custom?.dividend;
 	if (!dividend) {
 		return (<></>);
 	}
-	const ref = useRef(null);
 	const [values, setValues] = useState<any>({
 		height: param.node.rowHeight ,
 		max: Math.max(dividend?.dividend, dividend?.dividend1YAgo, dividend?.dividend2YAgo, dividend?.dividend3YAgo),
@@ -293,6 +352,13 @@ export function PriceEarningsRatioCellRenderer(param: any) {
 
 // 최근 배당금
 export function RecentDividendAgGridCellRenderer(param: any) {
+	const histories: DividendHistory[] = param?.data?.custom?.histories;
+	const mapHistory = param?.data?.custom?.mapHistory;
+	const currentPrice = param?.data?.custom?.currentPrice;
+	if (!histories || !mapHistory || !currentPrice) {
+		return (<></>);
+	}
+
 	const FONT_SIZE = 10;
 	const { data } = param;
 
@@ -301,7 +367,6 @@ export function RecentDividendAgGridCellRenderer(param: any) {
 	const [end, setEnd] = useState<any>();
 	const [max, setMax] = useState<number>();
 	useEffect(() => {
-		const histories = data?.custom?.histories;
 		const map = new Map();
 		let start_ = moment();
 		const end_ = moment().add(1, "year").startOf("year");
@@ -346,67 +411,112 @@ export function RecentDividendAgGridCellRenderer(param: any) {
 	}, [data]);
 
 
+	function renderTooltipTheme1() {
+		return (
+			<Table bordered striped size="sm" variant="dark" className="my-0 py-0" style={{ fontSize: FONT_SIZE }}>
+				<thead><tr>
+					<th>연도</th>
+					{
+						store.range(12).map((cy: number) => (
+							<th key={Math.random()} className="text-end px-1">{cy + 1}</th>
+						))
+					}
+					<th className="text-end px-1">합계</th>
+				</tr></thead><tbody>
+					{
+						store.range(end.year() - start.year()).map((cx: number) => (<tr key={Math.random()}>
+							<th className="px-1">{start.year() + cx}</th>
+							{
+								store.range(12).map((cy: number) => {
+									const history = mapHistory.get(moment([start.year() + cx, cy]).format("YYYY-MM"));
+									if (history?.dividend > 0) {
+										return (
+											<td key={Math.random()} className="text-end px-1">{history?.dividend?.toLocaleString()}</td>
+										);
+									}
+									return (<td key={Math.random()}></td>);
+								})
+							}
+							<th className="text-end px-1">{mapHistory.get(start.year() + cx)?.toLocaleString()}</th>
+						</tr>))
+					}
+				</tbody></Table>
+		);
+	}
+	function renderTooltipTheme2() {
+		return (
+			<Table bordered striped size="sm" variant="dark" className="my-0 py-0" style={{ fontSize: FONT_SIZE }}>
+				<thead><tr>
+					<th>연도</th>
+					{
+						store.range(12).map((cy: number) => (
+							<th key={Math.random()} className="text-end px-1">{cy + 1}</th>
+						))
+					}
+					<th className="text-end px-1">합계</th>
+				</tr></thead><tbody>
+					{
+						store.range(end.year() - start.year()).map((cx: number) => (<tr key={Math.random()}>
+							<th className="px-1">{start.year() + cx}</th>
+							{
+								store.range(12).map((cy: number) => {
+									const history = mapHistory.get(moment([start.year() + cx, cy]).format("YYYY-MM"));
+									if (history?.dividend > 0) {
+										return (
+											<td key={Math.random()} className="text-end px-1">{(history?.dividend / currentPrice * 100)?.toFixed(2)}</td>
+										);
+									}
+									return (<td key={Math.random()}></td>);
+								})
+							}
+							<th className="text-end px-1">{(mapHistory.get(start.year() + cx) / currentPrice * 100)?.toFixed(2)}</th>
+						</tr>))
+					}
+				</tbody></Table>
+		);
+	}
+	function renderTooltipTheme3() {
+		return (
+			<Table bordered striped size="sm" variant="dark" className="my-0 py-0" style={{ fontSize: FONT_SIZE }}>
+				<thead><tr>
+					<th>연도</th>
+					{
+						store.range(12).map((cy: number) => (
+							<th key={Math.random()} className="text-end px-1">{cy + 1}</th>
+						))
+					}
+					<th className="text-end px-1">합계</th>
+				</tr></thead><tbody>
+					{
+						store.range(end.year() - start.year()).map((cx: number) => (<tr key={Math.random()}>
+							<th className="px-1">{start.year() + cx}</th>
+							{
+								store.range(12).map((cy: number) => {
+									const history: DividendHistory = mapHistory.get(moment([start.year() + cx, cy]).format("YYYY-MM"));
+									if (!history?.dividend || !history?.priceClosing) {
+										return (<td key={Math.random()}></td>);
+									}
+
+									return (
+										<td key={Math.random()} className="text-end px-1">{(history?.dividend / history?.priceClosing * 100)?.toFixed(2)}</td>
+									);
+								})
+							}
+							<th className="text-end px-1">{mapHistory.get(start.year() + cx + 0.1)?.toFixed(2)}</th>
+						</tr>))
+					}
+				</tbody></Table>
+		);
+	}
 	function renderTooltip(props: any) {
 		return (
 			<Tooltip className="mytooltip" {...props}>
-				<Row className="m-2 mb-0 py-0">금액 (단위: 원)</Row>
-				<Table bordered striped size="sm" variant="dark" className="my-0 py-0" style={{ fontSize: FONT_SIZE }}>
-					<thead><tr>
-						<th>연도</th>
-						{
-							store.range(12).map((cy: number) => (
-								<th key={Math.random()} className="text-end px-1">{cy + 1}</th>
-							))
-						}
-						<th className="text-end px-1">합계</th>
-					</tr></thead><tbody>
-						{
-							store.range(end.year() - start.year()).map((cx: number) => (<tr key={Math.random()}>
-								<th className="px-1">{start.year() + cx}</th>
-								{
-									store.range(12).map((cy: number) => {
-										const dividend = nomalized[start.year() + cx]?.[cy];
-										if (dividend > 0) {
-											return (
-												<td key={Math.random()} className="text-end px-1">{dividend.toLocaleString()}</td>
-											);
-										}
-										return (<td key={Math.random()}></td>);
-									})
-								}
-								<th className="text-end px-1">{nomalized[start.year() + cx]?.[13].toLocaleString()}</th>
-							</tr>))
-						}
-					</tbody></Table>
-				<Row className="m-2 mb-0 py-0">수익율 (단위: %)</Row>
-				<Table bordered striped size="sm" variant="dark" className="my-0 py-0" style={{ fontSize: FONT_SIZE }}>
-					<thead><tr>
-						<th className="px-1">연도</th>
-						{
-							store.range(12).map((cy: number) => (
-								<th key={Math.random()} className="text-end px-1">{cy + 1}</th>
-							))
-						}
-						<th>합계</th>
-					</tr></thead><tbody>
-						{
-							store.range(end.year() - start.year()).map((cx: number) => (<tr key={Math.random()}>
-								<th className="text-end px-1">{start.year() + cx}</th>
-								{
-									store.range(12).map((cy: number) => {
-										const dividend = nomalized[start.year() + cx]?.[cy];
-										if (dividend > 0) {
-											return (
-												<td key={Math.random()} className="text-end px-1">{(dividend / data?.custom?.dividend?.currentPrice * 100).toFixed(2)}</td>
-											);
-										}
-										return (<td key={Math.random()}></td>);
-									})
-								}
-								<th className="text-end px-1">{(nomalized[start.year() + cx]?.[13] / data?.custom?.dividend?.currentPrice * 100).toFixed(2)}</th>
-							</tr>))
-						}
-					</tbody></Table>
+				<Row className="m-2 mb-0 py-0">금액 (원)</Row>
+				{renderTooltipTheme1()}
+				<Row className="m-2 mb-0 py-0">배당수익율 (%, 현재가 기준 {data?.custom?.currentPrice?.toLocaleString()})</Row>
+				{renderTooltipTheme2()}
+				<Row className="m-2 mb-0 py-0">배당수익율 (%, 당시 주가 기준)</Row>
+				{renderTooltipTheme3()}
 			</Tooltip>
 		);
 	};

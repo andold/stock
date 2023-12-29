@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import moment from "moment";
 
 // domain
-import StockDividendModel, { StockDividendFormModel, StockItemModel } from "../model/StockModel";
+import StockDividendModel, { StockDividendFormModel } from "../model/StockModel";
 
 // store
 import store from "../store/StockStore";
@@ -12,6 +12,7 @@ import dividendStore from "../store/DividendStore";
 import dividendHistoryStore from "../store/DividendHistoryStore";
 import DividendHistory from "../model/DividendHistory";
 import Price from "../model/Price";
+import Item from "../model/Item";
 
 //	StockItemView.tsx
 export default ((props: any) => {
@@ -19,7 +20,7 @@ export default ((props: any) => {
 	const { onChange} = props;
 
 	const gridRef = useRef<AgGridReact>();
-	const [rowData, setRowData] = useState<StockItemModel[]>([]);
+	const [rowData, setRowData] = useState<Item[]>([]);
 	const [columnDefs, setColumnDefs] = useState([]);
 
 	useEffect(() => {
@@ -40,7 +41,7 @@ export default ((props: any) => {
 		return function() { setRowData([]); };
 	}, [form]);
 
-	function whenItemChange(items: StockItemModel[]) {
+	function whenItemChange(items: Item[]) {
 		const codes = items?.map((x: any) => x.code);
 		const request = {
 			keyword: null,
@@ -50,7 +51,7 @@ export default ((props: any) => {
 		};
 		dividendStore.search(request, (_: any, dividends: StockDividendModel[]) => {
 			const map = store.makeMapDividend(dividends);
-			items.forEach((item: StockItemModel) => {
+			items.forEach((item: Item) => {
 				item.custom = {
 					...item.custom,
 					dividend: map.get(item.code),
@@ -58,29 +59,44 @@ export default ((props: any) => {
 			});
 			whenItemDividendChange(items);
 		});
-		priceStore.search({codes: codes, start: moment().subtract(14, "days").format("YYYY-MM-DD")}, (_: any, prices: Price[]) => {
-			const map = priceStore.makeMap(prices);
-			items.forEach((item: StockItemModel) => {
+
+		priceStore.search({codes: codes, start: moment().subtract(14, "days").format("YYYY-MM-DD")}, (_: any, pricesAll: Price[]) => {
+			const map = priceStore.makeMap(pricesAll);
+			items.forEach((item: Item) => {
+				const prices = map.get(item.code)?.sort(priceStore.compare);
+				const currentPrice = (prices?.length > 0) ? prices[0].closing : 10000;
+				let max = Number.MIN_SAFE_INTEGER;
+				let min = Number.MAX_SAFE_INTEGER;
+				prices?.forEach((price: Price) => {
+					max = Math.max(max, price.closing);
+					min = Math.min(min, price.closing);
+				});
 				item.custom = {
 					...item.custom,
-					prices: map.get(item.code),
+					prices: prices,
+					currentPrice: currentPrice,
+					minPrice: min,
+					maxPrice: max,
 				};
 			});
 			whenItemDividendChange(items);
 	});
 	}
-	function whenItemDividendChange(items: StockItemModel[]) {
+	function whenItemDividendChange(items: Item[]) {
 		const codes = items?.map((x: any) => x.code);
 		const request = {
 			start: moment().subtract(10, "years").startOf("year").format("YYYY-MM-DDTHH:mm:ss.SSSZZ"),
 			codes: codes,
 		};
-		dividendHistoryStore.search(request, (_: any, histories: DividendHistory[]) => {
-			const map = dividendHistoryStore.makeMap(histories);
-			items.forEach((item: StockItemModel) => {
+		dividendHistoryStore.search(request, (_: any, historiesAll: DividendHistory[]) => {
+			const map = dividendHistoryStore.makeMap(historiesAll);
+			items.forEach((item: Item) => {
+				const histories = map.get(item.code)?.sort(dividendHistoryStore.compare);
+				const mapHistory = dividendHistoryStore.makeMapByYearMonth(histories);
 				item.custom = {
 					...item.custom,
-					histories: map.get(item.code),
+					histories: histories,
+					mapHistory: mapHistory,
 				};
 			});
 			setRowData(items);
