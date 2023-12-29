@@ -87,6 +87,7 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 					continue;
 				}
 
+				log.info("{} {}/{} 진행 『{}』 CrawlDividendHistoryEtfThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 				String text = extract(item);
 				sb.append(text);
 			}
@@ -172,7 +173,7 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 
 			String result = new String(sb);
 
-			log.debug("{} #{} 『{}』 CrawlDividendHistoryEtfThread({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
+			log.info("{} #{} 『{}』 CrawlDividendHistoryEtfThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);

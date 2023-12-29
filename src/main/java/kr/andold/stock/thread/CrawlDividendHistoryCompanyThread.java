@@ -88,6 +88,7 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 					continue;
 				}
 
+				log.info("{} {}/{} 진행 『{}』 CrawlDividendHistoryCompanyThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 				String text = extract(item);
 				sb.append(text);
 			}
@@ -161,6 +162,8 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 				// 결과 내용 저장
 				WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
 				sb.append(driver.extractTextFromTableElement(table));
+
+				log.info("{} #{} 쪽:{} CrawlDividendHistoryCompanyThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), cx, item, Utility.toStringPastTimeReadable(started));
 			}
 			// 페이징 처리 - 여기까지
 
@@ -168,7 +171,6 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 			sb.append(MARK_ANDOLD_SINCE);
 			String result = new String(sb);
 
-			log.info("{} #{} 『{}』 CrawlDividendHistoryCompanyThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);

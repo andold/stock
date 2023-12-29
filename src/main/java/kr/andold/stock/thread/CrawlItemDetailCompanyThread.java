@@ -77,7 +77,7 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 				}
 
 				String text = extract(item);
-				log.debug("{} {}/{} 『{}』 CrawlItemDetailCompanyThread() - {}", Utility.indentMiddle(), cx, Utility.size(items), item, Utility.ellipsisEscape(text, 32));
+				log.info("{} {}/{} 『{}』 CrawlItemDetailCompanyThread() - {}", Utility.indentMiddle(), cx, Utility.size(items), item, Utility.ellipsisEscape(text, 32));
 				sb.append(text);
 			}
 			sb.append(MARK_END_POINT);
@@ -152,7 +152,7 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 			sb.append(MARK_ANDOLD_SINCE);
 			String result = new String(sb);
 
-			log.debug("{} #{} 『{}』 CrawlItemDetailCompanyThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
+			log.info("{} #{} 『{}』 CrawlItemDetailCompanyThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);

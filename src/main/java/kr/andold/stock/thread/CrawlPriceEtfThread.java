@@ -96,7 +96,7 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 					continue;
 				}
 
-				log.debug("{} {}/{} 진행 『{}』 CrawlPriceEtfThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
+				log.info("{} {}/{} 진행 『{}』 CrawlPriceEtfThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 				String text = extract(item);
 				sb.append(text);
 			}
@@ -177,7 +177,7 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 					break;
 				}
 				
-				log.debug("{} #{} 쪽:{} CrawlPriceEtfThread.extract({}) - {}", Utility.indentMiddle(), Utility.size(items), currentPage, item, Utility.toStringPastTimeReadable(started));
+				log.info("{} #{} 쪽:{} CrawlPriceEtfThread.extract({}) - {}", Utility.indentMiddle(), Utility.size(items), currentPage, item, Utility.toStringPastTimeReadable(started));
 				currentPage = nextPage;
 			}
 
