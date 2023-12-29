@@ -162,6 +162,17 @@ public class ApiStockController {
 	}
 
 	@ResponseBody
+	@GetMapping(value = "crawl/dividend/history/company")
+	public ParserResult crawlDividendHistoryCompany() {
+		log.info("{} crawlDividendHistoryCompany()", Utility.indentStart());
+
+		ParserResult result = stockCrawlerService.crawlDividendHistoryCompany();
+
+		log.info("{} {} - crawlDividendHistoryCompany()", Utility.indentEnd(), result);
+		return result;
+	}
+
+	@ResponseBody
 	@GetMapping(value = "crawl/dividend/history/etf")
 	public ParserResult crawlDividendHistoryEtf() {
 		log.info("{} crawlDividendHistoryEtf()", Utility.indentStart());
