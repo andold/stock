@@ -105,20 +105,18 @@ public class ParserService {
 				.build());
 	}
 
-	// KSD증권정보포털(SEIBro) > 기업 > 기업기본정보
-	public static void crawlCompanyDetails(Integer date
-			, String code
+	// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 종목종합내역 (KSD증권정보포털(SEIBro) > 기업 > 기업기본정보와 동일)
+	public static void crawlItemDetailCompanyThread(Integer date
+			, String code, String type
 			, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7
-			, String category
-			, String fics
+			, String category, String fics
 			, String ea
 			, String ipo
 			) {
-		log.info("{} crawlCompanyDetails(『{}』『{}』『{} {} {} {} {} {} {} {}』『{}』『{}』『{}』『{}』)", Utility.indentMiddle(), date
-				, code
+		log.info("{} crawlItemDetailCompanyThread(『{}』『{} {}』『{} {} {} {} {} {} {} {}』『{} {}』『{}』『{}』)", Utility.indentMiddle(), date
+				, code, type
 				, symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7
-				, category
-				, fics
+				, category, fics
 				, ea
 				, ipo);
 		ItemDomain item = ItemDomain.builder()
@@ -127,6 +125,12 @@ public class ParserService {
 				.ipoDate(Utility.parseDateTime(ipo, null))
 				.build();
 		item.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
+		item.setSymbol(item.getSymbol().split("[\\s\\(]+").clone()[0]);
+		if ("유가증권".equalsIgnoreCase(type)) {
+			item.setType("KOSPI");
+		} else if ("코스닥".equalsIgnoreCase(type)) {
+			item.setType("KOSDAQ");
+		}
 		item.setCategory(category, fics);
 		LIST_STOCK_ITEM.add(item);
 	}

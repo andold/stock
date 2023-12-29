@@ -111,7 +111,7 @@ public class ApiStockController {
 	public ParserResult crawlItemEtfDetails() {
 		log.info("{} crawlItemEtfDetails()", Utility.indentStart());
 
-		ParserResult result = stockCrawlerService.crawlEtfDetails();
+		ParserResult result = stockCrawlerService.crawlItemDetailEtf();
 
 		log.info("{} {} - crawlItemEtfDetails()", Utility.indentEnd(), result);
 		return result;
@@ -122,7 +122,7 @@ public class ApiStockController {
 	public ParserResult crawlItemCompanyDetails() {
 		log.info("{} crawlItemCompanyDetails()", Utility.indentStart());
 
-		ParserResult result = stockCrawlerService.crawlItemCompanyDetails();
+		ParserResult result = stockCrawlerService.crawlItemDetailCompany();
 
 		log.info("{} {} - crawlItemCompanyDetails()", Utility.indentEnd(), result);
 		return result;

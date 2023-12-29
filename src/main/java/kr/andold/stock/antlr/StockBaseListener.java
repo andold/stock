@@ -60,13 +60,13 @@ public class StockBaseListener implements StockListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCrawlCompanyDetails(StockParser.CrawlCompanyDetailsContext ctx) { }
+	@Override public void enterCrawlItemDetailCompanyThread(StockParser.CrawlItemDetailCompanyThreadContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCrawlCompanyDetails(StockParser.CrawlCompanyDetailsContext ctx) { }
+	@Override public void exitCrawlItemDetailCompanyThread(StockParser.CrawlItemDetailCompanyThreadContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

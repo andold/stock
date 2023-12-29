@@ -36,10 +36,10 @@ public class CrawlerServiceTest {
 	}
 
 	@Test
-	public void testCrawlEtfDetails() {
-		ParserResult result = service.crawlEtfDetails();
-		log.info("{}", result);
-	}
+		public void testCrawlItemDetailEtf() {
+			ParserResult result = service.crawlItemDetailEtf();
+			log.info("{}", result);
+		}
 
 	@Test
 	public void testCrawlCompanyTopDividend() {
@@ -48,8 +48,8 @@ public class CrawlerServiceTest {
 	}
 
 	@Test
-	public void testCrawlCompanyDetails() {
-		ParserResult result = service.crawlItemCompanyDetails();
+	public void testCrawllItemDetailCompany() {
+		ParserResult result = service.crawlItemDetailCompany();
 		log.info("{}", result);
 	}
 

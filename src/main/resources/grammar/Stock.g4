@@ -21,7 +21,7 @@ stockDocument
 |	extractAllEtfFromNaver
 |	crawlEtfDetailThread			// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
 |	crawlCompanyTopDividend			// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당순위
-|	crawlCompanyDetails				// KSD증권정보포털(SEIBro) > 기업 > 기업기본정보
+|	crawlItemDetailCompanyThread	// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 종목종합내역 (KSD증권정보포털(SEIBro) > 기업 > 기업기본정보와 동일)
 |	crawlPriceCompay				// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 일자별시세
 |	crawlPriceEtf					// KSD 증권정보포털 SEIBro > ETF > ETF종합정보 > 기준가추이
 ;
@@ -80,10 +80,10 @@ KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD						NEWLINE		//	KEYWORD 	 주�
 
 
 // KSD증권정보포털(SEIBro) > 기업 > 기업기본정보
-crawlCompanyDetails:
+crawlItemDetailCompanyThread:
 KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 주식 상세 	 CrawlCompanyDetailThread 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02006V.xml&menuNo=44 
 (
-	KEYWORD TAB code=NUMBER TAB symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*	NEWLINE
+	KEYWORD TAB code=NUMBER TAB type=WORD TAB symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*	NEWLINE
 			//	KEYWORD 	 093920 	 서원인텍 
 
 	KEYWORD TAB category=STRING									NEWLINE		//	KEYWORD 	 "부동산업" 
@@ -92,8 +92,8 @@ KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 주식 �
 	KEYWORD TAB ipo=DATE										NEWLINE		//	KEYWORD 	 2007/12/20 
 	WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27
 	{
-		ParserService.crawlCompanyDetails(20231217
-			, $code.text
+		ParserService.crawlItemDetailCompanyThread(20231217
+			, $code.text, $type.text
 			, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
 			, $category.text
 			, $fics.text

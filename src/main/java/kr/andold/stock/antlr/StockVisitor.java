@@ -37,11 +37,11 @@ public interface StockVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCrawlPriceCompay(StockParser.CrawlPriceCompayContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link StockParser#crawlCompanyDetails}.
+	 * Visit a parse tree produced by {@link StockParser#crawlItemDetailCompanyThread}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitCrawlCompanyDetails(StockParser.CrawlCompanyDetailsContext ctx);
+	T visitCrawlItemDetailCompanyThread(StockParser.CrawlItemDetailCompanyThreadContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link StockParser#crawlCompanyTopDividend}.
 	 * @param ctx the parse tree

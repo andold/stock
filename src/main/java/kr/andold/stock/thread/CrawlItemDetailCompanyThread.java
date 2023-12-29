@@ -20,6 +20,7 @@ import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
 
+// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 종목종합내역 (KSD증권정보포털(SEIBro) > 기업 > 기업기본정보와 동일)
 @Slf4j
 public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02006V.xml&menuNo=44";
@@ -27,8 +28,7 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 4;
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
-	private static final Boolean debug = CrawlerService.debug && false;
-	private static final String NEWLINE = "\n";
+	private static final Boolean debug = CrawlerService.debug;
 
 	private ConcurrentLinkedQueue<ItemDomain> items;
 	private ChromeDriverWrapper driver;
@@ -43,8 +43,7 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 		log.info("{} CrawlItemDetailCompanyThread(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
-		ParserResult result = ParserResult.builder().build();
-		result.clear();
+		ParserResult container = ParserResult.builder().build().clear();
 		driver = CrawlerService.defaultChromeDriver();
 
 		try {
@@ -53,7 +52,7 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 			driver.quit();
-			return result;
+			return container;
 		}
 
 		while (items.peek() != null) {
@@ -78,31 +77,33 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 				}
 
 				String text = extract(item);
-				log.debug("{} {}/{} 『{}』 CrawlItemDetailCompanyThread() - {}", Utility.indentMiddle(), cx, Utility.size(items), item, text);
+				log.debug("{} {}/{} 『{}』 CrawlItemDetailCompanyThread() - {}", Utility.indentMiddle(), cx, Utility.size(items), item, Utility.ellipsisEscape(text, 32));
 				sb.append(text);
 			}
 			sb.append(MARK_END_POINT);
 			String text = new String(sb);
-			ParserResult resultDividendHistoryEtf = ParserService.parse(text, true);
-			result.addAll(resultDividendHistoryEtf);
-			log.debug("{} 변경 필요 『{}』 CrawlItemDetailCompanyThread(#{}) - {}", Utility.indentMiddle(), resultDividendHistoryEtf, Utility.size(items), Utility.toStringPastTimeReadable(started));
+			ParserResult result = ParserService.parse(text, false);
+			container.addAll(result);
+			log.debug("{} 수집중 『{}』 CrawlItemDetailCompanyThread(#{}) - {}", Utility.indentMiddle(), result, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		}
 		driver.quit();
-		log.info("{} {} CrawlItemDetailCompanyThread(#{}) - {}", Utility.indentMiddle(), result, Utility.size(items), Utility.toStringPastTimeReadable(started));
-		return result;
+
+		log.info("{} {} CrawlItemDetailCompanyThread(#{}) - {}", Utility.indentMiddle(), container, Utility.size(items), Utility.toStringPastTimeReadable(started));
+		return container;
 	}
 
 	private String extract(ItemDomain item) {
-		log.debug("{} CrawlItemDetailCompanyThread.extract({})", Utility.indentStart(), item);
+		log.trace("{} CrawlItemDetailCompanyThread.extract({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
 		try {
 			String code = item.getCode();
-			String symbol = item.getSymbol();
 
 			driver.switchTo().defaultContent();
-			// 종목명 검색
 			driver.waitUntilIsDisplayed(By.xpath("//div[@id='___processbar2']"), false, TIMEOUT);
+
+			// 종목명 검색
+			driver.waitUntilIsDisplayed(By.xpath("//img[@id='sn_image1']"), true, TIMEOUT);
 			driver.findElement(By.xpath("//img[@id='sn_image1']"), TIMEOUT).click(); // 종목명 검색 아이콘
 
 			// 프래임
@@ -128,31 +129,26 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 			driver.findElement(By.xpath("//a[@id='group94']"), TIMEOUT).click();
 
 			// 조회결과 바뀐거 확인
-			driver.findElementIncludeText(By.xpath("//h3[@id='h3_tit_01']"), TIMEOUT, code);
+			WebElement symbolElement = driver.findElementIncludeText(By.xpath("//h3[@id='h3_tit_01']"), TIMEOUT, code);
 
 			//	내용 저장
 			StringBuffer sb = new StringBuffer();
-			sb.append(String.format("KEYWORD\t%s\t%s\n", code, symbol));
-			sb.append("KEYWORD\t");
-			sb.append("\"");
-			sb.append(driver.findElement(By.xpath("//dd[@id='item_add_info_left_01_dd']"), TIMEOUT).getText());	// 표준산업분류
-			sb.append("\"");
-			sb.append(NEWLINE);
+			// 종목명
+			sb.append(String.format("KEYWORD\t%s\t%s\t%s\n", code, driver.getText(By.xpath("//p[@id='btn_item']"), TIMEOUT, "모름"), symbolElement.getText()));
+			
+			// 표준산업분류
+			sb.append(String.format("KEYWORD\t\"%s\"\n", driver.findElement(By.xpath("//dd[@id='item_add_info_left_01_dd']"), TIMEOUT).getText()));
 
-			sb.append("KEYWORD\t");
-			sb.append("\"");
-			sb.append(driver.findElement(By.xpath("//dd[@id='FICS']"), TIMEOUT).getText());	// FICS
-			sb.append("\"");
-			sb.append(NEWLINE);
+			// FICS
+			sb.append(String.format("KEYWORD\t\"%s\"\n", driver.findElement(By.xpath("//dd[@id='FICS']"), TIMEOUT).getText()));
 
-			sb.append("KEYWORD\t");
-			sb.append(driver.findElement(By.xpath("//dd[@id='ISSU_SCHD_STKQTY']"), TIMEOUT).getText());	// 발행주식총수
-			sb.append(NEWLINE);
+			// 발행주식총수
+			sb.append(String.format("KEYWORD\t%s\n", driver.findElement(By.xpath("//dd[@id='ISSU_SCHD_STKQTY']"), TIMEOUT).getText()));
 
-			sb.append("KEYWORD\t");
-			sb.append(driver.findElement(By.xpath("//dd[@id='APLI_DT']"), TIMEOUT).getText());	// 상장일
-			sb.append(NEWLINE);
+			// 상장일
+			sb.append(String.format("KEYWORD\t%s\n", driver.findElement(By.xpath("//dd[@id='APLI_DT']"), TIMEOUT).getText()));
 
+			// 마자막 표시
 			sb.append(MARK_ANDOLD_SINCE);
 			String result = new String(sb);
 
@@ -164,7 +160,7 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 			popupCloseIconElement.click();
 		}
 
-		log.debug("{} #{} 『{}』 CrawlItemDetailCompanyThread.extract(#{}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
+		log.trace("{} #{} 『{}』 CrawlItemDetailCompanyThread.extract(#{}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
 		return "";
 	}
 

@@ -332,8 +332,8 @@ public class CrawlerService {
 	}
 
 	// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
-	public ParserResult crawlEtfDetails() {
-		log.info("{} crawlEtfDetails()", Utility.indentStart());
+	public ParserResult crawlItemDetailEtf() {
+		log.info("{} crawlItemDetailEtf()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
 		ParserResult container = new ParserResult().clear();
@@ -345,30 +345,25 @@ public class CrawlerService {
 			put(result);
 		}
 
-		log.info("{} {} crawlEtfDetails() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
+		log.info("{} {} crawlItemDetailEtf() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
 		return container;
 	}
 
-	// 주식 상세 by KSD 증권정보포털 SEIBro
-	public ParserResult crawlItemCompanyDetails() {
-		log.info("{} crawlItemCompanyDetails()", Utility.indentStart());
+	// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 종목종합내역 (KSD증권정보포털(SEIBro) > 기업 > 기업기본정보와 동일)
+	public ParserResult crawlItemDetailCompany() {
+		log.info("{} crawlItemDetailCompany()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		ParserResult result = CrawlItemDetailCompanyThread.crawl(stockItemService.search(null));
-		put(result);
-
-		log.info("{} {} crawlItemCompanyDetails() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
-		return result;
-	}
-
-	public static List<List<ItemDomain>> split(List<ItemDomain> items, int count) {
-		List<List<ItemDomain>> container = new ArrayList<>();
-		for (int cx = 0; cx < count; cx++) {
-			container.add(new ArrayList<>());
+		ParserResult container = new ParserResult().clear();
+		List<ItemDomain> items = stockItemService.search(null);
+		List<List<ItemDomain>> partitions = Lists.partition(items, 128);
+		for (List<ItemDomain> partition: partitions) {
+			ParserResult result = CrawlItemDetailCompanyThread.crawl(partition);
+			container.addAll(result);
+			put(result);
 		}
-		for (int cx = 0, sizex = items.size(); cx < sizex; cx++) {
-			container.get(cx % count).add(items.get(cx));
-		}
+
+		log.info("{} {} crawlItemDetailCompany() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
 		return container;
 	}
 
@@ -377,12 +372,16 @@ public class CrawlerService {
 		ChromeOptions options = new ChromeOptions();
 		options.addArguments("--remote-allow-origins=*");
 		options.addArguments("--incognito");
-		options.addArguments("--disable-gpu");
+//		options.addArguments("--disable-gpu");
 		options.addArguments("--verbose");
-		if (!debug) {
+		if (debug) {
+			options.addArguments("--window-size=2560,1080");
+			options.addArguments("--window-position=-2560,0");
+			options.addArguments("--start-fullscreen");
+		} else {
+			options.addArguments("--window-size=3840,4320");
 			options.addArguments("--headless");
 		}
-		options.addArguments("--window-size=3840,4320");
 		ChromeDriverWrapper driver = new ChromeDriverWrapper(options);
 		return driver;
 	}
