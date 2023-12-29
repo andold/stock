@@ -24,22 +24,22 @@ public class CrawlerServiceTest {
 	}
 
 	@Test
-		public void testCrawlEtfDividendHistories() {
-			ParserResult result = service.crawlEtfDividendHistories();
-			log.info("{}", result);
-		}
-
-	@Test
-	public void testCrawlCompanyDividendHistories() {
-		ParserResult result = service.crawlCompanyDividendHistories();
+	public void testCrawlDividendHistoryEtf() {
+		ParserResult result = service.crawlDividendHistoryEtf();
 		log.info("{}", result);
 	}
 
 	@Test
-		public void testCrawlItemDetailEtf() {
-			ParserResult result = service.crawlItemDetailEtf();
-			log.info("{}", result);
-		}
+	public void testCrawlDividendHistoryCompany() {
+		ParserResult result = service.crawlDividendHistoryCompany();
+		log.info("{}", result);
+	}
+
+	@Test
+	public void testCrawlItemDetailEtf() {
+		ParserResult result = service.crawlItemDetailEtf();
+		log.info("{}", result);
+	}
 
 	@Test
 	public void testCrawlCompanyTopDividend() {
@@ -54,10 +54,10 @@ public class CrawlerServiceTest {
 	}
 
 	@Test
-		public void testCrawlPriceCompany() {
-			ParserResult result = service.crawlPriceCompany();
-			log.info("{}", result);
-		}
+	public void testCrawlPriceCompany() {
+		ParserResult result = service.crawlPriceCompany();
+		log.info("{}", result);
+	}
 
 	@Test
 	public void testCrawlPriceEtf() {

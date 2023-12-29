@@ -308,27 +308,39 @@ public class CrawlerService {
 	}
 
 	// 주식=일반기업 배당금 내역 by KSD 증권정보포털 SEIBro
-	public ParserResult crawlCompanyDividendHistories() {
-		log.info("{} crawlCompanyDividendHistories()", Utility.indentStart());
+	public ParserResult crawlDividendHistoryCompany() {
+		log.info("{} crawlDividendHistoryCompany()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		ParserResult result = CrawlDividendHistoryCompanyThread.crawl(stockItemService.search(null));
-		put(result);
+		ParserResult container = new ParserResult().clear();
+		List<ItemDomain> items = stockItemService.search(null);
+		List<List<ItemDomain>> partitions = Lists.partition(items, 128);
+		for (List<ItemDomain> partition: partitions) {
+			ParserResult result = CrawlDividendHistoryCompanyThread.crawl(partition);
+			container.addAll(result);
+			put(result);
+		}
 
-		log.info("{} {} crawlCompanyDividendHistories() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
-		return result;
+		log.info("{} {} crawlDividendHistoryCompany() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
+		return container;
 	}
 
 	// ETF 배당금 내역 by KSD 증권정보포털 SEIBro
-	public ParserResult crawlEtfDividendHistories() {
-		log.info("{} crawlEtfDividendHistories()", Utility.indentStart());
+	public ParserResult crawlDividendHistoryEtf() {
+		log.info("{} crawlDividendHistoryEtf()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		ParserResult result = CrawlDividendHistoryEtfThread.crawl(stockItemService.search(null));
-		put(result);
+		ParserResult container = new ParserResult().clear();
+		List<ItemDomain> items = stockItemService.search(null);
+		List<List<ItemDomain>> partitions = Lists.partition(items, 128);
+		for (List<ItemDomain> partition: partitions) {
+			ParserResult result = CrawlDividendHistoryEtfThread.crawl(partition);
+			container.addAll(result);
+			put(result);
+		}
 
-		log.info("{} {} crawlEtfDividendHistories() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
-		return result;
+		log.info("{} {} crawlDividendHistoryEtf() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
+		return container;
 	}
 
 	// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세

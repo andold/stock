@@ -166,7 +166,7 @@ public class ApiStockController {
 	public ParserResult crawlDividendHistoryEtf() {
 		log.info("{} crawlDividendHistoryEtf()", Utility.indentStart());
 
-		ParserResult result = stockCrawlerService.crawlEtfDividendHistories();
+		ParserResult result = stockCrawlerService.crawlDividendHistoryEtf();
 
 		log.info("{} {} - crawlDividendHistoryEtf()", Utility.indentEnd(), result);
 		return result;

@@ -30,8 +30,8 @@ public class ScheduledTasks {
 	// 매주
 	@Scheduled(cron = "15 30 22 * * SUN")
 	public void scheduleTaskWeekly() {
-		stockCrawlerService.crawlEtfDividendHistories();	//	ETF 배당 이력
-		stockCrawlerService.crawlCompanyDividendHistories();	//	기업주식 배당 이력
+		stockCrawlerService.crawlDividendHistoryEtf();	//	ETF 배당 이력
+		stockCrawlerService.crawlDividendHistoryCompany();	//	기업주식 배당 이력
 	}
 
 	// 매월
