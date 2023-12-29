@@ -106,7 +106,23 @@ export function PriceRecentCellRenderer(param: any) {
 					</tbody></Table>
 			</Tooltip>
 		);
-	};
+	}
+	function height(param: any, price: any, info: any): number {
+		if (isNaN(price?.closing) || isNaN(info?.min) || isNaN(info?.max) || isNaN(param?.node?.rowHeight)
+			|| (info.max == info.min)|| (param.node.rowHeight == 0)) {
+			return 0;
+		}
+
+		return (price.closing - info.min) / (info.max - info.min) * param.node.rowHeight;
+	}
+	function marginTop(param: any, price: any, info: any): number {
+		if (isNaN(price?.closing) || isNaN(info?.min) || isNaN(info?.max) || isNaN(param?.node?.rowHeight)
+			|| (price.closing == info.min) || (info.max == info.min) || (param.node.rowHeight == 0)) {
+			return 0;
+		}
+
+		return param.node.rowHeight - (price.closing - info.min) / (info.max - info.min) * param.node.rowHeight;
+	}
 	return (<>
 		<Row className="mx-0 text-right">
 			<Col sm="5" md="4" xl="3" xxl="3" className="m-0 p-0 text-right">{param.value}</Col>
@@ -115,9 +131,12 @@ export function PriceRecentCellRenderer(param: any) {
 					<Row className="m-0 p-0"> {
 						prices?.sort(compare).map((price: Price) => (
 							<Col key={price.id} className={"px-0 bg-primary"}
-								style={{ marginRight: 1,
-								height: (price.closing - info.min) / (info.max - info.min) * param?.node?.rowHeight,
-								marginTop: param?.node?.rowHeight - (price.closing - info.min) / (info.max - info.min) * param?.node?.rowHeight, }}></Col>
+								style={{
+									marginRight: 1,
+									height: height(param, price, info),
+									marginTop: marginTop(param, price, info),
+								 }}
+							 ></Col>
 						))
 					}</Row>
 				</OverlayTrigger>
@@ -201,21 +220,24 @@ export function PriorityCellRenderer(param: any) {
 export function PriceEarningsRatioCellRenderer(param: any) {
 	const { data } = param;
 
-	const dividend: StockDividendModel = data.custom?.dividend ? data.custom?.dividend : data;
+	const dividend: StockDividendModel = data.custom?.dividend;
+	if (!dividend) {
+		return (<></>);
+	}
 	const ref = useRef(null);
 	const [values, setValues] = useState<any>({
-		height: param?.node?.rowHeight,
+		height: param.node.rowHeight ,
 		max: Math.max(dividend?.dividend, dividend?.dividend1YAgo, dividend?.dividend2YAgo, dividend?.dividend3YAgo),
-		value0: 0,
-		value1: 0,
-		value2: 0,
-		value3: 0,
+		value0: 1,
+		value1: 1,
+		value2: 1,
+		value3: 1,
 	});
 
 	useEffect(() => {
 		setValues({
 			...values,
-			height: ref?.current?.offsetHeight || param?.node?.rowHeight,
+			height: param?.node?.rowHeight,
 			value0: values.height * dividend?.dividend / values.max,
 			value1: values.height * dividend?.dividend1YAgo / values.max,
 			value2: values.height * dividend?.dividend2YAgo / values.max,
@@ -248,7 +270,7 @@ export function PriceEarningsRatioCellRenderer(param: any) {
 			</Row>
 		</Tooltip>
 		);
-	};
+	}
 
 	return (<>
 		<Row className="mx-0 text-right">
@@ -261,7 +283,7 @@ export function PriceEarningsRatioCellRenderer(param: any) {
 						<Col className="px-0 bg-primary" style={{ marginRight: 2, height: values.value3, marginTop: values.height - values.value3, }}></Col>
 						<Col className="px-0 bg-primary" style={{ marginRight: 2, height: values.value2, marginTop: values.height - values.value2, }}></Col>
 						<Col className="px-0 bg-primary" style={{ marginRight: 2, height: values.value1, marginTop: values.height - values.value1, }}></Col>
-						<Col className="px-0 bg-primary" style={{ height: values.value0, marginTop: values.height - values.value0, }}></Col>
+						<Col className="px-0 bg-primary" style={{ height: isNaN(values.value0) ? 0 : values.value0, marginTop: values.height - values.value0, }}></Col>
 					</Row>
 				</OverlayTrigger>
 			</Col>
