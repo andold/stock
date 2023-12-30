@@ -178,12 +178,6 @@ public class ParserService {
 		log.trace("{} seibroDividendItem(...) - {}", Utility.indentMiddle(), history);
 	}
 
-	public static ParserResult testText(String text) {
-		ParserResult result = parse(text, true);
-		log.info("{} text = 『\n{}\n』", Utility.indentMiddle(), text);
-		return result;
-	}
-
 	private static void printTokens(String text) {
 		StockLexer lexer = new StockLexer(CharStreams.fromString(text));
 		String tokensFromText = tokens(lexer, "NEWLINE");
