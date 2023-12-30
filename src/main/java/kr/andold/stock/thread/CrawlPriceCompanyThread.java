@@ -96,7 +96,7 @@ public class CrawlPriceCompanyThread implements Callable<ParserResult> {
 					continue;
 				}
 
-				log.debug("{} {}/{} 진행 『{}』 CrawlPriceCompanyThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
+				log.info("{} {}/{} 진행 『{}』 CrawlPriceCompanyThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 				String text = extract(item);
 				sb.append(text);
 			}

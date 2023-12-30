@@ -174,7 +174,7 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 
 			String result = new String(sb);
 
-			log.info("{} #{} 『{}』 CrawlDividendHistoryEtfThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
+			log.debug("{} #{} 『{}』 CrawlDividendHistoryEtfThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);

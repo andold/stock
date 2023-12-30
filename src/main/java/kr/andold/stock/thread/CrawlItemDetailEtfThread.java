@@ -163,7 +163,7 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 			sb.append(MARK_ANDOLD_SINCE);
 			String result = new String(sb);
 
-			log.info("{} #{} 『{}』 CrawlItemDetailEtfThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
+			log.debug("{} #{} 『{}』 CrawlItemDetailEtfThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);

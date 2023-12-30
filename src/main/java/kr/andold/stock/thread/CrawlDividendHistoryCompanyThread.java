@@ -106,7 +106,7 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 	}
 
 	private String extract(ItemDomain item) {
-		log.info("{} CrawlDividendHistoryCompanyThread.extract({})", Utility.indentStart(), item);
+		log.debug("{} CrawlDividendHistoryCompanyThread.extract({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
 		try {
@@ -171,6 +171,7 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 			sb.append(MARK_ANDOLD_SINCE);
 			String result = new String(sb);
 
+			log.debug("{} #{} CrawlDividendHistoryCompanyThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);

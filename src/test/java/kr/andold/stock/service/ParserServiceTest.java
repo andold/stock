@@ -1,5 +1,7 @@
 package kr.andold.stock.service;
 
+import java.lang.management.ManagementFactory;
+
 import org.junit.jupiter.api.Test;
 
 import kr.andold.stock.service.ParserService.ParserResult;
@@ -7,6 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ParserServiceTest {
+	@Test
+	public void testSystemRamSize() {
+		long totalPhysicalMemorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize();
+		long freeMemorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreeMemorySize();
+		log.info("{} MB vs {} MB", totalPhysicalMemorySize / 1024 / 1024, freeMemorySize / 1024 / 1024);
+	}
+
 
 	@Test
 	public void testExtractPrice() {

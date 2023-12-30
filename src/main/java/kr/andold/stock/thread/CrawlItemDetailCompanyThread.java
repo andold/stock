@@ -93,7 +93,7 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 	}
 
 	private String extract(ItemDomain item) {
-		log.trace("{} CrawlItemDetailCompanyThread.extract({})", Utility.indentStart(), item);
+		log.debug("{} CrawlItemDetailCompanyThread.extract({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
 		try {
@@ -152,7 +152,7 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 			sb.append(MARK_ANDOLD_SINCE);
 			String result = new String(sb);
 
-			log.info("{} #{} 『{}』 CrawlItemDetailCompanyThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
+			log.debug("{} #{} 『{}』 CrawlItemDetailCompanyThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
