@@ -217,11 +217,11 @@ export function PriceEarningsRatioCellRenderer(param: any) {
 	const ref = useRef(null);
 
 	const thisYear = moment().year();
-	const d0 = mapHistory.get(thisYear);
-	const d1 = mapHistory.get(thisYear - 1);
-	const d2 = mapHistory.get(thisYear - 2);
-	const d3 = mapHistory.get(thisYear - 3);
-	const d4 = mapHistory.get(thisYear - 4);
+	const d0 = mapHistory.get(thisYear) || 0;
+	const d1 = mapHistory.get(thisYear - 1) || 0;
+	const d2 = mapHistory.get(thisYear - 2) || 0;
+	const d3 = mapHistory.get(thisYear - 3) || 0;
+	const d4 = mapHistory.get(thisYear - 4) || 0;
 	const max = Math.max(d0, d1, d2, d3, d4);
 	
 	function height(limit: number, max: number, value: number): number {
