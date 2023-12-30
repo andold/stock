@@ -113,6 +113,7 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 			driver.switchTo().defaultContent();
 			
 			// 종목명 검색 아이콘 클릭
+			driver.waitUntilIsDisplayed(By.xpath("//div[@id='group162']"), false, TIMEOUT);
 			driver.findElement(By.xpath("//dd[@id='sn_group2']/a[@id='sn_group4']"), TIMEOUT).click();
 			
 			WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"), TIMEOUT);
