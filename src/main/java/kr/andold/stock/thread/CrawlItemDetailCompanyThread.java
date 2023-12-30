@@ -1,5 +1,6 @@
 package kr.andold.stock.thread;
 
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -32,7 +33,6 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 
 	private ConcurrentLinkedQueue<ItemDomain> items;
 	private ChromeDriverWrapper driver;
-	private WebElement popupCloseIconElement; // 검색결과창의 닫기 아이콘
 
 	public CrawlItemDetailCompanyThread(ConcurrentLinkedQueue<ItemDomain> list) {
 		this.items = list;
@@ -48,7 +48,6 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 
 		try {
 			driver.navigate().to(URL);
-			popupCloseIconElement = driver.findElement(By.xpath("//div[@id='group404']/a[@id='anchor2']"), TIMEOUT * 4); // 검색결과창의 닫기 아이콘
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 			driver.quit();
@@ -100,18 +99,18 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 			String code = item.getCode();
 
 			driver.switchTo().defaultContent();
-			driver.waitUntilIsDisplayed(By.xpath("//div[@id='___processbar2']"), false, TIMEOUT);
+			driver.waitUntilIsDisplayed(By.xpath("//div[@id='___processbar2']"), false, TIMEOUT * 4);
 
 			// 종목명 검색
-			driver.waitUntilIsDisplayed(By.xpath("//img[@id='sn_image1']"), true, TIMEOUT);
+			driver.waitUntilIsDisplayed(By.xpath("//img[@id='sn_image1']"), true, TIMEOUT * 4);
 			driver.findElement(By.xpath("//img[@id='sn_image1']"), TIMEOUT).click(); // 종목명 검색 아이콘
 
 			// 프래임
-			WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframe1']"), 2000);
+			WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframe1']"), TIMEOUT);
 			driver.switchTo().frame(frame);
 
 			//	코드입력
-			WebElement inputSearchElement = driver.findElement(By.xpath("//input[@id='search_string']"), 2000);	// 입력창
+			WebElement inputSearchElement = driver.findElement(By.xpath("//input[@id='search_string']"), TIMEOUT);	// 입력창
 			inputSearchElement.clear();
 			inputSearchElement.sendKeys(code); // 코드 입력
 
@@ -126,6 +125,7 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 			driver.switchTo().defaultContent();
 
 			// 조회 아이콘 클릭
+			driver.waitUntilIsDisplayed(By.xpath("//div[@id='group402']"), false, TIMEOUT * 4);
 			driver.findElement(By.xpath("//a[@id='group94']"), TIMEOUT).click();
 
 			// 조회결과 바뀐거 확인
@@ -157,7 +157,8 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
 			driver.switchTo().defaultContent();
-			popupCloseIconElement.click();
+			// 검색결과창의 닫기 아이콘
+			driver.clickIfExist(By.xpath("//div[@id='group404']/a[@id='anchor2']"));
 		}
 
 		log.trace("{} #{} 『{}』 CrawlItemDetailCompanyThread.extract(#{}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
@@ -172,6 +173,10 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 		if (debug) {
 			processors = 1;
 		}
+		long freeMemorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreeMemorySize();
+		int candidateProcessorsByFreeMemory = (int) (freeMemorySize / 512L / 1024L / 1024L);
+		processors = Math.min(Math.max(1, candidateProcessorsByFreeMemory), Runtime.getRuntime().availableProcessors() - 1);
+
 		ExecutorService service = Executors.newFixedThreadPool(processors);
 		List<Future<ParserResult>> futureList = new ArrayList<>();
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();

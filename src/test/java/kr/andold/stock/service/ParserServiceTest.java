@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ParserServiceTest {
 	@Test
 	public void testSystemRamSize() {
+		@SuppressWarnings("deprecation")
 		long totalPhysicalMemorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize();
 		long freeMemorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreeMemorySize();
 		log.info("{} MB vs {} MB", totalPhysicalMemorySize / 1024 / 1024, freeMemorySize / 1024 / 1024);
