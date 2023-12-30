@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -19,6 +20,7 @@ import kr.andold.stock.service.CrawlerService;
 import kr.andold.stock.service.ParserService;
 import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 // KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 종목종합내역 (KSD증권정보포털(SEIBro) > 기업 > 기업기본정보와 동일)
@@ -29,7 +31,7 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 4;
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
-	private static final Boolean debug = CrawlerService.debug;
+	@Setter private static Boolean debug = CrawlerService.debug;
 
 	private ConcurrentLinkedQueue<ItemDomain> items;
 	private ChromeDriverWrapper driver;
@@ -199,6 +201,21 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 
 		log.info("{} 『{}』 CrawlItemDetailCompanyThread.crawl(#{}) - {}", Utility.indentEnd(), container, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		return container;
+	}
+
+	public static ParserResult crawl(ItemDomain item) {
+		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
+		queue.add(item);
+		CrawlItemDetailCompanyThread thread = new CrawlItemDetailCompanyThread(queue);
+		setDebug(false);
+		ExecutorService service = Executors.newFixedThreadPool(1);
+		Future<ParserResult> future = service.submit(thread);
+		try {
+			return future.get();
+		} catch (InterruptedException e) {
+		} catch (ExecutionException e) {
+		}
+		return new ParserResult().clear();
 	}
 
 }

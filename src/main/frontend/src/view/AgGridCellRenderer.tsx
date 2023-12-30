@@ -8,6 +8,7 @@ import Price from "../model/Price";
 
 // store
 import store from "../store/StockStore";
+import itemStore from "../store/ItemStore";
 import dividendHistoryStore from "../store/DividendHistoryStore";
 import priceStore from "../store/PriceStore";
 import DividendHistory from "../model/DividendHistory";
@@ -570,13 +571,13 @@ export function OperateColumn(props: any) {
 	}
 	async function handleOnClickCrawl(_: any) {
 		setSpinner(true);
-		dividendHistoryStore.crawl(data, (_: any) => {
-			priceStore.crawl(data, (_: any) => {
-				setSpinner(false);
-				onChange && onChange({});
-				store.compile(data, (_: any) => {
-					setSpinner(false);
-					onChange && onChange({});
+		itemStore.crawl(data, (_: any) => {
+			dividendHistoryStore.crawl(data, (_: any) => {
+				priceStore.crawl(data, (_: any) => {
+					store.compile(data, (_: any) => {
+						setSpinner(false);
+						onChange && onChange({});
+					});
 				});
 			});
 		});

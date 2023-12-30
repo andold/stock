@@ -14,6 +14,9 @@ import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.entity.ItemEntity;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.repository.ItemRepository;
+import kr.andold.stock.service.ParserService.ParserResult;
+import kr.andold.stock.thread.CrawlItemDetailCompanyThread;
+import kr.andold.stock.thread.CrawlItemDetailEtfThread;
 
 @Service
 public class ItemService implements CommonBlockService<ItemParam, ItemDomain, ItemEntity> {
@@ -109,6 +112,34 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 		Date now = new Date();
 		domain.setCreated(now);
 		domain.setUpdated(now);
+	}
+
+	public ParserResult crawl(ItemParam param) {
+		Boolean etf = param.getEtf();
+		ParserResult result = null;
+		if (etf == null) {
+			String type = param.getType();
+			if (type == null) {
+				result = CrawlItemDetailEtfThread.crawl(param);
+				if (result.getHistories().isEmpty()) {
+					result = CrawlItemDetailCompanyThread.crawl(param);
+				}
+			} else if ("KOSDAQ".equalsIgnoreCase(type)) {
+				result = CrawlItemDetailCompanyThread.crawl(param);
+			} else {
+				result = CrawlItemDetailEtfThread.crawl(param);
+				if (result.getHistories().isEmpty()) {
+					result = CrawlItemDetailCompanyThread.crawl(param);
+				}
+			}
+		} else if (etf) {
+			result = CrawlItemDetailEtfThread.crawl(param);
+		} else {
+			result = CrawlItemDetailCompanyThread.crawl(param);
+		}
+
+		put(result.getItems());
+		return result;
 	}
 
 }

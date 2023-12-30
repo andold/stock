@@ -15,6 +15,7 @@ import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.Utility;
+import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -44,6 +45,17 @@ public class ApiItemController {
 
 		log.info("{} {} - update({}, {})", Utility.indentEnd(), updated, id, domain);
 		return updated;
+	}
+
+	@ResponseBody
+	@PostMapping(value = "crawl")
+	public ParserResult crawl(@RequestBody ItemParam param) {
+		log.info("{} crawl({})", Utility.indentStart(), param);
+
+		ParserResult result = service.crawl(param);
+
+		log.info("{} {} - crawl({})", Utility.indentEnd(), result, param);
+		return result;
 	}
 
 }

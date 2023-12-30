@@ -70,8 +70,50 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		throw exception;
 	}
 
-	public void waitUntilTextNotInclude(By xpath, int milli, String... marks) throws Exception {
-		findElement(xpath, milli, marks);
+	public boolean waitUntilTextNotInclude(By xpath, int milli, String... marks) throws Exception {
+		while (milli > 0) {
+			try {
+				boolean found = false;
+				String text = getText(xpath, 1, "waitUntilTextInclude");
+				for (String mark : marks) {
+					if (text.contains(mark)) {
+						found = true;
+						break;
+					}
+				}
+
+				if (found) {
+					Utility.sleep(PAUSE);
+					milli -= PAUSE;
+					continue;
+				}
+
+				return true;
+			} catch (Exception e) {
+			}
+			Utility.sleep(PAUSE);
+			milli -= PAUSE;
+		}
+
+		return false;
+	}
+
+	public boolean waitUntilTextInclude(By xpath, int milli, String... marks) throws Exception {
+		while (milli > 0) {
+			try {
+				String text = getText(xpath, 1, "waitUntilTextInclude");
+				for (String mark : marks) {
+					if (text.contains(mark)) {
+						return true;
+					}
+				}
+			} catch (Exception e) {
+			}
+			Utility.sleep(PAUSE);
+			milli -= PAUSE;
+		}
+
+		return false;
 	}
 
 	public WebElement findElementIncludeText(By xpath, int milli, String string) throws Exception {
@@ -237,8 +279,12 @@ public class ChromeDriverWrapper extends ChromeDriver {
 
 	public String getText(By xpath, int milli, String value) {
 		try {
-			WebElement e = findElement(xpath, milli);
-			return e.getText();
+			List<WebElement> es = findElements(xpath, milli);
+			StringBuffer sb = new StringBuffer();
+			for (WebElement e: es) {
+				sb.append(e.getText());
+			}
+			return sb.toString();
 		} catch (Exception e) {
 		}
 
