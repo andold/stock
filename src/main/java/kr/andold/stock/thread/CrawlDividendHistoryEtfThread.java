@@ -87,7 +87,7 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 					continue;
 				}
 
-				log.info("{} {}/{} 진행 『{}』 CrawlDividendHistoryEtfThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
+				log.info("{} {}/{} 진행 『{}』 CrawlDividendHistoryEtfThread() - {}", Utility.indentMiddle(), cx, Utility.size(items), item, Utility.toStringPastTimeReadable(started));
 				String text = extract(item);
 				sb.append(text);
 			}
