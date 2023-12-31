@@ -31,11 +31,11 @@ public interface StockVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCrawlPriceEtf(StockParser.CrawlPriceEtfContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link StockParser#crawlPriceCompay}.
+	 * Visit a parse tree produced by {@link StockParser#crawlPriceCompany}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitCrawlPriceCompay(StockParser.CrawlPriceCompayContext ctx);
+	T visitCrawlPriceCompany(StockParser.CrawlPriceCompanyContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link StockParser#crawlItemDetailCompanyThread}.
 	 * @param ctx the parse tree
@@ -67,11 +67,11 @@ public interface StockVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCrawlDividendHistoryEtfThread(StockParser.CrawlDividendHistoryEtfThreadContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link StockParser#crawlEtfDividendHistoryThread}.
+	 * Visit a parse tree produced by {@link StockParser#crawlDividendHistoryCompanyThread}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitCrawlEtfDividendHistoryThread(StockParser.CrawlEtfDividendHistoryThreadContext ctx);
+	T visitCrawlDividendHistoryCompanyThread(StockParser.CrawlDividendHistoryCompanyThreadContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link StockParser#word}.
 	 * @param ctx the parse tree

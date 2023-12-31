@@ -47,8 +47,7 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 		log.info("{} CrawlDividendHistoryEtfThread(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
-		ParserResult result = ParserResult.builder().build();
-		result.clear();
+		ParserResult result = ParserResult.builder().build().clear();
 		driver = CrawlerService.defaultChromeDriver();
 		try {
 			driver.navigate().to(URL);
@@ -58,7 +57,7 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 			startDateElement.clear();
 			startDateElement.sendKeys("2010/01/01"); // 조회기간 시작일
 			startDateElement.sendKeys(Keys.TAB); // 시작일 입력
-			driver.findElement(By.id("btn_wide_img"), 2000).click(); // 넓게 보기 아이콘
+			driver.findElement(By.id("btn_wide_img"), TIMEOUT).click(); // 넓게 보기 아이콘
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 			driver.quit();

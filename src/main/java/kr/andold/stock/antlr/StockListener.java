@@ -36,15 +36,15 @@ public interface StockListener extends ParseTreeListener {
 	 */
 	void exitCrawlPriceEtf(StockParser.CrawlPriceEtfContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link StockParser#crawlPriceCompay}.
+	 * Enter a parse tree produced by {@link StockParser#crawlPriceCompany}.
 	 * @param ctx the parse tree
 	 */
-	void enterCrawlPriceCompay(StockParser.CrawlPriceCompayContext ctx);
+	void enterCrawlPriceCompany(StockParser.CrawlPriceCompanyContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link StockParser#crawlPriceCompay}.
+	 * Exit a parse tree produced by {@link StockParser#crawlPriceCompany}.
 	 * @param ctx the parse tree
 	 */
-	void exitCrawlPriceCompay(StockParser.CrawlPriceCompayContext ctx);
+	void exitCrawlPriceCompany(StockParser.CrawlPriceCompanyContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link StockParser#crawlItemDetailCompanyThread}.
 	 * @param ctx the parse tree
@@ -96,15 +96,15 @@ public interface StockListener extends ParseTreeListener {
 	 */
 	void exitCrawlDividendHistoryEtfThread(StockParser.CrawlDividendHistoryEtfThreadContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link StockParser#crawlEtfDividendHistoryThread}.
+	 * Enter a parse tree produced by {@link StockParser#crawlDividendHistoryCompanyThread}.
 	 * @param ctx the parse tree
 	 */
-	void enterCrawlEtfDividendHistoryThread(StockParser.CrawlEtfDividendHistoryThreadContext ctx);
+	void enterCrawlDividendHistoryCompanyThread(StockParser.CrawlDividendHistoryCompanyThreadContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link StockParser#crawlEtfDividendHistoryThread}.
+	 * Exit a parse tree produced by {@link StockParser#crawlDividendHistoryCompanyThread}.
 	 * @param ctx the parse tree
 	 */
-	void exitCrawlEtfDividendHistoryThread(StockParser.CrawlEtfDividendHistoryThreadContext ctx);
+	void exitCrawlDividendHistoryCompanyThread(StockParser.CrawlDividendHistoryCompanyThreadContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link StockParser#word}.
 	 * @param ctx the parse tree

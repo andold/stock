@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -79,14 +81,22 @@ public class CrawlerService {
 
 		ParserResult container = new ParserResult().clear();;
 
-		ParserResult resultPrices = CrawlPriceCompanyThread.crawl(stockItemService.search(null));
-		put(resultPrices);
-		container.addAll(resultPrices);
+		List<ItemDomain> items = stockItemService.search(null);
+		List<ItemDomain> filtered = items.stream()
+				.filter(item -> isPossibleCompany(item))
+				.collect(Collectors.toList());
+		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
+		for (List<ItemDomain> partition: partitions) {
+			ParserResult result = CrawlPriceCompanyThread.crawl(partition);
+			put(result);
 
-		// 현재가 적용 to dividend
-		List<DividendDomain> resultRecent = currentPriceFromPrices(resultPrices.getPrices());
-		stockDividendService.put(resultRecent);
-		container.getDividends().addAll(resultRecent);
+			// 현재가 적용 to dividend
+			List<DividendDomain> dividends = currentPriceFromPrices(result.getPrices());
+			stockDividendService.put(dividends);
+
+			container.addAll(result);
+			container.getDividends().addAll(dividends);
+		}
 
 		log.info("{} {} crawlPriceCompany() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
 		return container;
@@ -97,15 +107,23 @@ public class CrawlerService {
 		long started = System.currentTimeMillis();
 
 		ParserResult container = new ParserResult().clear();
-		ParserResult resultPrices = CrawlPriceEtfThread.crawl(stockItemService.search(null));
-		put(resultPrices);
-		container.addAll(resultPrices);
 
-		// 현재가 적용 to dividend
-		List<DividendDomain> resultRecent = currentPriceFromPrices(resultPrices.getPrices());
-		stockDividendService.put(resultRecent);
-		container.getDividends().addAll(resultRecent);
-		container.getDividends().addAll(resultRecent);
+		List<ItemDomain> items = stockItemService.search(null);
+		List<ItemDomain> filtered = items.stream()
+				.filter(item -> isPossibleEtf(item))
+				.collect(Collectors.toList());
+		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
+		for (List<ItemDomain> partition: partitions) {
+			ParserResult result = CrawlPriceEtfThread.crawl(partition);
+			put(result);
+
+			// 현재가 적용 to dividend
+			List<DividendDomain> dividends = currentPriceFromPrices(result.getPrices());
+			stockDividendService.put(dividends);
+
+			container.addAll(result);
+			container.getDividends().addAll(dividends);
+		}
 
 		log.info("{} {} crawlPriceEtf() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
 		return container;
@@ -314,7 +332,10 @@ public class CrawlerService {
 
 		ParserResult container = new ParserResult().clear();
 		List<ItemDomain> items = stockItemService.search(null);
-		List<List<ItemDomain>> partitions = Lists.partition(items, 128);
+		List<ItemDomain> filtered = items.stream()
+				.filter(item -> isPossibleCompany(item))
+				.collect(Collectors.toList());
+		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
 		for (List<ItemDomain> partition: partitions) {
 			ParserResult result = CrawlDividendHistoryCompanyThread.crawl(partition);
 			container.addAll(result);
@@ -325,6 +346,13 @@ public class CrawlerService {
 		return container;
 	}
 
+	private boolean isPossibleCompany(ItemDomain item) {
+		String code = item.getCode();
+		Boolean etf = item.getEtf();
+
+		return (code != null && !code.isBlank() && (etf == null || !etf.booleanValue()));
+	}
+
 	// ETF 배당금 내역 by KSD 증권정보포털 SEIBro
 	public ParserResult crawlDividendHistoryEtf() {
 		log.info("{} crawlDividendHistoryEtf()", Utility.indentStart());
@@ -332,7 +360,10 @@ public class CrawlerService {
 
 		ParserResult container = new ParserResult().clear();
 		List<ItemDomain> items = stockItemService.search(null);
-		List<List<ItemDomain>> partitions = Lists.partition(items, 128);
+		List<ItemDomain> filtered = items.stream()
+				.filter(item -> isPossibleEtf(item))			
+				.collect(Collectors.toList());
+		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
 		for (List<ItemDomain> partition: partitions) {
 			ParserResult result = CrawlDividendHistoryEtfThread.crawl(partition);
 			container.addAll(result);
@@ -343,6 +374,13 @@ public class CrawlerService {
 		return container;
 	}
 
+	private boolean isPossibleEtf(ItemDomain item) {
+		String code = item.getCode();
+		Boolean etf = item.getEtf();
+
+		return (code != null && !code.isBlank() && (etf == null || etf.booleanValue()));
+	}
+
 	// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
 	public ParserResult crawlItemDetailEtf() {
 		log.info("{} crawlItemDetailEtf()", Utility.indentStart());
@@ -350,7 +388,10 @@ public class CrawlerService {
 
 		ParserResult container = new ParserResult().clear();
 		List<ItemDomain> items = stockItemService.search(null);
-		List<List<ItemDomain>> partitions = Lists.partition(items, 128);
+		List<ItemDomain> filtered = items.stream()
+				.filter(item -> isPossibleEtf(item))			
+				.collect(Collectors.toList());
+		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
 		for (List<ItemDomain> partition: partitions) {
 			ParserResult result = CrawlItemDetailEtfThread.crawl(partition);
 			container.addAll(result);
@@ -368,7 +409,10 @@ public class CrawlerService {
 
 		ParserResult container = new ParserResult().clear();
 		List<ItemDomain> items = stockItemService.search(null);
-		List<List<ItemDomain>> partitions = Lists.partition(items, 128);
+		List<ItemDomain> filtered = items.stream()
+				.filter(item -> isPossibleCompany(item))
+				.collect(Collectors.toList());
+		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
 		for (List<ItemDomain> partition: partitions) {
 			ParserResult result = CrawlItemDetailCompanyThread.crawl(partition);
 			container.addAll(result);

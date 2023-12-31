@@ -48,13 +48,13 @@ public class StockBaseListener implements StockListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCrawlPriceCompay(StockParser.CrawlPriceCompayContext ctx) { }
+	@Override public void enterCrawlPriceCompany(StockParser.CrawlPriceCompanyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCrawlPriceCompay(StockParser.CrawlPriceCompayContext ctx) { }
+	@Override public void exitCrawlPriceCompany(StockParser.CrawlPriceCompanyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -120,13 +120,13 @@ public class StockBaseListener implements StockListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCrawlEtfDividendHistoryThread(StockParser.CrawlEtfDividendHistoryThreadContext ctx) { }
+	@Override public void enterCrawlDividendHistoryCompanyThread(StockParser.CrawlDividendHistoryCompanyThreadContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCrawlEtfDividendHistoryThread(StockParser.CrawlEtfDividendHistoryThreadContext ctx) { }
+	@Override public void exitCrawlDividendHistoryCompanyThread(StockParser.CrawlDividendHistoryCompanyThreadContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -86,7 +86,7 @@ public class ParserService {
 			, String code, String symbol
 			, String base, String closing, String market, String high, String low, String volume
 			) {
-		log.info("{} crawlPriceCompanyEtf(『{}』『{} {}』『{} {} {} {} {} {}』)", Utility.indentMiddle(), date
+		log.debug("{} crawlPriceCompanyEtf(『{}』『{} {}』『{} {} {} {} {} {}』)", Utility.indentMiddle(), date
 				, code, symbol
 				, base, closing, market, high, low, volume);
 		if (code == null || base == null) {
@@ -113,7 +113,7 @@ public class ParserService {
 			, String ea
 			, String ipo
 			) {
-		log.info("{} crawlItemDetailCompanyThread(『{}』『{} {}』『{} {} {} {} {} {} {} {}』『{} {}』『{}』『{}』)", Utility.indentMiddle(), date
+		log.debug("{} crawlItemDetailCompanyThread(『{}』『{} {}』『{} {} {} {} {} {} {} {}』『{} {}』『{}』『{}』)", Utility.indentMiddle(), date
 				, code, type
 				, symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7
 				, category, fics
@@ -147,7 +147,7 @@ public class ParserService {
 			, String category, String category1, String category2, String category3, String category4, String category5, String category6, String category7
 			, String date
 			, String fee) {
-		log.info("{} crawlEtfDetailThread(『{} {}』『{} {} {} {} {} {} {} {}』『{}』『{} {}』 『{}』)", Utility.indentMiddle()
+		log.debug("{} crawlEtfDetailThread(『{} {}』『{} {} {} {} {} {} {} {}』『{}』『{} {}』 『{}』)", Utility.indentMiddle()
 				, mark, code
 				, symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7
 				, date
@@ -172,10 +172,10 @@ public class ParserService {
 		LIST_STOCK_DIVIDEND_HOSTORY.add(DividendHistoryDomain.builder().code(code).base(Utility.parseDateTime(base)).pay(Utility.parseDateTime(pay)).dividend(Utility.parseInteger(dividend, null)).build());
 	}
 
-	public static void seibroDividendItem(Integer date, String base, String pay, String code, String symbol, String dividend) {
+	public static void crawlDividendHistoryCompanyThread(Integer date, String base, String pay, String code, String symbol, String dividend) {
 		DividendHistoryDomain history = new DividendHistoryDomain(code, base, pay, dividend);
 		LIST_STOCK_DIVIDEND_HOSTORY.add(history);
-		log.trace("{} seibroDividendItem(...) - {}", Utility.indentMiddle(), history);
+		log.trace("{} crawlDividendHistoryCompanyThread(...) - {}", Utility.indentMiddle(), history);
 	}
 
 	private static void printTokens(String text) {

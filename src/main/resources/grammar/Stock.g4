@@ -16,13 +16,13 @@ import kr.andold.stock.service.ParserService;
 }
 
 stockDocument
-:	crawlEtfDividendHistoryThread	// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당내역전체겁색 > 조회
+:	crawlDividendHistoryCompanyThread	// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당내역전체겁색 > 조회
 |	crawlDividendHistoryEtfThread
 |	extractAllEtfFromNaver
 |	crawlEtfDetailThread			// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
 |	crawlCompanyTopDividend			// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당순위
 |	crawlItemDetailCompanyThread	// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 종목종합내역 (KSD증권정보포털(SEIBro) > 기업 > 기업기본정보와 동일)
-|	crawlPriceCompay				// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 일자별시세
+|	crawlPriceCompany				// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 일자별시세
 |	crawlPriceEtf					// KSD 증권정보포털 SEIBro > ETF > ETF종합정보 > 기준가추이
 ;
 
@@ -54,7 +54,7 @@ KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD	NEWLINE		//	KEYWORD 	 ETF 일�
 
 
 // KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 일자별시세
-crawlPriceCompay:
+crawlPriceCompany:
 KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD						NEWLINE		//	KEYWORD 	 주식 일자별시세 	 CrawlCompanyPriceThread 	 URL 	 https://finance.naver.com/item/sise.naver?code= 
 (
 	code=NUMBER TAB symbol=word+										NEWLINE		//	072870 	 메가스터디 
@@ -168,34 +168,34 @@ WORD TAB WORD TAB DATE							NEWLINE		//	andold 	 since 	 2023-11-27
 
 
 crawlDividendHistoryEtfThread:
-KEYWORD TAB WORD WORD WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 ETF 배당금 내역 	 KSD 증권정보포털 SEIBro 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179 
-((
-	KEYWORD TAB code=NUMBER										NEWLINE		//	KEYWORD 	 166400 
-	WORD TAB TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE		//	종목명 	 	 운용사 	 유형 	 지급기준일 	 실지급일 	 배당구분 	 주당분배금 	 결산과표기준가 	 시가대비분배율 	 
-	(((
-		symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* TAB
-		TAB WORD TAB word* TAB base=DATE? TAB pay=DATE? TAB WORD? TAB dividend=NUMBER? TAB price=NUMBER? TAB ratio=NUMBER? TAB		NEWLINE
-				//	TIGER 200커버드콜5%OTM 	 	 미래에셋자산운용 	 파생상품/구조화 	 2023/11/30 	 2023/12/04 	 이익분배 	 54 	 11,308.35 	 0.45 	 
-	) {
-		ParserService.crawlDividendHistoryEtfThread(20231127
-			, $code.text
-			, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
-			, $base.text, $pay.text
-			, $dividend.text
-			, $price.text
-			, $ratio.text
-		);
-	}) | (
-		TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB										NEWLINE		//		 	 	 	 	 	 	 	 	 	 
-	))+
-	WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27 
-))+
-KEYWORD TAB WORD WORD WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 ETF 배당금 내역 	 KSD 증권정보포털 SEIBro 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179 
+	KEYWORD TAB WORD WORD WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 ETF 배당금 내역 	 KSD 증권정보포털 SEIBro 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179 
+	(
+		KEYWORD TAB code=NUMBER										NEWLINE			//	KEYWORD 	 166400 
+		WORD TAB TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE		//	종목명 	 	 운용사 	 유형 	 지급기준일 	 실지급일 	 배당구분 	 주당분배금 	 결산과표기준가 	 시가대비분배율 	 
+		(((
+			symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* TAB
+			TAB WORD TAB word* TAB base=DATE? TAB pay=DATE TAB WORD? TAB dividend=NUMBER TAB price=NUMBER? TAB ratio=NUMBER? TAB		NEWLINE
+					//	TIGER 200커버드콜5%OTM 	 	 미래에셋자산운용 	 파생상품/구조화 	 2023/11/30 	 2023/12/04 	 이익분배 	 54 	 11,308.35 	 0.45 	 
+		) {
+			ParserService.crawlDividendHistoryEtfThread(20231127
+				, $code.text
+				, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
+				, $base.text, $pay.text
+				, $dividend.text
+				, $price.text
+				, $ratio.text
+			);
+		}) | (
+			TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB						NEWLINE		//		 	 	 	 	 	 	 	 	 	 
+		))+
+		WORD TAB WORD TAB DATE											NEWLINE		//	andold 	 since 	 2023-11-27 
+	)+
+	KEYWORD TAB WORD WORD WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 ETF 배당금 내역 	 KSD 증권정보포털 SEIBro 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179 
 ;
 
 
 // KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당내역전체겁색 > 조회
-crawlEtfDividendHistoryThread:
+crawlDividendHistoryCompanyThread:
 	KEYWORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 일반기업 배당금 내역 	 URL 	 "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285
 	(
 		KEYWORD TAB code=NUMBER TAB word+				NEWLINE		//	KEYWORD 	 000850 	 화천기공 
@@ -206,16 +206,16 @@ crawlEtfDividendHistoryThread:
 			WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB															NEWLINE		//	일반 	 차등 	 현금 	 주식 	 현금 	 주식 
 			((
 				TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB											NEWLINE		//		 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 
-			) | (
+			) | ((
 				base=DATE TAB pay=DATE? TAB DATE? TAB NUMBER TAB symbol=word+ TAB WORD TAB WORD TAB WORD TAB WORD TAB dividend=NUMBER TAB NUMBER? TAB NUMBER TAB NUMBER TAB NUMBER? TAB TAB NUMBER TAB NUMBER TAB		NEWLINE
 						//	2022/12/31 	 2023/04/21 	 	 000850 	 화천기공 	 유가증권시장 	 현금배당 	 국민은행 	 보통주 	 2,500 	 	 50.00 	 0.00 	 	 	 5,000 	 12 	 
 			) {
-				ParserService.seibroDividendItem(20231127
+				ParserService.crawlDividendHistoryCompanyThread(20231127
 					, $base.text , $pay.text
 					, $code.text , $symbol.text
 					, $dividend.text
 				);
-			})+
+			}))+
 		)+
 		WORD TAB WORD TAB DATE						NEWLINE		//	andold 	 since 	 2023-11-27 
 	)+
