@@ -116,6 +116,7 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 			driver.switchTo().defaultContent();
 			
 			// 종목 검색 아이콘 클릭
+			driver.waitUntilIsDisplayed(By.xpath("//div[@id='group83']"), false, TIMEOUT);
 			driver.findElement(By.id("cc_group4")).click();
 
 			WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframe2']"), TIMEOUT);
