@@ -384,7 +384,7 @@ public class CrawlerService {
 		ChromeOptions options = new ChromeOptions();
 		options.addArguments("--remote-allow-origins=*");
 		options.addArguments("--incognito");
-//		options.addArguments("--disable-gpu");
+		options.addArguments("--enable-gpu");
 		options.addArguments("--verbose");
 		if (debug) {
 			options.addArguments("--window-size=2560,1080");
