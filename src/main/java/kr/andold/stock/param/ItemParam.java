@@ -1,5 +1,6 @@
 package kr.andold.stock.param;
 
+import java.util.Date;
 import java.util.List;
 
 import kr.andold.stock.domain.ItemDomain;
@@ -17,6 +18,7 @@ import lombok.experimental.SuperBuilder;
 @Data
 public class ItemParam extends ItemDomain {
 	private String keyword;
+	private Date start;
 	private Float priceEarningsRatio;
 	private Integer totalPages;
 	

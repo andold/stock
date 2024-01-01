@@ -78,11 +78,6 @@ class StockRepository {
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
-	async crawlItems(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.get("./api/crawl/items", request)
-			.then(response => onSuccess && onSuccess(request, response.data, element))
-			.catch(error => onError && onError(request, error, element));
-	}
 	async crawlItemCompanyDetails(request: any, onSuccess?: any, onError?: any, element?: any) {
 		return axios.get("./api/crawl/item/company/details", request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
@@ -123,8 +118,8 @@ class StockRepository {
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
-	async crawlItemCompanyDividendTop(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.get(`./api/crawl/item/company/dividend/top`, request)
+	async crawlItemDividendTopCompany(request: any, onSuccess?: any, onError?: any, element?: any) {
+		return axios.get(`./api/crawl/item/dividend/top/company`, request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}

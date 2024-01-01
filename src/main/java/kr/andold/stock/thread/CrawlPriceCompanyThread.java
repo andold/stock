@@ -1,7 +1,9 @@
 package kr.andold.stock.thread;
 
 import java.lang.management.ManagementFactory;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -13,8 +15,6 @@ import java.util.concurrent.Future;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.Select;
-
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.service.ChromeDriverWrapper;
 import kr.andold.stock.service.CrawlerService;
@@ -44,9 +44,12 @@ public class CrawlPriceCompanyThread implements Callable<ParserResult> {
 		this.items = list;
 	}
 
-	public CrawlPriceCompanyThread(ConcurrentLinkedQueue<ItemDomain> list, String startDate) {
+	public CrawlPriceCompanyThread(ConcurrentLinkedQueue<ItemDomain> list, Date start) {
 		this.items = list;
-		this.startDate = startDate;
+		this.startDate = String.format("%tY%tm%td",
+				(start == null)
+					? Date.from(LocalDate.now().minusDays(7).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST))
+					: start);
 	}
 
 	public ParserResult call() throws Exception {
@@ -59,16 +62,18 @@ public class CrawlPriceCompanyThread implements Callable<ParserResult> {
 
 		try {
 			driver.navigate().to(URL);
-			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT * 4).click(); // 넓게 보기 아이콘 크릭, 처음은 좀더 오래 기다려 준다
-			if (startDate == null) {
-				new Select(driver.findElement(By.xpath("//select[@id='sd1_selectbox1_input_0']"), TIMEOUT)).selectByVisibleText("1주"); // 검색항목을 『1주』로
-			} else {
-				WebElement start = driver.findElement(By.xpath("//input[@id='sd1_inputCalendar1_input']"), TIMEOUT);
-				start.clear();
-				start.sendKeys(startDate); // 시작일 입력
-				start.sendKeys(Keys.TAB); // 시작일 입력
-			}
-			iconClosePopupedElement = driver.findElement(By.xpath("//div[@id='group58']/a[@id='anchor2']"), TIMEOUT); // 검색결과창의 닫기 아이콘
+			
+			// 넓게 보기 아이콘 크릭, 처음은 좀더 오래 기다려 준다
+			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT * 4).click();
+			
+			// 시작일 입력
+			WebElement start = driver.findElement(By.xpath("//input[@id='sd1_inputCalendar1_input']"), TIMEOUT);
+			start.clear();
+			start.sendKeys(startDate);
+			start.sendKeys(Keys.TAB); // 시작일 입력
+			
+			// 검색결과창의 닫기 아이콘
+			iconClosePopupedElement = driver.findElement(By.xpath("//div[@id='group58']/a[@id='anchor2']"), TIMEOUT);
 			frame = driver.findElement(By.xpath("//iframe[@id='iframe1']"), TIMEOUT);
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
@@ -194,7 +199,7 @@ public class CrawlPriceCompanyThread implements Callable<ParserResult> {
 		return "";
 	}
 
-	public static ParserResult crawl(List<ItemDomain> items) {
+	public static ParserResult crawl(List<ItemDomain> items, Date start) {
 		log.info("{} CrawlPriceCompanyThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
@@ -207,7 +212,7 @@ public class CrawlPriceCompanyThread implements Callable<ParserResult> {
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.addAll(items);
 		for (int cx = 0; cx < processors; cx++) {
-			CrawlPriceCompanyThread thread = new CrawlPriceCompanyThread(queue);
+			CrawlPriceCompanyThread thread = new CrawlPriceCompanyThread(queue, start);
 			Future<ParserResult> future = service.submit(thread);
 			futureList.add(future);
 		}
@@ -232,7 +237,7 @@ public class CrawlPriceCompanyThread implements Callable<ParserResult> {
 
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.add(item);
-		CrawlPriceCompanyThread thread = new CrawlPriceCompanyThread(queue, CrawlerService.getCrawlerDateStart());
+		CrawlPriceCompanyThread thread = new CrawlPriceCompanyThread(queue, null);
 		setDebug(false);
 		ExecutorService service = Executors.newFixedThreadPool(1);
 		Future<ParserResult> future = service.submit(thread);

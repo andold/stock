@@ -1,5 +1,8 @@
 package kr.andold.stock;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
@@ -7,6 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import kr.andold.stock.service.CrawlerService;
+import kr.andold.stock.service.Utility;
 
 @Configuration
 @EnableScheduling
@@ -23,21 +27,24 @@ public class ScheduledTasks {
 	// 평일
 	@Scheduled(cron = "15 30 22 * * MON-FRI")
 	public void scheduleTaskDaily() {
-		stockCrawlerService.crawlPriceCompany();	//	기업주가 시세
-		stockCrawlerService.crawlPriceEtf();		//	ETF 주가 시세
+		// 7일전꺼부터 수집
+		Date start = Date.from(LocalDate.now().minusDays(7).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST));
+		stockCrawlerService.crawlPriceCompany(start);	//	기업주가 시세
+		stockCrawlerService.crawlPriceEtf(start);		//	ETF 주가 시세
 	}
 
 	// 매주 일요일
 	@Scheduled(cron = "15 30 22 * * SUN")
 	public void scheduleTaskWeekly() {
-		stockCrawlerService.crawlDividendHistoryEtf();	//	ETF 배당 이력
-		stockCrawlerService.crawlDividendHistoryCompany();	//	기업주식 배당 이력
+		// 3주전꺼부터 수집
+		Date start = Date.from(LocalDate.now().minusWeeks(3).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST));
+		stockCrawlerService.crawlDividendHistoryEtf(start);		//	ETF 배당 이력
+		stockCrawlerService.crawlDividendHistoryCompany(start);	//	기업주식 배당 이력
 	}
 
 	// 매월 1일
 	@Scheduled(cron = "15 30 23 1 * *")
 	public void scheduleTaskMonthly() {
-		stockCrawlerService.crawlItems();
 		stockCrawlerService.crawlItemDividendTopCompany();	// 기업 배당 상위
 		stockCrawlerService.crawlItemDetailEtf();			//	ETF 상세
 		stockCrawlerService.crawlItemDetailCompany();		//	기업주식 상세

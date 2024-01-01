@@ -102,13 +102,6 @@ function Header(props: any) {
 			onChange && onChange({});
 		});
 	}
-	function handleOnClickCrawlItems() {
-		setSpinner(spinner + 1);
-		store.crawlItems(null, () => {
-			setSpinner(spinner - 1);
-			onChange && onChange({});
-		});
-	}
 	function handleOnClickCrawlDividendHistoryCompany() {
 		setSpinner(spinner + 1);
 		store.crawlDividendHistoryCompany({}, (_: any) => {
@@ -154,9 +147,9 @@ function Header(props: any) {
 			setSpinner(spinner - 1);
 		});
 	}
-	function crawlItemCompanyDividendTop() {
+	function handleOnCrawlItemDividendTopCompany() {
 		setSpinner(spinner + 1);
-		store.crawlItemCompanyDividendTop({}, (_: any) => {
+		store.crawlItemDividendTopCompany({}, (_: any) => {
 			if (spinner == 1) {	// 마지막에서만 재검색
 				onChange && onChange({});
 			}
@@ -255,8 +248,7 @@ function Header(props: any) {
 								{(spinner > 0) && <Spinner animation="grow" variant="warning" className="ms-1 align-middle" title={spinner.toLocaleString()} />}
 								{!collapsed && (<>
 									<NavDropdown title="Crawl" className="mx-1">
-										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItems}>Crawl Items</NavDropdown.Item>
-										<NavDropdown.Item className="mx-1" onClick={crawlItemCompanyDividendTop}>Crawl Item Company Dividend Top</NavDropdown.Item>
+										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlItemDividendTopCompany}>Crawl Item Dividend Top Company</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemCompanyDetails}>Crawl Item Company Details</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemEtfDetails}>Crawl Item ETF Details</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlDividendHistoryCompany}>Crawl Dividend History Company</NavDropdown.Item>

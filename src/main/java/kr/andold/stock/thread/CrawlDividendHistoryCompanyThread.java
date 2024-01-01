@@ -1,7 +1,9 @@
 package kr.andold.stock.thread;
 
 import java.lang.management.ManagementFactory;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -16,6 +18,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 
 import kr.andold.stock.domain.ItemDomain;
+import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.ChromeDriverWrapper;
 import kr.andold.stock.service.CrawlerService;
 import kr.andold.stock.service.ParserService;
@@ -35,11 +38,17 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 	@Setter private static Boolean debug = CrawlerService.debug;
 
 	private ConcurrentLinkedQueue<ItemDomain> items;
+	private String startDate = null;;
+
 	private ChromeDriverWrapper driver;
 	private String previous = "andold";
 
-	public CrawlDividendHistoryCompanyThread(ConcurrentLinkedQueue<ItemDomain> list) {
+	public CrawlDividendHistoryCompanyThread(ConcurrentLinkedQueue<ItemDomain> list, Date start) {
 		this.items = list;
+		this.startDate = String.format("%tY%tm%td",
+				(start == null)
+					? Date.from(LocalDate.now().minusDays(7).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST))
+					: start);
 	}
 
 	@Override
@@ -53,12 +62,17 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 
 		try {
 			driver.navigate().to(URL);
-			new Select(driver.findElement(By.id("Com_ISIN_input_0"), TIMEOUT * 4)).selectByVisibleText("종목"); // 검색항목을 code로
-			driver.findElement(By.id("btn_wide_img")).click(); // 넓게 보기 아이콘 크릭
+			
+			// 검색항목을 code로
+			new Select(driver.findElement(By.id("Com_ISIN_input_0"), TIMEOUT * 4)).selectByVisibleText("종목");
+			
+			// 넓게 보기 아이콘 크릭
+			driver.findElement(By.id("btn_wide_img")).click();
 
+			// 시작일 입력
 			WebElement start = driver.findElement(By.id("inputCalendar1_input"), TIMEOUT);
 			start.clear();
-			start.sendKeys("2010/01/01"); // 시작일 입력
+			start.sendKeys(startDate);
 			start.sendKeys(Keys.TAB); // 시작일 입력
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
@@ -182,7 +196,7 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 		return "";
 	}
 
-	public static ParserResult crawl(List<ItemDomain> items) {
+	public static ParserResult crawl(List<ItemDomain> items, Date start) {
 		long freeMemorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreeMemorySize();
 		int candidateProcessorsByFreeMemory = (int) (freeMemorySize / 512L / 1024L / 1024L);
 		int processors = Math.min(Math.max(1, candidateProcessorsByFreeMemory), Runtime.getRuntime().availableProcessors() - 1);
@@ -192,7 +206,7 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.addAll(items);
 		for (int cx = 0; cx < processors; cx++) {
-			CrawlDividendHistoryCompanyThread thread = new CrawlDividendHistoryCompanyThread(queue);
+			CrawlDividendHistoryCompanyThread thread = new CrawlDividendHistoryCompanyThread(queue, start);
 			Future<ParserResult> future = service.submit(thread);
 			futureList.add(future);
 		}
@@ -209,13 +223,13 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 		return container;
 	}
 
-	public static ParserResult crawl(ItemDomain item) {
+	public static ParserResult crawl(ItemParam item) {
 		log.info("{} CrawlDividendHistoryCompanyThread.crawl({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.add(item);
-		CrawlDividendHistoryCompanyThread thread = new CrawlDividendHistoryCompanyThread(queue);
+		CrawlDividendHistoryCompanyThread thread = new CrawlDividendHistoryCompanyThread(queue, item.getStart());
 		setDebug(false);
 		ExecutorService service = Executors.newFixedThreadPool(1);
 		Future<ParserResult> future = service.submit(thread);

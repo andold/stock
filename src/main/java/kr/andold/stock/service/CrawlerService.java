@@ -6,6 +6,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,8 +77,8 @@ public class CrawlerService {
 		crawlerDateStart = value;
 	}
 
-	public ParserResult crawlPriceCompany() {
-		log.info("{} crawlPriceCompany()", Utility.indentStart());
+	public ParserResult crawlPriceCompany(Date start) {
+		log.info("{} crawlPriceCompany({})", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();
 
 		ParserResult container = new ParserResult().clear();;
@@ -88,7 +89,7 @@ public class CrawlerService {
 				.collect(Collectors.toList());
 		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
 		for (List<ItemDomain> partition: partitions) {
-			ParserResult result = CrawlPriceCompanyThread.crawl(partition);
+			ParserResult result = CrawlPriceCompanyThread.crawl(partition, start);
 			put(result);
 
 			// 현재가 적용 to dividend
@@ -99,12 +100,12 @@ public class CrawlerService {
 			container.getDividends().addAll(dividends);
 		}
 
-		log.info("{} {} crawlPriceCompany() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
+		log.info("{} {} crawlPriceCompany({}) - {}", Utility.indentEnd(), container, start, Utility.toStringPastTimeReadable(started));
 		return container;
 	}
 
-	public ParserResult crawlPriceEtf() {
-		log.info("{} crawlPriceEtf()", Utility.indentStart());
+	public ParserResult crawlPriceEtf(Date start) {
+		log.info("{} crawlPriceEtf({})", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();
 
 		ParserResult container = new ParserResult().clear();
@@ -115,7 +116,7 @@ public class CrawlerService {
 				.collect(Collectors.toList());
 		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
 		for (List<ItemDomain> partition: partitions) {
-			ParserResult result = CrawlPriceEtfThread.crawl(partition);
+			ParserResult result = CrawlPriceEtfThread.crawl(partition, start);
 			put(result);
 
 			// 현재가 적용 to dividend
@@ -126,7 +127,7 @@ public class CrawlerService {
 			container.getDividends().addAll(dividends);
 		}
 
-		log.info("{} {} crawlPriceEtf() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
+		log.info("{} {} crawlPriceEtf({}) - {}", Utility.indentEnd(), container, start, Utility.toStringPastTimeReadable(started));
 		return container;
 	}
 
@@ -168,41 +169,6 @@ public class CrawlerService {
 
 		log.info("{} #{} currentPriceFromPrices(#{})", Utility.indentEnd(), Utility.size(dividendsRecent), Utility.size(prices));
 		return dividendsRecent;
-	}
-
-	// 네이버 배당 top(KOSPI, KOSDAQ) 50 + ETF All
-	public ParserResult crawlItems() {
-		log.info("{} crawlItems()", Utility.indentStart());
-		long started = System.currentTimeMillis();
-
-		Map<String, Boolean> mapWithHref = new HashMap<>();
-		mapWithHref.put("a", true);
-		ParserResult all = ParserResult.builder().items(new ArrayList<>()).dividends(new ArrayList<>()).histories(new ArrayList<>()).prices(new ArrayList<>()).build();
-
-		String textFromUrl = extractTextFromUrl("https://finance.naver.com/sise/dividend_list.naver?sosok=KOSPI", mapWithHref);
-		ParserResult result = ParserService.parse(textFromUrl, debug);
-		for (ItemDomain domain : result.getItems()) {
-			domain.setType("KOSPI");
-			domain.setEtf(false);
-		}
-		all.addAll(result);
-
-		textFromUrl = extractTextFromUrl("https://finance.naver.com/sise/dividend_list.naver?sosok=KOSDAQ", mapWithHref);
-		result = ParserService.parse(textFromUrl, debug);
-		for (ItemDomain domain : result.getItems()) {
-			domain.setType("KOSDAQ");
-			domain.setEtf(false);
-		}
-		all.addAll(result);
-
-		String textFromNaverAllEtf = extractAllEtfFromNaver();
-		ParserResult resultNaverAllEtf = ParserService.parse(textFromNaverAllEtf, debug);
-		all.addAll(resultNaverAllEtf);
-	
-		put(all);
-
-		log.info("{} {} crawlItems() - {}", Utility.indentEnd(), all, Utility.toStringPastTimeReadable(started));
-		return all;
 	}
 
 	// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당순위
@@ -328,7 +294,7 @@ public class CrawlerService {
 	}
 
 	// 주식=일반기업 배당금 내역 by KSD 증권정보포털 SEIBro
-	public ParserResult crawlDividendHistoryCompany() {
+	public ParserResult crawlDividendHistoryCompany(Date start) {
 		log.info("{} crawlDividendHistoryCompany()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
@@ -339,7 +305,7 @@ public class CrawlerService {
 				.collect(Collectors.toList());
 		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
 		for (List<ItemDomain> partition: partitions) {
-			ParserResult result = CrawlDividendHistoryCompanyThread.crawl(partition);
+			ParserResult result = CrawlDividendHistoryCompanyThread.crawl(partition, start);
 			container.addAll(result);
 			put(result);
 		}
@@ -356,8 +322,8 @@ public class CrawlerService {
 	}
 
 	// ETF 배당금 내역 by KSD 증권정보포털 SEIBro
-	public ParserResult crawlDividendHistoryEtf() {
-		log.info("{} crawlDividendHistoryEtf()", Utility.indentStart());
+	public ParserResult crawlDividendHistoryEtf(Date start) {
+		log.info("{} crawlDividendHistoryEtf({})", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();
 
 		ParserResult container = new ParserResult().clear();
@@ -367,14 +333,15 @@ public class CrawlerService {
 				.collect(Collectors.toList());
 		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
 		for (List<ItemDomain> partition: partitions) {
-			ParserResult result = CrawlDividendHistoryEtfThread.crawl(partition);
+			ParserResult result = CrawlDividendHistoryEtfThread.crawl(partition, start);
 			container.addAll(result);
 			put(result);
 		}
 
-		log.info("{} {} crawlDividendHistoryEtf() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
+		log.info("{} {} crawlDividendHistoryEtf({}) - {}", Utility.indentEnd(), container, start, Utility.toStringPastTimeReadable(started));
 		return container;
 	}
+
 
 	private boolean isPossibleEtf(ItemDomain item) {
 		String code = item.getCode();

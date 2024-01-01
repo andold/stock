@@ -1,7 +1,9 @@
 package kr.andold.stock.thread;
 
 import java.lang.management.ManagementFactory;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -16,6 +18,7 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 
 import kr.andold.stock.domain.ItemDomain;
+import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.ChromeDriverWrapper;
 import kr.andold.stock.service.CrawlerService;
 import kr.andold.stock.service.ParserService;
@@ -34,13 +37,18 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 	@Setter private static Boolean debug = CrawlerService.debug;
 
 	private ConcurrentLinkedQueue<ItemDomain> items;
+	private String startDate = null;;
 
 	private ChromeDriverWrapper driver;
 	private WebElement startDateElement; // 조회기간 시작일
 	private WebElement popupCloseIconElement; // 검색결과창의 닫기 아이콘
 
-	public CrawlDividendHistoryEtfThread(ConcurrentLinkedQueue<ItemDomain> list) {
+	public CrawlDividendHistoryEtfThread(ConcurrentLinkedQueue<ItemDomain> list, Date start) {
 		this.items = list;
+		this.startDate = String.format("%tY%tm%td",
+				(start == null)
+					? Date.from(LocalDate.now().minusDays(7).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST))
+					: start);
 	}
 
 	public ParserResult call() throws Exception {
@@ -51,13 +59,18 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 		driver = CrawlerService.defaultChromeDriver();
 		try {
 			driver.navigate().to(URL);
-			startDateElement = driver.findElement(By.xpath("//input[@id='sd1_inputCalendar1_input']"), TIMEOUT * 4); // 조회기간 시작일
-			popupCloseIconElement = driver.findElement(By.xpath("//div[@id='group164']/a[@id='anchor3']"), TIMEOUT); // 검색결과창의 닫기 아이콘
 
+			// 조회기간 시작일
+			startDateElement = driver.findElement(By.xpath("//input[@id='sd1_inputCalendar1_input']"), TIMEOUT * 4);
 			startDateElement.clear();
-			startDateElement.sendKeys("2010/01/01"); // 조회기간 시작일
+			startDateElement.sendKeys(startDate); // 조회기간 시작일
 			startDateElement.sendKeys(Keys.TAB); // 시작일 입력
-			driver.findElement(By.id("btn_wide_img"), TIMEOUT).click(); // 넓게 보기 아이콘
+
+			// 검색결과창의 닫기 아이콘
+			popupCloseIconElement = driver.findElement(By.xpath("//div[@id='group164']/a[@id='anchor3']"), TIMEOUT);
+			
+			// 넓게 보기 아이콘
+			driver.findElement(By.id("btn_wide_img"), TIMEOUT).click();
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 			driver.quit();
@@ -183,8 +196,7 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 		return "";
 	}
 
-
-	public static ParserResult crawl(List<ItemDomain> items) {
+	public static ParserResult crawl(List<ItemDomain> items, Date start) {
 		log.info("{} CrawlDividendHistoryEtfThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
@@ -197,7 +209,7 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.addAll(items);
 		for (int cx = 0; cx < processors; cx++) {
-			CrawlDividendHistoryEtfThread thread = new CrawlDividendHistoryEtfThread(queue);
+			CrawlDividendHistoryEtfThread thread = new CrawlDividendHistoryEtfThread(queue, start);
 			Future<ParserResult> future = service.submit(thread);
 			futureList.add(future);
 		}
@@ -216,10 +228,10 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 		return container;
 	}
 
-	public static ParserResult crawl(ItemDomain item) {
+	public static ParserResult crawl(ItemParam item) {
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.add(item);
-		CrawlDividendHistoryEtfThread thread = new CrawlDividendHistoryEtfThread(queue);
+		CrawlDividendHistoryEtfThread thread = new CrawlDividendHistoryEtfThread(queue, item.getStart());
 		setDebug(false);
 		ExecutorService service = Executors.newFixedThreadPool(1);
 		Future<ParserResult> future = service.submit(thread);

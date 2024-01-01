@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -94,18 +95,6 @@ public class ApiStockController {
 		return result;
 	}
 
-	// 네이버 배당 top(KOSPI, KOSDAQ) 50 + ETF All
-	@ResponseBody
-	@GetMapping(value = "crawl/items")
-	public ParserResult crawlItems() {
-		log.info("{} crawlItems()", Utility.indentStart());
-
-		ParserResult result = stockCrawlerService.crawlItems();
-
-		log.info("{} {} - crawlItems()", Utility.indentEnd(), result);
-		return result;
-	}
-
 	@ResponseBody
 	@GetMapping(value = "crawl/item/etf/details")
 	public ParserResult crawlItemEtfDetails() {
@@ -129,22 +118,22 @@ public class ApiStockController {
 	}
 
 	@ResponseBody
-	@GetMapping(value = "crawl/item/company/dividend/top")
-	public ParserResult crawlCompanyDividendTop() {
-		log.info("{} crawlCompanyDividendTop()", Utility.indentStart());
+	@GetMapping(value = "crawl/item/dividend/top/company")
+	public ParserResult crawlDividendTopCompany() {
+		log.info("{} crawlDividendTopCompany()", Utility.indentStart());
 
 		ParserResult result = stockCrawlerService.crawlItemDividendTopCompany();
 
-		log.info("{} {} - crawlCompanyDividendTop()", Utility.indentEnd(), result);
+		log.info("{} {} - crawlDividendTopCompany()", Utility.indentEnd(), result);
 		return result;
 	}
 
 	@ResponseBody
 	@GetMapping(value = "crawl/price/company")
-	public ParserResult crawlPriceCompay() {
+	public ParserResult crawlPriceCompay(@RequestParam(value = "start", required = false) Date start) {
 		log.info("{} crawlPriceCompay()", Utility.indentStart());
 
-		ParserResult result = stockCrawlerService.crawlPriceCompany();
+		ParserResult result = stockCrawlerService.crawlPriceCompany(start);
 
 		log.info("{} {} - crawlPriceCompay()", Utility.indentEnd(), result);
 		return result;
@@ -152,10 +141,10 @@ public class ApiStockController {
 
 	@ResponseBody
 	@GetMapping(value = "crawl/price/etf")
-	public ParserResult crawlPriceEtf() {
+	public ParserResult crawlPriceEtf(@RequestParam(value = "start", required = false) Date start) {
 		log.info("{} crawlPriceEtf()", Utility.indentStart());
 
-		ParserResult result = stockCrawlerService.crawlPriceEtf();
+		ParserResult result = stockCrawlerService.crawlPriceEtf(start);
 
 		log.info("{} {} - crawlPriceEtf()", Utility.indentEnd(), result);
 		return result;
@@ -163,23 +152,23 @@ public class ApiStockController {
 
 	@ResponseBody
 	@GetMapping(value = "crawl/dividend/history/company")
-	public ParserResult crawlDividendHistoryCompany() {
-		log.info("{} crawlDividendHistoryCompany()", Utility.indentStart());
+	public ParserResult crawlDividendHistoryCompany(@RequestParam(value = "start", required = false) Date start) {
+		log.info("{} crawlDividendHistoryCompany({})", Utility.indentStart(), start);
 
-		ParserResult result = stockCrawlerService.crawlDividendHistoryCompany();
+		ParserResult result = stockCrawlerService.crawlDividendHistoryCompany(start);
 
-		log.info("{} {} - crawlDividendHistoryCompany()", Utility.indentEnd(), result);
+		log.info("{} {} - crawlDividendHistoryCompany({})", Utility.indentEnd(), result, start);
 		return result;
 	}
 
 	@ResponseBody
 	@GetMapping(value = "crawl/dividend/history/etf")
-	public ParserResult crawlDividendHistoryEtf() {
-		log.info("{} crawlDividendHistoryEtf()", Utility.indentStart());
+	public ParserResult crawlDividendHistoryEtf(@RequestParam(value = "start", required = false) Date start) {
+		log.info("{} crawlDividendHistoryEtf({})", Utility.indentStart(), start);
 
-		ParserResult result = stockCrawlerService.crawlDividendHistoryEtf();
+		ParserResult result = stockCrawlerService.crawlDividendHistoryEtf(start);
 
-		log.info("{} {} - crawlDividendHistoryEtf()", Utility.indentEnd(), result);
+		log.info("{} {} - crawlDividendHistoryEtf({})", Utility.indentEnd(), result, start);
 		return result;
 	}
 

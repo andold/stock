@@ -547,10 +547,14 @@ export function OperateColumn(props: any) {
 	}
 	async function handleOnClickCrawl(_: any) {
 		setSpinner(true);
-		itemStore.crawl(data, (_: any) => {
-			dividendHistoryStore.crawl(data, (_: any) => {
-				priceStore.crawl(data, (_: any) => {
-					store.compile(data, (_: any) => {
+		const param = {
+			...data,
+			start: moment([2010, 1, 1]).toDate(),
+		};
+		itemStore.crawl(param, (_: any) => {
+			dividendHistoryStore.crawl(param, (_: any) => {
+				priceStore.crawl(param, (_: any) => {
+					store.compile(param, (_: any) => {
 						setSpinner(false);
 						onChange && onChange({});
 					});

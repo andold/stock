@@ -53,9 +53,6 @@ class StockStore {
 			repository.compileGet(request, onSuccess, onError, element);
 		}
 	}
-	crawlItems(request?: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.crawlItems(request, onSuccess, onError, element);
-	}
 	crawlItemCompanyDetails(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlItemCompanyDetails(request, onSuccess, onError, element);
 	}
@@ -71,8 +68,8 @@ class StockStore {
 	crawlItemEtfDetails(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlItemEtfDetails(request, onSuccess, onError, element);
 	}
-	crawlItemCompanyDividendTop(request?: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.crawlItemCompanyDividendTop(request, onSuccess, onError, element);
+	crawlItemDividendTopCompany(request?: any, onSuccess?: any, onError?: any, element?: any) {
+		repository.crawlItemDividendTopCompany(request, onSuccess, onError, element);
 	}
 	crawlDividendHistoryCompany(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlDividendHistoryCompany(request, onSuccess, onError, element);
