@@ -29,7 +29,7 @@ stockDocument
 crawlPriceEtf
 crawlPriceCompany
 crawlItemDetailCompanyThread
-crawlCompanyTopDividend
+crawlItemDividendTopCompany
 crawlEtfDetailThread
 extractAllEtfFromNaver
 crawlDividendHistoryEtfThread

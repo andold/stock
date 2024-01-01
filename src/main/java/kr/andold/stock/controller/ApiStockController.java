@@ -133,7 +133,7 @@ public class ApiStockController {
 	public ParserResult crawlCompanyDividendTop() {
 		log.info("{} crawlCompanyDividendTop()", Utility.indentStart());
 
-		ParserResult result = stockCrawlerService.crawlItemCompanyDividendTop();
+		ParserResult result = stockCrawlerService.crawlItemDividendTopCompany();
 
 		log.info("{} {} - crawlCompanyDividendTop()", Utility.indentEnd(), result);
 		return result;

@@ -43,7 +43,7 @@ public class CrawlerServiceTest {
 
 	@Test
 	public void testCrawlCompanyTopDividend() {
-		ParserResult result = service.crawlItemCompanyDividendTop();
+		ParserResult result = service.crawlItemDividendTopCompany();
 		log.info("{}", result);
 	}
 

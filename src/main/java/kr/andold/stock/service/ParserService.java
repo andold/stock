@@ -136,7 +136,7 @@ public class ParserService {
 	}
 
 	// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당순위
-	public static void crawlCompanyTopDividend(Integer date
+	public static void crawlItemDividendTopCompany(Integer date
 			, String code, String type) {
 		LIST_STOCK_ITEM.add(ItemDomain.builder().code(code).type(type).build());
 	}

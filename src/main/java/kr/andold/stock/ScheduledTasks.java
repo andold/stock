@@ -38,7 +38,7 @@ public class ScheduledTasks {
 	@Scheduled(cron = "15 30 23 1 * *")
 	public void scheduleTaskMonthly() {
 		stockCrawlerService.crawlItems();
-		stockCrawlerService.crawlItemCompanyDividendTop();	// 기업 배당 상위
+		stockCrawlerService.crawlItemDividendTopCompany();	// 기업 배당 상위
 		stockCrawlerService.crawlItemDetailEtf();			//	ETF 상세
 		stockCrawlerService.crawlItemDetailCompany();		//	기업주식 상세
 	}

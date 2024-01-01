@@ -41,6 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class CrawlerService {
 	public static final String MARK_ANDOLD_SINCE = "\n andold \t since \t 2023-11-27 \n";
+	private static final int TIMEOUT = 4000;
 
 	@Autowired
 	private ItemService stockItemService;
@@ -204,12 +205,13 @@ public class CrawlerService {
 		return all;
 	}
 
-	public ParserResult crawlItemCompanyDividendTop() {
-		log.info("{} crawlItemCompanyDividendTop()", Utility.indentStart());
+	// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당순위
+	public ParserResult crawlItemDividendTopCompany() {
+		log.info("{} crawlItemDividendTopCompany()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
 		String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01042V.xml&menuNo=286";
-		String MARK_START_END_POINT = "KEYWORD\tcrawlItemCompanyDividendTop\t주식 상위 배당\tURL\t" + URL + "\n";
+		String MARK_START_END_POINT = String.format( "KEYWORD\t%s\t%\tURL\t%s\n", "crawlItemDividendTopCompany", "주식 상위 배당", URL);
 		int YEARS = 3;
 
 		StringBuffer sb = new StringBuffer();
@@ -217,40 +219,40 @@ public class CrawlerService {
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
 		try {
 			driver.navigate().to(URL);
-			driver.findElement(By.xpath("//a[@id='btn_wide']"), 2000).click();
-			driver.findElementIncludeText(By.xpath("//th"), 8000, "결산월");
+			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT * 4).click();
+			driver.findElementIncludeText(By.xpath("//th"), TIMEOUT, "결산월");
 
-			new Select(driver.findElement(By.xpath("//select[@id='select_marketKind_input_0']"), 2000)).selectByVisibleText("유가증권시장"); // 시장구분을 유가증권시장
+			new Select(driver.findElement(By.xpath("//select[@id='select_marketKind_input_0']"), TIMEOUT)).selectByVisibleText("유가증권시장"); // 시장구분을 유가증권시장
 			for (int cx = LocalDate.now().getYear() - 1, sizex = LocalDate.now().getYear() - YEARS; cx > sizex; cx--) {
 				String year = String.format("%d년", cx);
-				new Select(driver.findElement(By.xpath("//select[@id='selectbox2_input_0']"), 2000)).selectByVisibleText(year); // 2022년
-				String previous = driver.getText(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), 8000, "andold");
+				new Select(driver.findElement(By.xpath("//select[@id='selectbox2_input_0']"), TIMEOUT)).selectByVisibleText(year); // 2022년
+				String previous = driver.getText(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), TIMEOUT, "andold");
 				driver.findElement(By.xpath("//a[@id='group57']"), 2000).click();
-				driver.findElement(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), 8000, previous);
+				driver.findElement(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), TIMEOUT, previous);
 				for (int cy = 1; cy < 5; cy++) {
 					String pageString = String.format("%d", cy);
-					log.debug("{} {} {} {} - crawlItemCompanyDividendTop() - {}", Utility.indentMiddle(), "유가증권시장", year, cy, Utility.toStringPastTimeReadable(started));
-					driver.findElementIncludeText(By.xpath("//div[@id='cntsPaging01']//a"), 8000, pageString).click();
-					driver.findElementIncludeTextAndClass(By.xpath("//div[@id='cntsPaging01']//a"), 2000, pageString, "w2pageList_label_selected");
-					WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), 2000);
+					log.debug("{} {} {} {} - crawlItemDividendTopCompany() - {}", Utility.indentMiddle(), "유가증권시장", year, cy, Utility.toStringPastTimeReadable(started));
+					driver.findElementIncludeText(By.xpath("//div[@id='cntsPaging01']//a"), TIMEOUT, pageString).click();
+					driver.findElementIncludeTextAndClass(By.xpath("//div[@id='cntsPaging01']//a"), TIMEOUT, pageString, "w2pageList_label_selected");
+					WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
 					sb.append(driver.extractTextFromTableElement(table, "KOSPI\t"));
 					sb.append(MARK_ANDOLD_SINCE);
 				}
 			}
 
-			new Select(driver.findElement(By.xpath("//select[@id='select_marketKind_input_0']"), 2000)).selectByVisibleText("코스닥시장"); // 시장구분을 코스닥시장
+			new Select(driver.findElement(By.xpath("//select[@id='select_marketKind_input_0']"), TIMEOUT)).selectByVisibleText("코스닥시장"); // 시장구분을 코스닥시장
 			for (int cx = LocalDate.now().getYear() - 1, sizex = LocalDate.now().getYear() - YEARS; cx > sizex; cx--) {
 				String year = String.format("%d년", cx);
-				new Select(driver.findElement(By.xpath("//select[@id='selectbox2_input_0']"), 2000)).selectByVisibleText(year); // 2022년
-				String previous = driver.getText(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), 8000, "andold");
+				new Select(driver.findElement(By.xpath("//select[@id='selectbox2_input_0']"), TIMEOUT)).selectByVisibleText(year); // 2022년
+				String previous = driver.getText(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), TIMEOUT, "andold");
 				driver.findElement(By.xpath("//a[@id='group57']"), 2000).click();
-				driver.findElement(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), 8000, previous);
+				driver.findElement(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), TIMEOUT, previous);
 				for (int cy = 1; cy < 5; cy++) {
 					String pageString = String.format("%d", cy);
-					log.debug("{} {} {} {} - crawlItemCompanyDividendTop() - {}", Utility.indentMiddle(), "코스닥시장", year, cy, Utility.toStringPastTimeReadable(started));
-					driver.findElementIncludeText(By.xpath("//div[@id='cntsPaging01']//a"), 4000, pageString).click();
-					driver.findElementIncludeTextAndClass(By.xpath("//div[@id='cntsPaging01']//a"), 2000, pageString, "w2pageList_label_selected");
-					WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), 2000);
+					log.debug("{} {} {} {} - crawlItemDividendTopCompany() - {}", Utility.indentMiddle(), "코스닥시장", year, cy, Utility.toStringPastTimeReadable(started));
+					driver.findElementIncludeText(By.xpath("//div[@id='cntsPaging01']//a"), TIMEOUT, pageString).click();
+					driver.findElementIncludeTextAndClass(By.xpath("//div[@id='cntsPaging01']//a"), TIMEOUT, pageString, "w2pageList_label_selected");
+					WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
 					sb.append(driver.extractTextFromTableElement(table, "KOSDAQ\t"));
 					sb.append(MARK_ANDOLD_SINCE);
 				}
@@ -265,7 +267,7 @@ public class CrawlerService {
 		ParserResult result = ParserService.parse(text, false);
 		put(result);
 
-		log.info("{} {} crawlItemCompanyDividendTop() - {}", Utility.indentMiddle(), result, Utility.toStringPastTimeReadable(started));
+		log.info("{} {} crawlItemDividendTopCompany() - {}", Utility.indentMiddle(), result, Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 

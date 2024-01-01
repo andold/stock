@@ -29,14 +29,14 @@ public class StockParser extends Parser {
 		STRING=9, WORD=10;
 	public static final int
 		RULE_stockDocument = 0, RULE_crawlPriceEtf = 1, RULE_crawlPriceCompany = 2, 
-		RULE_crawlItemDetailCompanyThread = 3, RULE_crawlCompanyTopDividend = 4, 
+		RULE_crawlItemDetailCompanyThread = 3, RULE_crawlItemDividendTopCompany = 4, 
 		RULE_crawlEtfDetailThread = 5, RULE_extractAllEtfFromNaver = 6, RULE_crawlDividendHistoryEtfThread = 7, 
 		RULE_crawlDividendHistoryCompanyThread = 8, RULE_word = 9, RULE_line = 10, 
 		RULE_eof = 11;
 	private static String[] makeRuleNames() {
 		return new String[] {
 			"stockDocument", "crawlPriceEtf", "crawlPriceCompany", "crawlItemDetailCompanyThread", 
-			"crawlCompanyTopDividend", "crawlEtfDetailThread", "extractAllEtfFromNaver", 
+			"crawlItemDividendTopCompany", "crawlEtfDetailThread", "extractAllEtfFromNaver", 
 			"crawlDividendHistoryEtfThread", "crawlDividendHistoryCompanyThread", 
 			"word", "line", "eof"
 		};
@@ -121,8 +121,8 @@ public class StockParser extends Parser {
 		public CrawlEtfDetailThreadContext crawlEtfDetailThread() {
 			return getRuleContext(CrawlEtfDetailThreadContext.class,0);
 		}
-		public CrawlCompanyTopDividendContext crawlCompanyTopDividend() {
-			return getRuleContext(CrawlCompanyTopDividendContext.class,0);
+		public CrawlItemDividendTopCompanyContext crawlItemDividendTopCompany() {
+			return getRuleContext(CrawlItemDividendTopCompanyContext.class,0);
 		}
 		public CrawlItemDetailCompanyThreadContext crawlItemDetailCompanyThread() {
 			return getRuleContext(CrawlItemDetailCompanyThreadContext.class,0);
@@ -191,7 +191,7 @@ public class StockParser extends Parser {
 				enterOuterAlt(_localctx, 5);
 				{
 				setState(28);
-				crawlCompanyTopDividend();
+				crawlItemDividendTopCompany();
 				}
 				break;
 			case 6:
@@ -1171,7 +1171,7 @@ public class StockParser extends Parser {
 		return _localctx;
 	}
 
-	public static class CrawlCompanyTopDividendContext extends ParserRuleContext {
+	public static class CrawlItemDividendTopCompanyContext extends ParserRuleContext {
 		public Token type;
 		public Token code;
 		public List<TerminalNode> KEYWORD() { return getTokens(StockParser.KEYWORD); }
@@ -1204,28 +1204,28 @@ public class StockParser extends Parser {
 		public WordContext word(int i) {
 			return getRuleContext(WordContext.class,i);
 		}
-		public CrawlCompanyTopDividendContext(ParserRuleContext parent, int invokingState) {
+		public CrawlItemDividendTopCompanyContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_crawlCompanyTopDividend; }
+		@Override public int getRuleIndex() { return RULE_crawlItemDividendTopCompany; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof StockListener ) ((StockListener)listener).enterCrawlCompanyTopDividend(this);
+			if ( listener instanceof StockListener ) ((StockListener)listener).enterCrawlItemDividendTopCompany(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof StockListener ) ((StockListener)listener).exitCrawlCompanyTopDividend(this);
+			if ( listener instanceof StockListener ) ((StockListener)listener).exitCrawlItemDividendTopCompany(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof StockVisitor ) return ((StockVisitor<? extends T>)visitor).visitCrawlCompanyTopDividend(this);
+			if ( visitor instanceof StockVisitor ) return ((StockVisitor<? extends T>)visitor).visitCrawlItemDividendTopCompany(this);
 			else return visitor.visitChildren(this);
 		}
 	}
 
-	public final CrawlCompanyTopDividendContext crawlCompanyTopDividend() throws RecognitionException {
-		CrawlCompanyTopDividendContext _localctx = new CrawlCompanyTopDividendContext(_ctx, getState());
-		enterRule(_localctx, 8, RULE_crawlCompanyTopDividend);
+	public final CrawlItemDividendTopCompanyContext crawlItemDividendTopCompany() throws RecognitionException {
+		CrawlItemDividendTopCompanyContext _localctx = new CrawlItemDividendTopCompanyContext(_ctx, getState());
+		enterRule(_localctx, 8, RULE_crawlItemDividendTopCompany);
 		int _la;
 		try {
 			int _alt;
@@ -1322,7 +1322,7 @@ public class StockParser extends Parser {
 						{
 						{
 						setState(351);
-						((CrawlCompanyTopDividendContext)_localctx).type = match(WORD);
+						((CrawlItemDividendTopCompanyContext)_localctx).type = match(WORD);
 						setState(352);
 						match(TAB);
 						setState(353);
@@ -1335,7 +1335,7 @@ public class StockParser extends Parser {
 						if (_la==NUMBER) {
 							{
 							setState(355);
-							((CrawlCompanyTopDividendContext)_localctx).code = match(NUMBER);
+							((CrawlItemDividendTopCompanyContext)_localctx).code = match(NUMBER);
 							}
 						}
 
@@ -1388,9 +1388,9 @@ public class StockParser extends Parser {
 						setState(379);
 						match(NEWLINE);
 
-									ParserService.crawlCompanyTopDividend(20231217
-										, (((CrawlCompanyTopDividendContext)_localctx).code!=null?((CrawlCompanyTopDividendContext)_localctx).code.getText():null)
-										, (((CrawlCompanyTopDividendContext)_localctx).type!=null?((CrawlCompanyTopDividendContext)_localctx).type.getText():null)
+									ParserService.crawlItemDividendTopCompany(20231217
+										, (((CrawlItemDividendTopCompanyContext)_localctx).code!=null?((CrawlItemDividendTopCompanyContext)_localctx).code.getText():null)
+										, (((CrawlItemDividendTopCompanyContext)_localctx).type!=null?((CrawlItemDividendTopCompanyContext)_localctx).type.getText():null)
 									);
 								
 						}
