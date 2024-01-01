@@ -45,7 +45,7 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 
 	public CrawlDividendHistoryEtfThread(ConcurrentLinkedQueue<ItemDomain> list, Date start) {
 		this.items = list;
-		this.startDate = String.format("%tY%tm%td",
+		this.startDate = String.format("%1$tY%1$tm%1$td",
 				(start == null)
 					? Date.from(LocalDate.now().minusDays(7).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST))
 					: start);
