@@ -156,6 +156,15 @@ function Header(props: any) {
 			setSpinner(spinner - 1);
 		});
 	}
+	function handleOnCrawlItemEtf() {
+		setSpinner(spinner + 1);
+		store.crawlItemEtf({}, (_: any) => {
+			if (spinner == 1) {	// 마지막에서만 재검색
+				onChange && onChange({});
+			}
+			setSpinner(spinner - 1);
+		});
+	}
 	function handleOnClickCrawlItemCompanyDetails() {
 		setSpinner(spinner + 1);
 		store.crawlItemCompanyDetails({}, (_: any) => {
@@ -249,6 +258,7 @@ function Header(props: any) {
 								{!collapsed && (<>
 									<NavDropdown title="Crawl" className="mx-1">
 										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlItemDividendTopCompany}>Crawl Item Dividend Top Company</NavDropdown.Item>
+										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlItemEtf}>Crawl Item ETF</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemCompanyDetails}>Crawl Item Company Details</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemEtfDetails}>Crawl Item ETF Details</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlDividendHistoryCompany}>Crawl Dividend History Company</NavDropdown.Item>

@@ -886,6 +886,9 @@ public class Utility {
 	public static String ellipsisEscape(String string, int size) {
 		return ellipsis(escape(string), size);
 	}
+	public static String ellipsisEscape(String[] strings, int size) {
+		return ellipsis(escape(strings), size);
+	}
 
 
 	public static String ellipsis(String string, int left, int right) {
@@ -1098,14 +1101,28 @@ public class Utility {
 			return null;
 		}
 		
-		return escaped.replace("\n", "ⓝ");
+		return escaped.replace("\n", "ⓝ").replace("\t", "ⓣ");
+	}
+	private static String escape(String[] strings) {
+		if (strings == null) {
+			return null;
+		}
+		if (strings.length == 0) {
+			return "";
+		}
+		StringBuffer sb = new StringBuffer(strings[0]);
+		for (int cx = 1, sizex = strings.length; cx < sizex; cx++) {
+			sb.append(" ");
+			sb.append(strings[cx]);
+		}
+		return escape(sb.toString());
 	}
 	public static String unescape(String escaped) {
 		if (escaped == null) {
 			return null;
 		}
 		
-		return escaped.replace("ⓝ", "\n");
+		return escaped.replace("ⓝ", "\n").replace("ⓣ", "\t");
 	}
 
 	public static String escapeDQuoted(String text) {

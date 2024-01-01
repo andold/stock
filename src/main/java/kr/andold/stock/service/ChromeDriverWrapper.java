@@ -8,6 +8,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ChromeDriverWrapper extends ChromeDriver {
 
 	private static final int PAUSE = 100;
@@ -17,16 +20,24 @@ public class ChromeDriverWrapper extends ChromeDriver {
 	}
 
 	public WebElement findElement(By xpath, int milli) throws Exception {
+		log.info("{} findElement(..., {})", Utility.indentStart(), milli);
+		long started = System.currentTimeMillis();
+
 		Exception previous = null;
 		while (milli > 0) {
 			try {
-				return super.findElement(xpath);
+				WebElement e = super.findElement(xpath);
+
+				log.info("{} {} findElement(..., {}) - {}", Utility.indentEnd(), "SUCCESS", milli, Utility.toStringPastTimeReadable(started));
+				return e;
 			} catch (Exception e) {
 				previous = e;
 			}
 			Utility.sleep(PAUSE);
 			milli -= PAUSE;
 		}
+
+		log.error("{} {} findElement(..., {}) - {}", Utility.indentEnd(), "FAILURE", milli, Utility.toStringPastTimeReadable(started));
 		throw previous;
 	}
 
@@ -71,11 +82,18 @@ public class ChromeDriverWrapper extends ChromeDriver {
 	}
 
 	public boolean waitUntilTextNotInclude(By xpath, int milli, String... marks) throws Exception {
+		log.info("{} waitUntilTextNotInclude(..., {}, 『{}』)", Utility.indentStart(), milli, Utility.ellipsisEscape(marks, 16));
+		long started = System.currentTimeMillis();
+
 		while (milli > 0) {
 			try {
 				boolean found = false;
 				String text = getText(xpath, 1, "waitUntilTextInclude");
 				for (String mark : marks) {
+					if (mark.length() == 0 && text.length() > 0) {
+						log.info("{} {} waitUntilTextNotInclude(..., {}, 『{}』) - {}", Utility.indentEnd(), true, milli, "marks", Utility.toStringPastTimeReadable(started));
+						return true;
+					}
 					if (text.contains(mark)) {
 						found = true;
 						break;
@@ -88,6 +106,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 					continue;
 				}
 
+				log.info("{} {} waitUntilTextNotInclude(..., {}, 『{}』) - {}", Utility.indentEnd(), true, milli, "marks", Utility.toStringPastTimeReadable(started));
 				return true;
 			} catch (Exception e) {
 			}
@@ -95,15 +114,20 @@ public class ChromeDriverWrapper extends ChromeDriver {
 			milli -= PAUSE;
 		}
 
+		log.info("{} {} waitUntilTextNotInclude(..., {}, 『{}』) - {}", Utility.indentEnd(), false, milli, "marks", Utility.toStringPastTimeReadable(started));
 		return false;
 	}
 
 	public boolean waitUntilTextInclude(By xpath, int milli, String... marks) throws Exception {
+		log.info("{} waitUntilTextInclude(..., {}, 『{}』)", Utility.indentStart(), milli, "marks");
+		long started = System.currentTimeMillis();
+
 		while (milli > 0) {
 			try {
 				String text = getText(xpath, 1, "waitUntilTextInclude");
 				for (String mark : marks) {
 					if (text.contains(mark)) {
+						log.info("{} {} waitUntilTextInclude(..., {}, 『{}』) - {}", Utility.indentEnd(), true, milli, "marks", Utility.toStringPastTimeReadable(started));
 						return true;
 					}
 				}
@@ -113,6 +137,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 			milli -= PAUSE;
 		}
 
+		log.info("{} {} waitUntilTextInclude(..., {}, 『{}』) - {}", Utility.indentEnd(), false, milli, "marks", Utility.toStringPastTimeReadable(started));
 		return false;
 	}
 
@@ -272,22 +297,34 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		return extractTextFromTableElement(e, "");
 	}
 	public String extractTextFromTableElement(WebElement e, String prefix) {
+		log.info("{} extractTextFromTableElement(..., 『{}』)", Utility.indentStart(), Utility.ellipsisEscape(prefix, 16));
+		long started = System.currentTimeMillis();
+
 		StringBuffer sb = new StringBuffer();
 		e.findElements(By.tagName("tr")).forEach(tr -> sb.append(extractTextFromTrElement(tr, prefix)));
-		return new String(sb);
+		String result = new String(sb);
+
+		log.info("{} {} extractTextFromTableElement(..., 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(result, 16), Utility.ellipsisEscape(prefix, 16), Utility.toStringPastTimeReadable(started));
+		return result;
 	}
 
 	public String getText(By xpath, int milli, String value) {
+		log.info("{} getText(..., {}, 『{}』)", Utility.indentStart(), milli, Utility.ellipsisEscape(value, 16));
+		long started = System.currentTimeMillis();
+
 		try {
 			List<WebElement> es = findElements(xpath, milli);
 			StringBuffer sb = new StringBuffer();
 			for (WebElement e: es) {
 				sb.append(e.getText());
 			}
-			return sb.toString();
+			String result = new String(sb);
+			log.info("{} 『{}』 getText(..., {}, 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(result, 16), milli, Utility.ellipsisEscape(value, 16), Utility.toStringPastTimeReadable(started));
+			return result;
 		} catch (Exception e) {
 		}
 
+		log.info("{} 『{}』 getText(..., {}, 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(value, 16), milli, Utility.ellipsisEscape(value, 16), Utility.toStringPastTimeReadable(started));
 		return value;
 	}
 

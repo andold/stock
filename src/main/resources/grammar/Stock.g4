@@ -18,38 +18,75 @@ import kr.andold.stock.service.ParserService;
 stockDocument
 :	crawlDividendHistoryCompanyThread	// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당내역전체겁색 > 조회
 |	crawlDividendHistoryEtfThread
-|	extractAllEtfFromNaver
 |	crawlEtfDetailThread			// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
 |	crawlItemDividendTopCompany		// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당순위
+|	crawlItemEtf					// KSD증권정보포털(SEIBro) > ETF > 종목발행현황
 |	crawlItemDetailCompanyThread	// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 종목종합내역 (KSD증권정보포털(SEIBro) > 기업 > 기업기본정보와 동일)
 |	crawlPriceCompany				// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 일자별시세
 |	crawlPriceEtf					// KSD 증권정보포털 SEIBro > ETF > ETF종합정보 > 기준가추이
 ;
 
 
+// KSD증권정보포털(SEIBro) > ETF > 종목발행현황
+crawlItemEtf:
+KEYWORD TAB WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 crawlItemEtf 	 ETF 종목 발행현황 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06025V.xml&menuNo=174 
+	(
+WORD TAB										NEWLINE		//	ETF 	 
+WORD TAB WORD TAB WORD TAB TAB WORD TAB WORD TAB WORD TAB WORD		NEWLINE		//	ETF 	 선택 	 종목명 	 	 유형 	 순자산 	 종가 	 거래량 
+WORD TAB TAB TAB WORD TAB TAB TAB TAB TAB TAB WORD TAB WORD TAB		NEWLINE		//	(3개월평균) 	 	 	 수익률(%) 	 	 	 	 	 	 총보수(%) 	 운용사 	 
+	(
+type=WORD TAB TAB
+symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* TAB
+code=NUMBER TAB
+category=word category1=word? category2=word? category3=word? category4=word? category5=word? category6=word? category7=word* TAB
+asset=NUMBER TAB
+closing=NUMBER TAB
+amount=NUMBER TAB
+TAB TAB
+priceEarningsRatio=NUMBER? TAB
+TAB TAB TAB TAB TAB
+fee=NUMBER? TAB
+operator=WORD TAB		NEWLINE
+		//	ETF 	 	 TIGER CD금리투자KIS(합성) 	 357870 	 채권/단기자금 	 66,923 	 53,580 	 232,520 	 	 	 0.91 	 	 	 	 	 	 0.03 	 미래에셋자산운용 	 
+		{
+			ParserService.crawlEtfDetailThread(20231217
+				, $code.text
+				, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
+				, $category.text, $category1.text, $category2.text, $category3.text, $category4.text, $category5.text, $category6.text, $category7.text
+				, null
+				, $fee.text
+			);
+		}
+	)+
+WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27 
+	)+
+KEYWORD TAB WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 crawlItemEtf 	 ETF 종목 발행현황 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06025V.xml&menuNo=174 
+;
+
+
 // KSD 증권정보포털 SEIBro > ETF > ETF종합정보 > 기준가추이
 crawlPriceEtf:
-KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD								NEWLINE		//	KEYWORD 	 ETF 일별시세 	 CrawlPriceEtfThread 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06033V.xml&menuNo=182 
-(
-	code=NUMBER TAB symbol=word+												NEWLINE		//	143860 	 TIGER 헬스케어 
+	KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD								NEWLINE		//	KEYWORD 	 ETF 일별시세 	 CrawlPriceEtfThread 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06033V.xml&menuNo=182 
 	(
-		WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE		//	일자 	 종가 	 전일비 	 시가 	 고가 	 저가 	 거래량 	 거래대금 	 
-		((
-			TAB TAB TAB TAB TAB TAB TAB TAB											NEWLINE		//		 	 	 	 	 	 	 	 
-		) | (
-			base=DATE? TAB closing=NUMBER? TAB NUMBER? TAB market=NUMBER? TAB high=NUMBER? TAB low=NUMBER TAB volume=NUMBER TAB NUMBER? TAB		NEWLINE
-					//	2023/12/15 	 32,300 	 320 	 32,165 	 32,320 	 32,070 	 121,115 	 3,900 	 
-			{
-				ParserService.crawlPriceCompanyEtf(20231217
-					, $code.text, $symbol.text
-					, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
-				);
-			}
-		))+
+		code=NUMBER TAB symbol=word+												NEWLINE		//	143860 	 TIGER 헬스케어 
+		(
+			WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE		//	일자 	 종가 	 전일비 	 시가 	 고가 	 저가 	 거래량 	 거래대금 	 
+			((
+				TAB TAB TAB TAB TAB TAB TAB TAB											NEWLINE		//		 	 	 	 	 	 	 	 
+			) | (
+				base=DATE? TAB closing=NUMBER? TAB NUMBER? TAB market=NUMBER? TAB high=NUMBER? TAB low=NUMBER TAB volume=NUMBER TAB NUMBER? TAB		NEWLINE
+						//	2023/12/15 	 32,300 	 320 	 32,165 	 32,320 	 32,070 	 121,115 	 3,900 	 
+				{
+					ParserService.crawlPriceCompanyEtf(20231217
+						, $code.text, $symbol.text
+						, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
+					);
+				}
+			))+
+		)+
+		WORD TAB WORD TAB DATE							NEWLINE		//	andold 	 since 	 2023-11-27 
 	)+
-	WORD TAB WORD TAB DATE							NEWLINE		//	andold 	 since 	 2023-11-27 
-)+
-KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD	NEWLINE		//	KEYWORD 	 ETF 일별시세 	 CrawlPriceEtfThread 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06033V.xml&menuNo=182 
+	KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD	NEWLINE		//	KEYWORD 	 ETF 일별시세 	 CrawlPriceEtfThread 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06033V.xml&menuNo=182 
 ;
 
 
@@ -130,40 +167,25 @@ KEYWORD TAB WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 cra
 
 // KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
 crawlEtfDetailThread:
-KEYWORD TAB WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 ETF 상세 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS906032V.xml&menuNo=514 
-(
-	KEYWORD TAB code=NUMBER TAB word*		NEWLINE
-	symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*					NEWLINE		//	KODEX 에너지화학[117460] 
-	category=word category1=word? category2=word? category3=word? category4=word? category5=word? category6=word? category7=word*	NEWLINE		//	섹터/소재 
-	ipo=DATE WORD*							NEWLINE		//	2009/10/09 (14년 2개월) 
-	fee=word								NEWLINE		//	0.45 
-	WORD TAB WORD TAB DATE					NEWLINE		//	andold 	 since 	 2023-11-27 
-	{
-		ParserService.crawlEtfDetailThread(20231217
-			, $code.text
-			, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
-			, $category.text, $category1.text, $category2.text, $category3.text, $category4.text, $category5.text, $category6.text, $category7.text
-			, $ipo.text
-			, $fee.text
-		);
-	}
-)+
-KEYWORD TAB WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 ETF 상세 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS906032V.xml&menuNo=514 
-;
-
-
-extractAllEtfFromNaver:
-(
-	KEYWORD TAB code=WORD TAB symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*		NEWLINE
-			//	KEYWORD 	 https://finance.naver.com/item/main.naver?code=357870 	 TIGER CD금리투자KIS(합성) 
-	{
-		ParserService.extractAllEtfFromNaver(20231214
-			, $code.text
-			, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
-		);
-	}
-)+
-WORD TAB WORD TAB DATE							NEWLINE		//	andold 	 since 	 2023-11-27 
+	KEYWORD TAB WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 ETF 상세 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS906032V.xml&menuNo=514 
+	(
+		KEYWORD TAB code=NUMBER TAB word*		NEWLINE
+		symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*					NEWLINE		//	KODEX 에너지화학[117460] 
+		category=word category1=word? category2=word? category3=word? category4=word? category5=word? category6=word? category7=word*	NEWLINE		//	섹터/소재 
+		ipo=DATE WORD*							NEWLINE		//	2009/10/09 (14년 2개월) 
+		fee=word								NEWLINE		//	0.45 
+		WORD TAB WORD TAB DATE					NEWLINE		//	andold 	 since 	 2023-11-27 
+		{
+			ParserService.crawlEtfDetailThread(20231217
+				, $code.text
+				, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
+				, $category.text, $category1.text, $category2.text, $category3.text, $category4.text, $category5.text, $category6.text, $category7.text
+				, $ipo.text
+				, $fee.text
+			);
+		}
+	)+
+	KEYWORD TAB WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 ETF 상세 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS906032V.xml&menuNo=514 
 ;
 
 

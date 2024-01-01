@@ -161,12 +161,6 @@ public class ParserService {
 		LIST_STOCK_ITEM.add(item);
 	}
 
-	public static void extractAllEtfFromNaver(Integer date, String codeString, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7) {
-		String code = codeString.split("=")[1];
-		ItemDomain stockItem = new ItemDomain(null, code, null, null, true, null, null, null);
-		LIST_STOCK_ITEM.add(stockItem);
-	}
-
 	public static void crawlDividendHistoryEtfThread(Integer date, String code, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7, String base, String pay, String dividend,
 			String price, String ratio) {
 		LIST_STOCK_DIVIDEND_HOSTORY.add(DividendHistoryDomain.builder().code(code).base(Utility.parseDateTime(base)).pay(Utility.parseDateTime(pay)).dividend(Utility.parseInteger(dividend, null)).build());

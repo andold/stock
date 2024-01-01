@@ -119,12 +119,23 @@ public class ApiStockController {
 
 	@ResponseBody
 	@GetMapping(value = "crawl/item/dividend/top/company")
-	public ParserResult crawlDividendTopCompany() {
-		log.info("{} crawlDividendTopCompany()", Utility.indentStart());
+	public ParserResult crawlItemDividendTopCompany() {
+		log.info("{} crawlItemDividendTopCompany()", Utility.indentStart());
 
 		ParserResult result = stockCrawlerService.crawlItemDividendTopCompany();
 
-		log.info("{} {} - crawlDividendTopCompany()", Utility.indentEnd(), result);
+		log.info("{} {} - crawlItemDividendTopCompany()", Utility.indentEnd(), result);
+		return result;
+	}
+
+	@ResponseBody
+	@GetMapping(value = "crawl/item/etf")
+	public ParserResult crawlItemEtf() {
+		log.info("{} crawlItemEtf()", Utility.indentStart());
+
+		ParserResult result = stockCrawlerService.crawlItemEtf();
+
+		log.info("{} {} - crawlItemEtf()", Utility.indentEnd(), result);
 		return result;
 	}
 

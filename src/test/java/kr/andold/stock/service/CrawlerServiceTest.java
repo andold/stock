@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,15 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 public class CrawlerServiceTest {
 	@Autowired
 	private CrawlerService service;
-
-	@Test
-	public void testExtractAllEtfFromNaver() {
-		String text = service.extractAllEtfFromNaver();
-		ParserResult result = ParserService.parse(text, true);
-		for (ItemDomain item : result.getItems()) {
-			log.info("{}", item);
-		}
-	}
 
 	@Test
 	public void testCrawlDividendHistoryEtf() {
@@ -62,6 +52,12 @@ public class CrawlerServiceTest {
 	@Test
 	public void testCrawlPriceEtf() {
 		ParserResult result = service.crawlPriceEtf(null);
+		log.info("{}", result);
+	}
+
+	@Test
+	public void testCrawlItemEtf() {
+		ParserResult result = service.crawlItemEtf();
 		log.info("{}", result);
 	}
 
