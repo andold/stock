@@ -233,7 +233,7 @@ export function PriceEarningsRatioCellRenderer(param: any) {
 		return (<>
 			<Row className="mx-0 text-right">
 				<Col sm="4" md="3" xl="2" xxl="2" className="m-0 p-0">
-					<span>{(Math.max(dividends[YEARS - 1], dividends[YEARS - 2]) / currentPrice).toFixed(2)}</span>
+					<span>{(Math.max(dividends[YEARS - 1], dividends[YEARS - 2]) * 100 / currentPrice).toFixed(2)}</span>
 				</Col>
 				<Col ref={ref} sm="8" md="9" xl="10" xxl="10">
 					<Row className="m-0 p-0">
