@@ -208,6 +208,7 @@ export function PriorityCellRenderer(param: any) {
 
 // 최근 수익율
 export function PriceEarningsRatioCellRenderer(param: any) {
+	const YEARS = 7;
 	const mapHistory = param?.data?.custom?.mapHistory;
 	if (!mapHistory) {
 		return (<></>);
@@ -217,12 +218,9 @@ export function PriceEarningsRatioCellRenderer(param: any) {
 	const ref = useRef(null);
 
 	const thisYear = moment().year();
-	const d0 = mapHistory.get(thisYear) || 0;
-	const d1 = mapHistory.get(thisYear - 1) || 0;
-	const d2 = mapHistory.get(thisYear - 2) || 0;
-	const d3 = mapHistory.get(thisYear - 3) || 0;
-	const d4 = mapHistory.get(thisYear - 4) || 0;
-	const max = Math.max(d0, d1, d2, d3, d4);
+	const dividends = [];
+	store.range(YEARS).forEach((cx: number) => dividends.push(mapHistory.get(thisYear - YEARS + cx + 1) || 0));
+	const max = dividends.reduce((prev: number, curr: number) => Math.max(prev, curr), 0);
 	
 	function height(limit: number, max: number, value: number): number {
 		if (isNaN(limit) || isNaN(max) || isNaN(value)) {
@@ -231,49 +229,27 @@ export function PriceEarningsRatioCellRenderer(param: any) {
 
 		return limit * value / max;
 	}
-	function renderTooltipTheme1(props: any) {
-		return (<Tooltip id="button-tooltip" {...props}>
-			<Row className="mx-1 px-0 fw-bold text-warning" style={{ fontSize: 10 }}>
-				<Col xs={2} className="mx-1 px-0">항목</Col>
-				<Col className="mx-1 px-0 text-right">3년전</Col>
-				<Col className="mx-1 px-0 text-right">2년전</Col>
-				<Col className="mx-1 px-0 text-right">1년전</Col>
-				<Col className="mx-1 px-0 text-right">올해</Col>
-			</Row>
-			<Row className="mx-1 px-0" style={{ fontSize: 8 }}>
-				<Col xs={2} className="mx-1 px-0">배당금 (원)</Col>
-				<Col className="mx-1 px-0 text-right">{d3?.toLocaleString()}</Col>
-				<Col className="mx-1 px-0 text-right">{d2?.toLocaleString()}</Col>
-				<Col className="mx-1 px-0 text-right">{d1?.toLocaleString()}</Col>
-				<Col className="mx-1 px-0 text-right">{d0?.toLocaleString()}</Col>
-			</Row>
-			<Row className="mx-1 px-0" style={{ fontSize: 8 }}>
-				<Col xs={2} className="mx-1 px-0">수익률 (%)</Col>
-				<Col className="mx-1 px-0 text-right">{(d3 / currentPrice * 100).toFixed(2)}</Col>
-				<Col className="mx-1 px-0 text-right">{(d2 / currentPrice * 100).toFixed(2)}</Col>
-				<Col className="mx-1 px-0 text-right">{(d1 / currentPrice * 100).toFixed(2)}</Col>
-				<Col className="mx-1 px-0 text-right">{(d0 / currentPrice * 100).toFixed(2)}</Col>
-			</Row>
-		</Tooltip>
-		);
-	}
-
 	if (max > 0) {
 		return (<>
 			<Row className="mx-0 text-right">
 				<Col sm="4" md="3" xl="2" xxl="2" className="m-0 p-0">
-					<span>{(d1 / currentPrice).toFixed(2)}</span>
+					<span>{(Math.max(dividends[YEARS - 1], dividends[YEARS - 2]) / currentPrice).toFixed(2)}</span>
 				</Col>
 				<Col ref={ref} sm="8" md="9" xl="10" xxl="10">
-					<OverlayTrigger overlay={renderTooltipTheme1}>
-						<Row className="m-0 p-0">
-							<Col className="px-0 bg-primary" style={{ marginRight: 2, height: height(param.node.rowHeight, max, d4), marginTop: param.node.rowHeight - height(param.node.rowHeight, max, d4), }}></Col>
-							<Col className="px-0 bg-primary" style={{ marginRight: 2, height: height(param.node.rowHeight, max, d3), marginTop: param.node.rowHeight - height(param.node.rowHeight, max, d3), }}></Col>
-							<Col className="px-0 bg-primary" style={{ marginRight: 2, height: height(param.node.rowHeight, max, d2), marginTop: param.node.rowHeight - height(param.node.rowHeight, max, d2), }}></Col>
-							<Col className="px-0 bg-primary" style={{ marginRight: 2, height: height(param.node.rowHeight, max, d1), marginTop: param.node.rowHeight - height(param.node.rowHeight, max, d1), }}></Col>
-							<Col className="px-0 bg-danger" style={{ marginRight: 2, height: height(param.node.rowHeight, max, d0), marginTop: param.node.rowHeight - height(param.node.rowHeight, max, d0), }}></Col>
-						</Row>
-					</OverlayTrigger>
+					<Row className="m-0 p-0">
+					{
+						dividends.map((cx: number, index: number) => (
+							<Col key={index}
+								className={`px-0 ${index == YEARS - 1 ? "bg-danger" : "bg-primary"}`}
+								style={{
+									marginRight: 2,
+									height: height(param.node.rowHeight, max, cx),
+									marginTop: param.node.rowHeight - height(param.node.rowHeight, max, cx),
+								}}
+							></Col>
+						))
+					}
+					</Row>
 				</Col>
 			</Row>
 		</>);
