@@ -17,11 +17,11 @@ import kr.andold.stock.service.ParserService;
 
 stockDocument
 :	crawlDividendHistoryCompanyThread	// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당내역전체겁색 > 조회
-|	crawlDividendHistoryEtfThread
-|	crawlEtfDetailThread			// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
+|	crawlDividendHistoryEtfThread	// KSD증권정보포털(SEIBro) > ETF > ???
 |	crawlItemDividendTopCompany		// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당순위
 |	crawlItemEtf					// KSD증권정보포털(SEIBro) > ETF > 종목발행현황
 |	crawlItemDetailCompanyThread	// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 종목종합내역 (KSD증권정보포털(SEIBro) > 기업 > 기업기본정보와 동일)
+|	crawlEtfDetailThread			// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
 |	crawlPriceCompany				// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 일자별시세
 |	crawlPriceEtf					// KSD 증권정보포털 SEIBro > ETF > ETF종합정보 > 기준가추이
 ;
@@ -29,38 +29,38 @@ stockDocument
 
 // KSD증권정보포털(SEIBro) > ETF > 종목발행현황
 crawlItemEtf:
-KEYWORD TAB WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 crawlItemEtf 	 ETF 종목 발행현황 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06025V.xml&menuNo=174 
+	KEYWORD TAB WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 crawlItemEtf 	 ETF 종목 발행현황 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06025V.xml&menuNo=174 
 	(
-WORD TAB										NEWLINE		//	ETF 	 
-WORD TAB WORD TAB WORD TAB TAB WORD TAB WORD TAB WORD TAB WORD		NEWLINE		//	ETF 	 선택 	 종목명 	 	 유형 	 순자산 	 종가 	 거래량 
-WORD TAB TAB TAB WORD TAB TAB TAB TAB TAB TAB WORD TAB WORD TAB		NEWLINE		//	(3개월평균) 	 	 	 수익률(%) 	 	 	 	 	 	 총보수(%) 	 운용사 	 
-	(
-type=WORD TAB TAB
-symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* TAB
-code=NUMBER TAB
-category=word category1=word? category2=word? category3=word? category4=word? category5=word? category6=word? category7=word* TAB
-asset=NUMBER TAB
-closing=NUMBER TAB
-amount=NUMBER TAB
-TAB TAB
-priceEarningsRatio=NUMBER? TAB
-TAB TAB TAB TAB TAB
-fee=NUMBER? TAB
-operator=WORD TAB		NEWLINE
-		//	ETF 	 	 TIGER CD금리투자KIS(합성) 	 357870 	 채권/단기자금 	 66,923 	 53,580 	 232,520 	 	 	 0.91 	 	 	 	 	 	 0.03 	 미래에셋자산운용 	 
-		{
-			ParserService.crawlEtfDetailThread(20231217
-				, $code.text
-				, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
-				, $category.text, $category1.text, $category2.text, $category3.text, $category4.text, $category5.text, $category6.text, $category7.text
-				, null
-				, $fee.text
-			);
-		}
+		WORD TAB										NEWLINE		//	ETF 	 
+		WORD TAB WORD TAB WORD TAB TAB WORD TAB WORD TAB WORD TAB WORD		NEWLINE		//	ETF 	 선택 	 종목명 	 	 유형 	 순자산 	 종가 	 거래량 
+		WORD TAB TAB TAB WORD TAB TAB TAB TAB TAB TAB WORD TAB WORD TAB		NEWLINE		//	(3개월평균) 	 	 	 수익률(%) 	 	 	 	 	 	 총보수(%) 	 운용사 	 
+		(
+			type=WORD TAB TAB
+			symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* TAB
+			code=NUMBER TAB
+			category=word category1=word? category2=word? category3=word? category4=word? category5=word? category6=word? category7=word* TAB
+			asset=NUMBER TAB
+			closing=NUMBER TAB
+			amount=NUMBER TAB
+			TAB TAB
+			priceEarningsRatio=NUMBER? TAB
+			TAB TAB TAB TAB TAB
+			fee=NUMBER? TAB
+			operator=WORD TAB		NEWLINE
+					//	ETF 	 	 TIGER CD금리투자KIS(합성) 	 357870 	 채권/단기자금 	 66,923 	 53,580 	 232,520 	 	 	 0.91 	 	 	 	 	 	 0.03 	 미래에셋자산운용 	 
+			{
+				ParserService.crawlEtfDetailThread(20231217
+					, $code.text
+					, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
+					, $category.text, $category1.text, $category2.text, $category3.text, $category4.text, $category5.text, $category6.text, $category7.text
+					, null
+					, $fee.text
+				);
+			}
+		)+
+		WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27 
 	)+
-WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27 
-	)+
-KEYWORD TAB WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 crawlItemEtf 	 ETF 종목 발행현황 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06025V.xml&menuNo=174 
+	KEYWORD TAB WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 crawlItemEtf 	 ETF 종목 발행현황 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06025V.xml&menuNo=174 
 ;
 
 

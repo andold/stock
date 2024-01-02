@@ -309,7 +309,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 	}
 
 	public String getText(By xpath, int milli, String value) {
-		log.info("{} getText(..., {}, 『{}』)", Utility.indentStart(), milli, Utility.ellipsisEscape(value, 16));
+		log.trace("{} getText(..., {}, 『{}』)", Utility.indentStart(), milli, Utility.ellipsisEscape(value, 16));
 		long started = System.currentTimeMillis();
 
 		try {
@@ -319,12 +319,12 @@ public class ChromeDriverWrapper extends ChromeDriver {
 				sb.append(e.getText());
 			}
 			String result = new String(sb);
-			log.info("{} 『{}』 getText(..., {}, 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(result, 16), milli, Utility.ellipsisEscape(value, 16), Utility.toStringPastTimeReadable(started));
+			log.trace("{} 『{}』 getText(..., {}, 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(result, 16), milli, Utility.ellipsisEscape(value, 16), Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 		}
 
-		log.info("{} 『{}』 getText(..., {}, 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(value, 16), milli, Utility.ellipsisEscape(value, 16), Utility.toStringPastTimeReadable(started));
+		log.trace("{} 『{}』 getText(..., {}, 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(value, 16), milli, Utility.ellipsisEscape(value, 16), Utility.toStringPastTimeReadable(started));
 		return value;
 	}
 

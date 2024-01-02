@@ -47,6 +47,9 @@ public class StockService {
 	private StockRepository repository;
 
 	public boolean upload(MultipartFile file) {
+		log.info("{} upload({})", Utility.indentStart(), Utility.toStringJson(file, 16));
+		long started = System.currentTimeMillis();
+
 		try {
 			InputStream inputStream = file.getInputStream();
 			String text = Utility.extractStringFromText(inputStream);
@@ -67,15 +70,19 @@ public class StockService {
 			for (InnerPriceParam x : param.getPrices()) {
 				prices.add(x.toDomain());
 			}
-			itemService.put(items);
-			dividendService.put(dividends);
-			dividendHistoryService.put(histories);
-			priceService.put(prices);
+
+			CrudList<ItemDomain> crudItems = itemService.put(items);
+			CrudList<DividendDomain> crudDividends = dividendService.put(dividends);
+			CrudList<DividendHistoryDomain> crudHistories = dividendHistoryService.put(histories);
+			CrudList<PriceDomain> crudPrices = priceService.put(prices);
+
+			log.info("{} {} items:{} dividends:{} histories:{} prices:{} upload({}) - {}", Utility.indentEnd(), false, crudItems, crudDividends, crudHistories, crudPrices, Utility.toStringJson(file, 16), Utility.toStringPastTimeReadable(started));
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
+		log.info("{} {} upload({}) - {}", Utility.indentEnd(), false, Utility.toStringJson(file, 16), Utility.toStringPastTimeReadable(started));
 		return false;
 	}
 

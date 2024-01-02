@@ -115,9 +115,6 @@ public class StockParser extends Parser {
 		public CrawlDividendHistoryEtfThreadContext crawlDividendHistoryEtfThread() {
 			return getRuleContext(CrawlDividendHistoryEtfThreadContext.class,0);
 		}
-		public CrawlEtfDetailThreadContext crawlEtfDetailThread() {
-			return getRuleContext(CrawlEtfDetailThreadContext.class,0);
-		}
 		public CrawlItemDividendTopCompanyContext crawlItemDividendTopCompany() {
 			return getRuleContext(CrawlItemDividendTopCompanyContext.class,0);
 		}
@@ -126,6 +123,9 @@ public class StockParser extends Parser {
 		}
 		public CrawlItemDetailCompanyThreadContext crawlItemDetailCompanyThread() {
 			return getRuleContext(CrawlItemDetailCompanyThreadContext.class,0);
+		}
+		public CrawlEtfDetailThreadContext crawlEtfDetailThread() {
+			return getRuleContext(CrawlEtfDetailThreadContext.class,0);
 		}
 		public CrawlPriceCompanyContext crawlPriceCompany() {
 			return getRuleContext(CrawlPriceCompanyContext.class,0);
@@ -177,28 +177,28 @@ public class StockParser extends Parser {
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(26);
-				crawlEtfDetailThread();
+				crawlItemDividendTopCompany();
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(27);
-				crawlItemDividendTopCompany();
+				crawlItemEtf();
 				}
 				break;
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
 				setState(28);
-				crawlItemEtf();
+				crawlItemDetailCompanyThread();
 				}
 				break;
 			case 6:
 				enterOuterAlt(_localctx, 6);
 				{
 				setState(29);
-				crawlItemDetailCompanyThread();
+				crawlEtfDetailThread();
 				}
 				break;
 			case 7:
@@ -639,14 +639,14 @@ public class StockParser extends Parser {
 						setState(160);
 						match(NEWLINE);
 
-									ParserService.crawlEtfDetailThread(20231217
-										, (((CrawlItemEtfContext)_localctx).code!=null?((CrawlItemEtfContext)_localctx).code.getText():null)
-										, (((CrawlItemEtfContext)_localctx).symbol!=null?_input.getText(((CrawlItemEtfContext)_localctx).symbol.start,((CrawlItemEtfContext)_localctx).symbol.stop):null), (((CrawlItemEtfContext)_localctx).symbol1!=null?_input.getText(((CrawlItemEtfContext)_localctx).symbol1.start,((CrawlItemEtfContext)_localctx).symbol1.stop):null), (((CrawlItemEtfContext)_localctx).symbol2!=null?_input.getText(((CrawlItemEtfContext)_localctx).symbol2.start,((CrawlItemEtfContext)_localctx).symbol2.stop):null), (((CrawlItemEtfContext)_localctx).symbol3!=null?_input.getText(((CrawlItemEtfContext)_localctx).symbol3.start,((CrawlItemEtfContext)_localctx).symbol3.stop):null), (((CrawlItemEtfContext)_localctx).symbol4!=null?_input.getText(((CrawlItemEtfContext)_localctx).symbol4.start,((CrawlItemEtfContext)_localctx).symbol4.stop):null), (((CrawlItemEtfContext)_localctx).symbol5!=null?_input.getText(((CrawlItemEtfContext)_localctx).symbol5.start,((CrawlItemEtfContext)_localctx).symbol5.stop):null), (((CrawlItemEtfContext)_localctx).symbol6!=null?_input.getText(((CrawlItemEtfContext)_localctx).symbol6.start,((CrawlItemEtfContext)_localctx).symbol6.stop):null), (((CrawlItemEtfContext)_localctx).symbol7!=null?_input.getText(((CrawlItemEtfContext)_localctx).symbol7.start,((CrawlItemEtfContext)_localctx).symbol7.stop):null)
-										, (((CrawlItemEtfContext)_localctx).category!=null?_input.getText(((CrawlItemEtfContext)_localctx).category.start,((CrawlItemEtfContext)_localctx).category.stop):null), (((CrawlItemEtfContext)_localctx).category1!=null?_input.getText(((CrawlItemEtfContext)_localctx).category1.start,((CrawlItemEtfContext)_localctx).category1.stop):null), (((CrawlItemEtfContext)_localctx).category2!=null?_input.getText(((CrawlItemEtfContext)_localctx).category2.start,((CrawlItemEtfContext)_localctx).category2.stop):null), (((CrawlItemEtfContext)_localctx).category3!=null?_input.getText(((CrawlItemEtfContext)_localctx).category3.start,((CrawlItemEtfContext)_localctx).category3.stop):null), (((CrawlItemEtfContext)_localctx).category4!=null?_input.getText(((CrawlItemEtfContext)_localctx).category4.start,((CrawlItemEtfContext)_localctx).category4.stop):null), (((CrawlItemEtfContext)_localctx).category5!=null?_input.getText(((CrawlItemEtfContext)_localctx).category5.start,((CrawlItemEtfContext)_localctx).category5.stop):null), (((CrawlItemEtfContext)_localctx).category6!=null?_input.getText(((CrawlItemEtfContext)_localctx).category6.start,((CrawlItemEtfContext)_localctx).category6.stop):null), (((CrawlItemEtfContext)_localctx).category7!=null?_input.getText(((CrawlItemEtfContext)_localctx).category7.start,((CrawlItemEtfContext)_localctx).category7.stop):null)
-										, null
-										, (((CrawlItemEtfContext)_localctx).fee!=null?((CrawlItemEtfContext)_localctx).fee.getText():null)
-									);
-								
+										ParserService.crawlEtfDetailThread(20231217
+											, (((CrawlItemEtfContext)_localctx).code!=null?((CrawlItemEtfContext)_localctx).code.getText():null)
+											, (((CrawlItemEtfContext)_localctx).symbol!=null?_input.getText(((CrawlItemEtfContext)_localctx).symbol.start,((CrawlItemEtfContext)_localctx).symbol.stop):null), (((CrawlItemEtfContext)_localctx).symbol1!=null?_input.getText(((CrawlItemEtfContext)_localctx).symbol1.start,((CrawlItemEtfContext)_localctx).symbol1.stop):null), (((CrawlItemEtfContext)_localctx).symbol2!=null?_input.getText(((CrawlItemEtfContext)_localctx).symbol2.start,((CrawlItemEtfContext)_localctx).symbol2.stop):null), (((CrawlItemEtfContext)_localctx).symbol3!=null?_input.getText(((CrawlItemEtfContext)_localctx).symbol3.start,((CrawlItemEtfContext)_localctx).symbol3.stop):null), (((CrawlItemEtfContext)_localctx).symbol4!=null?_input.getText(((CrawlItemEtfContext)_localctx).symbol4.start,((CrawlItemEtfContext)_localctx).symbol4.stop):null), (((CrawlItemEtfContext)_localctx).symbol5!=null?_input.getText(((CrawlItemEtfContext)_localctx).symbol5.start,((CrawlItemEtfContext)_localctx).symbol5.stop):null), (((CrawlItemEtfContext)_localctx).symbol6!=null?_input.getText(((CrawlItemEtfContext)_localctx).symbol6.start,((CrawlItemEtfContext)_localctx).symbol6.stop):null), (((CrawlItemEtfContext)_localctx).symbol7!=null?_input.getText(((CrawlItemEtfContext)_localctx).symbol7.start,((CrawlItemEtfContext)_localctx).symbol7.stop):null)
+											, (((CrawlItemEtfContext)_localctx).category!=null?_input.getText(((CrawlItemEtfContext)_localctx).category.start,((CrawlItemEtfContext)_localctx).category.stop):null), (((CrawlItemEtfContext)_localctx).category1!=null?_input.getText(((CrawlItemEtfContext)_localctx).category1.start,((CrawlItemEtfContext)_localctx).category1.stop):null), (((CrawlItemEtfContext)_localctx).category2!=null?_input.getText(((CrawlItemEtfContext)_localctx).category2.start,((CrawlItemEtfContext)_localctx).category2.stop):null), (((CrawlItemEtfContext)_localctx).category3!=null?_input.getText(((CrawlItemEtfContext)_localctx).category3.start,((CrawlItemEtfContext)_localctx).category3.stop):null), (((CrawlItemEtfContext)_localctx).category4!=null?_input.getText(((CrawlItemEtfContext)_localctx).category4.start,((CrawlItemEtfContext)_localctx).category4.stop):null), (((CrawlItemEtfContext)_localctx).category5!=null?_input.getText(((CrawlItemEtfContext)_localctx).category5.start,((CrawlItemEtfContext)_localctx).category5.stop):null), (((CrawlItemEtfContext)_localctx).category6!=null?_input.getText(((CrawlItemEtfContext)_localctx).category6.start,((CrawlItemEtfContext)_localctx).category6.stop):null), (((CrawlItemEtfContext)_localctx).category7!=null?_input.getText(((CrawlItemEtfContext)_localctx).category7.start,((CrawlItemEtfContext)_localctx).category7.stop):null)
+											, null
+											, (((CrawlItemEtfContext)_localctx).fee!=null?((CrawlItemEtfContext)_localctx).fee.getText():null)
+										);
+									
 						}
 						}
 						break;
@@ -3602,8 +3602,8 @@ public class StockParser extends Parser {
 		"\u0000\u0010\u0329\u0001\u0000\u0000\u0000\u0012\u03c5\u0001\u0000\u0000"+
 		"\u0000\u0014\u03c9\u0001\u0000\u0000\u0000\u0016\u03d2\u0001\u0000\u0000"+
 		"\u0000\u0018!\u0003\u0010\b\u0000\u0019!\u0003\u000e\u0007\u0000\u001a"+
-		"!\u0003\f\u0006\u0000\u001b!\u0003\n\u0005\u0000\u001c!\u0003\u0002\u0001"+
-		"\u0000\u001d!\u0003\b\u0004\u0000\u001e!\u0003\u0006\u0003\u0000\u001f"+
+		"!\u0003\n\u0005\u0000\u001b!\u0003\u0002\u0001\u0000\u001c!\u0003\b\u0004"+
+		"\u0000\u001d!\u0003\f\u0006\u0000\u001e!\u0003\u0006\u0003\u0000\u001f"+
 		"!\u0003\u0004\u0002\u0000 \u0018\u0001\u0000\u0000\u0000 \u0019\u0001"+
 		"\u0000\u0000\u0000 \u001a\u0001\u0000\u0000\u0000 \u001b\u0001\u0000\u0000"+
 		"\u0000 \u001c\u0001\u0000\u0000\u0000 \u001d\u0001\u0000\u0000\u0000 "+
