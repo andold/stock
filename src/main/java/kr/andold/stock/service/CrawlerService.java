@@ -178,7 +178,7 @@ public class CrawlerService {
 		long started = System.currentTimeMillis();
 
 		String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01042V.xml&menuNo=286";
-		String MARK_START_END_POINT = String.format( "KEYWORD\t%s\t%\tURL\t%s\n", "crawlItemDividendTopCompany", "주식 상위 배당", URL);
+		String MARK_START_END_POINT = String.format("KEYWORD\t%s\t%s\tURL\t%s\n", "crawlItemDividendTopCompany", "주식 상위 배당", URL);
 		int YEARS = 3;
 
 		StringBuffer sb = new StringBuffer();
