@@ -59,6 +59,12 @@ public class CrawlerServiceTest {
 	}
 
 	@Test
+	public void testCrawlPriceEtfMultiPage() {
+		ParserResult result = service.crawlPriceEtf(Date.valueOf(LocalDate.now().minusMonths(1)));
+		log.info("{}", result);
+	}
+
+	@Test
 	public void testCrawlPriceEtf() {
 		ParserResult result = service.crawlPriceEtf(null);
 		log.info("{}", result);

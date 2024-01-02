@@ -37,8 +37,6 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 	private String startDate = null;;
 	private ConcurrentLinkedQueue<ItemDomain> items;
 	private ChromeDriverWrapper driver;
-	private WebElement frame;
-	private WebElement iconClosePopupedElement; // 검색결과창의 닫기 아이콘
 	@Setter private static Boolean debug = CrawlerService.debug;
 
 	public CrawlPriceEtfThread(ConcurrentLinkedQueue<ItemDomain> list) {
@@ -73,9 +71,6 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 			start.sendKeys(startDate);
 			start.sendKeys(Keys.TAB); // 시작일 입력
 			
-			// 검색결과창의 닫기 아이콘
-			iconClosePopupedElement = driver.findElement(By.xpath("//div[@id='group1520']/a[@id='anchor2']"), TIMEOUT);
-			frame = driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"), TIMEOUT);
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 			driver.quit();
@@ -127,24 +122,32 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 
 			//	멱등 초기화
 			driver.switchTo().defaultContent();
+			driver.clickIfExist(By.xpath("//div[@id='group1520']/a[@id='anchor2']"));	// // 검색결과창의 닫기 아이콘
 
 			//	종목명 검색 링크 클릭
 			driver.clickIfExist(By.xpath("//a[@id='sn_group4']"));
 
 			//	떠 있는 팝업으로 이동
-			driver.switchTo().frame(frame);
+			driver.switchTo().frame(driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"), TIMEOUT));
 
 			//	코드 입력
 			WebElement inputSearchElement = driver.findElement(By.xpath("//input[@id='search_string']"), TIMEOUT);	// 입력창
 			inputSearchElement.clear();
 			inputSearchElement.sendKeys(code); // 코드 입력
 			
-			// 종목명 검색 아이콘
-			String XPATH_MARK_CODE_SEARCH_DONE = "//ul[@id='contentsList']/li/a";
-			String previousSymbol = driver.getText(By.xpath(XPATH_MARK_CODE_SEARCH_DONE), 1, "andold");	//	이전거 첫번째 종목 검색 결과
-			driver.clickIfExist(By.xpath("//a[@id='group236']/img"));
+			// 종목명 검색 아이콘	/html/body/div[1]/div/div[2]/div/div[3]/div/ul/li/a
+			String XPATH_MARK_CODE_SEARCH_DONE = "//div[@id='group227']/ul[@id='contentsList']/li/a[1]";
+			String previousSymbol = driver.getText(By.xpath(XPATH_MARK_CODE_SEARCH_DONE), 1, XPATH_MARK_CODE_SEARCH_DONE);	//	이전거 첫번째 종목 검색 결과
+			driver.clickIfExist(By.xpath("//div[@id='group252']/a[@id='group236']/img"));
 			//	이전거 지워져야지
-			driver.waitUntilTextNotInclude(By.xpath(XPATH_MARK_CODE_SEARCH_DONE), TIMEOUT, previousSymbol);
+			if (!driver.waitUntilTextNotInclude(By.xpath(XPATH_MARK_CODE_SEARCH_DONE), TIMEOUT, previousSymbol)) {
+				log.warn("{} #{} 『『{}』 vs 『{}』』 CrawlPriceEtfThread.extract({}) - {}", Utility.indentEnd()
+						, Utility.size(items)
+						, previousSymbol
+						, driver.getText(By.xpath(XPATH_MARK_CODE_SEARCH_DONE), 1, XPATH_MARK_CODE_SEARCH_DONE)
+						, item
+						, Utility.toStringPastTimeReadable(started));
+			}
 
 			//	검색 결과에서 선택
 			driver.clickIfExist(By.xpath(XPATH_MARK_CODE_SEARCH_DONE));
@@ -153,39 +156,26 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 			driver.switchTo().defaultContent();
 
 			// 조회 아이콘 클릭
-			String XPATH_MARK_TABLE_CLOSING_READ_DONE = "//table[@id='grid1_body_table']/tbody/tr[1]/td[2]";	//	2nd: 종가
-			String previousTableClosingMark = driver.getText(By.xpath(XPATH_MARK_TABLE_CLOSING_READ_DONE), 1, "andold");	//	이전거 첫번째 종가
-			String XPATH_MARK_TABLE_AMOUNT_READ_DONE = "//table[@id='grid1_body_table']/tbody/tr[1]/td[7]";	//	7th: 거래량
-			String previousTableAmountMark = driver.getText(By.xpath(XPATH_MARK_TABLE_AMOUNT_READ_DONE), 1, "andold");	//	이전거 첫번째 거래량
-			driver.waitUntilIsDisplayed(By.xpath("//div[@id='group1500']"), false, TIMEOUT);
-			driver.clickIfExist(By.xpath("//a[@id='group155']"));
-			//	이전거 지워져야지
-			driver.waitUntilTextNotInclude(By.xpath(XPATH_MARK_TABLE_CLOSING_READ_DONE), TIMEOUT, previousTableClosingMark, "");
-			driver.waitUntilTextNotInclude(By.xpath(XPATH_MARK_TABLE_AMOUNT_READ_DONE), TIMEOUT, previousTableAmountMark, "");
+			clickSearchPrice(driver);
 
 			//	내용 저장
 			StringBuffer sb = new StringBuffer();
 			sb.append(String.format("%s\t%s\n", code, item.getSymbol()));
-
-			// 페이지 처리
-			String XPATH_CURRENT_PAGE = "//div[@id='pageList1']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']";
-			String currentPage = driver.getText(By.xpath(XPATH_CURRENT_PAGE), TIMEOUT, "andold");	//	현재 페이지 번호
-			
 			while(true) {
 				//	테이블
 				WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
 				sb.append(driver.extractTextFromTableElement(table));
 
-				previousTableAmountMark = driver.getText(By.xpath(XPATH_MARK_TABLE_AMOUNT_READ_DONE), 1, "andold");	//	이전거 첫번째 거래량
-				driver.clickIfExist(By.xpath("//li[@id='pageList1_next_btn']/a"));
-				driver.waitUntilTextNotInclude(By.xpath(XPATH_MARK_TABLE_AMOUNT_READ_DONE), TIMEOUT, previousTableAmountMark, "");
-				String nextPage = driver.getText(By.xpath(XPATH_CURRENT_PAGE), TIMEOUT, currentPage);
-				if (currentPage.equalsIgnoreCase(nextPage)) {
+				if (isLastPage(driver)) {
 					break;
 				}
 				
-				log.info("{} #{} 쪽:{} CrawlPriceEtfThread.extract({}) - {}", Utility.indentMiddle(), Utility.size(items), currentPage, item, Utility.toStringPastTimeReadable(started));
-				currentPage = nextPage;
+				clickNextPage(driver);
+				log.info("{} #{} 쪽:{} CrawlPriceEtfThread.extract({}) - {}", Utility.indentMiddle()
+						, Utility.size(items)
+						, driver.getText(By.xpath("//div[@id='pageList1']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']"), TIMEOUT, "오류")
+						, item
+						, Utility.toStringPastTimeReadable(started));
 			}
 
 			sb.append(MARK_ANDOLD_SINCE);
@@ -197,11 +187,55 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
 			driver.switchTo().defaultContent();
-			iconClosePopupedElement.click();
 		}
 
 		log.debug("{} #{} 『{}』 CrawlPriceEtfThread.extract(#{}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
 		return "";
+	}
+
+	private boolean clickSearchPrice(ChromeDriverWrapper driver) {
+		try {
+			driver.waitUntilIsDisplayed(By.xpath("//div[@id='group1500']"), false, TIMEOUT);
+
+			By BY_TABLE_1ST_LINE = By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/");
+			String text1stLine = driver.getText(BY_TABLE_1ST_LINE, 1, MARK_ANDOLD_SINCE);
+			driver.clickIfExist(By.xpath("//a[@id='group155']"));
+			driver.waitUntilTextNotInclude(BY_TABLE_1ST_LINE, TIMEOUT, text1stLine);
+			return true;
+		} catch (Exception e) {
+			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
+	private boolean clickNextPage(ChromeDriverWrapper driver) {
+		try {
+			By BY_TABLE_1ST_LINE = By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/");
+			String text1stLine = driver.getText(BY_TABLE_1ST_LINE, 1, MARK_ANDOLD_SINCE);
+			driver.clickIfExist(By.xpath("//li[@id='pageList1_next_btn']/a"));
+			driver.waitUntilTextNotInclude(BY_TABLE_1ST_LINE, TIMEOUT, text1stLine);
+			return true;
+		} catch (Exception e) {
+			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
+	private boolean isLastPage(ChromeDriverWrapper driver) {
+		try {
+			By BY_PAGES = By.xpath("//div[@id='pageList1']/ul/li[@class='w2pageList_li_label']/a");
+			List<WebElement> pageElements = driver.findElements(BY_PAGES, 1);
+			if (pageElements == null || pageElements.isEmpty()) {
+				return true;
+			}
+
+			WebElement lastPage = pageElements.get(pageElements.size() - 1);
+			String clazz = lastPage.getAttribute("class");
+			return clazz.contains("w2pageList_label_selected");
+		} catch (Exception e) {
+			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+		}
+		return false;
 	}
 
 	public static ParserResult crawl(List<ItemDomain> items, Date start) {
@@ -211,6 +245,9 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 		long freeMemorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreeMemorySize();
 		int candidateProcessorsByFreeMemory = (int) (freeMemorySize / 512L / 1024L / 1024L);
 		int processors = Math.min(Math.max(1, candidateProcessorsByFreeMemory), Runtime.getRuntime().availableProcessors() - 1);
+		if (debug) {
+			processors = 1;
+		}
 
 		ExecutorService service = Executors.newFixedThreadPool(processors);
 		List<Future<ParserResult>> futureList = new ArrayList<>();
