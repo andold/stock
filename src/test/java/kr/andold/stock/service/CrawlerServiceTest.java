@@ -1,5 +1,8 @@
 package kr.andold.stock.service;
 
+import java.sql.Date;
+import java.time.LocalDate;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -46,6 +49,12 @@ public class CrawlerServiceTest {
 	@Test
 	public void testCrawlPriceCompany() {
 		ParserResult result = service.crawlPriceCompany(null);
+		log.info("{}", result);
+	}
+
+	@Test
+	public void testCrawlPriceCompanyMultiPage() {
+		ParserResult result = service.crawlPriceCompany(Date.valueOf(LocalDate.now().minusMonths(1)));
 		log.info("{}", result);
 	}
 

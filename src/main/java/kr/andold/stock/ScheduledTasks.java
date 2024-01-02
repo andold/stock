@@ -34,7 +34,7 @@ public class ScheduledTasks {
 	}
 
 	// 매주 일요일
-	@Scheduled(cron = "15 30 22 * * SUN")
+	@Scheduled(cron = "15 30 3 * * SUN")
 	public void scheduleTaskWeekly() {
 		// 3주전꺼부터 수집
 		Date start = Date.from(LocalDate.now().minusWeeks(3).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST));

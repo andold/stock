@@ -20,7 +20,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 	}
 
 	public WebElement findElement(By xpath, int milli) throws Exception {
-		log.info("{} findElement(..., {})", Utility.indentStart(), milli);
+		log.trace("{} findElement(..., {})", Utility.indentStart(), milli);
 		long started = System.currentTimeMillis();
 
 		Exception previous = null;
@@ -28,7 +28,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 			try {
 				WebElement e = super.findElement(xpath);
 
-				log.info("{} {} findElement(..., {}) - {}", Utility.indentEnd(), "SUCCESS", milli, Utility.toStringPastTimeReadable(started));
+				log.trace("{} {} findElement(..., {}) - {}", Utility.indentEnd(), "SUCCESS", milli, Utility.toStringPastTimeReadable(started));
 				return e;
 			} catch (Exception e) {
 				previous = e;
@@ -37,7 +37,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 			milli -= PAUSE;
 		}
 
-		log.error("{} {} findElement(..., {}) - {}", Utility.indentEnd(), "FAILURE", milli, Utility.toStringPastTimeReadable(started));
+		log.trace("{} {} findElement(..., {}) - {}", Utility.indentEnd(), "FAILURE", milli, Utility.toStringPastTimeReadable(started));
 		throw previous;
 	}
 
@@ -82,7 +82,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 	}
 
 	public boolean waitUntilTextNotInclude(By xpath, int milli, String... marks) throws Exception {
-		log.info("{} waitUntilTextNotInclude(..., {}, 『{}』)", Utility.indentStart(), milli, Utility.ellipsisEscape(marks, 16));
+		log.trace("{} waitUntilTextNotInclude(..., {}, 『{}』)", Utility.indentStart(), milli, Utility.ellipsisEscape(marks, 16));
 		long started = System.currentTimeMillis();
 
 		while (milli > 0) {
@@ -91,7 +91,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 				String text = getText(xpath, 1, "waitUntilTextInclude");
 				for (String mark : marks) {
 					if (mark.length() == 0 && text.length() > 0) {
-						log.info("{} {} waitUntilTextNotInclude(..., {}, 『{}』) - {}", Utility.indentEnd(), true, milli, "marks", Utility.toStringPastTimeReadable(started));
+						log.trace("{} {} waitUntilTextNotInclude(..., {}, 『{}』) - {}", Utility.indentEnd(), true, milli, "marks", Utility.toStringPastTimeReadable(started));
 						return true;
 					}
 					if (text.contains(mark)) {
@@ -106,7 +106,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 					continue;
 				}
 
-				log.info("{} {} waitUntilTextNotInclude(..., {}, 『{}』) - {}", Utility.indentEnd(), true, milli, "marks", Utility.toStringPastTimeReadable(started));
+				log.trace("{} {} waitUntilTextNotInclude(..., {}, 『{}』) - {}", Utility.indentEnd(), true, milli, "marks", Utility.toStringPastTimeReadable(started));
 				return true;
 			} catch (Exception e) {
 			}
@@ -114,7 +114,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 			milli -= PAUSE;
 		}
 
-		log.info("{} {} waitUntilTextNotInclude(..., {}, 『{}』) - {}", Utility.indentEnd(), false, milli, "marks", Utility.toStringPastTimeReadable(started));
+		log.trace("{} {} waitUntilTextNotInclude(..., {}, 『{}』) - {}", Utility.indentEnd(), false, milli, "marks", Utility.toStringPastTimeReadable(started));
 		return false;
 	}
 
@@ -297,14 +297,14 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		return extractTextFromTableElement(e, "");
 	}
 	public String extractTextFromTableElement(WebElement e, String prefix) {
-		log.info("{} extractTextFromTableElement(..., 『{}』)", Utility.indentStart(), Utility.ellipsisEscape(prefix, 16));
+		log.trace("{} extractTextFromTableElement(..., 『{}』)", Utility.indentStart(), Utility.ellipsisEscape(prefix, 16));
 		long started = System.currentTimeMillis();
 
 		StringBuffer sb = new StringBuffer();
 		e.findElements(By.tagName("tr")).forEach(tr -> sb.append(extractTextFromTrElement(tr, prefix)));
 		String result = new String(sb);
 
-		log.info("{} {} extractTextFromTableElement(..., 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(result, 16), Utility.ellipsisEscape(prefix, 16), Utility.toStringPastTimeReadable(started));
+		log.trace("{} {} extractTextFromTableElement(..., 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(result, 16), Utility.ellipsisEscape(prefix, 16), Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 

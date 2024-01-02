@@ -148,55 +148,64 @@ public class CrawlPriceCompanyThread implements Callable<ParserResult> {
 			driver.switchTo().defaultContent();
 
 			// 조회 아이콘 클릭
-			String XPATH_MARK_SEARCH_DONE = "//table/tbody/tr[1]/td[7]";
-			String previousAmount = driver.getText(By.xpath(XPATH_MARK_SEARCH_DONE), TIMEOUT, "andold");	//	이전거 첫번째 거래양
+			By BY_TABLE_1ST_LINE = By.xpath("//table/tbody/tr[1]");
+			String previous1stLine = driver.getText(BY_TABLE_1ST_LINE, 1, "andold");	//	이전거
 			driver.findElement(By.xpath("//a[@id='group44']"), TIMEOUT).click();
-
-			//	이전거 지워져야지
-			driver.waitUntilTextNotInclude(By.xpath(XPATH_MARK_SEARCH_DONE), TIMEOUT, previousAmount);
+			driver.waitUntilTextNotInclude(BY_TABLE_1ST_LINE, TIMEOUT, previous1stLine);	//	이전거
 
 			//	내용 저장
 			StringBuffer sb = new StringBuffer();
 			sb.append(String.format("%s\t%s\n", code, item.getSymbol()));
-
-			
-			// 페이지 처리
-			String XPATH_CURRENT_PAGE = "//div[@id='cntsPaging01']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']";
-			String currentPage = driver.getText(By.xpath(XPATH_CURRENT_PAGE), TIMEOUT, "andold");	//	현재 페이지 번호
-			
 			while(true) {
 				//	테이블
 				WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
 				sb.append(driver.extractTextFromTableElement(table));
 
-
-				previousAmount = driver.getText(By.xpath(XPATH_MARK_SEARCH_DONE), TIMEOUT, "andold");	//	이전거 첫번째 거래양
-				driver.clickIfExist(By.xpath("//li[@id='cntsPaging01_next_btn']/a"));
-				driver.waitUntilTextNotInclude(By.xpath(XPATH_MARK_SEARCH_DONE), TIMEOUT, previousAmount, "");
-
-				String nextPage = driver.getText(By.xpath(XPATH_CURRENT_PAGE), TIMEOUT, currentPage);
-				if (currentPage.equalsIgnoreCase(nextPage)) {
+				if (isLastPage(driver)) {
 					break;
 				}
-				
-				log.info("{} #{} 쪽:{} CrawlPriceCompanyThread.extract({}) - {}", Utility.indentMiddle(), Utility.size(items), currentPage, item, Utility.toStringPastTimeReadable(started));
-				currentPage = nextPage;
+
+				//	다음 페이지
+				previous1stLine = driver.getText(BY_TABLE_1ST_LINE, 1, "andold");	//	이전거 첫번째 거래양
+				driver.clickIfExist(By.xpath("//li[@id='cntsPaging01_next_btn']/a"));
+				driver.waitUntilTextNotInclude(BY_TABLE_1ST_LINE, TIMEOUT, previous1stLine);
+
+				log.info("{} #{} 쪽:{} CrawlPriceCompanyThread.extract({}) - {}", Utility.indentMiddle()
+						, Utility.size(items)
+						, driver.getText(By.xpath("//div[@id='cntsPaging01']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']"), TIMEOUT, "못찾음")
+						, item
+						, Utility.toStringPastTimeReadable(started));
 			}
-
 			sb.append(MARK_ANDOLD_SINCE);
-
 			String result = new String(sb);
 
 			log.debug("{} #{} 『{}』 CrawlPriceCompanyThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
-			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
+			log.error("{} Exception:: {} {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
 			driver.switchTo().defaultContent();
 			iconClosePopupedElement.click();
 		}
 
 		log.debug("{} #{} 『{}』 CrawlPriceCompanyThread.extract(#{}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
 		return "";
+	}
+
+	private boolean isLastPage(ChromeDriverWrapper driver) {
+		try {
+			By BY_PAGES = By.xpath("//div[@id='cntsPaging01']/ul/li[@class='w2pageList_li_label']/a");
+			List<WebElement> pageElements = driver.findElements(BY_PAGES, 1);
+			if (pageElements == null || pageElements.isEmpty()) {
+				return true;
+			}
+
+			WebElement lastPage = pageElements.get(pageElements.size() - 1);
+			String clazz = lastPage.getAttribute("class");
+			return clazz.contains("w2pageList_label_selected");
+		} catch (Exception e) {
+			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+		}
+		return false;
 	}
 
 	public static ParserResult crawl(List<ItemDomain> items, Date start) {
@@ -206,6 +215,7 @@ public class CrawlPriceCompanyThread implements Callable<ParserResult> {
 		long freeMemorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreeMemorySize();
 		int candidateProcessorsByFreeMemory = (int) (freeMemorySize / 512L / 1024L / 1024L);
 		int processors = Math.min(Math.max(1, candidateProcessorsByFreeMemory), Runtime.getRuntime().availableProcessors() - 1);
+		processors = 1;
 
 		ExecutorService service = Executors.newFixedThreadPool(processors);
 		List<Future<ParserResult>> futureList = new ArrayList<>();
