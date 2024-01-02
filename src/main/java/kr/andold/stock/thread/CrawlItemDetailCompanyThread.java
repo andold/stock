@@ -174,6 +174,9 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 		long freeMemorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreeMemorySize();
 		int candidateProcessorsByFreeMemory = (int) (freeMemorySize / 512L / 1024L / 1024L);
 		int processors = Math.min(Math.max(1, candidateProcessorsByFreeMemory), Runtime.getRuntime().availableProcessors() - 1);
+		if (debug) {
+			processors = 1;
+		}
 
 		ExecutorService service = Executors.newFixedThreadPool(processors);
 		List<Future<ParserResult>> futureList = new ArrayList<>();
