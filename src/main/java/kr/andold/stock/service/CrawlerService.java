@@ -342,17 +342,28 @@ public class CrawlerService {
 		log.info("{} crawlDividendHistoryCompany()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
+		if (LocalDate.now().isAfter(LocalDate.of(2024,  1,  1))) {
+			ParserResult result = CrawlDividendHistoryCompanyThread.crawl(start);
+			put(result);
+
+			log.info("{} {} crawlDividendHistoryCompany() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+			return result;
+		}
+
 		ParserResult container = new ParserResult().clear();
+		/*
 		List<ItemDomain> items = stockItemService.search(null);
 		List<ItemDomain> filtered = items.stream()
 				.filter(item -> isPossibleCompany(item))
 				.collect(Collectors.toList());
+
 		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
 		for (List<ItemDomain> partition: partitions) {
 			ParserResult result = CrawlDividendHistoryCompanyThread.crawl(partition, start);
 			container.addAll(result);
 			put(result);
 		}
+		*/
 
 		log.info("{} {} crawlDividendHistoryCompany() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
 		return container;
