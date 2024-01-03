@@ -261,7 +261,6 @@ class StockStore {
 			field: "priceEarningsRatio",
 			headerName: "최근 배당수익률(%)",
 			hide: hides && hides.includes("priceEarningsRatio"),
-			valueGetter: (params: any) => this.priceEarningsRatio(params.data.custom?.dividend, params.data?.custom?.histories),
 			comparator: (valueA: number, valueB: number, nodeA: any, nodeB: any, isDescending: boolean) => {
 				const p = nodeA.data.priority - nodeB.data.priority;
 				if (p != 0) {

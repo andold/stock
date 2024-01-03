@@ -2,7 +2,9 @@ package kr.andold.stock.service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -121,6 +123,27 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 
 		put(result.getPrices());
 		return result;
+	}
+
+	public Map<String, PriceDomain> currentPrice(List<PriceDomain> prices) {
+		Map<String, PriceDomain> map = new HashMap<>();
+
+		for (PriceDomain price: prices) {
+			String code = price.getCode();
+			PriceDomain prev = map.get(code);
+			if (prev == null) {
+				map.put(code, price);
+				continue;
+			}
+
+			Date prevBase = prev.getBase();
+			if (prevBase.before(price.getBase())) {
+				map.put(code, price);
+				continue;
+			}
+		}
+
+		return map;
 	}
 
 }

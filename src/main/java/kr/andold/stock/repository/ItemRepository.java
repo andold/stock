@@ -16,7 +16,7 @@ import kr.andold.stock.param.ItemParam;
 public interface ItemRepository extends JpaRepository<ItemEntity, Integer> {
 	final String QUERY_SEARCH_PARAM	=	""
 			+ "	SELECT	x"
-			+ "		FROM	ItemEntity x	LEFT JOIN DividendEntity	y ON y.code	=	x.code"
+			+ "		FROM	ItemEntity	x"
 			//	keyword
 			+ "		WHERE	("
 			+ "				:#{#param.keyword}	IS NULL"
@@ -42,16 +42,12 @@ public interface ItemRepository extends JpaRepository<ItemEntity, Integer> {
 			+ "			OR	x.updated	>=	:#{#param.updated}"
 			//	priceEarningsRatio
 			+ "		)	AND	("
-			+ "				:#{#param.priceEarningsRatio}				IS NULL"
-			+ "			OR	y.priceEarningsRatio						>	:#{#param.priceEarningsRatio}"
-			+ "			OR	(y.dividend / y.currentPrice * 100)			>	:#{#param.priceEarningsRatio}"
-			+ "			OR	(y.dividend1YAgo / y.currentPrice * 100)	>	:#{#param.priceEarningsRatio}"
-			+ "			OR	(y.dividend2YAgo / y.currentPrice * 100)	>	:#{#param.priceEarningsRatio}"
-			+ "			OR	(y.dividend3YAgo / y.currentPrice * 100)	>	:#{#param.priceEarningsRatio}"
-			+ "			OR	x.priority									<	8"
+			+ "				:#{#param.priceEarningsRatio}	IS NULL"
+			+ "			OR	x.priceEarningsRatio			>	:#{#param.priceEarningsRatio}"
+			+ "			OR	x.priority						<	8"
 			//	flexable
 			+ "		)"
-			+ "	ORDER BY	x.priority ASC, y.priceEarningsRatio DESC"
+			+ "	ORDER BY	x.priority ASC, x.priceEarningsRatio DESC"
 			;
 
 	@Query(value = QUERY_SEARCH_PARAM, nativeQuery = false)

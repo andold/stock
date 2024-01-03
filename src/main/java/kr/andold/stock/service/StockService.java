@@ -102,6 +102,11 @@ public class StockService {
 		List<DividendHistoryDomain> histories = dividendHistoryService.search(null);
 		List<PriceDomain> prices = priceService.search(null);
 		List<DividendDomain> dividends = dividendService.search(null);
+
+		// 최근 배당수익률 적용
+		List<ItemDomain> items = compilePriceEarningsRatioByHistoriesAndPrices(histories, prices);
+		itemService.put(items);
+		
 		Map<String, DividendDomain> map = dividendService.makeMap(dividends);
 		for (DividendDomain dividend : dividends) {
 			dividend.setDividend(null);
@@ -187,6 +192,55 @@ public class StockService {
 
 		log.info("{} {} compile() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;
+	}
+
+	private List<ItemDomain> compilePriceEarningsRatioByHistoriesAndPrices(List<DividendHistoryDomain> histories, List<PriceDomain> prices) {
+		List<ItemDomain> items = new ArrayList<>();
+		Map<String, Integer> mapHistory = dividendHistoryService.sumYearly(histories);
+		Map<String, PriceDomain> mapPrice = priceService.currentPrice(prices);
+		int thisYear = LocalDate.now().getYear();
+		
+		for (String code : mapPrice.keySet()) {
+			Float max = null;
+			for (int cx = thisYear - 2; cx <= thisYear; cx++) {
+				String key = String.format("%s.%d", code, cx);
+				Integer dividend = mapHistory.get(key);
+				if (dividend == null) {
+					continue;
+				}
+
+				PriceDomain price = mapPrice.get(code);
+				if (price == null) {
+					continue;
+				}
+
+				Integer currentPrice = price.getClosing();
+				if (currentPrice == null) {
+					continue;
+				}
+				
+				float par = dividend * 100f / currentPrice;
+				if (max == null) {
+					max = par;
+					continue;
+				}
+
+				max = Math.max(max, par);
+			}
+			
+			if (max == null) {
+				continue;
+			}
+			
+			items.add(ItemDomain
+					.builder()
+					.code(code)
+					.priceEarningsRatio(max)
+					.build());
+			
+		}
+		
+		return items;
 	}
 
 	// 주간 대표일자 월간 대표일자 연간 대표일자 특수(현재는 배당일) 대표일자 지정

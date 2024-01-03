@@ -1,8 +1,11 @@
 package kr.andold.stock.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,6 +125,26 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 
 		put(result.getHistories());
 		return result;
+	}
+
+	public Map<String, Integer> sumYearly(List<DividendHistoryDomain> histories) {
+		Map<String, Integer> map = new HashMap<>();
+		
+		for (DividendHistoryDomain history: histories) {
+			String code = history.getCode();
+			Integer year = LocalDate.ofInstant(history.getBase().toInstant(), Utility.ZONE_ID_KST).getYear();
+			Integer devidend = history.getDividend();
+			String key = String.format("%s.%d", code, year);
+			Integer prev = map.get(key);
+			if (prev == null) {
+				map.put(key, devidend);
+			} else {
+				map.put(key, prev + devidend);
+			}
+			
+		}
+
+		return map;
 	}
 
 }
