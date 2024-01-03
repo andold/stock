@@ -97,7 +97,7 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 			driver.switchTo().defaultContent();
 			driver.waitUntilIsDisplayed(By.xpath("//div[@id='___processbar2']"), false, TIMEOUT * 4);
 
-			// 종목명 검색
+			// 종목명 검색 클릭
 			driver.waitUntilIsDisplayed(By.xpath("//img[@id='sn_image1']"), true, TIMEOUT * 4);
 			driver.findElement(By.xpath("//img[@id='sn_image1']"), TIMEOUT).click(); // 종목명 검색 아이콘
 
@@ -110,12 +110,16 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 			inputSearchElement.clear();
 			inputSearchElement.sendKeys(code); // 코드 입력
 
-			// 종목명 검색 아이콘
+			// 종목명 검색 아이콘 클릭
 			driver.findElement(By.xpath("//a[@id='P_group100']"), TIMEOUT).click(); // 종목명 검색 아이콘
 
 			//	검색 결과에서 선택
+			if (!clickItemCode(driver, code)) {
+				log.warn("{} 종목 없음 #{} 『{} {} {}』 CrawlItemDetailCompanyThread.extract({}) - {}", Utility.indentEnd()
+						, Utility.size(items), item, item.getEtf(), item.getType(), Utility.toStringPastTimeReadable(started));
+				return "";
+			}
 			driver.findElementIncludeText(By.xpath("//ul[@id='P_isinList']/li/a/span"), TIMEOUT, code).click();
-
 
 			//	팝업이 닫혔다, 돌아간다
 			driver.switchTo().defaultContent();
@@ -159,6 +163,18 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 
 		log.trace("{} #{} 『{}』 CrawlItemDetailCompanyThread.extract(#{}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
 		return "";
+	}
+
+	private boolean clickItemCode(ChromeDriverWrapper driver, String code) {
+		try {
+			By BY_SEARCH_CODE_RESULT = By.xpath("//ul[@id='P_isinList']/li/a/span");
+			driver.waitUntilTextInclude(BY_SEARCH_CODE_RESULT, TIMEOUT, code);
+			driver.findElementIncludeText(BY_SEARCH_CODE_RESULT, TIMEOUT, code).click();
+			return true;
+		} catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+		}
+		return false;
 	}
 
 	public static ParserResult crawl(List<ItemDomain> items) {
