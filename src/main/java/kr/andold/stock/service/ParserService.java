@@ -121,6 +121,7 @@ public class ParserService {
 				, ipo);
 		ItemDomain item = ItemDomain.builder()
 				.code(code)
+				.etf(false)
 				.volumeOfListedShares(Utility.parseInteger(ea, null))
 				.ipoDate(Utility.parseDateTime(ipo, null))
 				.build();
