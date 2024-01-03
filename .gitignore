@@ -22,3 +22,5 @@ gradle-app.setting
 /bin/
 /.settings/
 /hs_err_pid25832.log
+/hs_err_pid20412.log
+/hs_err_pid22028.log

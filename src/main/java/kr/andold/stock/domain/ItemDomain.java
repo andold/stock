@@ -121,7 +121,7 @@ public class ItemDomain extends ItemEntity {
 			return compared;
 		}
 
-		compared = Utility.compare(getDividendCycle(), you.getDividendCycle());
+		compared = Utility.compare(getPriority(), you.getPriority());
 		if (compared != 0) {
 			return compared;
 		}

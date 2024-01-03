@@ -95,6 +95,9 @@ public class StockService {
 	}
 
 	public CrudList<DividendDomain> compile() {
+		log.info("{} compile()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
 		Calendar calendar = Calendar.getInstance();
 		List<DividendHistoryDomain> histories = dividendHistoryService.search(null);
 		List<PriceDomain> prices = priceService.search(null);
@@ -181,6 +184,8 @@ public class StockService {
 		}
 
 		CrudList<DividendDomain> result = dividendService.put(dividends);
+
+		log.info("{} {} compile() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
