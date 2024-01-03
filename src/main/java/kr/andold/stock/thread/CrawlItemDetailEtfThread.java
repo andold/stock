@@ -170,6 +170,7 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 
 	private boolean clickSearchCodeIconInPopup(ChromeDriverWrapper driver) {
 		try {
+			driver.waitUntilIsDisplayed(By.xpath("//div[@id='___processbar2']"), false, TIMEOUT);
 			By BY_CODE_SEARCH_RESULT_1ST = By.xpath("//ul[@id='contentsList']/li/a[1]");
 			String prev = driver.getText(BY_CODE_SEARCH_RESULT_1ST, TIMEOUT, "CrawlItemDetailEtfThread");
 			driver.findElement(By.xpath("//a[@id='group236']"), TIMEOUT).click();
