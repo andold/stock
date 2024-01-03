@@ -78,6 +78,7 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 		}
 
 		while (items.peek() != null) {
+			long whileStarted = System.currentTimeMillis();
 			StringBuffer sb = new StringBuffer();
 			sb.append(MARK_START_END_POINT);
 			for (int cx = 0; cx < JOB_SIZE; cx++) {
@@ -98,9 +99,9 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 					continue;
 				}
 
-				log.info("{} {}/{} 진행 『{}』 CrawlPriceEtfThread() - {}", Utility.indentMiddle(), cx, Utility.size(items), item, Utility.toStringPastTimeReadable(started));
 				String text = extract(item);
 				sb.append(text);
+				log.info("{} {}/{}:{} EXTRACTED 『{}』 CrawlPriceEtfThread.call()", Utility.indentMiddle(), cx, Utility.size(items), Utility.toStringPastTimeReadable(whileStarted), item);
 			}
 			sb.append(MARK_START_END_POINT);
 			String text = new String(sb);

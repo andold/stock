@@ -74,7 +74,7 @@
 		<appender-ref ref="stock" />
 		<appender-ref ref="error" />
 	</logger>
-	<logger name="kr.andold.stock.thread" additivity="false" level="debug">
+	<logger name="kr.andold.stock.thread" additivity="false" level="info">
 		<appender-ref ref="stock" />
 		<appender-ref ref="error" />
 	</logger>

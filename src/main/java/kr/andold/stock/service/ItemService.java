@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 	@Autowired
 	private ItemRepository repository;
 
+	@Cacheable(value= "items")
 	public ItemParam search(ItemParam param, Pageable pageable) {
 		Page<ItemEntity> page = repository.search(param, pageable);
 		param.setTotalPages(page.getTotalPages());
@@ -30,6 +33,7 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 		return param;
 	}
 
+	@Cacheable(value= "items")
 	@Override
 	public List<ItemDomain> search(ItemParam param) {
 		if (param == null) {
@@ -44,6 +48,7 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 				.collect(Collectors.toList());
 	}
 
+	@CacheEvict(value = "items")
 	@Override
 	public List<ItemDomain> update(List<ItemDomain> domains) {
 		List<ItemEntity> entities = toEntities(domains);
@@ -51,6 +56,7 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 		return toDomains(result);
 	}
 
+	@CacheEvict(value = "items")
 	public ItemDomain update(ItemDomain domain) {
 		Optional<ItemEntity> read = repository.findById(domain.getId());
 		if (read.isEmpty()) {
@@ -83,11 +89,13 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 		return domain.key();
 	}
 
+	@CacheEvict(value = "items")
 	@Override
 	public int remove(List<ItemDomain> domains) {
 		return 0;
 	}
 
+	@CacheEvict(value = "items")
 	@Override
 	public List<ItemDomain> create(List<ItemDomain> domains) {
 		List<ItemEntity> entities = toEntities(domains);

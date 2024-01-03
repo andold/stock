@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import kr.andold.stock.domain.PriceDomain;
@@ -21,6 +23,7 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 	@Autowired
 	private PriceRepository repository;
 
+	@CacheEvict(value = "prices")
 	@Override
 	public List<PriceDomain> update(List<PriceDomain> domains) {
 		List<PriceEntity> entities = toEntities(domains);
@@ -62,6 +65,7 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		return domain.key();
 	}
 
+	@Cacheable(value= "prices")
 	@Override
 	public List<PriceDomain> search(PriceParam param) {
 		List<PriceEntity> entities;
@@ -77,11 +81,13 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		return domains;
 	}
 
+	@CacheEvict(value = "prices")
 	@Override
 	public int remove(List<PriceDomain> domains) {
 		return 0;
 	}
 
+	@CacheEvict(value = "prices")
 	@Override
 	public List<PriceDomain> create(List<PriceDomain> domains) {
 		List<PriceEntity> entities = toEntities(domains);

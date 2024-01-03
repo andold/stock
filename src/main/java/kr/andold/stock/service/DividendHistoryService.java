@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import kr.andold.stock.domain.DividendHistoryDomain;
@@ -27,6 +29,7 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 		return CommonBlockService.super.put(domains.stream().filter(domain -> domain.getDividend() != null && domain.getDividend() > 0).collect(Collectors.toList()));
 	}
 
+	@CacheEvict(value = "histories")
 	@Override
 	public List<DividendHistoryDomain> update(List<DividendHistoryDomain> domains) {
 		List<DividendHistoryEntity> entities = toEntities(domains);
@@ -34,11 +37,13 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 		return toDomains(result);
 	}
 
+	@CacheEvict(value = "histories")
 	@Override
 	public int remove(List<DividendHistoryDomain> domains) {
 		return 0;
 	}
 
+	@CacheEvict(value = "histories")
 	@Override
 	public List<DividendHistoryDomain> create(List<DividendHistoryDomain> domains) {
 		List<DividendHistoryEntity> entities = toEntities(domains);
@@ -46,6 +51,7 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 		return toDomains(result);
 	}
 
+	@Cacheable(value= "histories")
 	@Override
 	public List<DividendHistoryDomain> search(DividendHistoryParam param) {
 		List<DividendHistoryEntity> entities = param == null ? repository.findAll() : repository.search(param);
