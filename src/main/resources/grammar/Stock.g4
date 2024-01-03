@@ -55,6 +55,7 @@ crawlItemEtf:
 					, $category.text, $category1.text, $category2.text, $category3.text, $category4.text, $category5.text, $category6.text, $category7.text
 					, null
 					, $fee.text
+					, null
 				);
 			}
 		)+
@@ -68,7 +69,22 @@ crawlItemEtf:
 crawlPriceEtf:
 	KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD								NEWLINE		//	KEYWORD 	 ETF 일별시세 	 CrawlPriceEtfThread 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06033V.xml&menuNo=182 
 	(
-		code=NUMBER TAB symbol=word+												NEWLINE		//	143860 	 TIGER 헬스케어 
+		code=NUMBER TAB word+														NEWLINE		//	143860 	 TIGER 헬스케어
+		(
+			KEYWORD TAB symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*					NEWLINE 
+			KEYWORD TAB category=word category1=word? category2=word? category3=word? category4=word? category5=word? category6=word? category7=word*	NEWLINE 
+			KEYWORD TAB ea=NUMBER																														NEWLINE 
+			{
+				ParserService.crawlEtfDetailThread(20231217
+					, $code.text
+					, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
+					, $category.text, $category1.text, $category2.text, $category3.text, $category4.text, $category5.text, $category6.text, $category7.text
+					, null
+					, null
+					, $ea.text
+				);
+			}
+		) 
 		(
 			WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE		//	일자 	 종가 	 전일비 	 시가 	 고가 	 저가 	 거래량 	 거래대금 	 
 			((
@@ -182,6 +198,7 @@ crawlEtfDetailThread:
 				, $category.text, $category1.text, $category2.text, $category3.text, $category4.text, $category5.text, $category6.text, $category7.text
 				, $ipo.text
 				, $fee.text
+				, null
 			);
 		}
 	)+

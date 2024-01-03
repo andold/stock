@@ -62,8 +62,10 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 		try {
 			driver.navigate().to(URL);
 			
-			// 넓게 보기 아이콘 크릭
-			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT * 4).click();
+			// 넓게 보기 아이콘 클릭
+			By BY_SHOW_WIDE_ICON = By.xpath("//a[@id='btn_wide']");
+			driver.waitUntilIsDisplayed(BY_SHOW_WIDE_ICON, true, TIMEOUT * 4);
+			driver.findElement(BY_SHOW_WIDE_ICON, TIMEOUT).click();
 			
 			// 시작일 입력
 			WebElement start = driver.findElement(By.xpath("//input[@id='inputCalendar1_input']"), TIMEOUT);
@@ -123,7 +125,7 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 
 			//	멱등 초기화
 			driver.switchTo().defaultContent();
-			driver.clickIfExist(By.xpath("//div[@id='group1520']/a[@id='anchor2']"));	// // 검색결과창의 닫기 아이콘
+			driver.clickIfExist(By.xpath("//div[@id='group1520']/a[@id='anchor2']"));	// 검색결과창의 닫기 아이콘
 
 			//	종목명 검색 링크 클릭
 			driver.clickIfExist(By.xpath("//a[@id='sn_group4']"));
@@ -136,32 +138,44 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 			inputSearchElement.clear();
 			inputSearchElement.sendKeys(code); // 코드 입력
 			
-			// 종목명 검색 아이콘	/html/body/div[1]/div/div[2]/div/div[3]/div/ul/li/a
-			String XPATH_MARK_CODE_SEARCH_DONE = "//div[@id='group227']/ul[@id='contentsList']/li/a[1]";
-			String previousSymbol = driver.getText(By.xpath(XPATH_MARK_CODE_SEARCH_DONE), 1, XPATH_MARK_CODE_SEARCH_DONE);	//	이전거 첫번째 종목 검색 결과
-			driver.clickIfExist(By.xpath("//div[@id='group252']/a[@id='group236']/img"));
-			//	이전거 지워져야지
-			if (!driver.waitUntilTextNotInclude(By.xpath(XPATH_MARK_CODE_SEARCH_DONE), TIMEOUT, previousSymbol)) {
-				log.warn("{} #{} 『『{}』 vs 『{}』』 CrawlPriceEtfThread.extract({}) - {}", Utility.indentEnd()
-						, Utility.size(items)
-						, previousSymbol
-						, driver.getText(By.xpath(XPATH_MARK_CODE_SEARCH_DONE), 1, XPATH_MARK_CODE_SEARCH_DONE)
-						, item
-						, Utility.toStringPastTimeReadable(started));
+			// 종목명 검색 아이콘 클릭
+			if (!clickSearchItemCode(driver)) {
+				log.warn("{} #{} 『{}』 CrawlPriceEtfThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
+				return "";
 			}
 
+			//	검색 결과 확인
+			if (driver.findElements(By.xpath("//div[@id='group227']/ul[@id='contentsList']/li/a"), TIMEOUT).size() != 1) {
+				log.warn("{} #{} 모호하다 『{}』 CrawlPriceEtfThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
+				return "";
+			}
+			
 			//	검색 결과에서 선택
-			driver.clickIfExist(By.xpath(XPATH_MARK_CODE_SEARCH_DONE));
+			driver.clickIfExist(By.xpath("//div[@id='group227']/ul[@id='contentsList']/li/a[1]"));
 
 			//	팝업이 닫혔다, 돌아간다
 			driver.switchTo().defaultContent();
 
 			// 조회 아이콘 클릭
-			clickSearchPrice(driver);
+			if (!clickSearchPrice(driver)) {
+				log.warn("{} #{} CrawlPriceEtfThread.extract({}) - {}", Utility.indentEnd()
+						, Utility.size(items)
+						, item
+						, Utility.toStringPastTimeReadable(started));
+				log.warn("{} #{} 『{}』 CrawlPriceEtfThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
+				return "";
+			}
+
+			// 첫번째 후보 선택
+			driver.clickIfExist(By.xpath("//div[@id='group227']/ul[@id='contentsList']/li/a[1]"));
 
 			//	내용 저장
 			StringBuffer sb = new StringBuffer();
 			sb.append(String.format("%s\t%s\n", code, item.getSymbol()));
+			
+			// 상세 정보
+			extractItemDetail(driver, sb);
+
 			while(true) {
 				//	테이블
 				WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
@@ -178,9 +192,7 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 						, item
 						, Utility.toStringPastTimeReadable(started));
 			}
-
 			sb.append(MARK_ANDOLD_SINCE);
-
 			String result = new String(sb);
 
 			log.debug("{} #{} 『{}』 CrawlPriceEtfThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), Utility.ellipsisEscape(result, 16), item, Utility.toStringPastTimeReadable(started));
@@ -194,13 +206,43 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 		return "";
 	}
 
+	private boolean extractItemDetail(ChromeDriverWrapper driver, StringBuffer sb) {
+		try {
+			// 종목이름 - symbol[${code}] 형태로 추출된다 ex) TIGER 미국나스닥100커버드콜(합성)[441680]
+			sb.append(String.format("KEYWORD\t%s\n", driver.findElement(By.xpath("//h3[@id='KOR_SECN_NM']"), TIMEOUT).getText()));
+			
+			// 분류 - ex) 파생상품/구조화
+			sb.append(String.format("KEYWORD\t%s\n", driver.findElement(By.xpath("//div[@id='ETF_BIG_SORT_NM']"), TIMEOUT).getText()));
+			
+			// 전일발행주식수(주) - ex) 23,800,000
+			sb.append(String.format("KEYWORD\t%s\n", driver.findElement(By.xpath("//dd[@id='TOT_ISSU_STKQTY']"), TIMEOUT).getText()));
+			return true;
+		} catch (Exception e) {
+			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
+	private boolean clickSearchItemCode(ChromeDriverWrapper driver) {
+		try {
+			//	이전거 첫번째 종목 검색 결과
+			String XPATH_MARK_CODE_SEARCH_DONE = "//div[@id='group227']/ul[@id='contentsList']/li/a[1]";
+			String previousSymbol = driver.getText(By.xpath(XPATH_MARK_CODE_SEARCH_DONE), 1, XPATH_MARK_CODE_SEARCH_DONE);
+			driver.clickIfExist(By.xpath("//div[@id='group252']/a[@id='group236']/img"));
+			return driver.waitUntilTextNotInclude(By.xpath(XPATH_MARK_CODE_SEARCH_DONE), TIMEOUT, previousSymbol);
+		} catch (Exception e) {
+			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
 	private boolean clickSearchPrice(ChromeDriverWrapper driver) {
 		try {
 			driver.waitUntilIsDisplayed(By.xpath("//div[@id='group1500']"), false, TIMEOUT);
 
-			By BY_TABLE_1ST_LINE = By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/");
+			By BY_TABLE_1ST_LINE = By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]");
 			String text1stLine = driver.getText(BY_TABLE_1ST_LINE, 1, MARK_ANDOLD_SINCE);
-			driver.clickIfExist(By.xpath("//a[@id='group155']"));
+			driver.clickIfExist(By.xpath("//a[@id='group179']"));
 			driver.waitUntilTextNotInclude(BY_TABLE_1ST_LINE, TIMEOUT, text1stLine);
 			return true;
 		} catch (Exception e) {
