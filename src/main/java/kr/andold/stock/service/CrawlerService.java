@@ -412,10 +412,7 @@ public class CrawlerService {
 
 		ParserResult container = new ParserResult().clear();
 		List<ItemDomain> items = stockItemService.search(null);
-		List<ItemDomain> filtered = items.stream()
-				.filter(item -> isPossibleEtf(item))			
-				.collect(Collectors.toList());
-		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
+		List<List<ItemDomain>> partitions = Lists.partition(items, 128);
 		for (List<ItemDomain> partition: partitions) {
 			ParserResult result = CrawlItemDetailEtfThread.crawl(partition);
 			container.addAll(result);
@@ -433,10 +430,7 @@ public class CrawlerService {
 
 		ParserResult container = new ParserResult().clear();
 		List<ItemDomain> items = stockItemService.search(null);
-		List<ItemDomain> filtered = items.stream()
-				.filter(item -> isPossibleCompany(item))
-				.collect(Collectors.toList());
-		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
+		List<List<ItemDomain>> partitions = Lists.partition(items, 128);
 		for (List<ItemDomain> partition: partitions) {
 			ParserResult result = CrawlItemDetailCompanyThread.crawl(partition);
 			container.addAll(result);
