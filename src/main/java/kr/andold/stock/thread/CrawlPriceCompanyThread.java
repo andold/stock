@@ -48,7 +48,7 @@ public class CrawlPriceCompanyThread implements Callable<ParserResult> {
 		this.items = list;
 		this.startDate = String.format("%1$tY%1$tm%1$td",
 				(start == null)
-					? Date.from(LocalDate.now().minusDays(7).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST))
+					? Date.from(LocalDate.now().minusDays(7 * 4).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST))
 					: start);
 	}
 
