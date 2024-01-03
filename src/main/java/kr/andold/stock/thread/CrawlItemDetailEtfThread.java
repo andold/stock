@@ -74,12 +74,6 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 					break;
 				}
 
-				String code = item.getCode();
-				if (code == null || code.isBlank() || (item.getEtf() != null && !item.getEtf())) {
-					log.trace("{} {}/{} 대상아님 『{}』 CrawlItemDetailEtfThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
-					cx--;
-					continue;
-				}
 				if (debug && new Random().nextDouble() < 0.95) {
 					log.trace("{} {}/{} 뽑기 제외 『{}』 CrawlItemDetailEtfThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
