@@ -220,6 +220,19 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		}
 	}
 
+	public void setText(By by, String text, int timeout) {
+		try {
+			WebElement e = findElement(by, timeout);
+			if (e == null) {
+				return;
+			}
+
+			JavascriptExecutor jsExecutor = (JavascriptExecutor) this;
+			jsExecutor.executeScript("arguments[0].innerHTML = \"" + text + "\"", e);
+		} catch (Exception e) {
+		}
+	}
+
 	public List<WebElement> findElements(By xpath, String mark, int milli) throws Exception {
 		Exception previous = null;
 		while (milli > 0) {

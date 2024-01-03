@@ -95,15 +95,19 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 			String code = item.getCode();
 
 			driver.switchTo().defaultContent();
+
+			// 종목 검색창이 만약 떠 있다면, 닫기 버튼이 있다면 눌려지겠지
+			driver.clickIfExist(By.xpath("//a[@id='anchor2']"));
+			// 진행중 화면이 없어지고
 			driver.waitUntilIsDisplayed(By.xpath("//div[@id='___processbar2']"), false, TIMEOUT * 4);
+			// 종목명 검색 아이콘이 보이고
+			driver.waitUntilIsDisplayed(By.xpath("//img[@id='sn_image1']"), true, TIMEOUT * 4);
 
 			// 종목명 검색 클릭
-			driver.waitUntilIsDisplayed(By.xpath("//img[@id='sn_image1']"), true, TIMEOUT * 4);
 			driver.findElement(By.xpath("//img[@id='sn_image1']"), TIMEOUT).click(); // 종목명 검색 아이콘
 
 			// 프래임
-			WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframe1']"), TIMEOUT);
-			driver.switchTo().frame(frame);
+			driver.switchTo().frame(driver.findElement(By.xpath("//iframe[@id='iframe1']"), TIMEOUT));
 
 			//	코드입력
 			WebElement inputSearchElement = driver.findElement(By.xpath("//input[@id='search_string']"), TIMEOUT);	// 입력창
@@ -111,11 +115,15 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 			inputSearchElement.sendKeys(code); // 코드 입력
 
 			// 종목명 검색 아이콘 클릭
-			driver.findElement(By.xpath("//a[@id='P_group100']"), TIMEOUT).click(); // 종목명 검색 아이콘
+			if (clickSearchIconInPopup(driver) <= 0) {
+				log.warn("{} 종목 없음 #{} 『{} {} {}』 CrawlItemDetailCompanyThread.extract(...) - {}", Utility.indentEnd()
+						, Utility.size(items), item, item.getEtf(), item.getType(), Utility.toStringPastTimeReadable(started));
+				return "";
+			}
 
 			//	검색 결과에서 선택
 			if (!clickItemCode(driver, code)) {
-				log.warn("{} 종목 없음 #{} 『{} {} {}』 CrawlItemDetailCompanyThread.extract({}) - {}", Utility.indentEnd()
+				log.warn("{} 종목 없음 #{} 『{} {} {}』 CrawlItemDetailCompanyThread.extract(...) - {}", Utility.indentEnd()
 						, Utility.size(items), item, item.getEtf(), item.getType(), Utility.toStringPastTimeReadable(started));
 				return "";
 			}
@@ -164,14 +172,31 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 		return "";
 	}
 
+	private int clickSearchIconInPopup(ChromeDriverWrapper driver2) {
+		try {
+			// 진행중 메시지가 없어질때까지
+			driver.waitUntilIsDisplayed(By.xpath("//div[@id='___processbar2']"), false, TIMEOUT);
+
+			By BY_SEARCH_RESULT_COUNT = By.xpath("//span[@id='P_ListCnt']");
+			String INVALID_COUNT = "-1";
+			driver.setText(BY_SEARCH_RESULT_COUNT, INVALID_COUNT, TIMEOUT);
+
+			driver.findElement(By.xpath("//a[@id='P_group100']"), TIMEOUT).click(); // 종목명 검색 아이콘
+
+			driver.waitUntilTextNotInclude(BY_SEARCH_RESULT_COUNT, TIMEOUT, INVALID_COUNT);
+			return Utility.parseInteger(driver.findElement(BY_SEARCH_RESULT_COUNT).getText(), -1);
+		} catch (Exception e) {
+			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+		}
+		return -1;
+	}
+
 	private boolean clickItemCode(ChromeDriverWrapper driver, String code) {
 		try {
 			By BY_SEARCH_CODE_RESULT = By.xpath("//ul[@id='P_isinList']/li/a/span");
-			driver.waitUntilTextInclude(BY_SEARCH_CODE_RESULT, TIMEOUT, code);
 			driver.findElementIncludeText(BY_SEARCH_CODE_RESULT, TIMEOUT, code).click();
 			return true;
 		} catch (Exception e) {
-			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 		}
 		return false;
 	}

@@ -172,11 +172,16 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 
 	private boolean clickSearchCodeIconInPopup(ChromeDriverWrapper driver) {
 		try {
+			// 진행중 메시지가 없어질때까지
 			driver.waitUntilIsDisplayed(By.xpath("//div[@id='___processbar2']"), false, TIMEOUT);
-			By BY_CODE_SEARCH_RESULT_1ST = By.xpath("//ul[@id='contentsList']/li/a[1]");
-			String prev = driver.getText(BY_CODE_SEARCH_RESULT_1ST, TIMEOUT, "CrawlItemDetailEtfThread");
+
+			By BY_SEARCH_RESULT_COUNT = By.xpath("//span[@id='P_ListCnt']");
+			String INVALID_COUNT = "-1";
+			driver.setText(BY_SEARCH_RESULT_COUNT, INVALID_COUNT, TIMEOUT);
+
 			driver.findElement(By.xpath("//a[@id='group236']"), TIMEOUT).click();
-			driver.waitUntilTextNotInclude(BY_CODE_SEARCH_RESULT_1ST, TIMEOUT, prev);
+
+			driver.waitUntilTextNotInclude(BY_SEARCH_RESULT_COUNT, TIMEOUT, INVALID_COUNT);
 			return true;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
