@@ -22,15 +22,15 @@ import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+//KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
 @Slf4j
 public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS906032V.xml&menuNo=514";
-	private static String MARK_END_POINT = "KEYWORD\tETF 상세\tURL\t" + URL + "\n";
+	private static String MARK_END_POINT = String.format("KEYWORD\t%s\tURL\t%s\n", "ETF 상세", URL);
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 8;
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
 	@Setter private static  Boolean debug = CrawlerService.debug;
-	private static final String NEWLINE = "\n";
 
 	private ConcurrentLinkedQueue<ItemDomain> items;
 	private ChromeDriverWrapper driver;
@@ -45,8 +45,7 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 		log.info("{} CrawlItemDetailEtfThread(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
-		ParserResult result = ParserResult.builder().build();
-		result.clear();
+		ParserResult result = ParserResult.builder().build().clear();
 		driver = CrawlerService.defaultChromeDriver();
 
 		try {
@@ -110,16 +109,17 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 			String code = item.getCode();
 			String symbol = item.getSymbol();
 
-			String nextIncludeText = "";
+			// 여러개의 검색결과일 경우에 하나씩 확인해 보기 위해서
 			for (int cx = 0; cx < 4; cx++) {
 				driver.switchTo().defaultContent();
 
 				// 종목명 검색 아이콘 클릭
-				driver.waitUntilIsDisplayed(By.xpath("//div[@id='group239']"), false, TIMEOUT);
-				driver.findElement(By.xpath("//div[@id='content']//a[@id='sn_group4']/img"), TIMEOUT).click();
+				if (!clickSearchCodeIconInMain(driver)) {
+					log.warn("{} #{} 『{}』 INVALID CrawlItemDetailEtfThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
+					break;
+				}
 
-				WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"), TIMEOUT);
-				driver.switchTo().frame(frame);
+				driver.switchTo().frame(driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"), TIMEOUT));
 
 				// 코드 입력
 				WebElement inputSearchElement = driver.findElement(By.xpath("//input[@id='search_string']"), TIMEOUT);	// 입력창
@@ -127,21 +127,19 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 				inputSearchElement.sendKeys(code);
 
 				// 검색 아이콘 클릭
-				By BY_CODE_SEARCH_RESULT = By.xpath("//ul[@id='contentsList']/li/a");
-				String prev = driver.getText(BY_CODE_SEARCH_RESULT, TIMEOUT, "CrawlItemDetailEtfThread");
-				driver.findElement(By.xpath("//a[@id='group236']"), TIMEOUT).click();
-				driver.waitUntilTextNotInclude(BY_CODE_SEARCH_RESULT, TIMEOUT, prev);
-				driver.waitUntilTextInclude(BY_CODE_SEARCH_RESULT, TIMEOUT, nextIncludeText);
+				if (!clickSearchCodeIconInPopup(driver)) {
+					log.warn("{} #{} 『{}』 INVALID CrawlItemDetailEtfThread.extract({}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
+					break;
+				}
 
 				// 검색 결과
+				By BY_CODE_SEARCH_RESULT = By.xpath("//ul[@id='contentsList']/li/a");
 				List<WebElement> resultSearch = driver.findElements(BY_CODE_SEARCH_RESULT, TIMEOUT);
 				if (resultSearch.size() <= cx) {
 					driver.switchTo().defaultContent();
 					popupCloseIconElement.click();
-					log.debug("{} #{} 없는 종목 『{}』 CrawlItemDetailEtfThread() - {}", Utility.indentEnd(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
+					log.warn("{} #{} 없는 종목 『{}』 CrawlItemDetailEtfThread() - {}", Utility.indentEnd(), Utility.size(items), item, Utility.toStringPastTimeReadable(started));
 					return "";
-				} else if (resultSearch.size() > cx + 1) {
-					nextIncludeText = resultSearch.get(cx + 1).getText();
 				}
 				
 				// 선택
@@ -159,15 +157,10 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 			}
 			StringBuffer sb = new StringBuffer();
 			sb.append(String.format("KEYWORD\t%s\t%s\n", code, symbol));
-			sb.append(driver.findElementIncludeText(By.xpath("//h3[@id='KOR_SECN_NM']"), TIMEOUT, code).getText());	// symbol
-			sb.append(NEWLINE);
-			sb.append(driver.findElement(By.xpath("//div[@id='ETF_BIG_SORT_NM']"), TIMEOUT).getText());	// 분류
-			sb.append(NEWLINE);
-			sb.append(driver.findElement(By.xpath("//span[@id='SETUP_DT']"), TIMEOUT).getText());	// 설정일
-			sb.append(NEWLINE);
-			sb.append(driver.findElement(By.xpath("//dd[@id='TOT_RECM_RATE']"), TIMEOUT).getText());	// 보수(%)
-			sb.append(NEWLINE);
-
+			sb.append(String.format("%s\n", driver.findElementIncludeText(By.xpath("//h3[@id='KOR_SECN_NM']"), TIMEOUT, code).getText()));	// symbol
+			sb.append(String.format("%s\n", driver.findElement(By.xpath("//div[@id='ETF_BIG_SORT_NM']"), TIMEOUT).getText()));	// 분류
+			sb.append(String.format("%s\n", driver.findElement(By.xpath("//span[@id='SETUP_DT']"), TIMEOUT).getText()));	// 설정일
+			sb.append(String.format("%s\n", driver.findElement(By.xpath("//dd[@id='TOT_RECM_RATE']"), TIMEOUT).getText()));	// 보수(%)
 			sb.append(MARK_ANDOLD_SINCE);
 			String result = new String(sb);
 
@@ -179,6 +172,32 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 
 		log.debug("{} #{} 『{}』 CrawlItemDetailEtfThread.extract(#{}) - {}", Utility.indentEnd(), Utility.size(items), "", item, Utility.toStringPastTimeReadable(started));
 		return "";
+	}
+
+	private boolean clickSearchCodeIconInPopup(ChromeDriverWrapper driver) {
+		try {
+			By BY_CODE_SEARCH_RESULT_1ST = By.xpath("//ul[@id='contentsList']/li/a[1]");
+			String prev = driver.getText(BY_CODE_SEARCH_RESULT_1ST, TIMEOUT, "CrawlItemDetailEtfThread");
+			driver.findElement(By.xpath("//a[@id='group236']"), TIMEOUT).click();
+			driver.waitUntilTextNotInclude(BY_CODE_SEARCH_RESULT_1ST, TIMEOUT, prev);
+			return true;
+		} catch (Exception e) {
+			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
+	private boolean clickSearchCodeIconInMain(ChromeDriverWrapper driver) {
+		try {
+			By BY_SEARCH_CODE_ICON = By.xpath("//div[@id='content']//a[@id='sn_group4']/img");
+			driver.waitUntilIsDisplayed(By.xpath("//div[@id='group239']"), false, TIMEOUT);
+			driver.waitUntilIsDisplayed(BY_SEARCH_CODE_ICON, true, TIMEOUT);
+			driver.clickIfExist(BY_SEARCH_CODE_ICON);
+			return true;
+		} catch (Exception e) {
+			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+		}
+		return false;
 	}
 
 	public static ParserResult crawl(List<ItemDomain> items) {

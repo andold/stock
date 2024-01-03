@@ -119,7 +119,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 	}
 
 	public boolean waitUntilTextInclude(By xpath, int milli, String... marks) throws Exception {
-		log.info("{} waitUntilTextInclude(..., {}, 『{}』)", Utility.indentStart(), milli, "marks");
+		log.trace("{} waitUntilTextInclude(..., {}, 『{}』)", Utility.indentStart(), milli, "marks");
 		long started = System.currentTimeMillis();
 
 		while (milli > 0) {
@@ -127,7 +127,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 				String text = getText(xpath, 1, "waitUntilTextInclude");
 				for (String mark : marks) {
 					if (text.contains(mark)) {
-						log.info("{} {} waitUntilTextInclude(..., {}, 『{}』) - {}", Utility.indentEnd(), true, milli, "marks", Utility.toStringPastTimeReadable(started));
+						log.trace("{} {} waitUntilTextInclude(..., {}, 『{}』) - {}", Utility.indentEnd(), true, milli, "marks", Utility.toStringPastTimeReadable(started));
 						return true;
 					}
 				}
@@ -137,7 +137,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 			milli -= PAUSE;
 		}
 
-		log.info("{} {} waitUntilTextInclude(..., {}, 『{}』) - {}", Utility.indentEnd(), false, milli, "marks", Utility.toStringPastTimeReadable(started));
+		log.trace("{} {} waitUntilTextInclude(..., {}, 『{}』) - {}", Utility.indentEnd(), false, milli, "marks", Utility.toStringPastTimeReadable(started));
 		return false;
 	}
 
@@ -328,18 +328,19 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		return value;
 	}
 
-	public void waitUntilIsDisplayed(By xpath, boolean b, int milli) {
+	public boolean waitUntilIsDisplayed(By xpath, boolean b, int milli) {
 		while (milli > 0) {
 			try {
 				WebElement e = super.findElement(xpath);
 				if (e.isDisplayed() == b) {
-					return;
+					return true;
 				}
 			} catch (Exception e) {
 			}
 			Utility.sleep(PAUSE);
 			milli -= PAUSE;
 		}
+		return false;
 	}
 
 }

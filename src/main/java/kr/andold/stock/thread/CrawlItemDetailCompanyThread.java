@@ -28,8 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02006V.xml&menuNo=44";
 	private static String MARK_END_POINT = "KEYWORD\t주식 상세\tCrawlItemDetailCompanyThread\tURL\t" + URL + "\n";
-	private static final int TIMEOUT = 4000;
-	private static final int JOB_SIZE = 4;
+	private static final int TIMEOUT = 8000;
+	private static final int JOB_SIZE = 8;
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
 	@Setter private static Boolean debug = CrawlerService.debug;
 
