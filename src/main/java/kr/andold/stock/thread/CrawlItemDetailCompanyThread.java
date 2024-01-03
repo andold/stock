@@ -119,7 +119,6 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 						, Utility.size(items), item, item.getEtf(), item.getType(), Utility.toStringPastTimeReadable(started));
 				return "";
 			}
-			driver.findElementIncludeText(By.xpath("//ul[@id='P_isinList']/li/a/span"), TIMEOUT, code).click();
 
 			//	팝업이 닫혔다, 돌아간다
 			driver.switchTo().defaultContent();
