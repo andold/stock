@@ -33,6 +33,7 @@ public class StockParam {
 		private String symbol;
 		private String code;
 		private Integer priority;
+		private Float priceEarningsRatio;
 		private Integer volumeOfListedShares;
 		private Boolean etf;
 		private String type;

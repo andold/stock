@@ -20,10 +20,16 @@ import lombok.extern.slf4j.Slf4j;
 public class ItemDomain extends ItemEntity {
 	private String reserved;
 
-	public ItemDomain(String symbol, String code, String dividendCycle, String volumeOfListedShares, Boolean etf,
-			String type, String category, String ipoDate) {
-		super(null, symbol, code, null, dividendCycle, Utility.parseInteger(volumeOfListedShares, null), etf, type, category,
-				Utility.parseDateTime(ipoDate), null, null);
+	public ItemDomain(String symbol, String code, String dividendCycle, String volumeOfListedShares, Boolean etf, String type, String category, String ipoDate) {
+		super.builder()
+			.symbol(symbol)
+			.code(code)
+			.volumeOfListedShares(Utility.parseInteger(volumeOfListedShares, null))
+			.etf(etf)
+			.type(type)
+			.category(category)
+			.ipoDate(Utility.parseDateTime(ipoDate, null))
+			.build();
 	}
 
 	public void setSymbol(String string, String... args) {

@@ -30,31 +30,24 @@ import lombok.experimental.SuperBuilder;
 public class ItemEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
 	private Integer id;
 
 	// 종목이름
-	@Column(name = "symbol")
 	private String symbol;
 
 	// 종목코드
-	@Column(name = "code")
 	private String code;
 
 	// 표시 우선 순위
-	@Column(name = "priority")
 	private Integer priority;
 
-	// 배당주기
-	@Column(name = "dividend_cycle")
-	private String dividendCycle;
+	// 최근 배당수익률
+	private Float priceEarningsRatio;
 
 	// 상장주식수
-	@Column(name = "volume_of_listed_shares")
 	private Integer volumeOfListedShares;
 	
 	// etf?: 개별기업
-	@Column(name = "etf")
 	private Boolean etf;
 
 	// 코스피, 코스닥
@@ -62,23 +55,19 @@ public class ItemEntity {
 	private String type;
 
 	// 분류
-	@Column(name = "category")
 	private String category;
 
 	// 상장일
-	@Column(name = "ipo_date")
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Asia/Seoul")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date ipoDate;
 
-	@Column(name = "created")
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Asia/Seoul")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date created;
 
-	@Column(name = "updated")
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Asia/Seoul")
 	@Temporal(TemporalType.TIMESTAMP)
