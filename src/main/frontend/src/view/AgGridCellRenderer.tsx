@@ -206,7 +206,7 @@ export function PriorityCellRenderer(param: any) {
 	</>);
 };
 
-// 최근 수익율
+// 최근 배당수익률
 export function PriceEarningsRatioCellRenderer(param: any) {
 	const YEARS = 7;
 	const mapHistory = param?.data?.custom?.mapHistory;
@@ -214,20 +214,20 @@ export function PriceEarningsRatioCellRenderer(param: any) {
 		return (<></>);
 	}
 	
-	const currentPrice = param?.data?.custom?.currentPrice;
 	const ref = useRef(null);
 
 	const thisYear = moment().year();
 	const dividends = [];
 	store.range(YEARS).forEach((cx: number) => dividends.push(mapHistory.get(thisYear - YEARS + cx + 1) || 0));
 	const max = dividends.reduce((prev: number, curr: number) => Math.max(prev, curr), 0);
+	const lineHeight = param.node.rowHeight - 4;
 	
 	function height(limit: number, max: number, value: number): number {
-		if (isNaN(limit) || isNaN(max) || isNaN(value)) {
-			return 0;
+		if (isNaN(limit) || isNaN(max) || isNaN(value) || value == 0) {
+			return 1;
 		}
 
-		return limit * value / max;
+		return Math.max(4, Math.floor(limit * value / max));
 	}
 	if (max > 0) {
 		return (<>
@@ -243,8 +243,8 @@ export function PriceEarningsRatioCellRenderer(param: any) {
 								className={`px-0 ${index == YEARS - 1 ? "bg-danger" : "bg-primary"}`}
 								style={{
 									marginRight: 2,
-									height: height(param.node.rowHeight, max, cx),
-									marginTop: param.node.rowHeight - height(param.node.rowHeight, max, cx),
+									height: height(lineHeight, max, cx),
+									marginTop: lineHeight - height(lineHeight, max, cx),
 								}}
 							></Col>
 						))
