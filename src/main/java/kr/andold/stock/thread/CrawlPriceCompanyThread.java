@@ -16,6 +16,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import kr.andold.stock.domain.ItemDomain;
+import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.ChromeDriverWrapper;
 import kr.andold.stock.service.CrawlerService;
 import kr.andold.stock.service.ParserService;
@@ -240,13 +241,13 @@ public class CrawlPriceCompanyThread implements Callable<ParserResult> {
 		return container;
 	}
 
-	public static ParserResult crawl(ItemDomain item) {
+	public static ParserResult crawl(ItemParam item) {
 		log.info("{} CrawlPriceCompanyThread.crawl({})", Utility.indentStart(), item);
 		long started = System.currentTimeMillis();
 
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.add(item);
-		CrawlPriceCompanyThread thread = new CrawlPriceCompanyThread(queue, null);
+		CrawlPriceCompanyThread thread = new CrawlPriceCompanyThread(queue, item.getStart());
 		setDebug(false);
 		ExecutorService service = Executors.newFixedThreadPool(1);
 		Future<ParserResult> future = service.submit(thread);

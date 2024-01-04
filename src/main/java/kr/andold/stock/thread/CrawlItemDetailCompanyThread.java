@@ -83,7 +83,7 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 		}
 		driver.quit();
 
-		log.info("{} {} CrawlItemDetailCompanyThread(#{}) - {}", Utility.indentMiddle(), container, Utility.size(items), Utility.toStringPastTimeReadable(started));
+		log.info("{} {} CrawlItemDetailCompanyThread(#{}) - {}", Utility.indentEnd(), container, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		return container;
 	}
 
