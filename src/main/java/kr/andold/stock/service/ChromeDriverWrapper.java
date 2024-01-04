@@ -356,4 +356,17 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		return false;
 	}
 
+	public WebElement lastElement(By xpath, int timeout) {
+		try {
+			List<WebElement> es = findElements(xpath, timeout);
+			if (es == null || es.isEmpty()) {
+				return null;
+			}
+
+			return es.get(es.size() - 1);
+		} catch (Exception e) {
+		}
+		return null;
+	}
+
 }

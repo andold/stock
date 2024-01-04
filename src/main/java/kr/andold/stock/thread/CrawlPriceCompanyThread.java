@@ -162,7 +162,7 @@ public class CrawlPriceCompanyThread implements Callable<ParserResult> {
 				WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
 				sb.append(driver.extractTextFromTableElement(table));
 
-				if (isLastPage(driver)) {
+				if (isLastPage(driver, item.getIpoDate())) {
 					break;
 				}
 
@@ -192,8 +192,9 @@ public class CrawlPriceCompanyThread implements Callable<ParserResult> {
 		return "";
 	}
 
-	private boolean isLastPage(ChromeDriverWrapper driver) {
+	private boolean isLastPage(ChromeDriverWrapper driver, Date start) {
 		try {
+			// 페이지 번호가 없으면
 			By BY_PAGES = By.xpath("//div[@id='cntsPaging01']/ul/li[@class='w2pageList_li_label']/a");
 			List<WebElement> pageElements = driver.findElements(BY_PAGES, 1);
 			if (pageElements == null || pageElements.isEmpty()) {
@@ -202,7 +203,36 @@ public class CrawlPriceCompanyThread implements Callable<ParserResult> {
 
 			WebElement lastPage = pageElements.get(pageElements.size() - 1);
 			String clazz = lastPage.getAttribute("class");
-			return clazz.contains("w2pageList_label_selected");
+			// 선택된게 마지막이 아니면
+			if (!clazz.contains("w2pageList_label_selected")) {
+				return false;
+			}
+			
+			// 10단위 페이지 번호가 아니면
+			int pageNumber = Utility.parseInteger(lastPage.getText(), 1);
+			if (pageNumber % 10 != 0) {
+				return true;
+			}
+			
+			// 테이블 마지막 행이 보여지지 않으면
+			WebElement lastTr = driver.lastElement(By.xpath("//table[@id='grid1_body_table']/tbody/tr"), TIMEOUT);
+			if (!lastTr.isDisplayed()) {
+				return true;
+			}
+
+			// 상장일과 같은달에 있으면
+			Date last = Utility.parseDateTime(lastTr.findElement(By.xpath("td[1]")).getText(), null);
+			if (LocalDate.ofInstant(start.toInstant(), Utility.ZONE_ID_KST).plusMonths(1).isAfter(LocalDate.ofInstant(last.toInstant(), Utility.ZONE_ID_KST))) {
+				return true;
+			}
+
+			// 2010년이후꺼만 수집한다
+			if (LocalDate.ofInstant(last.toInstant(), Utility.ZONE_ID_KST).getYear() == 2010) {
+				return true;
+			}
+
+			// 모르겠다, 여기까지 오면 무한 루프다
+			return false;
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 		}
