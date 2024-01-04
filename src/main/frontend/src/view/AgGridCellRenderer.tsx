@@ -68,6 +68,7 @@ export function PriceRecentCellRenderer(param: any) {
 
 	const FONT_SIZE = 10;
 	const ref = useRef(null);
+	const lineHeight = (param?.node?.rowHeight || 32) - 4;
 
 	//	툴팁
 	function renderTooltip(props: any) {
@@ -99,19 +100,11 @@ export function PriceRecentCellRenderer(param: any) {
 	}
 	function height(param: any, price: any, info: any): number {
 		if (isNaN(price?.closing) || isNaN(info?.min) || isNaN(info?.max) || isNaN(param?.node?.rowHeight)
-			|| (info.max == info.min)|| (param.node.rowHeight == 0)) {
-			return 0;
+			|| (info.max == info.min) || (param.node.rowHeight == 0)) {
+			return 1;
 		}
 
-		return (price.closing - info.min) / (info.max - info.min) * param.node.rowHeight;
-	}
-	function marginTop(param: any, price: any, info: any): number {
-		if (isNaN(price?.closing) || isNaN(info?.min) || isNaN(info?.max) || isNaN(param?.node?.rowHeight)
-			|| (price.closing == info.min) || (info.max == info.min) || (param.node.rowHeight == 0)) {
-			return 0;
-		}
-
-		return param.node.rowHeight - (price.closing - info.min) / (info.max - info.min) * param.node.rowHeight;
+		return Math.max(4, Math.floor((price.closing - info.min) / (info.max - info.min) * param.node.rowHeight));
 	}
 	return (<>
 		<Row className="mx-0 text-right">
@@ -124,7 +117,7 @@ export function PriceRecentCellRenderer(param: any) {
 								style={{
 									marginRight: 1,
 									height: height(param, price, info),
-									marginTop: marginTop(param, price, info),
+									marginTop: lineHeight - height(param, price, info),
 								 }}
 							 ></Col>
 						))

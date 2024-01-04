@@ -6,7 +6,7 @@ export default interface Item {
 	code?: string;		//	종목코드
 	symbol?: string;	//	종목이름
 	priority?: number;	//	우선순위
-	dividendCycle?: string;			//	배당주기
+	priceEarningsRatio?: number;	//	배당수익률(%)
 	volumeOfListedShares?: number;	//	상장주식수
 	etf?: boolean;		//	etf?: 개별기업
 	type?: string;		//	코스피, 코스닥

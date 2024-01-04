@@ -6,7 +6,7 @@ export default interface Dividend {
 
 	currentPrice: number;
 	dividend: number;
-	priceEarningsRatio: number;
+	priceEarningsRatio: number;	//	배당수익률(%)
 	dividend1YAgo: number;
 	dividend2YAgo: number;
 	dividend3YAgo: number;
