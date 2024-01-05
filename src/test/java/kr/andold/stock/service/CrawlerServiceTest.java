@@ -76,4 +76,10 @@ public class CrawlerServiceTest {
 		log.info("{}", result);
 	}
 
+	@Test
+	public void testCrawlPrice() {
+		ParserResult result = service.crawlPrice(Date.valueOf("2010-01-01"));
+		log.info("{}", result);
+	}
+
 }

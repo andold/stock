@@ -24,8 +24,38 @@ stockDocument
 |	crawlEtfDetailThread			// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
 |	crawlPriceCompany				// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 일자별시세
 |	crawlPriceEtf					// KSD 증권정보포털 SEIBro > ETF > ETF종합정보 > 기준가추이
+|	crawlPriceKrx					// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 개별종목 시세 추이
 ;
 
+
+// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 개별종목 시세 추이
+// KRX 정보데이터시스템 > 기본통계 > 주식 > 종목시세 > 개별종목 시세 추이
+crawlPriceKrx:
+	KEYWORD TAB WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 주가일별시세 	 CrawlPriceThread 	 http://data.krx.co.kr/
+	(
+		(
+			NUMBER TAB WORD WORD TAB										NEWLINE		//	253250 	 데이터가 없습니다.
+		) | ( 
+			NUMBER TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE
+					//	252650 	 일자 	 종가 	 대비 	 등락률 	 순자산가치(NAV) 	 시가 	 고가 	 저가 	 거래량 	 거래대금 	 시가총액 	 순자산총액 	 상장좌수 	 지수명 	 종가 	 대비 	 등락률
+			(
+				WORD TAB code=NUMBER TAB base=DATE TAB closing=NUMBER TAB NUMBER TAB NUMBER TAB NUMBER TAB
+					market=NUMBER TAB high=NUMBER TAB low=NUMBER TAB volume=NUMBER TAB NUMBER TAB NUMBER TAB NUMBER TAB NUMBER TAB
+					symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* TAB
+					NUMBER TAB NUMBER TAB NUMBER TAB		NEWLINE
+						//	252650 	 2022/01/05 	 12,195 	 50 	 -0.41 	 12,159.67 	 12,175 	 12,195 	 12,175 	 28 	 341,020 	 7,317,000,000 	 7,295,801,776 	 600,000 	 코스피 200 동일가중지수 	 2,394.98 	 19.03 	 -0.79 	 
+				{
+					ParserService.crawlPriceCompanyEtf(20240105
+						, $code.text, $symbol.text
+						, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
+					);
+				}
+			)+
+		)
+		WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27 
+	)+ 
+	KEYWORD TAB WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 주가일별시세 	 CrawlPriceThread 	 http://data.krx.co.kr/ 
+;
 
 // KSD증권정보포털(SEIBro) > ETF > 종목발행현황
 crawlItemEtf:

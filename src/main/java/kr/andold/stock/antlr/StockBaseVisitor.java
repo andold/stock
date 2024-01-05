@@ -32,6 +32,13 @@ public class StockBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitCrawlPriceKrx(StockParser.CrawlPriceKrxContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitCrawlItemEtf(StockParser.CrawlItemEtfContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}

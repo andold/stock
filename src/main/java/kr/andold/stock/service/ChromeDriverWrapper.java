@@ -295,11 +295,11 @@ public class ChromeDriverWrapper extends ChromeDriver {
 	private static String extractTextFromTrElement(WebElement tr, String prefix) {
 		StringBuffer sb = new StringBuffer(prefix);
 		tr.findElements(By.tagName("th")).forEach(th -> {
-			sb.append(th.getText());
+			sb.append(th.getAttribute("textContent"));
 			sb.append("\t");
 		});
 		tr.findElements(By.tagName("td")).forEach(td -> {
-			sb.append(td.getText());
+			sb.append(td.getAttribute("textContent"));
 			sb.append("\t");
 		});
 		sb.append("\n");
@@ -367,6 +367,24 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		} catch (Exception e) {
 		}
 		return null;
+	}
+
+	public boolean waitUntilExist(By xpath, boolean b, int milli) {
+		while (milli > 0) {
+			try {
+				super.findElement(xpath);
+				if (b) {
+					return true;
+				}
+			} catch (Exception e) {
+				if (!b) {
+					return true;
+				}
+			}
+			Utility.sleep(PAUSE);
+			milli -= PAUSE;
+		}
+		return false;
 	}
 
 }

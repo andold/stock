@@ -7,11 +7,13 @@ import { StockDividendFormModel } from "../model/StockModel";
 
 // store
 import store from "../store/StockStore";
+import itemStore from "../store/ItemStore";
+import dividendHistoryStore from "../store/DividendHistoryStore";
+import priceStore from "../store/PriceStore";
 
 // view
 import StockItemView from "../view/StockItemView";
 import UploadButtonView from "../view/UploadButtonView";
-import { Link } from "react-router-dom";
 
 // StockContainter.tsx
 export default ((props: any) => {
@@ -90,10 +92,118 @@ function Header(props: any) {
 
 	const [spinner, setSpinner] = useState<number>(0);
 	const [collapsed, setCollapsed] = useState(true);
+	const [jobs, setJobs] = useState({
+		play: false,
+		queue: [],
+	});
+
+	useEffect(() => {
+		if (!jobs.play || jobs.queue.length == 0 || spinner > 0) {
+			return;
+		}
+
+		const first = jobs.queue[0];
+		const param = {
+			...first,
+			start: moment([2010, 1, 1]).toDate(),
+		};
+		setSpinner(1);
+		console.log("상세 수집한다 {}", first)
+		itemStore.crawl(param, (_: any) => {
+			dividendHistoryStore.crawl(param, (_: any) => {
+				priceStore.crawl(param, (_: any) => {
+					store.compile(param, (_: any) => {
+						setSpinner(0);
+						setJobs({
+							...jobs,
+							queue: jobs.queue.slice(1),
+						});
+						return;
+					});
+				});
+			});
+		});
+	}, [jobs]);
 
 	function handleOnClickDownload() {
 		const yyyymmdd = moment().format("YYYYMMDD");
 		store.download({ filename: `stock-${yyyymmdd}.json`, });
+	}
+	function handleOnCrawlItemDetailAll() {
+		// 실행상태가 아니면
+		if (!jobs.play) {
+			// 실행상태로 바꾸려 하는데, 할께 아예 없으면
+			if (jobs.queue.length == 0) {
+				const request = {
+					keyword: null,
+					start: null,
+					end: null,
+					size: 1024,
+					page: 0,
+				};
+				// 할꺼를 만들고
+				store.searchItem(request, (_: any, result: any) => {
+					const items = result?.items;
+					if (!items?.length) {
+						setJobs({
+							...jobs,
+							play: false,
+						});
+						return;
+					}
+	
+					// 실행하라고 한다
+					setJobs({
+						...jobs,
+						queue: items,
+						play: true,
+					});
+					return;
+				});
+				return;
+			}
+			setJobs({
+				...jobs,
+				play: true,
+			});
+			return;
+		}
+
+		// 실행상태인데, 할께 없으면
+		if (jobs.queue.length == 0) {
+			const request = {
+				keyword: null,
+				start: null,
+				end: null,
+				size: 1024,
+				page: 0,
+			};
+			// 할꺼를 만들고
+			store.searchItem(request, (_: any, result: any) => {
+				const items = result?.items;
+				if (!items?.length) {
+					setJobs({
+						...jobs,
+						play: false,
+					});
+					return;
+				}
+
+				// 실행하라고 한다
+				setJobs({
+					...jobs,
+					queue: items,
+				});
+				return;
+			});
+			return;
+		}
+
+		// 실행상태인데, 할것도 있다면, 중지하라 한다
+		setJobs({
+			...jobs,
+			play: false,
+		});
 	}
 	function handleOnClickCompile() {
 		setSpinner(spinner + 1);
@@ -114,6 +224,15 @@ function Header(props: any) {
 	function handleOnClickCrawlDividendHistoryEtf() {
 		setSpinner(spinner + 1);
 		store.crawlDividendHistoryEtf({}, (_: any) => {
+			if (spinner == 1) {	// 마지막에서만 재검색
+				onChange && onChange({});
+			}
+			setSpinner(spinner - 1);
+		});
+	}
+	function handleOnClickCrawlPrice() {
+		setSpinner(spinner + 1);
+		store.crawlPrice({}, (_: any) => {
 			if (spinner == 1) {	// 마지막에서만 재검색
 				onChange && onChange({});
 			}
@@ -257,12 +376,14 @@ function Header(props: any) {
 								{(spinner > 0) && <Spinner animation="grow" variant="warning" className="ms-1 align-middle" title={spinner.toLocaleString()} />}
 								{!collapsed && (<>
 									<NavDropdown title="Crawl" className="mx-1">
+										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlItemDetailAll}>Crawl Item 상세 모두 {jobs.play ? "do PAUSE" : "do PLAY"}</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlItemDividendTopCompany}>Crawl Item Dividend Top Company</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlItemEtf}>Crawl Item ETF</NavDropdown.Item>
-										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemCompanyDetails}>Crawl Item Company Details</NavDropdown.Item>
-										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemEtfDetails}>Crawl Item ETF Details</NavDropdown.Item>
+										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemCompanyDetails}>Crawl Item Detail Company</NavDropdown.Item>
+										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemEtfDetails}>Crawl Item Detail ETF</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlDividendHistoryCompany}>Crawl Dividend History Company</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlDividendHistoryEtf}>Crawl Dividend History ETF</NavDropdown.Item>
+										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlPrice}>Crawl Price since 2010-01-01</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlPriceCompany}>Crawl Price Company</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlPriceEtf}>Crawl Price ETF</NavDropdown.Item>
 									</NavDropdown>

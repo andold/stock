@@ -34,6 +34,7 @@ import kr.andold.stock.thread.CrawlItemDetailCompanyThread;
 import kr.andold.stock.thread.CrawlDividendHistoryCompanyThread;
 import kr.andold.stock.thread.CrawlPriceCompanyThread;
 import kr.andold.stock.thread.CrawlPriceEtfThread;
+import kr.andold.stock.thread.CrawlPriceThread;
 import kr.andold.stock.thread.CrawlItemDetailEtfThread;
 import kr.andold.stock.thread.CrawlDividendHistoryEtfThread;
 import lombok.Getter;
@@ -129,6 +130,57 @@ public class CrawlerService {
 		}
 
 		log.info("{} {} crawlPriceEtf({}) - {}", Utility.indentEnd(), container, start, Utility.toStringPastTimeReadable(started));
+		return container;
+	}
+
+	public ParserResult crawlPrice(Date start) {
+		log.info("{} crawlPrice({})", Utility.indentStart(), start);
+		long started = System.currentTimeMillis();
+
+		ParserResult container = new ParserResult().clear();
+
+		List<ItemDomain> items = stockItemService.search(null);
+		List<List<ItemDomain>> partitions = Lists.partition(items, 128);
+		for (List<ItemDomain> partition: partitions) {
+			ParserResult result = CrawlPriceThread.crawl(partition, start);
+			put(result);
+
+			// 현재가 적용 to dividend
+			List<DividendDomain> dividends = currentPriceFromPrices(result.getPrices());
+			stockDividendService.put(dividends);
+
+			container.addAll(result);
+			container.getDividends().addAll(dividends);
+		}
+
+		log.info("{} {} crawlPrice({}) - {}", Utility.indentEnd(), container, start, Utility.toStringPastTimeReadable(started));
+		return container;
+	}
+	@Deprecated
+	public ParserResult crawlPrice1(Date start) {
+		log.info("{} crawlPrice({})", Utility.indentStart(), start);
+		long started = System.currentTimeMillis();
+
+		ParserResult container = new ParserResult().clear();
+
+		List<ItemDomain> items = stockItemService.search(null);
+		List<ItemDomain> filtered = items.stream()
+				.filter(item -> isPossibleEtf(item))
+				.collect(Collectors.toList());
+		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
+		for (List<ItemDomain> partition: partitions) {
+			ParserResult result = CrawlPriceThread.crawl(partition, start);
+			put(result);
+
+			// 현재가 적용 to dividend
+			List<DividendDomain> dividends = currentPriceFromPrices(result.getPrices());
+			stockDividendService.put(dividends);
+
+			container.addAll(result);
+			container.getDividends().addAll(dividends);
+		}
+
+		log.info("{} {} crawlPrice({}) - {}", Utility.indentEnd(), container, start, Utility.toStringPastTimeReadable(started));
 		return container;
 	}
 

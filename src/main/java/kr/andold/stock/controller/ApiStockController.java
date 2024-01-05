@@ -140,6 +140,17 @@ public class ApiStockController {
 	}
 
 	@ResponseBody
+	@GetMapping(value = "crawl/price")
+	public ParserResult crawlPrice(@RequestParam(value = "start", required = false) Date start) {
+		log.info("{} crawlPrice()", Utility.indentStart());
+
+		ParserResult result = stockCrawlerService.crawlPrice(start);
+
+		log.info("{} {} - crawlPrice()", Utility.indentEnd(), result);
+		return result;
+	}
+
+	@ResponseBody
 	@GetMapping(value = "crawl/price/company")
 	public ParserResult crawlPriceCompay(@RequestParam(value = "start", required = false) Date start) {
 		log.info("{} crawlPriceCompay()", Utility.indentStart());

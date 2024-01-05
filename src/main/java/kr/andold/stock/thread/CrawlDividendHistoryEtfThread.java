@@ -148,8 +148,8 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 			// 검색 결과에서 선택
 			String xpathSearchResult = "//ul[@id='contentsList']/li/a";
 			List<WebElement> resultSearch = driver.findElements(By.xpath(xpathSearchResult), TIMEOUT);
-			String oneXpathCandidate1 = String.format("//*[@id='contentsList']//a[contains(text(),'%s']", symbol.strip());
-			String oneXpathCandidate2 = String.format("//*[@id='contentsList']//a[contains(text(),'%s']", symbol.replaceAll("[\s]+", ""));
+			String oneXpathCandidate1 = String.format("//*[@id='contentsList']//a[contains(text(),'%s')]", symbol.strip());
+			String oneXpathCandidate2 = String.format("//*[@id='contentsList']//a[contains(text(),'%s')]", symbol.replaceAll("[\s]+", ""));
 			if (resultSearch.size() == 0) {
 				driver.switchTo().defaultContent();
 				popupCloseIconElement.click();

@@ -55,8 +55,7 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 		log.info("{} CrawlPriceEtfThread(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
-		ParserResult result = ParserResult.builder().build();
-		result.clear();
+		ParserResult result = ParserResult.builder().build().clear();
 		driver = CrawlerService.defaultChromeDriver();
 
 		try {
