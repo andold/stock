@@ -76,30 +76,24 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 		KrxCompany company = new KrxCompany(jobs, start);
 		KrxEtf etf = new KrxEtf(jobs, start);
 		while (jobs.peek() != null) {
+			long forStarted = System.currentTimeMillis();
+
 			JobControl job = jobs.poll();
 			if (debug && new Random().nextDouble() < 0.99) {
 				continue;
-			}
-			if (job.getCompanyFail() && job.getEtfFail()) {
+			} else if (job.getCompanyFail() && job.getEtfFail()) {
 				log.error("{}", job);
-				continue;
-			}
-
-			if (job.getCompanyFail()) {
+			} else  if (job.getCompanyFail()) {
 				result.addAll(etf.extract(job));
-				continue;
-			}
-
-			if (job.getEtfFail()) {
+			} else  if (job.getEtfFail()) {
 				result.addAll(company.extract(job));
-				continue;
+			} else  if (job.getItem().getEtf()) {
+				result.addAll(etf.extract(job));
+			} else {
+				result.addAll(company.extract(job));
 			}
 
-			if (job.getItem().getEtf()) {
-				result.addAll(etf.extract(job));
-				continue;
-			}
-			result.addAll(company.extract(job));
+			log.info("{} #『{}』 CrawlPriceThread(#{}) - {}", Utility.indentMiddle(), result, Utility.size(jobs), Utility.toStringPastTimeReadable(forStarted));
 		}
 		company.close();
 		etf.close();
@@ -109,7 +103,7 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 	}
 
 	public static ParserResult crawl(List<ItemDomain> items, Date start) {
-		log.info("{} CrawlPriceEtfThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
+		log.info("{} CrawlPriceThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
 		long freeMemorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreeMemorySize();
@@ -134,12 +128,12 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 			try {
 				ParserResult result = task.get();
 				container.addAll(result);
-				log.info("{} 『{}』 CrawlPriceEtfThread.crawl(#{})", Utility.indentMiddle(), result, Utility.size(items));
+				log.info("{} 『{}』 CrawlPriceThread.crawl(#{})", Utility.indentMiddle(), result, Utility.size(items));
 			} catch (Exception e) {
 			}
 		}
 
-		log.info("{} 『{}』 CrawlPriceEtfThread.crawl(#{}) - {}", Utility.indentEnd(), container, Utility.size(items), Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』 CrawlPriceThread.crawl(#{}) - {}", Utility.indentEnd(), container, Utility.size(items), Utility.toStringPastTimeReadable(started));
 		return container;
 	}
 
