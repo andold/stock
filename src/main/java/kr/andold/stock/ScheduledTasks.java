@@ -9,15 +9,33 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import kr.andold.stock.service.CrawlerService;
+import kr.andold.stock.crawler.CrawlerService;
+import kr.andold.stock.crawler.IdempotentService;
+import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.stock.service.Utility;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Configuration
 @EnableScheduling
 @ConditionalOnProperty(value = "app.scheduling.enable", havingValue = "true", matchIfMissing = true)
 public class ScheduledTasks {
 	@Autowired
 	private CrawlerService stockCrawlerService;
+
+	@Autowired
+	private IdempotentService idempotentService;
+
+	// 매시마다
+	@Scheduled(cron = "15 * * * * *")
+	public void scheduleTaskMinutely() {
+		log.info("{} scheduleTaskMinutely()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		ParserResult result = idempotentService.run();
+
+		log.info("{} {} scheduleTaskMinutely() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+	}
 
 	// 매시마다
 	@Scheduled(cron = "15 30 8-16 * * *")

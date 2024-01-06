@@ -17,10 +17,10 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 
+import kr.andold.stock.crawler.ChromeDriverWrapper;
+import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.param.ItemParam;
-import kr.andold.stock.service.ChromeDriverWrapper;
-import kr.andold.stock.service.CrawlerService;
 import kr.andold.stock.service.ParserService;
 import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
@@ -54,8 +54,7 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 		log.info("{} CrawlDividendHistoryCompanyThread(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
 
-		ParserResult result = ParserResult.builder().build();
-		result.clear();
+		ParserResult result = ParserResult.builder().build().clear();
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
 
 		if (!init(driver, startDate)) {

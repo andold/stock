@@ -1,9 +1,5 @@
-package kr.andold.stock.service;
+package kr.andold.stock.crawler;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -28,6 +24,12 @@ import kr.andold.stock.domain.DividendDomain;
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
+import kr.andold.stock.service.DividendHistoryService;
+import kr.andold.stock.service.DividendService;
+import kr.andold.stock.service.ItemService;
+import kr.andold.stock.service.ParserService;
+import kr.andold.stock.service.PriceService;
+import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.stock.thread.CrawlItemDetailCompanyThread;
@@ -358,35 +360,6 @@ public class CrawlerService {
 
 		log.info("{} {} crawlItemEtf() - {}", Utility.indentMiddle(), result, Utility.toStringPastTimeReadable(started));
 		return result;
-	}
-
-	public static String extractTextFromUrl(String link, Map<String, Boolean> map) {
-		log.info("{} extractTextFromUrl({}, #{})", Utility.indentStart(), link, Utility.size(map));
-
-		StringBuffer sb;
-		try {
-			URL url = new URL(link);
-			URLConnection conn = url.openConnection();
-
-			// open the stream and put it into BufferedReader
-			BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "euc-kr"));
-			sb = new StringBuffer();
-
-			String inputLine;
-			while ((inputLine = br.readLine()) != null) {
-				sb.append(inputLine);
-			}
-			br.close();
-			String result = HtmlParserService.extractTextFromHtml(new String(sb), map);
-
-			log.info("{} {} extractTextFromUrl({}, #{})", Utility.indentEnd(), Utility.ellipsis(result, 16), link, Utility.size(map));
-			return result;
-		} catch (Exception e) {
-			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage());
-		}
-
-		log.info("{} FAIL extractTextFromUrl({}, #{})", Utility.indentEnd(), link, Utility.size(map));
-		return "";
 	}
 
 	// 주식=일반기업 배당금 내역 by KSD 증권정보포털 SEIBro

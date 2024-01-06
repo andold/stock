@@ -1,4 +1,4 @@
-package kr.andold.stock.service;
+package kr.andold.stock.crawler;
 
 import java.util.List;
 
@@ -8,6 +8,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
+import kr.andold.stock.service.Utility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

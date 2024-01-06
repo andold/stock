@@ -21,6 +21,10 @@ public interface DividendHistoryRepository extends JpaRepository<DividendHistory
 			+ "			OR	x.code				IN	:#{#param.codes}"
 			//	start time
 			+ "		)	AND	("
+			+ "				:#{#param.code}	IS NULL"
+			+ "			OR	x.code		=	:#{#param.code}"
+			//	start time
+			+ "		)	AND	("
 			+ "				:#{#param.start}	IS NULL"
 			+ "			OR	x.base		>=	:#{#param.start}"
 			//	end time

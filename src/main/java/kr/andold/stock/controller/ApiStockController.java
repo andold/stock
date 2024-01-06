@@ -17,13 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletResponse;
+import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.DividendDomain;
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.param.DividendParam;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.StockParam;
 import kr.andold.stock.service.CommonBlockService.CrudList;
-import kr.andold.stock.service.CrawlerService;
 import kr.andold.stock.service.StockService;
 import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;

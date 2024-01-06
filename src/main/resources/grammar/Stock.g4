@@ -240,10 +240,10 @@ crawlDividendHistoryEtfThread:
 	KEYWORD TAB WORD WORD WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 ETF 배당금 내역 	 KSD 증권정보포털 SEIBro 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179 
 	(
 		KEYWORD TAB code=NUMBER										NEWLINE			//	KEYWORD 	 166400 
-		WORD TAB TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE		//	종목명 	 	 운용사 	 유형 	 지급기준일 	 실지급일 	 배당구분 	 주당분배금 	 결산과표기준가 	 시가대비분배율 	 
+		WORD TAB WORD? TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE		//	종목명 	 	 운용사 	 유형 	 지급기준일 	 실지급일 	 배당구분 	 주당분배금 	 결산과표기준가 	 시가대비분배율 	 
 		(((
 			symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* TAB
-			TAB WORD TAB word* TAB base=DATE? TAB pay=DATE TAB WORD? TAB dividend=NUMBER TAB price=NUMBER? TAB ratio=NUMBER? TAB		NEWLINE
+			WORD? TAB WORD TAB word* TAB base=DATE? TAB pay=DATE TAB WORD? TAB dividend=NUMBER TAB price=NUMBER? TAB ratio=NUMBER? TAB		NEWLINE
 					//	TIGER 200커버드콜5%OTM 	 	 미래에셋자산운용 	 파생상품/구조화 	 2023/11/30 	 2023/12/04 	 이익분배 	 54 	 11,308.35 	 0.45 	 
 		) {
 			ParserService.crawlDividendHistoryEtfThread(20231127

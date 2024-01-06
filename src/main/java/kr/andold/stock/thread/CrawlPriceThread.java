@@ -19,10 +19,11 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+
+import kr.andold.stock.crawler.ChromeDriverWrapper;
+import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.Result;
-import kr.andold.stock.service.ChromeDriverWrapper;
-import kr.andold.stock.service.CrawlerService;
 import kr.andold.stock.service.ParserService;
 import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
@@ -48,7 +49,7 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 		jobs = new ConcurrentLinkedQueue<>();
 		items.forEach(item -> jobs.add(new JobControl(item)));
 		if (start == null) {
-			start = Date.from(LocalDate.of(2010, 1, 1).atStartOfDay(Utility.ZONE_ID_KST).toInstant());
+			start = Date.from(LocalDate.of(LocalDate.now().getYear() - 8, 1, 1).atStartOfDay(Utility.ZONE_ID_KST).toInstant());
 		}
 		this.start = start;
 	}

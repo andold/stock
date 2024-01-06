@@ -29,7 +29,7 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 	
 	@Override
 	public CrudList<DividendHistoryDomain> put(List<DividendHistoryDomain> domains) {
-		return CommonBlockService.super.put(domains.stream().filter(domain -> domain.getDividend() != null && domain.getDividend() > 0).collect(Collectors.toList()));
+		return CommonBlockService.super.put(domains.stream().filter(domain -> domain.getDividend() != null).collect(Collectors.toList()));
 	}
 
 	@CacheEvict(value = "histories")
