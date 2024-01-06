@@ -38,14 +38,11 @@ public class Seibro implements Crawler {
 
 		Result<ParserResult> resultCompany = extractAsCompany(item, start);
 		switch (resultCompany.getStatus()) {
-		case EXCEPTION:
-		case FAIL:
-		case NO_MORE_DATA:
-			break;
 		case SUCCESS:
-		default:
 			log.info("{} {} dividend({}, {}) - {}", Utility.indentEnd(), resultCompany, item, start, Utility.toStringPastTimeReadable(started));
 			return resultCompany;
+		default:
+			break;
 		}
 
 		Result<ParserResult> resultEtf = extractAsEtf(item, start);
@@ -63,7 +60,6 @@ public class Seibro implements Crawler {
 			driver = openAsEtf(start);
 
 			String code = item.getCode();
-			String symbol = item.getSymbol();
 
 			driver.switchTo().defaultContent();
 
@@ -81,37 +77,43 @@ public class Seibro implements Crawler {
 			keywordElement.clear();
 			keywordElement.sendKeys(code);
 			
-			// 검색 아이콘 클릭
+			// 종목명 검색 아이콘 클릭
+			String MARK_COUNT = "-1";
+			driver.setText(By.xpath("//*[@id='P_ListCnt']"), MARK_COUNT, TIMEOUT);
 			driver.findElement(By.xpath("//div[@id='group252']/a[@id='group236']"), TIMEOUT).click();
-			
 			// 이전 내용이 지워질 때까지
-			driver.waitUntilTextNotInclude(BY_MARK_CODE_SEARCH_DONE, TIMEOUT, textPrevious);
+			driver.waitUntilTextNotInclude(By.xpath("//*[@id='P_ListCnt']"), TIMEOUT, MARK_COUNT);
 
 			// 검색 결과에서 선택
+			if ("0".contentEquals(driver.getText(By.xpath("//*[@id='P_ListCnt']"), TIMEOUT, MARK_COUNT))) {
+				driver.switchTo().defaultContent();
+				driver.findElement(By.xpath("//div[@id='group164']/a[@id='anchor3']"), TIMEOUT).click();
+				close(driver);
+
+				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
+				log.info("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), result, item, start, Utility.toStringPastTimeReadable(started));
+				return result;
+			}
 			String xpathSearchResult = "//ul[@id='contentsList']/li/a";
 			List<WebElement> resultSearch = driver.findElements(By.xpath(xpathSearchResult), TIMEOUT);
-			String oneXpathCandidate1 = String.format("//*[@id='contentsList']//a[contains(text(),'%s')]", symbol.strip());
-			String oneXpathCandidate2 = String.format("//*[@id='contentsList']//a[contains(text(),'%s')]", symbol.replaceAll("[\s]+", ""));
 			if (resultSearch.size() == 0) {
 				driver.switchTo().defaultContent();
 				driver.findElement(By.xpath("//div[@id='group164']/a[@id='anchor3']"), TIMEOUT).click();
 				close(driver);
 
-				log.info("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), "없는 종목", item, start, Utility.toStringPastTimeReadable(started));
-				return Result.<ParserResult>builder().status(STATUS.FAIL).build();
+				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_DATA).build();
+				log.info("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), result, item, start, Utility.toStringPastTimeReadable(started));
+				return result;
 			} else if (resultSearch.size() == 1) {
 				driver.findElement(By.xpath(xpathSearchResult)).click();
-			} else if (!driver.isEmpty(By.xpath(oneXpathCandidate1))) {
-				driver.clickIfExist(By.xpath(oneXpathCandidate1));
-			} else if (!driver.isEmpty(By.xpath(oneXpathCandidate2))) {
-				driver.clickIfExist(By.xpath(oneXpathCandidate2));
 			} else {
 				driver.switchTo().defaultContent();
 				driver.findElement(By.xpath("//div[@id='group164']/a[@id='anchor3']"), TIMEOUT).click();
 				close(driver);
 
-				log.info("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), "모호한 검색 결과", item, start, Utility.toStringPastTimeReadable(started));
-				return Result.<ParserResult>builder().status(STATUS.FAIL).build();
+				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_MANY_DATA).build();
+				log.info("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), result, item, start, Utility.toStringPastTimeReadable(started));
+				return result;
 			}
 
 			driver.switchTo().defaultContent();
@@ -133,11 +135,13 @@ public class Seibro implements Crawler {
 			sb.append(driver.extractTextFromTableElement(table));
 			sb.append(MARK_ANDOLD_SINCE);
 			sb.append(MARK_START_END_POINT_ETF);
-			ParserResult result = ParserService.parse(new String(sb), debug);
+			close(driver);
+
+			ParserResult parserResult = ParserService.parse(new String(sb), false);
+			Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(parserResult).build();
 
 			log.debug("{} {} extractAsEtf({}, {}) - {}", Utility.indentEnd(), result, item, start, Utility.toStringPastTimeReadable(started));
-			close(driver);
-			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
+			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 			close(driver);
@@ -181,19 +185,14 @@ public class Seibro implements Crawler {
 
 			Result<String> searched = searchItem(driver, item);
 			switch (searched.getStatus()) {
-			case EXCEPTION:
-			case FAIL:
-			case NO_MORE_DATA:
-				log.debug("{} 『{}』 extractAsCompany({}) - {}", Utility.indentEnd(), "", start, Utility.toStringPastTimeReadable(started));
+			case SUCCESS:
+				break;
+			default:
+				log.debug("{} 『{}』 extractAsCompany({}, {}) - {}", Utility.indentEnd(), searched, item, start, Utility.toStringPastTimeReadable(started));
 				searched.setResult("");
 
 				close(driver);
 				return Result.<ParserResult>builder().status(searched.getStatus()).build();
-			case SUCCESS:
-				break;
-			default:
-				break;
-			
 			}
 
 			By BY_TABLE = By.xpath("//table[@id='grid1_body_table']");
@@ -209,10 +208,11 @@ public class Seibro implements Crawler {
 			driver.clickIfExist(By.xpath("//a[@id='anchor3']"));
 
 			// 조회 클릭
-			driver.findElement(By.xpath("//a[@id='group57']")).click();
-
-			// 조회결과 바뀐거 확인 - 첫번째 라인
-			driver.waitUntilTextNotInclude(BY_TABLE_1ST_LINE, TIMEOUT, previous1stLine);
+			if (!clickSearchIconInCompany(driver)) {
+				log.debug("{} {} extractAsCompany({}, {}) - {}", Utility.indentEnd(), "FAILURE SEARH", item, start, Utility.toStringPastTimeReadable(started));
+				close(driver);
+				return Result.<ParserResult>builder().status(STATUS.FAIL).build();
+			}
 
 			// 시작 표시
 			StringBuffer sb = new StringBuffer();
@@ -244,7 +244,7 @@ public class Seibro implements Crawler {
 			// 마지막 표시
 			sb.append(MARK_ANDOLD_SINCE);
 			sb.append(MARK_START_END_POINT_COMPANY);
-			ParserResult result = ParserService.parse(new String(sb), debug);
+			ParserResult result = ParserService.parse(new String(sb), false);
 
 			log.debug("{} {} extractAsCompany({}, {}) - {}", Utility.indentEnd(), result, item, start, Utility.toStringPastTimeReadable(started));
 			close(driver);
@@ -256,6 +256,17 @@ public class Seibro implements Crawler {
 
 		log.debug("{} {} extractAsCompany({}, {}) - {}", Utility.indentEnd(), "EXCEPTION", item, start, Utility.toStringPastTimeReadable(started));
 		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+	}
+
+	private boolean clickSearchIconInCompany(ChromeDriverWrapper driver) {
+		try {
+			String previousLastLineText = driver.getTextLast(By.xpath("//table[@id='grid1_body_table']/tbody/tr"), TIMEOUT, "andold");
+			driver.findElement(By.xpath("//a[@id='group57']")).click();
+			driver.waitUntilNotIncludeTextLast(By.xpath("//table[@id='grid1_body_table']/tbody/tr"), TIMEOUT, previousLastLineText);
+			return true;
+		} catch (Exception e) {
+		}
+		return false;
 	}
 
 	private ChromeDriverWrapper openAsCompany(Date start) {
@@ -291,36 +302,50 @@ public class Seibro implements Crawler {
 		}
 	}
 
-	private Result<String> searchItem(ChromeDriverWrapper chromeDriver, ItemDomain item) {
+	private Result<String> searchItem(ChromeDriverWrapper driver, ItemDomain item) {
 		try {
 			String code = item.getCode();
 
 			// 종목 검색 아이콘 클릭
-			chromeDriver.waitUntilIsDisplayed(By.xpath("//div[@id='group83']"), false, TIMEOUT);
-			chromeDriver.findElement(By.id("cc_group4")).click();
+			driver.waitUntilIsDisplayed(By.xpath("//div[@id='group83']"), false, TIMEOUT);
+			driver.findElement(By.id("cc_group4")).click();
 
-			WebElement frame = chromeDriver.findElement(By.xpath("//iframe[@id='iframe2']"), TIMEOUT);
+			WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframe2']"), TIMEOUT);
 
-			chromeDriver.switchTo().frame(frame);
-			WebElement codeElement = chromeDriver.findElement(By.id("search_string"), TIMEOUT);
+			driver.switchTo().frame(frame);
+			WebElement codeElement = driver.findElement(By.id("search_string"), TIMEOUT);
 			codeElement.clear();
 			codeElement.sendKeys(code); // 코드 입력
 
-			String MARK = "-1";
-			chromeDriver.setText(By.xpath("//*[@id='P_ListCnt']"), MARK, TIMEOUT);
-			chromeDriver.findElement(By.id("P_group100")).click(); // 코드 검색 아이콘 클릭
+			// 코드 검색 아이콘 클릭
+			String MARK_COUNT = "-1";
+			driver.setText(By.xpath("//*[@id='P_ListCnt']"), MARK_COUNT, TIMEOUT);
+			driver.findElement(By.id("P_group100")).click();
+			driver.waitUntilTextNotInclude(By.xpath("//*[@id='P_ListCnt']"), TIMEOUT, MARK_COUNT);
 
-			// 조회결과 확인
-			chromeDriver.waitUntilTextNotInclude(By.xpath("//*[@id='P_ListCnt']"), TIMEOUT, MARK);
-			String NO_RESULT = chromeDriver.getText(By.xpath("//*[@id='P_isinList_none']"), TIMEOUT, MARK);
-			String noResult = chromeDriver.getText(By.xpath("//*[@id='P_isinList_none']"), TIMEOUT, MARK);
-			if (NO_RESULT.contentEquals(noResult)) {
-				return Result.<String>builder().status(STATUS.FAIL).build();
+			// 조회결과 갯수 확인
+			if ("0".contentEquals(driver.getText(By.xpath("//*[@id='P_ListCnt']"), TIMEOUT, MARK_COUNT))) {
+				driver.switchTo().defaultContent();
+				driver.clickIfExist(By.xpath("//*[@id='anchor3']"));
+				close(driver);
+				return Result.<String>builder().status(STATUS.FAIL_NO_RESULT).build();
 			}
-			WebElement targetElement = chromeDriver.findElementIncludeText(By.xpath("//ul[@id='P_isinList']/li/a/span[@class='w2textbox code']"), TIMEOUT, code);
-			
-			// 클릭
-			targetElement.click();
+			List<WebElement> resultSearch = driver.findElements(By.xpath("//ul[@id='P_isinList']/li/a"), TIMEOUT);
+			if (resultSearch.size() == 0) {
+				driver.switchTo().defaultContent();
+				driver.clickIfExist(By.xpath("//*[@id='anchor3']"));
+				close(driver);
+				return Result.<String>builder().status(STATUS.FAIL_NO_DATA).build();
+			} else if (resultSearch.size() > 1) {
+				// 여러개 출력되면 사람이 찾아야 하는 수준이다.
+				driver.switchTo().defaultContent();
+				driver.clickIfExist(By.xpath("//*[@id='anchor3']"));
+				close(driver);
+				return Result.<String>builder().status(STATUS.FAIL_MANY_DATA).build();
+			}
+
+			// 하나 남은거 클릭
+			resultSearch.get(0).click();
 			return Result.<String>builder().status(STATUS.SUCCESS).build();
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);

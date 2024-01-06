@@ -162,7 +162,7 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 			String currentPage = chromeDriver.getText(BY_CURRENT_PAGE, TIMEOUT, "andold");	//	현재 페이지 번호
 			while(true) {
 				WebElement table = chromeDriver.findElement(BY_TABLE, TIMEOUT);
-				sb.append(chromeDriver.extractTextFromTableElement(table));
+				sb.append(chromeDriver.extractTextContentFromTableElement(table));
 
 				// 다음 페이지 클릭
 				chromeDriver.clickIfExist(BY_NEXT_PAGE_ICON);

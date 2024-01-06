@@ -6,7 +6,7 @@
 	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<charset>UTF-8</charset>
-			<Pattern>TH %d{HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
+			<Pattern>TH %d{HH:mm:ss} [%-5level] %-64.64logger{64} :%4line %msg%n</Pattern>
 		</encoder>
 	</appender>
 	<appender name="general" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -39,6 +39,10 @@
 	</appender>
 
 	<logger name="org.hibernate" additivity="false" level="warn">
+		<appender-ref ref="console" />
+		<appender-ref ref="general" />
+	</logger>
+	<logger name="org.openqa" additivity="false" level="error">
 		<appender-ref ref="console" />
 		<appender-ref ref="general" />
 	</logger>

@@ -290,10 +290,10 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		return new String(buffer);
 	}
 
-	public String extractTextFromTrElement(WebElement tr) {
-		return extractTextFromTrElement(tr, "");
+	public String extractTextContentFromTrElement(WebElement tr) {
+		return extractTextContentFromTrElement(tr, "");
 	}
-	private static String extractTextFromTrElement(WebElement tr, String prefix) {
+	private static String extractTextContentFromTrElement(WebElement tr, String prefix) {
 		StringBuffer sb = new StringBuffer(prefix);
 		tr.findElements(By.tagName("th")).forEach(th -> {
 			sb.append(th.getAttribute("textContent"));
@@ -307,38 +307,72 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		return new String(sb);
 	}
 
-	public String extractTextFromTableElement(WebElement e) {
-		return extractTextFromTableElement(e, "");
+	public String extractTextContentFromTableElement(WebElement e) {
+		return extractTextContentFromTableElement(e, "");
 	}
-	public String extractTextFromTableElement(WebElement e, String prefix) {
+	public String extractTextContentFromTableElement(WebElement e, String prefix) {
 		log.trace("{} extractTextFromTableElement(..., 『{}』)", Utility.indentStart(), Utility.ellipsisEscape(prefix, 16));
 		long started = System.currentTimeMillis();
 
 		StringBuffer sb = new StringBuffer();
-		e.findElements(By.tagName("tr")).forEach(tr -> sb.append(extractTextFromTrElement(tr, prefix)));
+		e.findElements(By.tagName("tr")).forEach(tr -> sb.append(extractTextContentFromTrElement(tr, prefix)));
 		String result = new String(sb);
 
 		log.trace("{} {} extractTextFromTableElement(..., 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(result, 16), Utility.ellipsisEscape(prefix, 16), Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
-	public String getText(By xpath, int milli, String value) {
-		log.trace("{} getText(..., {}, 『{}』)", Utility.indentStart(), milli, Utility.ellipsisEscape(value, 16));
-		long started = System.currentTimeMillis();
+	public String extractTextFromTableElement(WebElement e) {
+		return extractTextFromTableElement(e, "");
+	}
 
+	private String extractTextFromTableElement(WebElement e, String prefix) {
+		StringBuffer sb = new StringBuffer();
+		e.findElements(By.tagName("tr")).forEach(tr -> sb.append(extractTextFromTrElement(tr, prefix)));
+		String result = new String(sb);
+		return result;
+	}
+
+	private String extractTextFromTrElement(WebElement tr, String prefix) {
+		StringBuffer sb = new StringBuffer(prefix);
+		tr.findElements(By.tagName("th")).forEach(th -> {
+			sb.append(th.getText());
+			sb.append("\t");
+		});
+		tr.findElements(By.tagName("td")).forEach(td -> {
+			sb.append(td.getText());
+			sb.append("\t");
+		});
+		sb.append("\n");
+		return new String(sb);
+	}
+
+	public String getText(By xpath, int milli, String defaultValue) {
+		List<WebElement> elements = null;
+		while (milli > 0) {
+			try {
+				elements = super.findElements(xpath);
+				if (!elements.isEmpty()) {
+					return elements.get(elements.size() - 1).getText();
+				}
+			} catch (Exception e) {
+			}
+			Utility.sleep(PAUSE);
+			milli -= PAUSE;
+		}
+		return defaultValue;
+	}
+
+	public String getTextLast(By xpath, int milli, String value) {
 		try {
 			List<WebElement> es = findElements(xpath, milli);
-			StringBuffer sb = new StringBuffer();
-			for (WebElement e: es) {
-				sb.append(e.getText());
+			if (es != null && es.size() > 0) {
+				WebElement e = es.get(es.size() - 1);
+				return e.getText();
 			}
-			String result = new String(sb);
-			log.trace("{} 『{}』 getText(..., {}, 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(result, 16), milli, Utility.ellipsisEscape(value, 16), Utility.toStringPastTimeReadable(started));
-			return result;
 		} catch (Exception e) {
 		}
 
-		log.trace("{} 『{}』 getText(..., {}, 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(value, 16), milli, Utility.ellipsisEscape(value, 16), Utility.toStringPastTimeReadable(started));
 		return value;
 	}
 
@@ -381,6 +415,21 @@ public class ChromeDriverWrapper extends ChromeDriver {
 				if (!b) {
 					return true;
 				}
+			}
+			Utility.sleep(PAUSE);
+			milli -= PAUSE;
+		}
+		return false;
+	}
+
+	public boolean waitUntilNotIncludeTextLast(By xpath, int milli, String previous) {
+		while (milli > 0) {
+			try {
+				String current = getTextLast(xpath, 1, previous);
+				if (!current.contentEquals(previous)) {
+					return true;
+				}
+			} catch (Exception e) {
 			}
 			Utility.sleep(PAUSE);
 			milli -= PAUSE;

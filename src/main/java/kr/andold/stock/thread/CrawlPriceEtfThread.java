@@ -182,7 +182,7 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 			while(true) {
 				//	테이블
 				WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
-				sb.append(driver.extractTextFromTableElement(table));
+				sb.append(driver.extractTextContentFromTableElement(table));
 
 				if (isLastPage(driver, item.getIpoDate())) {
 					break;

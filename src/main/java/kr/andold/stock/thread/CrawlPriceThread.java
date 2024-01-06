@@ -200,7 +200,7 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 					long forStarted = System.currentTimeMillis();
 
 					WebElement table = driver.findElement(By.xpath("/html/body/div[2]/section[2]/section/section/div/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), TIMEOUT);
-					sb.append(driver.extractTextFromTableElement(table, String.format("주식\t%s\t", item.getCode())));
+					sb.append(driver.extractTextContentFromTableElement(table, String.format("주식\t%s\t", item.getCode())));
 					sb.append(MARK_ANDOLD_SINCE);
 
 					List<WebElement> trs = table.findElements(By.xpath("//tr"));
@@ -378,7 +378,7 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 					long forStarted = System.currentTimeMillis();
 
 					WebElement table = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), TIMEOUT);
-					sb.append(driver.extractTextFromTableElement(table, String.format("ETF\t%s\t", item.getCode())));
+					sb.append(driver.extractTextContentFromTableElement(table, String.format("ETF\t%s\t", item.getCode())));
 					sb.append(MARK_ANDOLD_SINCE);
 
 					List<WebElement> trs = table.findElements(By.xpath("//tr"));

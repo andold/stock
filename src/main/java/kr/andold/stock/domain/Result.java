@@ -22,6 +22,9 @@ public class Result<T> {
 		SUCCESS
 		, NO_MORE_DATA
 		, FAIL
+			, FAIL_NO_RESULT
+			, FAIL_NO_DATA
+			, FAIL_MANY_DATA
 		, EXCEPTION
 	}
 }

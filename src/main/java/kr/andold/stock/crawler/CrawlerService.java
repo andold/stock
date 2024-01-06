@@ -256,7 +256,7 @@ public class CrawlerService {
 					driver.findElementIncludeText(By.xpath("//div[@id='cntsPaging01']//a"), TIMEOUT, pageString).click();
 					driver.findElementIncludeTextAndClass(By.xpath("//div[@id='cntsPaging01']//a"), TIMEOUT, pageString, "w2pageList_label_selected");
 					WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
-					sb.append(driver.extractTextFromTableElement(table, "KOSPI\t"));
+					sb.append(driver.extractTextContentFromTableElement(table, "KOSPI\t"));
 					sb.append(MARK_ANDOLD_SINCE);
 				}
 			}
@@ -274,7 +274,7 @@ public class CrawlerService {
 					driver.findElementIncludeText(By.xpath("//div[@id='cntsPaging01']//a"), TIMEOUT, pageString).click();
 					driver.findElementIncludeTextAndClass(By.xpath("//div[@id='cntsPaging01']//a"), TIMEOUT, pageString, "w2pageList_label_selected");
 					WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
-					sb.append(driver.extractTextFromTableElement(table, "KOSDAQ\t"));
+					sb.append(driver.extractTextContentFromTableElement(table, "KOSDAQ\t"));
 					sb.append(MARK_ANDOLD_SINCE);
 				}
 			}
@@ -331,7 +331,7 @@ public class CrawlerService {
 
 				//	테이블
 				WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
-				sb.append(driver.extractTextFromTableElement(table, "ETF\t"));
+				sb.append(driver.extractTextContentFromTableElement(table, "ETF\t"));
 				sb.append(MARK_ANDOLD_SINCE);
 
 				// 다음 페이지 클릭
@@ -530,13 +530,13 @@ public class CrawlerService {
 
 					//// *[@id="cTB11"]
 					WebElement price = driver.findElement(By.xpath("//*[@id='cTB11']//tr[1]")); // 시세 및 주주현황
-					sb.append(driver.extractTextFromTrElement(price));
+					sb.append(driver.extractTextContentFromTrElement(price));
 					// coinfo_cp
 
 					driver.switchTo().defaultContent();
 					driver.findElement(By.xpath("//*[@id=\"tab_invest\"]/a[1]")).click(); // 투자정보 선택
 					driver.findElements(By.xpath("//table[@summary='시가총액 정보']//tr")).forEach(tr -> {
-						String text = driver.extractTextFromTrElement(tr);
+						String text = driver.extractTextContentFromTrElement(tr);
 						if (text.contains("상장주식수")) {
 							sb.append(text);
 						}

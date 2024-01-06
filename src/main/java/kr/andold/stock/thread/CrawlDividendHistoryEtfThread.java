@@ -182,7 +182,7 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 			WebElement table = driver.findElement(By.xpath("//*[@id='grid1_body_table']"), TIMEOUT);
 			StringBuffer sb = new StringBuffer();
 			sb.append(String.format("KEYWORD\t%s\n", item.getCode()));
-			sb.append(driver.extractTextFromTableElement(table));
+			sb.append(driver.extractTextContentFromTableElement(table));
 			sb.append(MARK_ANDOLD_SINCE);
 
 			String result = new String(sb);

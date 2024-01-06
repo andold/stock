@@ -89,7 +89,7 @@ export default ((props: any) => {
 			codes: codes,
 		};
 		dividendHistoryStore.search(request, (_: any, historiesAll: DividendHistory[]) => {
-			const map = dividendHistoryStore.makeMap(historiesAll);
+			const map = dividendHistoryStore.makeMap(historiesAll.filter((history: DividendHistory) => history.dividend > 0));
 			items.forEach((item: Item) => {
 				const histories = map.get(item.code)?.sort(dividendHistoryStore.compare);
 				const mapHistory = dividendHistoryStore.makeMapByYearMonth(histories);

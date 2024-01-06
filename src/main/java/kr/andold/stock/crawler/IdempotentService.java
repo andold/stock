@@ -36,23 +36,32 @@ public class IdempotentService {
 	@Autowired private PriceService priceService;
 
 	private ConcurrentLinkedDeque<ItemDomain> queue = new ConcurrentLinkedDeque<>();
+	private boolean running = false;
 
 	public ParserResult run() {
 		log.info("{} run()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
+		if (running) {
+			log.info("{} {} run() - {}", Utility.indentEnd(), "BUSY", Utility.toStringPastTimeReadable(started));
+			return null;
+		}
+
+		running = true;
 		ParserResult parserResult = null;
-		while (true) {
+		for (int cx = 0; cx < 4; cx++) {
 			if (queue.isEmpty()) {
 				List<ItemDomain> items = itemService.search(null);
 				queue.addAll(items);
-				log.info("{} {} run() - {}", Utility.indentMiddle(), "NO JOB, RESTART", Utility.toStringPastTimeReadable(started));
+				log.info("{} {}:{} run() - {}", Utility.indentMiddle(), "NO JOB, RESTART", Utility.toStringPastTimeReadable(started));
+				cx--;
 				continue;
 			}
 			
 			ItemDomain item = queue.poll();
 			if (item == null) {
-				log.info("{} {} run() - {}", Utility.indentMiddle(), "INVALID JOB", Utility.toStringPastTimeReadable(started));
+				log.info("{} {}:{} run() - {}", Utility.indentMiddle(), "INVALID JOB", item, Utility.toStringPastTimeReadable(started));
+				cx--;
 				continue;
 			}
 			
@@ -60,27 +69,27 @@ public class IdempotentService {
 			Date start = Date.from(startZonedDate.toInstant());
 			List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
 			if (histories != null && !histories.isEmpty() && histories.get(histories.size() - 1).getBase().before(start)) {
-				log.info("{} {} run() - {}", Utility.indentMiddle(), "NOTHING TO DO JOB", Utility.toStringPastTimeReadable(started));
+				log.info("{} {}:{} run() - {}", Utility.indentMiddle(), "NOTHING TO DO JOB", item, Utility.toStringPastTimeReadable(started));
+				cx--;
 				continue;
 			}
 			
 			Result<ParserResult> result = seibro.dividend(item, start);
 			switch (result.getStatus()) {
-			case EXCEPTION:
-			case FAIL:
-			case NO_MORE_DATA:
-				break;
 			case SUCCESS:
-			default:
 				parserResult = result.getResult();
 				List<DividendHistoryDomain> founds = parserResult.getHistories();
 				founds.add(DividendHistoryDomain.builder().code(item.getCode()).base(Date.from(startZonedDate.minusDays(1).toInstant())).dividend(-1).build());
 				put(parserResult);
 				break;
+			default:
+				break;
 			}
-			break;
+
+			log.info("{} {}:{} run() - {}", Utility.indentMiddle(), "DONE", item, Utility.toStringPastTimeReadable(started));
 		}
 
+		running = false;
 		log.info("{} {} run() - {}", Utility.indentEnd(), parserResult, Utility.toStringPastTimeReadable(started));
 		return parserResult;
 	}
