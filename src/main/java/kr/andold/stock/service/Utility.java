@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.jsoup.nodes.Element;
@@ -108,6 +109,9 @@ public class Utility {
 	@SuppressWarnings("unused")
 	private static final String METHOD_LABEL = "┍┕├    「」『』【】    []‘’‛“”‟‹›";
 	
+	public static int size(ConcurrentLinkedDeque<?> queue) {
+		return (queue == null) ? -1 : queue.size();
+	}
 	public static int size(List<?> list) {
 		return (list == null) ? -1 : list.size();
 	}
@@ -1205,4 +1209,5 @@ public class Utility {
 		} catch (InterruptedException e) {
 		}
 	}
+
 }
