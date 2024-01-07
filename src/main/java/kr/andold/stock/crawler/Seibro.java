@@ -324,29 +324,24 @@ public class Seibro implements Crawler {
 			driver.waitUntilTextNotInclude(By.xpath("//*[@id='P_ListCnt']"), TIMEOUT, MARK_COUNT);
 
 			// 조회결과 갯수 확인
-			if ("0".contentEquals(driver.getText(By.xpath("//*[@id='P_ListCnt']"), TIMEOUT, MARK_COUNT))) {
+			By BY_PROPER_RESULT = By.xpath("//ul[@id='P_isinList']/li/a/span[contains(text(),'" + item.getCode() + "')]");
+			List<WebElement> result = driver.findElements(BY_PROPER_RESULT, TIMEOUT);
+			switch (result.size()) {
+			case 0:
 				driver.switchTo().defaultContent();
 				driver.clickIfExist(By.xpath("//*[@id='anchor3']"));
 				close(driver);
 				return Result.<String>builder().status(STATUS.FAIL_NO_RESULT).build();
-			}
-			List<WebElement> resultSearch = driver.findElements(By.xpath("//ul[@id='P_isinList']/li/a"), TIMEOUT);
-			if (resultSearch.size() == 0) {
-				driver.switchTo().defaultContent();
-				driver.clickIfExist(By.xpath("//*[@id='anchor3']"));
-				close(driver);
-				return Result.<String>builder().status(STATUS.FAIL_NO_DATA).build();
-			} else if (resultSearch.size() > 1) {
-				// 여러개 출력되면 사람이 찾아야 하는 수준이다.
-				driver.switchTo().defaultContent();
-				driver.clickIfExist(By.xpath("//*[@id='anchor3']"));
-				close(driver);
-				return Result.<String>builder().status(STATUS.FAIL_MANY_DATA).build();
+			case 1:
+				driver.clickIfExist(BY_PROPER_RESULT);
+				return Result.<String>builder().status(STATUS.SUCCESS).build();
+			default:
+				log.warn("{} FAIL_MANY_DATA count:{}, item:{}, {}", Utility.indentMiddle(), count, item, driver.getText(result));
+				break;
 			}
 
-			// 하나 남은거 클릭
-			resultSearch.get(0).click();
-			return Result.<String>builder().status(STATUS.SUCCESS).build();
+			close(driver);
+			return Result.<String>builder().status(STATUS.FAIL_MANY_DATA).build();
 		} catch (Exception e) {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
 		}

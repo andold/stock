@@ -27,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class IdempotentService {
+	private static final int BATCH_SIZE = 1;
+
 	@Autowired
 	private Seibro seibro;
 
@@ -48,19 +50,24 @@ public class IdempotentService {
 		}
 
 		running = true;
+		boolean restarted = false;
 		ParserResult parserResult = null;
-		for (int cx = 0; cx < 4; cx++) {
+		for (int cx = 0; cx < BATCH_SIZE; cx++) {
 			if (queue.isEmpty()) {
+				if (restarted) {
+					log.info("{} {} run() - {}", Utility.indentMiddle(), "다시 해봤는데, 진짜 할게 없다", Utility.toStringPastTimeReadable(started));
+					break;
+				}
 				List<ItemDomain> items = itemService.search(null);
 				queue.addAll(items);
-				log.info("{} {}:{} run() - {}", Utility.indentMiddle(), "NO JOB, RESTART", Utility.toStringPastTimeReadable(started));
+				log.info("{} {} run() - {}", Utility.indentMiddle(), "일단 다했다, 다시한다", Utility.toStringPastTimeReadable(started));
 				cx--;
 				continue;
 			}
 			
 			ItemDomain item = queue.poll();
 			if (item == null) {
-				log.info("{} {}:{} run() - {}", Utility.indentMiddle(), "INVALID JOB", item, Utility.toStringPastTimeReadable(started));
+				log.info("{} {}:{} run() - {}", Utility.indentMiddle(), "공갈빵인데", item, Utility.toStringPastTimeReadable(started));
 				cx--;
 				continue;
 			}
@@ -69,7 +76,7 @@ public class IdempotentService {
 			Date start = Date.from(startZonedDate.toInstant());
 			List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
 			if (histories != null && !histories.isEmpty() && histories.get(histories.size() - 1).getBase().before(start)) {
-				log.info("{} {}:{} run() - {}", Utility.indentMiddle(), "NOTHING TO DO JOB", item, Utility.toStringPastTimeReadable(started));
+				log.info("{} {}:{} run() - {}", Utility.indentMiddle(), "이건 이미 한건데", item, Utility.toStringPastTimeReadable(started));
 				cx--;
 				continue;
 			}
@@ -86,7 +93,7 @@ public class IdempotentService {
 				break;
 			}
 
-			log.info("{} {}:{} run() - {}", Utility.indentMiddle(), "DONE", item, Utility.toStringPastTimeReadable(started));
+			log.info("{} {}:{} run() - {}", Utility.indentMiddle(), "하나 해치웠어요", item, Utility.toStringPastTimeReadable(started));
 		}
 
 		running = false;

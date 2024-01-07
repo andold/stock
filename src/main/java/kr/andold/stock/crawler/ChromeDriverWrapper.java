@@ -437,4 +437,12 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		return false;
 	}
 
+	public String getText(List<WebElement> result) {
+		StringBuffer sb = new StringBuffer();
+		for (WebElement e: result) {
+			sb.append(e.getText());
+		}
+		return sb.toString();
+	}
+
 }
