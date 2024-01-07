@@ -60,14 +60,14 @@ public class IdempotentService {
 				}
 				List<ItemDomain> items = itemService.search(null);
 				queue.addAll(items);
-				log.info("{} #{}:{} run() - {}", Utility.indentMiddle(), Utility.size(queue), "일단 다했다, 다시한다", Utility.toStringPastTimeReadable(started));
+				log.info("{} #{}:{} run() - {}", Utility.indentMiddle(), Utility.size(queue), "다했네, 다시한다", Utility.toStringPastTimeReadable(started));
 				cx--;
 				continue;
 			}
 			
 			ItemDomain item = queue.poll();
 			if (item == null) {
-				log.info("{} #{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(queue), "공갈빵인데", item, Utility.toStringPastTimeReadable(started));
+				log.info("{} #{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(queue), "공갈빵", item, Utility.toStringPastTimeReadable(started));
 				cx--;
 				continue;
 			}
@@ -76,7 +76,7 @@ public class IdempotentService {
 			Date start = Date.from(startZonedDate.toInstant());
 			List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
 			if (histories != null && !histories.isEmpty() && histories.get(histories.size() - 1).getBase().before(start)) {
-				log.info("{} #{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(queue), "이건 이미 한건데", item, Utility.toStringPastTimeReadable(started));
+				log.info("{} #{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(queue), "이미 한건데", item, Utility.toStringPastTimeReadable(started));
 				cx--;
 				continue;
 			}
@@ -88,12 +88,13 @@ public class IdempotentService {
 				List<DividendHistoryDomain> founds = parserResult.getHistories();
 				founds.add(DividendHistoryDomain.builder().code(item.getCode()).base(Date.from(startZonedDate.minusDays(1).toInstant())).dividend(-1).build());
 				put(parserResult);
+				log.info("{} #{}:{}:{} {} run() - {}", Utility.indentMiddle(), Utility.size(queue), "했어요", item, parserResult, Utility.toStringPastTimeReadable(started));
 				break;
 			default:
+				log.warn("{} #{}:{}:{} {} run() - {}", Utility.indentMiddle(), Utility.size(queue), "오류났어요", item, result, Utility.toStringPastTimeReadable(started));
 				break;
 			}
 
-			log.info("{} #{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(queue), "하나 해치웠어요", item, Utility.toStringPastTimeReadable(started));
 		}
 
 		running = false;

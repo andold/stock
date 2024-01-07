@@ -233,7 +233,7 @@ export function PriceEarningsRatioCellRenderer(param: any) {
 					{
 						dividends.map((cx: number, index: number) => (
 							<Col key={index}
-								className={`px-0 ${index == YEARS - 1 ? "bg-danger" : "bg-primary"}`}
+								className={`px-0 ${index == YEARS - 1 ? "bg-danger" : cx > 0 ? "bg-primary" : "bg-black"}`}
 								style={{
 									marginRight: 2,
 									height: height(lineHeight, max, cx),
