@@ -45,7 +45,6 @@ public class ScheduledTasks {
 	// 평일
 	@Scheduled(cron = "15 30 22 * * MON-FRI")
 	public void scheduleTaskDaily() {
-		// 7일전꺼부터 수집
 		Date start = Date.from(LocalDate.now().minusMonths(1).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST));
 		stockCrawlerService.crawlPrice(start);
 	}
