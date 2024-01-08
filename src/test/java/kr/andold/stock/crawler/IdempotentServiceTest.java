@@ -1,5 +1,10 @@
 package kr.andold.stock.crawler;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,10 +19,15 @@ public class IdempotentServiceTest {
 	private IdempotentService service;
 
 	@Test
-	public void testRun() {
-		for (int cx = 0; cx < 4; cx++) {
-			ParserResult result = service.run();
-			log.info("{}", result);
+	public void testRun() throws InterruptedException, ExecutionException {
+		List<Future<ParserResult>> futures = new ArrayList<>();
+		for (int cx = 0, sizex = 4; cx < sizex; cx++) {
+			futures.add(service.run());
+		}
+		
+		for (Future<ParserResult> future : futures) {
+			ParserResult result = future.get();
+			log.info("RESULT: {}", result);
 		}
 	}
 

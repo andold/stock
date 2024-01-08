@@ -5,9 +5,12 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.Future;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import kr.andold.stock.domain.DividendDomain;
@@ -42,13 +45,14 @@ public class IdempotentService {
 	private ConcurrentLinkedDeque<ItemDomain> qPrice = new ConcurrentLinkedDeque<>();
 	private boolean running = false;
 
-	public ParserResult run() {
+	@Async
+	public Future<ParserResult> run() {
 		log.info("{} run()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
 		if (running) {
 			log.info("{} #{}:{} run() - {}", Utility.indentEnd(), Utility.size(qDividend), "BUSY", Utility.toStringPastTimeReadable(started));
-			return null;
+			return CompletableFuture.completedFuture(null);
 		}
 
 		running = true;
@@ -141,7 +145,7 @@ public class IdempotentService {
 
 		running = false;
 		log.info("{} #{}:{} run() - {}", Utility.indentEnd(), Utility.size(qDividend), parserResult, Utility.toStringPastTimeReadable(started));
-		return parserResult;
+		return CompletableFuture.completedFuture(parserResult);
 	}
 
 	private boolean isRequireCrawlPrice(List<DividendHistoryDomain> histories) {

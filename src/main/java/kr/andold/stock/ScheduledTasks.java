@@ -2,6 +2,8 @@ package kr.andold.stock;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -32,9 +34,14 @@ public class ScheduledTasks {
 		log.info("{} scheduleTaskMinutely()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		ParserResult result = idempotentService.run();
+		try {
+			Future<ParserResult> future = idempotentService.run();
+			ParserResult result = future.get();
+			log.info("{} {} scheduleTaskMinutely() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		} catch (InterruptedException | ExecutionException e) {
+		}
 
-		log.info("{} {} scheduleTaskMinutely() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		log.info("{} {} scheduleTaskMinutely() - {}", Utility.indentEnd(), "비동기 실행 실패", Utility.toStringPastTimeReadable(started));
 	}
 
 	// 매시마다
