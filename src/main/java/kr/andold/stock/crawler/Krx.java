@@ -118,13 +118,13 @@ public class Krx implements Crawler {
 			driver.findElement(By.xpath("//*[@id='btnisuCd_finder_secuprodisu1_0']"), TIMEOUT).click();
 
 			// 자동으로 갔다 와야하는데 ....
-			if (!driver.waitUntilExist(By.xpath("//*[@id='jsLayer_finder_secuprodisu1_0']"), true, TIMEOUT)) {
+			if (!driver.waitUntilExist(By.xpath("//*[@id='jsLayer_finder_secuprodisu1_1']"), true, TIMEOUT)) {
 				driver.quit();
 				Result<ChromeDriverWrapper> result = Result.<ChromeDriverWrapper>builder().status(STATUS.FAIL_NO_RESULT).build();
 				log.warn("{} 『{}』 initPriceAsEtf({}, #{}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
 				return result;
 			}
-			if (!driver.waitUntilExist(By.xpath("//div[@id='jsLayer_finder_secuprodisu1_0']"), false, TIMEOUT)) {
+			if (!driver.waitUntilExist(By.xpath("//div[@id='jsLayer_finder_secuprodisu1_1']"), false, TIMEOUT)) {
 				driver.quit();
 				Result<ChromeDriverWrapper> result = Result.<ChromeDriverWrapper>builder().status(STATUS.FAIL_NO_RESULT).build();
 				log.warn("{} 『{}』 initPriceAsEtf({}, #{}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
