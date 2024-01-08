@@ -2,9 +2,6 @@ package kr.andold.stock;
 
 import java.time.LocalDate;
 import java.util.Date;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +10,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.crawler.IdempotentService;
-import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.stock.service.Utility;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,14 +30,9 @@ public class ScheduledTasks {
 		log.info("{} scheduleTaskMinutely()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		try {
-			Future<ParserResult> future = idempotentService.run();
-			ParserResult result = future.get();
-			log.info("{} {} scheduleTaskMinutely() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
-		} catch (InterruptedException | ExecutionException e) {
-		}
+		idempotentService.run();
 
-		log.info("{} {} scheduleTaskMinutely() - {}", Utility.indentEnd(), "비동기 실행 실패", Utility.toStringPastTimeReadable(started));
+		log.info("{} {} scheduleTaskMinutely() - {}", Utility.indentEnd(), "비동기", Utility.toStringPastTimeReadable(started));
 	}
 
 	// 매시마다
