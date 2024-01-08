@@ -51,7 +51,7 @@ public class IdempotentService {
 		long started = System.currentTimeMillis();
 
 		if (running) {
-			log.info("{} #{}:{} run() - {}", Utility.indentEnd(), Utility.size(qDividend), "BUSY", Utility.toStringPastTimeReadable(started));
+			log.info("{} #{}:#{}:{} run() - {}", Utility.indentEnd(), Utility.size(qDividend), Utility.size(qPrice), "BUSY", Utility.toStringPastTimeReadable(started));
 			return CompletableFuture.completedFuture(null);
 		}
 
@@ -69,12 +69,12 @@ public class IdempotentService {
 				restarted = true;
 				qDividend.addAll(items);
 				qPrice.addAll(items);
-				log.info("{} #{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), "다했네, 다시한다", Utility.toStringPastTimeReadable(started));
+				log.info("{} #{}:#{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "다했네, 다시한다", Utility.toStringPastTimeReadable(started));
 				cx--;
 				continue;
 			}
 			
-			if (qDividend.isEmpty() || LocalDate.now().isBefore(LocalDate.of(2024,  1,  9))) {
+			if (qDividend.isEmpty() || LocalDate.now().isBefore(LocalDate.of(2024, 1, 9))) {
 				// 배당일자 주가 수집
 				ItemDomain item = qPrice.poll();
 				if (item == null) {
@@ -144,7 +144,7 @@ public class IdempotentService {
 		}
 
 		running = false;
-		log.info("{} #{}:{} run() - {}", Utility.indentEnd(), Utility.size(qDividend), parserResult, Utility.toStringPastTimeReadable(started));
+		log.info("{} #{}:#{}:{} run() - {}", Utility.indentEnd(), Utility.size(qDividend), Utility.size(qPrice), parserResult, Utility.toStringPastTimeReadable(started));
 		return CompletableFuture.completedFuture(parserResult);
 	}
 
