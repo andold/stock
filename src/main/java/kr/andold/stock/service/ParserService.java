@@ -170,6 +170,10 @@ public class ParserService {
 	public static void crawlDividendHistoryEtfThread(Integer date, String code, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7, String base, String pay, String dividend,
 			String price, String ratio) {
 		LIST_STOCK_DIVIDEND_HOSTORY.add(DividendHistoryDomain.builder().code(code).base(Utility.parseDateTime(base)).pay(Utility.parseDateTime(pay)).dividend(Utility.parseInteger(dividend, null)).build());
+		ItemDomain item = ItemDomain.builder().code(code).etf(true).build();
+		item.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
+		item.setSymbol(item.getSymbol().split("\\[[0-9]+")[0]);
+		LIST_STOCK_ITEM.add(item);
 	}
 
 	public static void crawlDividendHistoryCompanyThread(Integer date, String base, String pay, String code, String symbol, String dividend) {

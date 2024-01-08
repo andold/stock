@@ -63,66 +63,23 @@ public class Seibro implements Crawler {
 
 			driver.switchTo().defaultContent();
 
-			// 종목명 검색 아이콘 클릭
-			driver.waitUntilIsDisplayed(By.xpath("//div[@id='group162']"), false, TIMEOUT);
-			driver.findElement(By.xpath("//dd[@id='sn_group2']/a[@id='sn_group4']"), TIMEOUT).click();
+			Result<ParserResult> searchItemResult = searchItemByCodeInEtf(driver, code);
+			switch (searchItemResult.getStatus()) {
+			case SUCCESS:
+				break;
+			default:
+				close(driver);
+				log.warn("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), searchItemResult, item, start, Utility.toStringPastTimeReadable(started));
+				return searchItemResult;
 			
-			WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"), TIMEOUT);
-			driver.switchTo().frame(frame);
-
-			// 종목명 입력
-			WebElement keywordElement = driver.findElement(By.xpath("//input[@id='search_string']"), TIMEOUT); // 종목명 검색어 입력창
-			By BY_MARK_CODE_SEARCH_DONE = By.xpath("//ul[@id='contentsList']/li");
-			String textPrevious = driver.getText(BY_MARK_CODE_SEARCH_DONE, 1, "andold");
-			keywordElement.clear();
-			keywordElement.sendKeys(code);
-			
-			// 종목명 검색 아이콘 클릭
-			String MARK_COUNT = "-1";
-			driver.setText(By.xpath("//*[@id='P_ListCnt']"), MARK_COUNT, TIMEOUT);
-			driver.findElement(By.xpath("//div[@id='group252']/a[@id='group236']"), TIMEOUT).click();
-			// 이전 내용이 지워질 때까지
-			driver.waitUntilTextNotInclude(By.xpath("//*[@id='P_ListCnt']"), TIMEOUT, MARK_COUNT);
-
-			// 검색 결과에서 선택
-			if ("0".contentEquals(driver.getText(By.xpath("//*[@id='P_ListCnt']"), TIMEOUT, MARK_COUNT))) {
-				driver.switchTo().defaultContent();
-				driver.findElement(By.xpath("//div[@id='group164']/a[@id='anchor3']"), TIMEOUT).click();
-				close(driver);
-
-				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
-				log.info("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), result, item, start, Utility.toStringPastTimeReadable(started));
-				return result;
-			}
-			String xpathSearchResult = "//ul[@id='contentsList']/li/a";
-			List<WebElement> resultSearch = driver.findElements(By.xpath(xpathSearchResult), TIMEOUT);
-			if (resultSearch.size() == 0) {
-				driver.switchTo().defaultContent();
-				driver.findElement(By.xpath("//div[@id='group164']/a[@id='anchor3']"), TIMEOUT).click();
-				close(driver);
-
-				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_DATA).build();
-				log.info("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), result, item, start, Utility.toStringPastTimeReadable(started));
-				return result;
-			} else if (resultSearch.size() == 1) {
-				driver.findElement(By.xpath(xpathSearchResult)).click();
-			} else {
-				driver.switchTo().defaultContent();
-				driver.findElement(By.xpath("//div[@id='group164']/a[@id='anchor3']"), TIMEOUT).click();
-				close(driver);
-
-				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_MANY_DATA).build();
-				log.info("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), result, item, start, Utility.toStringPastTimeReadable(started));
-				return result;
 			}
 
 			driver.switchTo().defaultContent();
-			
+
 			// 조회 아이콘 클릭
 			By BY_MARK_DIVIDEND_SEARCH_DONE = By.xpath("//*[@id='grid1_body_table']//td[3]");
-			textPrevious = driver.getText(BY_MARK_DIVIDEND_SEARCH_DONE, 1, "andold");
+			String textPrevious = driver.getText(BY_MARK_DIVIDEND_SEARCH_DONE, 1, "andold");
 			driver.findElement(By.xpath("//*[@id='image17']"), TIMEOUT).click();
-
 			// 내용이 바뀔 때까지
 			driver.waitUntilTextNotInclude(BY_MARK_DIVIDEND_SEARCH_DONE, TIMEOUT, textPrevious);
 
@@ -148,6 +105,59 @@ public class Seibro implements Crawler {
 		}
 
 		log.debug("{} {} extractAsEtf({}, {}) - {}", Utility.indentEnd(), "EXCEPTION", item, start, Utility.toStringPastTimeReadable(started));
+		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+	}
+
+	private Result<ParserResult> searchItemByCodeInEtf(ChromeDriverWrapper driver, String code) {
+		try {
+			// 종목명 검색 아이콘 클릭
+			driver.waitUntilIsDisplayed(By.xpath("//div[@id='group162']"), false, TIMEOUT);
+			driver.findElement(By.xpath("//dd[@id='sn_group2']/a[@id='sn_group4']"), TIMEOUT).click();
+			
+			WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"), TIMEOUT);
+			driver.switchTo().frame(frame);
+	
+			// 종목명에 코드 입력
+			WebElement keywordElement = driver.findElement(By.xpath("//input[@id='search_string']"), TIMEOUT);
+			keywordElement.clear();
+			keywordElement.sendKeys(code);
+			
+			// 종목명 검색 아이콘 클릭
+			String MARK_COUNT = "-1";
+			driver.setText(By.xpath("//*[@id='P_ListCnt']"), MARK_COUNT, TIMEOUT);
+			driver.findElement(By.xpath("//div[@id='group252']/a[@id='group236']"), TIMEOUT).click();
+			// 이전 내용이 지워질 때까지
+			driver.waitUntilTextNotInclude(By.xpath("//*[@id='P_ListCnt']"), TIMEOUT, MARK_COUNT);
+	
+			// 검색 결과에서 선택
+			switch (driver.getText(By.xpath("//*[@id='P_ListCnt']"), TIMEOUT, MARK_COUNT)) {
+			case "0":
+				driver.switchTo().defaultContent();
+				driver.findElement(By.xpath("//div[@id='group164']/a[@id='anchor3']"), TIMEOUT).click();
+				close(driver);
+	
+				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
+				return result;
+			case "1":
+				driver.findElement(By.xpath("//ul[@id='contentsList']/li/a")).click();
+				return Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
+			default:
+				break;
+			}
+
+			if (driver.clickIncludeTextInAttribute(By.xpath("//ul[@id='contentsList']/li/a"), TIMEOUT, "href", "KR7" + code)) {
+				return Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
+			}
+
+			driver.switchTo().defaultContent();
+			driver.findElement(By.xpath("//div[@id='group164']/a[@id='anchor3']"), TIMEOUT).click();
+			close(driver);
+	
+			Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_MANY_DATA).build();
+			return result;
+		} catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+		}
 		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 	}
 
@@ -203,9 +213,7 @@ public class Seibro implements Crawler {
 			// 첫번째 라인 저장
 			String previous1stLine = driver.getText(BY_TABLE_1ST_LINE, TIMEOUT, MARK_ANDOLD_SINCE);
 
-			// 혹시 몰라 닫기 클릭
 			driver.switchTo().defaultContent();
-			driver.clickIfExist(By.xpath("//a[@id='anchor3']"));
 
 			// 조회 클릭
 			if (!clickSearchIconInCompany(driver)) {

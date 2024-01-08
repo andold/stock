@@ -192,6 +192,27 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		throw exception;
 	}
 
+	public boolean clickIncludeTextInAttribute(By xpath, int timeout, String attrName, String text) {
+		while (timeout > 0) {
+			try {
+				List<WebElement> elements = super.findElements(xpath);
+				for (WebElement e : elements) {
+					String attribute = e.getAttribute(attrName);
+					if (attribute.indexOf(text) >= 0) {
+						e.click();
+						return true;
+					}
+					
+					Utility.sleep(PAUSE);
+					timeout -= PAUSE;
+				}
+
+			} catch (Exception e) {
+			}
+		}
+		return false;
+	}
+
 	public List<WebElement> findElements(By xpath, int milli) throws Exception {
 		List<WebElement> elements = null;
 		while (milli > 0) {
