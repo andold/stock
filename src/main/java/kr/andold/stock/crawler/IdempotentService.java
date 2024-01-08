@@ -74,7 +74,7 @@ public class IdempotentService {
 				continue;
 			}
 			
-			if (qDividend.isEmpty() || LocalDate.now().isBefore(LocalDate.of(2024, 1, 9))) {
+			if (qDividend.isEmpty()) {
 				// 배당일자 주가 수집
 				ItemDomain item = qPrice.poll();
 				if (item == null) {
