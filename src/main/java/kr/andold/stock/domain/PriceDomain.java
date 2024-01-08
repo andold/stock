@@ -119,4 +119,14 @@ public class PriceDomain extends PriceEntity implements CommonBlockDomain<PriceD
 		}
 	}
 
+	public void setFlagSpecial(boolean b) {
+		int mask = 256;
+		Integer flag = getFlag() == null ? 0 : getFlag();
+		if (b) {
+			setFlag(flag | mask);
+		} else {
+			setFlag(flag & ~mask);
+		}
+	}
+
 }

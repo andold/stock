@@ -305,20 +305,7 @@ public class StockService {
 		}
 		
 		// 특수(현재는 배당일) 대표일자
-		for (DividendHistoryDomain history : histories) {
-			LocalDate base = LocalDate.ofInstant(history.getBase().toInstant(), Utility.ZONE_ID_KST);
-			for (LocalDate cx = base.plusDays(0), sizex = base.minusDays(7); cx.isAfter(sizex); cx = cx.minusDays(1)) {
-				String key = String.format("%s.%s", history.getCode(), cx.format(DateTimeFormatter.ISO_LOCAL_DATE));
-				PriceDomain price = mapP.get(key);
-				if (price == null) {
-					continue;
-				}
-				
-				history.setPriceBase(price.getBase());
-				history.setPriceClosing(price.getClosing());
-				break;
-			}
-		}
+		dividendHistoryService.compile(histories, mapP);
 		
 		CrudList<DividendHistoryDomain> listHistories = dividendHistoryService.put(histories);
 		CrudList<PriceDomain> listPrices = priceService.put(prices);

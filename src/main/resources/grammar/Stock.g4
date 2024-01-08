@@ -35,23 +35,36 @@ crawlPriceKrx:
 	(
 		(
 			NUMBER TAB WORD WORD TAB										NEWLINE		//	253250 	 데이터가 없습니다.
-		) | ( 
-			NUMBER TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE
-					//	252650 	 일자 	 종가 	 대비 	 등락률 	 순자산가치(NAV) 	 시가 	 고가 	 저가 	 거래량 	 거래대금 	 시가총액 	 순자산총액 	 상장좌수 	 지수명 	 종가 	 대비 	 등락률
-			(
-				WORD TAB code=NUMBER TAB base=DATE TAB closing=NUMBER TAB NUMBER TAB NUMBER TAB NUMBER TAB
-					market=NUMBER TAB high=NUMBER TAB low=NUMBER TAB volume=NUMBER TAB NUMBER TAB NUMBER TAB NUMBER TAB NUMBER TAB
-					symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* TAB
-					NUMBER TAB NUMBER TAB NUMBER TAB		NEWLINE
-						//	252650 	 2022/01/05 	 12,195 	 50 	 -0.41 	 12,159.67 	 12,175 	 12,195 	 12,175 	 28 	 341,020 	 7,317,000,000 	 7,295,801,776 	 600,000 	 코스피 200 동일가중지수 	 2,394.98 	 19.03 	 -0.79 	 
-				{
-					ParserService.crawlPriceCompanyEtf(20240105
-						, $code.text, $symbol.text
-						, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
-					);
-				}
-			)+
-		)
+		) | (((
+				WORD TAB NUMBER TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB							NEWLINE
+					//	ETF 	 175330 	 일자 	 종가 	 대비 	 등락률 	 시가 	 고가 	 저가 	 거래량 	 거래대금 	 시가총액 	 상장주식수 	 
+				(
+					WORD TAB code=NUMBER TAB base=DATE TAB closing=NUMBER TAB NUMBER TAB NUMBER TAB market=NUMBER TAB high=NUMBER TAB low=NUMBER TAB volume=NUMBER TAB NUMBER TAB NUMBER TAB NUMBER TAB		NEWLINE
+							//	ETF 	 175330 	 2022/06/20 	 7,830 	 110 	 -1.39 	 7,980 	 8,000 	 7,720 	 225,863 	 1,768,097,000 	 1,542,376,060,020 	 196,982,894 	 
+					{
+						ParserService.crawlPriceCompanyEtf(20240105
+							, $code.text, $symbol.text
+							, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
+						);
+					}
+				)+
+			) | (
+				WORD TAB NUMBER TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB	NEWLINE
+					//	ETF 	 441680 	 일자 	 종가 	 대비 	 등락률 	 순자산가치(NAV) 	 시가 	 고가 	 저가 	 거래량 	 거래대금 	 시가총액 	 순자산총액 	 상장좌수 	 지수명 	 종가 	 대비 	 등락률
+				(
+					WORD TAB code=NUMBER TAB base=DATE TAB closing=NUMBER TAB NUMBER TAB NUMBER TAB NUMBER TAB market=NUMBER TAB high=NUMBER TAB low=NUMBER TAB volume=NUMBER TAB NUMBER TAB NUMBER TAB NUMBER TAB NUMBER TAB
+						symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* TAB
+						NUMBER TAB NUMBER TAB NUMBER TAB		NEWLINE
+							//	ETF 	 441680 	 2022/11/22 	 9,710 	 10 	 +0.10 	 9,769.51 	 9,725 	 9,750 	 9,680 	 36,868 	 357,580,550 	 30,101,000,000 	 30,285,495,972 	 3,100,000 	 Cboe Nasdaq-100 BuyWrite V2 지수 (Total Return) 	 747.74 	 6.63 	 +0.89 	 
+					{
+						ParserService.crawlPriceCompanyEtf(20240105
+							, $code.text, $symbol.text
+							, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
+						);
+					}
+				)+
+			))
+		)+
 		WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27 
 	)+ 
 	KEYWORD TAB WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 주가일별시세 	 CrawlPriceThread 	 http://data.krx.co.kr/ 

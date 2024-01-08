@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 public class IdempotentService {
 	private static final int BATCH_SIZE = 1;
 
-	@Autowired
-	private Seibro seibro;
+	@Autowired private Seibro seibro;
+	@Autowired private Krx krx;
 
 	@Autowired private ItemService itemService;
 	@Autowired private DividendService dividendService;
@@ -69,35 +70,35 @@ public class IdempotentService {
 				continue;
 			}
 			
-			if (qDividend.isEmpty()) {
+			if (qDividend.isEmpty() || LocalDate.now().isBefore(LocalDate.of(2024,  1,  9))) {
 				// 배당일자 주가 수집
 				ItemDomain item = qPrice.poll();
 				if (item == null) {
-					log.info("{} #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "공갈빵", item, Utility.toStringPastTimeReadable(started));
+					log.info("{} 주가 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "공갈빵", item, Utility.toStringPastTimeReadable(started));
 					cx--;
 					continue;
 				}
 				
-				ZonedDateTime startZonedDate = LocalDate.of(LocalDate.now().getYear() - 8, 1, 1).atStartOfDay(Utility.ZONE_ID_KST);
-				Date start = Date.from(startZonedDate.toInstant());
 				List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
 				if (!isRequireCrawlPrice(histories)) {
-					log.info("{} #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "이미 한건데", item, Utility.toStringPastTimeReadable(started));
+					log.info("{} 주가 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "이미 한건데", item, Utility.toStringPastTimeReadable(started));
 					cx--;
 					continue;
 				}
 				
-				Result<ParserResult> result = seibro.dividend(item, start);
+				Result<ParserResult> result = krx.price(item, histories);
 				switch (result.getStatus()) {
 				case SUCCESS:
 					parserResult = result.getResult();
-					List<DividendHistoryDomain> founds = parserResult.getHistories();
-					founds.add(DividendHistoryDomain.builder().code(item.getCode()).base(Date.from(startZonedDate.minusDays(1).toInstant())).dividend(-1).build());
+					parserResult.setHistories(histories);
+					List<PriceDomain> prices = parserResult.getPrices();
+					Map<String, PriceDomain> mapP = priceService.makeMap(prices);
+					dividendHistoryService.compile(histories, mapP);
 					put(parserResult);
-					log.info("{} #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "했어요", item, Utility.toStringPastTimeReadable(started));
-					continue;
+					log.info("{} 주가 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "했어요", item, Utility.toStringPastTimeReadable(started));
+					break;
 				default:
-					log.warn("{} #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "오류났어요", item, Utility.toStringPastTimeReadable(started));
+					log.warn("{} 주가 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "오류났어요", item, Utility.toStringPastTimeReadable(started));
 					break;
 				}
 
@@ -107,7 +108,7 @@ public class IdempotentService {
 			// 배당금 수집
 			ItemDomain item = qDividend.poll();
 			if (item == null) {
-				log.info("{} #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "공갈빵", item, Utility.toStringPastTimeReadable(started));
+				log.info("{} 배당 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "공갈빵", item, Utility.toStringPastTimeReadable(started));
 				cx--;
 				continue;
 			}
@@ -116,7 +117,7 @@ public class IdempotentService {
 			Date start = Date.from(startZonedDate.toInstant());
 			List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
 			if (histories != null && !histories.isEmpty() && histories.get(histories.size() - 1).getBase().before(start)) {
-				log.info("{} #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "이미 한건데", item, Utility.toStringPastTimeReadable(started));
+				log.info("{} 배당 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "이미 한건데", item, Utility.toStringPastTimeReadable(started));
 				cx--;
 				continue;
 			}
@@ -128,10 +129,10 @@ public class IdempotentService {
 				List<DividendHistoryDomain> founds = parserResult.getHistories();
 				founds.add(DividendHistoryDomain.builder().code(item.getCode()).base(Date.from(startZonedDate.minusDays(1).toInstant())).dividend(-1).build());
 				put(parserResult);
-				log.info("{} #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "했어요", item, Utility.toStringPastTimeReadable(started));
-				continue;
+				log.info("{} 배당 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "했어요", item, Utility.toStringPastTimeReadable(started));
+				break;
 			default:
-				log.warn("{} #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "오류났어요", item, Utility.toStringPastTimeReadable(started));
+				log.warn("{} 배당 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "오류났어요", item, Utility.toStringPastTimeReadable(started));
 				break;
 			}
 
@@ -152,9 +153,16 @@ public class IdempotentService {
 				continue;
 			}
 			
+			Integer dividend = history.getDividend();
 			
+			if (dividend == null || dividend <= 0) {
+				continue;
+			}
+			
+			if (history.getPriceBase() == null || history.getPriceClosing() == null) {
+				return true;
+			}
 		}
-		// TODO Auto-generated method stub
 		return false;
 	}
 

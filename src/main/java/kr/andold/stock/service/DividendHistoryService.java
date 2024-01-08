@@ -1,6 +1,7 @@
 package kr.andold.stock.service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import kr.andold.stock.domain.DividendHistoryDomain;
+import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.entity.DividendHistoryEntity;
 import kr.andold.stock.param.DividendHistoryParam;
 import kr.andold.stock.param.ItemParam;
@@ -145,6 +147,25 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 		}
 
 		return map;
+	}
+
+	public void compile(List<DividendHistoryDomain> histories, Map<String, PriceDomain> mapP) {
+		// 특수(현재는 배당일) 대표일자
+		for (DividendHistoryDomain history : histories) {
+			LocalDate base = LocalDate.ofInstant(history.getBase().toInstant(), Utility.ZONE_ID_KST);
+			for (LocalDate cx = base.plusDays(0), sizex = base.minusDays(7); cx.isAfter(sizex); cx = cx.minusDays(1)) {
+				String key = String.format("%s.%s", history.getCode(), cx.format(DateTimeFormatter.ISO_LOCAL_DATE));
+				PriceDomain price = mapP.get(key);
+				if (price == null) {
+					continue;
+				}
+				
+				price.setFlagSpecial(true);
+				history.setPriceBase(price.getBase());
+				history.setPriceClosing(price.getClosing());
+				break;
+			}
+		}
 	}
 
 }
