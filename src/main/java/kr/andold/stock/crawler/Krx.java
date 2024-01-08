@@ -186,7 +186,7 @@ public class Krx implements Crawler {
 				((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", lastTr);
 				driver.clickIfExist(By.xpath("//*[@id='jsViewSizeButton']"));
 
-				log.debug("{} {} {} ETF - {}", Utility.indentMiddle(), Utility.ellipsisEscape(prev, 16), item, Utility.toStringPastTimeReadable(forStarted));
+				log.debug("{} 『{}』 priceAsEtf(..., {}, {}) - {}", Utility.indentEnd(), Utility.ellipsisEscape(prev, 32), item, history, Utility.toStringPastTimeReadable(forStarted));
 			}
 			sb.append(MARK_START_END_POINT);
 			ParserResult result = ParserService.parse(new String(sb), debug);
@@ -333,7 +333,7 @@ public class Krx implements Crawler {
 				((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", lastTr);
 				driver.clickIfExist(By.xpath("//*[@id='jsViewSizeButton']"));
 
-				log.debug("{} {} {} ETF - {}", Utility.indentMiddle(), Utility.ellipsisEscape(prev, 16), item, Utility.toStringPastTimeReadable(forStarted));
+				log.debug("{} 『{}』 priceAsCompany(..., {}, {}) - {}", Utility.indentMiddle(), Utility.ellipsisEscape(prev, 32), item, history, Utility.toStringPastTimeReadable(forStarted));
 			}
 			sb.append(MARK_START_END_POINT);
 			ParserResult result = ParserService.parse(new String(sb), debug);
