@@ -136,14 +136,15 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 			String code = history.getCode();
 			Integer year = LocalDate.ofInstant(history.getBase().toInstant(), Utility.ZONE_ID_KST).getYear();
 			Integer devidend = history.getDividend();
-			String key = String.format("%s.%d", code, year);
-			Integer prev = map.get(key);
-			if (prev == null) {
-				map.put(key, devidend);
-			} else {
-				map.put(key, prev + devidend);
+			if (devidend > 0) {
+				String key = String.format("%s.%d", code, year);
+				Integer prev = map.get(key);
+				if (prev == null) {
+					map.put(key, devidend);
+				} else {
+					map.put(key, prev + devidend);
+				}
 			}
-			
 		}
 
 		return map;

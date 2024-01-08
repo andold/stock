@@ -392,7 +392,7 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 					((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", lastTr);
 					driver.clickIfExist(By.xpath("//*[@id='jsViewSizeButton']"));
 
-					log.info("{} {} {} ETF - {}", Utility.indentMiddle(), Utility.ellipsisEscape(prev, 16), item, Utility.toStringPastTimeReadable(forStarted));
+					log.info("{} {} {} ETF - {}", Utility.indentMiddle(), Utility.ellipsisEscape(prev, 32), item, Utility.toStringPastTimeReadable(forStarted));
 				}
 				sb.append(MARK_START_END_POINT);
 				ParserResult result = ParserService.parse(new String(sb), debug);

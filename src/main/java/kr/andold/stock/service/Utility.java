@@ -1105,7 +1105,7 @@ public class Utility {
 			return null;
 		}
 		
-		return escaped.replace("\n", "ⓝ").replace("\t", "ⓣ");
+		return escaped.replaceAll("\n", "ⓝ").replaceAll("\t", "ⓣ");
 	}
 	private static String escape(String[] strings) {
 		if (strings == null) {
@@ -1126,7 +1126,7 @@ public class Utility {
 			return null;
 		}
 		
-		return escaped.replace("ⓝ", "\n").replace("ⓣ", "\t");
+		return escaped.replaceAll("ⓝ", "\n").replaceAll("ⓣ", "\t");
 	}
 
 	public static String escapeDQuoted(String text) {
