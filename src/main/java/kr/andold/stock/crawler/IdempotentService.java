@@ -37,7 +37,8 @@ public class IdempotentService {
 	@Autowired private DividendHistoryService dividendHistoryService;
 	@Autowired private PriceService priceService;
 
-	private ConcurrentLinkedDeque<ItemDomain> queue = new ConcurrentLinkedDeque<>();
+	private ConcurrentLinkedDeque<ItemDomain> qDividend = new ConcurrentLinkedDeque<>();
+	private ConcurrentLinkedDeque<ItemDomain> qPrice = new ConcurrentLinkedDeque<>();
 	private boolean running = false;
 
 	public ParserResult run() {
@@ -45,7 +46,7 @@ public class IdempotentService {
 		long started = System.currentTimeMillis();
 
 		if (running) {
-			log.info("{} #{}:{} run() - {}", Utility.indentEnd(), Utility.size(queue), "BUSY", Utility.toStringPastTimeReadable(started));
+			log.info("{} #{}:{} run() - {}", Utility.indentEnd(), Utility.size(qDividend), "BUSY", Utility.toStringPastTimeReadable(started));
 			return null;
 		}
 
@@ -53,21 +54,60 @@ public class IdempotentService {
 		boolean restarted = false;
 		ParserResult parserResult = null;
 		for (int cx = 0; cx < BATCH_SIZE; cx++) {
-			if (queue.isEmpty()) {
+			if (qDividend.isEmpty() && qPrice.isEmpty()) {
 				if (restarted) {
 					log.info("{} {} run() - {}", Utility.indentMiddle(), "다시 해봤는데, 진짜 할게 없다", Utility.toStringPastTimeReadable(started));
 					break;
 				}
+
 				List<ItemDomain> items = itemService.search(null);
-				queue.addAll(items);
-				log.info("{} #{}:{} run() - {}", Utility.indentMiddle(), Utility.size(queue), "다했네, 다시한다", Utility.toStringPastTimeReadable(started));
+				restarted = true;
+				qDividend.addAll(items);
+				qPrice.addAll(items);
+				log.info("{} #{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), "다했네, 다시한다", Utility.toStringPastTimeReadable(started));
 				cx--;
 				continue;
 			}
 			
-			ItemDomain item = queue.poll();
+			if (qDividend.isEmpty()) {
+				// 배당일자 주가 수집
+				ItemDomain item = qPrice.poll();
+				if (item == null) {
+					log.info("{} #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "공갈빵", item, Utility.toStringPastTimeReadable(started));
+					cx--;
+					continue;
+				}
+				
+				ZonedDateTime startZonedDate = LocalDate.of(LocalDate.now().getYear() - 8, 1, 1).atStartOfDay(Utility.ZONE_ID_KST);
+				Date start = Date.from(startZonedDate.toInstant());
+				List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
+				if (!isRequireCrawlPrice(histories)) {
+					log.info("{} #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "이미 한건데", item, Utility.toStringPastTimeReadable(started));
+					cx--;
+					continue;
+				}
+				
+				Result<ParserResult> result = seibro.dividend(item, start);
+				switch (result.getStatus()) {
+				case SUCCESS:
+					parserResult = result.getResult();
+					List<DividendHistoryDomain> founds = parserResult.getHistories();
+					founds.add(DividendHistoryDomain.builder().code(item.getCode()).base(Date.from(startZonedDate.minusDays(1).toInstant())).dividend(-1).build());
+					put(parserResult);
+					log.info("{} #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "했어요", item, Utility.toStringPastTimeReadable(started));
+					continue;
+				default:
+					log.warn("{} #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "오류났어요", item, Utility.toStringPastTimeReadable(started));
+					break;
+				}
+
+				continue;
+			}
+
+			// 배당금 수집
+			ItemDomain item = qDividend.poll();
 			if (item == null) {
-				log.info("{} #{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(queue), "공갈빵", item, Utility.toStringPastTimeReadable(started));
+				log.info("{} #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "공갈빵", item, Utility.toStringPastTimeReadable(started));
 				cx--;
 				continue;
 			}
@@ -76,7 +116,7 @@ public class IdempotentService {
 			Date start = Date.from(startZonedDate.toInstant());
 			List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
 			if (histories != null && !histories.isEmpty() && histories.get(histories.size() - 1).getBase().before(start)) {
-				log.info("{} #{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(queue), "이미 한건데", item, Utility.toStringPastTimeReadable(started));
+				log.info("{} #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "이미 한건데", item, Utility.toStringPastTimeReadable(started));
 				cx--;
 				continue;
 			}
@@ -88,18 +128,34 @@ public class IdempotentService {
 				List<DividendHistoryDomain> founds = parserResult.getHistories();
 				founds.add(DividendHistoryDomain.builder().code(item.getCode()).base(Date.from(startZonedDate.minusDays(1).toInstant())).dividend(-1).build());
 				put(parserResult);
-				log.info("{} #{}:{}:{} {} run() - {}", Utility.indentMiddle(), Utility.size(queue), "했어요", item, parserResult, Utility.toStringPastTimeReadable(started));
-				break;
+				log.info("{} #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "했어요", item, Utility.toStringPastTimeReadable(started));
+				continue;
 			default:
-				log.warn("{} #{}:{}:{} {} run() - {}", Utility.indentMiddle(), Utility.size(queue), "오류났어요", item, result, Utility.toStringPastTimeReadable(started));
+				log.warn("{} #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "오류났어요", item, Utility.toStringPastTimeReadable(started));
 				break;
 			}
 
+			continue;
 		}
 
 		running = false;
-		log.info("{} #{}:{} run() - {}", Utility.indentEnd(), Utility.size(queue), parserResult, Utility.toStringPastTimeReadable(started));
+		log.info("{} #{}:{} run() - {}", Utility.indentEnd(), Utility.size(qDividend), parserResult, Utility.toStringPastTimeReadable(started));
 		return parserResult;
+	}
+
+	private boolean isRequireCrawlPrice(List<DividendHistoryDomain> histories) {
+		if (histories == null) {
+			return false;
+		}
+		for (DividendHistoryDomain history : histories) {
+			if (history == null) {
+				continue;
+			}
+			
+			
+		}
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	private ParserResult put(ParserResult result) {
