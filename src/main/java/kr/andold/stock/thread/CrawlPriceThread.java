@@ -24,6 +24,7 @@ import kr.andold.stock.crawler.ChromeDriverWrapper;
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.Result;
+import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.service.ParserService;
 import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
@@ -103,6 +104,7 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 		return result;
 	}
 
+	@Deprecated
 	public static ParserResult crawl(List<ItemDomain> items, Date start) {
 		log.info("{} CrawlPriceThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();
@@ -354,10 +356,10 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 
 				// 자동으로 갔다 와야하는데 ....
 				if (!driver.waitUntilExist(By.xpath("//div[@id='jsLayer_finder_secuprodisu1_0']"), true, TIMEOUT)) {
-					return Result.<ParserResult>builder().status(Result.FAIL).result(PARSER_RESULT_EMPTY).build();
+					return Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).result(PARSER_RESULT_EMPTY).build();
 				}
 				if (!driver.waitUntilExist(By.xpath("//div[@id='jsLayer_finder_secuprodisu1_0']"), false, TIMEOUT)) {
-					return Result.<ParserResult>builder().status(Result.FAIL).result(PARSER_RESULT_EMPTY).build();
+					return Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).result(PARSER_RESULT_EMPTY).build();
 				}
 
 				// 2. 자동으로 갔다 와서 조회 클릭
@@ -397,13 +399,13 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 				sb.append(MARK_START_END_POINT);
 				ParserResult result = ParserService.parse(new String(sb), debug);
 				log.debug("{} 『{}』 extract({}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
-				return Result.<ParserResult>builder().status(Result.SUCCESS).result(result).build();
+				return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
 			} catch (Exception e) {
 				log.error("{} Exception:: {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
 				driver.switchTo().defaultContent();
 			}
 
-			return Result.<ParserResult>builder().status(Result.EXCEPTION).result(PARSER_RESULT_EMPTY).build();
+			return Result.<ParserResult>builder().status(STATUS.EXCEPTION).result(PARSER_RESULT_EMPTY).build();
 		}
 
 		private boolean init() {

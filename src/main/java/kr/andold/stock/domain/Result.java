@@ -10,11 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Result<T> {
-	public static final STATUS SUCCESS = STATUS.SUCCESS;
-	public static final STATUS NO_MORE_DATA = STATUS.NO_MORE_DATA;
-	public static final STATUS FAIL = STATUS.FAIL;
-	public static final STATUS EXCEPTION = STATUS.EXCEPTION;
-
 	private STATUS status;
 	private T result;
 
@@ -27,4 +22,5 @@ public class Result<T> {
 			, FAIL_MANY_DATA
 		, EXCEPTION
 	}
+
 }

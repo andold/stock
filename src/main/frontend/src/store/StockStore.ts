@@ -59,15 +59,6 @@ class StockStore {
 	crawlDividendHistoryEtfMonthly(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlDividendHistoryEtfMonthly(request, onSuccess, onError, element);
 	}
-	crawlPrice(request?: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.crawlPrice(request, onSuccess, onError, element);
-	}
-	crawlPriceCompany(request?: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.crawlPriceCompany(request, onSuccess, onError, element);
-	}
-	crawlPriceEtf(request?: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.crawlPriceEtf(request, onSuccess, onError, element);
-	}
 	crawlItemEtfDetails(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlItemEtfDetails(request, onSuccess, onError, element);
 	}
@@ -76,12 +67,6 @@ class StockStore {
 	}
 	crawlItemEtf(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlItemEtf(request, onSuccess, onError, element);
-	}
-	crawlDividendHistoryCompany(request?: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.crawlDividendHistoryCompany(request, onSuccess, onError, element);
-	}
-	crawlDividendHistoryEtf(request?: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.crawlDividendHistoryEtf(request, onSuccess, onError, element);
 	}
 	// 
 

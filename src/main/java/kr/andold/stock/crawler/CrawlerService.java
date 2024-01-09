@@ -24,6 +24,8 @@ import kr.andold.stock.domain.DividendDomain;
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
+import kr.andold.stock.domain.Result;
+import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.service.DividendHistoryService;
 import kr.andold.stock.service.DividendService;
 import kr.andold.stock.service.ItemService;
@@ -47,6 +49,8 @@ import lombok.extern.slf4j.Slf4j;
 public class CrawlerService {
 	public static final String MARK_ANDOLD_SINCE = "\n andold \t since \t 2023-11-27 \n";
 	private static final int TIMEOUT = 4000;
+
+	@Autowired private Krx krx;
 
 	@Autowired
 	private ItemService stockItemService;
@@ -81,6 +85,7 @@ public class CrawlerService {
 		crawlerDateStart = value;
 	}
 
+	@Deprecated
 	public ParserResult crawlPriceCompany(Date start) {
 		log.info("{} crawlPriceCompany({})", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();
@@ -108,6 +113,7 @@ public class CrawlerService {
 		return container;
 	}
 
+	@Deprecated
 	public ParserResult crawlPriceEtf(Date start) {
 		log.info("{} crawlPriceEtf({})", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();
@@ -135,28 +141,17 @@ public class CrawlerService {
 		return container;
 	}
 
-	public ParserResult crawlPrice(Date start) {
-		log.info("{} crawlPrice({})", Utility.indentStart(), start);
+	public Result<ParserResult> crawlPrice(Date date) {
+		log.info("{} crawlPrice({})", Utility.indentStart(), date);
 		long started = System.currentTimeMillis();
 
-		ParserResult container = new ParserResult().clear();
-
-		List<ItemDomain> items = stockItemService.search(null);
-		List<List<ItemDomain>> partitions = Lists.partition(items, 128);
-		for (List<ItemDomain> partition: partitions) {
-			ParserResult result = CrawlPriceThread.crawl(partition, start);
-			put(result);
-
-			// 현재가 적용 to dividend
-			List<DividendDomain> dividends = currentPriceFromPrices(result.getPrices());
-			stockDividendService.put(dividends);
-
-			container.addAll(result);
-			container.getDividends().addAll(dividends);
+		Result<ParserResult> result = krx.price(date);
+		if (result.getStatus() == STATUS.SUCCESS) {
+			put(result.getResult());
 		}
 
-		log.info("{} {} crawlPrice({}) - {}", Utility.indentEnd(), container, start, Utility.toStringPastTimeReadable(started));
-		return container;
+		log.info("{} {} crawlPrice({}) - {}", Utility.indentEnd(), result, date, Utility.toStringPastTimeReadable(started));
+		return result;
 	}
 	@Deprecated
 	public ParserResult crawlPrice1(Date start) {
@@ -363,6 +358,7 @@ public class CrawlerService {
 	}
 
 	// 주식=일반기업 배당금 내역 by KSD 증권정보포털 SEIBro
+	@Deprecated
 	public ParserResult crawlDividendHistoryCompany(Date start) {
 		log.info("{} crawlDividendHistoryCompany()", Utility.indentStart());
 		long started = System.currentTimeMillis();
@@ -402,6 +398,7 @@ public class CrawlerService {
 	}
 
 	// ETF 배당금 내역 by KSD 증권정보포털 SEIBro
+	@Deprecated
 	public ParserResult crawlDividendHistoryEtf(Date start) {
 		log.info("{} crawlDividendHistoryEtf({})", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();

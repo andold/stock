@@ -10,6 +10,8 @@ import store from "../store/StockStore";
 import itemStore from "../store/ItemStore";
 import dividendHistoryStore from "../store/DividendHistoryStore";
 import priceStore from "../store/PriceStore";
+import idempotentStore from "../store/IdempotentStore";
+
 
 // view
 import StockItemView from "../view/StockItemView";
@@ -92,6 +94,7 @@ function Header(props: any) {
 
 	const [spinner, setSpinner] = useState<number>(0);
 	const [collapsed, setCollapsed] = useState(true);
+	const [disableRunIdempotent, setDisableRunIdempotent] = useState(false);
 	const [jobs, setJobs] = useState({
 		play: false,
 		queue: [],
@@ -128,6 +131,13 @@ function Header(props: any) {
 	function handleOnClickDownload() {
 		const yyyymmdd = moment().format("YYYYMMDD");
 		store.download({ filename: `stock-${yyyymmdd}.json`, });
+	}
+	function handleOnClickRunIdempotent() {
+		setDisableRunIdempotent(true);
+		idempotentStore.run(null, (_: any, response: any) => {
+			setDisableRunIdempotent(false);
+			console.log(response);
+		});
 	}
 	function handleOnCrawlItemDetailAll() {
 		// 실행상태가 아니면
@@ -210,51 +220,6 @@ function Header(props: any) {
 		store.compile(null, () => {
 			setSpinner(spinner - 1);
 			onChange && onChange({});
-		});
-	}
-	function handleOnClickCrawlDividendHistoryCompany() {
-		setSpinner(spinner + 1);
-		store.crawlDividendHistoryCompany({}, (_: any) => {
-			if (spinner == 1) {	// 마지막에서만 재검색
-				onChange && onChange({});
-			}
-			setSpinner(spinner - 1);
-		});
-	}
-	function handleOnClickCrawlDividendHistoryEtf() {
-		setSpinner(spinner + 1);
-		store.crawlDividendHistoryEtf({}, (_: any) => {
-			if (spinner == 1) {	// 마지막에서만 재검색
-				onChange && onChange({});
-			}
-			setSpinner(spinner - 1);
-		});
-	}
-	function handleOnClickCrawlPrice() {
-		setSpinner(spinner + 1);
-		store.crawlPrice({}, (_: any) => {
-			if (spinner == 1) {	// 마지막에서만 재검색
-				onChange && onChange({});
-			}
-			setSpinner(spinner - 1);
-		});
-	}
-	function handleOnClickCrawlPriceCompany() {
-		setSpinner(spinner + 1);
-		store.crawlPriceCompany({}, (_: any) => {
-			if (spinner == 1) {	// 마지막에서만 재검색
-				onChange && onChange({});
-			}
-			setSpinner(spinner - 1);
-		});
-	}
-	function handleOnClickCrawlPriceEtf() {
-		setSpinner(spinner + 1);
-		store.crawlPriceEtf({}, (_: any) => {
-			if (spinner == 1) {	// 마지막에서만 재검색
-				onChange && onChange({});
-			}
-			setSpinner(spinner - 1);
 		});
 	}
 	function handleOnClickCrawlItemEtfDetails() {
@@ -381,13 +346,12 @@ function Header(props: any) {
 										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlItemEtf}>Crawl Item ETF</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemCompanyDetails}>Crawl Item Detail Company</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemEtfDetails}>Crawl Item Detail ETF</NavDropdown.Item>
-										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlDividendHistoryCompany}>Crawl Dividend History Company</NavDropdown.Item>
-										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlDividendHistoryEtf}>Crawl Dividend History ETF</NavDropdown.Item>
-										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlPrice}>Crawl Price since 2010-01-01</NavDropdown.Item>
-										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlPriceCompany}>Crawl Price Company</NavDropdown.Item>
-										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlPriceEtf}>Crawl Price ETF</NavDropdown.Item>
 									</NavDropdown>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCompile}>Compile</Button>
+									<Button size="sm" variant="secondary" className="ms-1" disabled={disableRunIdempotent} onClick={handleOnClickRunIdempotent}>
+										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableRunIdempotent} />
+										점진적인 수집 실행
+									</Button>
 								</>)}
 								<Button size="sm" variant="secondary" className="ms-1" title={form.mode.toString()} onClick={handleOnClickDownload}>다운로드</Button>
 								<UploadButtonView />

@@ -182,10 +182,15 @@ public class ParserService {
 		log.trace("{} crawlDividendHistoryCompanyThread(...) - {}", Utility.indentMiddle(), history);
 	}
 
-	private static void printTokens(String text) {
+	private static void infoPrintTokens(String text) {
 		StockLexer lexer = new StockLexer(CharStreams.fromString(text));
 		String tokensFromText = tokens(lexer, "NEWLINE");
 		log.info("{} tokensFromText = 『\n{}\n』", Utility.indentMiddle(), tokensFromText);
+	}
+	private static void debugPrintTokens(String text) {
+		StockLexer lexer = new StockLexer(CharStreams.fromString(text));
+		String tokensFromText = tokens(lexer, "NEWLINE");
+		log.debug("{} tokensFromText = 『\n{}\n』", Utility.indentMiddle(), tokensFromText);
 	}
 
 	public static String tokens(Lexer lexer, String eol) {
@@ -262,7 +267,9 @@ public class ParserService {
 
 		if (debug || result.isEmpty()) {
 			log.info("{} parse(『\n{}\n』)", Utility.indentMiddle(), text);
-			printTokens(text);
+			infoPrintTokens(text);
+		} else {
+			debugPrintTokens(text);
 		}
 
 		log.debug("{} {} parse(『{}』, 『{}』) - {}", Utility.indentEnd(), result, Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));

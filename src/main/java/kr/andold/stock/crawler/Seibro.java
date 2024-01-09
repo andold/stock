@@ -365,4 +365,10 @@ public class Seibro implements Crawler {
 	}
 
 
+	@Override
+	public Result<ParserResult> price(Date date) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

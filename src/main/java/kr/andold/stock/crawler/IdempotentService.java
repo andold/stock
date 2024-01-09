@@ -41,6 +41,24 @@ public class IdempotentService {
 	@Autowired private DividendHistoryService dividendHistoryService;
 	@Autowired private PriceService priceService;
 
+	public static enum IDEMPOTENT_STATUS {
+		SUCCESS("성공")
+		, FAILURE("실패")
+		, BUSY("바쁘다")
+		, NOTHING_TO_DO("다시해봐도 할게없다")
+		, DONE_RESTART("할게 있을수 있다")
+		, INVALID_JOB("뭬야")
+		, ALEADY_DONE_JOB("한거다");
+
+		private String title;
+		private IDEMPOTENT_STATUS(String string) {
+			title = string;
+		}
+		public String get() {
+		    return title;
+	  }
+	}
+
 	private ConcurrentLinkedDeque<ItemDomain> qDividend = new ConcurrentLinkedDeque<>();
 	private ConcurrentLinkedDeque<ItemDomain> qPrice = new ConcurrentLinkedDeque<>();
 	private boolean running = false;
@@ -51,7 +69,7 @@ public class IdempotentService {
 		long started = System.currentTimeMillis();
 
 		if (running) {
-			log.info("{} #{}:#{}:{} run() - {}", Utility.indentEnd(), Utility.size(qDividend), Utility.size(qPrice), "BUSY", Utility.toStringPastTimeReadable(started));
+			log.info("{} #{}:#{}:{} run() - {}", Utility.indentEnd(), Utility.size(qDividend), Utility.size(qPrice), IDEMPOTENT_STATUS.BUSY, Utility.toStringPastTimeReadable(started));
 			return CompletableFuture.completedFuture(null);
 		}
 
@@ -61,7 +79,7 @@ public class IdempotentService {
 		for (int cx = 0; cx < BATCH_SIZE; cx++) {
 			if (qDividend.isEmpty() && qPrice.isEmpty()) {
 				if (restarted) {
-					log.info("{} {} run() - {}", Utility.indentMiddle(), "다시 해봤는데, 진짜 할게 없다", Utility.toStringPastTimeReadable(started));
+					log.info("{} {} run() - {}", Utility.indentMiddle(), IDEMPOTENT_STATUS.NOTHING_TO_DO, Utility.toStringPastTimeReadable(started));
 					break;
 				}
 
@@ -69,7 +87,7 @@ public class IdempotentService {
 				restarted = true;
 				qDividend.addAll(items);
 				qPrice.addAll(items);
-				log.info("{} #{}:#{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "다했네, 다시한다", Utility.toStringPastTimeReadable(started));
+				log.info("{} #{}:#{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), IDEMPOTENT_STATUS.DONE_RESTART, Utility.toStringPastTimeReadable(started));
 				cx--;
 				continue;
 			}
@@ -78,14 +96,14 @@ public class IdempotentService {
 				// 배당일자 주가 수집
 				ItemDomain item = qPrice.poll();
 				if (item == null) {
-					log.info("{} 주가 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "공갈빵", item, Utility.toStringPastTimeReadable(started));
+					log.info("{} 배당주가 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), IDEMPOTENT_STATUS.INVALID_JOB, item, Utility.toStringPastTimeReadable(started));
 					cx--;
 					continue;
 				}
 				
 				List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
 				if (!isRequireCrawlPrice(histories)) {
-					log.info("{} 주가 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "이미 한건데", item, Utility.toStringPastTimeReadable(started));
+					log.info("{} 배당주가 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), IDEMPOTENT_STATUS.ALEADY_DONE_JOB, Utility.toStringPastTimeReadable(started));
 					cx--;
 					continue;
 				}
@@ -99,10 +117,10 @@ public class IdempotentService {
 					Map<String, PriceDomain> mapP = priceService.makeMap(prices);
 					dividendHistoryService.compile(histories, mapP);
 					put(parserResult);
-					log.info("{} 주가 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "했어요", item, Utility.toStringPastTimeReadable(started));
+					log.info("{} 배당주가 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "했어요", item, Utility.toStringPastTimeReadable(started));
 					break;
 				default:
-					log.warn("{} 주가 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "오류났어요", item, Utility.toStringPastTimeReadable(started));
+					log.warn("{} 배당주가 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "오류났어요", item, Utility.toStringPastTimeReadable(started));
 					break;
 				}
 
@@ -112,7 +130,7 @@ public class IdempotentService {
 			// 배당금 수집
 			ItemDomain item = qDividend.poll();
 			if (item == null) {
-				log.info("{} 배당 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "공갈빵", item, Utility.toStringPastTimeReadable(started));
+				log.info("{} 배당이력 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "공갈빵", item, Utility.toStringPastTimeReadable(started));
 				cx--;
 				continue;
 			}
@@ -121,7 +139,7 @@ public class IdempotentService {
 			Date start = Date.from(startZonedDate.toInstant());
 			List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
 			if (histories != null && !histories.isEmpty() && histories.get(histories.size() - 1).getBase().before(start)) {
-				log.info("{} 배당 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "이미 한건데", item, Utility.toStringPastTimeReadable(started));
+				log.info("{} 배당이력 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "이미 한건데", item, Utility.toStringPastTimeReadable(started));
 				cx--;
 				continue;
 			}
@@ -133,10 +151,10 @@ public class IdempotentService {
 				List<DividendHistoryDomain> founds = parserResult.getHistories();
 				founds.add(DividendHistoryDomain.builder().code(item.getCode()).base(Date.from(startZonedDate.minusDays(1).toInstant())).dividend(-1).build());
 				put(parserResult);
-				log.info("{} 배당 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "했어요", item, Utility.toStringPastTimeReadable(started));
+				log.info("{} 배당이력 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "했어요", item, Utility.toStringPastTimeReadable(started));
 				break;
 			default:
-				log.warn("{} 배당 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "오류났어요", item, Utility.toStringPastTimeReadable(started));
+				log.warn("{} 배당이력 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), "오류났어요", item, Utility.toStringPastTimeReadable(started));
 				break;
 			}
 

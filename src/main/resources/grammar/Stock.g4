@@ -25,6 +25,164 @@ stockDocument
 |	crawlPriceCompany				// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 일자별시세
 |	crawlPriceEtf					// KSD 증권정보포털 SEIBro > ETF > ETF종합정보 > 기준가추이
 |	crawlPriceKrx					// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 개별종목 시세 추이
+|	companyAllPrice					// KRX 정보데이터시스템 > 기본통계 > 주식 > 종목시세 > 전종목 시세
+|	etcAllPrice						// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 전종목 시세
+;
+
+
+// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 전종목 시세
+etcAllPrice:
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 KRX 	 ETF > 전종목 시세 	 http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020101 
+	(
+		WORD TAB DATE TAB										NEWLINE		//	ETF 	 2024-01-09 	 
+		WORD TAB DATE TAB										NEWLINE		//	ETF 	 2024-01-09 	 
+		WORD TAB DATE TAB										NEWLINE		//	ETF 	 2024-01-09 	 
+		WORD TAB DATE TAB										NEWLINE		//	ETF 	 2024-01-09 	 
+		WORD TAB DATE TAB										NEWLINE		//	ETF 	 2024-01-09 	 
+		WORD TAB DATE TAB										NEWLINE		//	ETF 	 2024-01-09 	 
+		WORD TAB DATE TAB										NEWLINE		//	ETF 	 2024-01-09 	 
+		WORD TAB DATE TAB WORD									NEWLINE		//	ETF 	 2024-01-09 	 종목코드종목명종가대비등락률순자산가치(NAV)시가고가저가거래량거래대금시가총액순자산총액상장좌수지수명종가대비등락률 
+		WORD TAB DATE TAB										NEWLINE		//	ETF 	 2024-01-09 	 
+		((
+			WORD TAB DATE TAB code=NUMBER						NEWLINE		//	ETF 	 2024-01-09 	 305080 
+			WORD TAB DATE TAB symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*		NEWLINE		//	ETF 	 2024-01-09 	 TIGER 미국채10년선물 
+			WORD TAB DATE TAB closing=NUMBER					NEWLINE		//	ETF 	 2024-01-09 	 11,580 
+			WORD TAB DATE TAB NUMBER							NEWLINE		//	ETF 	 2024-01-09 	 20 
+			WORD TAB DATE TAB NUMBER							NEWLINE		//	ETF 	 2024-01-09 	 +0.17 
+			WORD TAB DATE TAB NUMBER							NEWLINE		//	ETF 	 2024-01-09 	 11,588.94 
+			WORD TAB DATE TAB market=NUMBER						NEWLINE		//	ETF 	 2024-01-09 	 11,560 
+			WORD TAB DATE TAB high=NUMBER						NEWLINE		//	ETF 	 2024-01-09 	 11,590 
+			WORD TAB DATE TAB low=NUMBER						NEWLINE		//	ETF 	 2024-01-09 	 11,525 
+			WORD TAB DATE TAB volume=NUMBER						NEWLINE		//	ETF 	 2024-01-09 	 60,629 
+			WORD TAB DATE TAB NUMBER							NEWLINE		//	ETF 	 2024-01-09 	 700,419,695 
+			WORD TAB DATE TAB NUMBER							NEWLINE		//	ETF 	 2024-01-09 	 119,274,000,000 
+			WORD TAB DATE TAB NUMBER							NEWLINE		//	ETF 	 2024-01-09 	 0 
+			WORD TAB DATE TAB volumeOfListedShares=NUMBER		NEWLINE		//	ETF 	 2024-01-09 	 10,300,000 
+			WORD TAB DATE TAB word+								NEWLINE		//	ETF 	 2024-01-09 	 S&P 10-Year U.S. Treasury Note Futures(ER) 
+			WORD TAB DATE TAB word								NEWLINE		//	ETF 	 2024-01-09 	 192.52 
+			WORD TAB DATE TAB word								NEWLINE		//	ETF 	 2024-01-09 	 0.00 
+			WORD TAB DATE TAB word								NEWLINE		//	ETF 	 2024-01-09 	 0.00 
+			WORD TAB base=DATE TAB								NEWLINE		//	ETF 	 2024-01-09 	 
+			{
+				ParserService.crawlPriceCompanyEtf(20240105
+					, $code.text, $symbol.text
+					, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
+				);
+				ParserService.crawlEtfDetailThread(20240105, $code.text
+					, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
+					, null, null, null, null, null, null, null, null
+					, null
+					, null
+					, $volumeOfListedShares.text
+				);
+			}
+		) | (
+			WORD TAB DATE TAB NUMBER symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* closing=NUMBER	NEWLINE		//	ETF 	 2024-01-09 	 078935 GS우 KOSPI 34,250 
+			WORD TAB base=DATE TAB NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER		NEWLINE		//	ETF 	 2024-01-09 	 34,300 34,500 34,100 1,993 68,209,450 61,130,290,500 1,784,826 
+			{
+				ParserService.crawlPriceCompanyEtf(20240105
+					, $code.text, $symbol.text
+					, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
+				);
+			}
+		))+
+
+		WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27 
+	)+ 
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 KRX 	 ETF > 전종목 시세 	 http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020101 
+;
+
+
+// KRX 정보데이터시스템 > 기본통계 > 주식 > 종목시세 > 전종목 시세
+companyAllPrice:
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 KRX 	 주식 > 종목시세 > 전종목 시세 	 http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020101 
+	(
+		WORD TAB DATE TAB										NEWLINE		//	COMPANY 	 2024-01-09 	 
+		WORD TAB DATE TAB										NEWLINE		//	COMPANY 	 2024-01-09 	 
+		WORD TAB DATE TAB										NEWLINE		//	COMPANY 	 2024-01-09 	 
+		WORD TAB DATE TAB TAB TAB TAB TAB						NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 	 
+		WORD TAB DATE TAB TAB TAB								NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 
+		WORD TAB DATE TAB TAB TAB TAB TAB						NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 	 
+		WORD TAB DATE TAB TAB TAB TAB TAB						NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 	 
+		WORD TAB DATE TAB TAB TAB TAB							NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 
+		WORD TAB DATE TAB										NEWLINE		//	COMPANY 	 2024-01-09 	 
+		WORD TAB DATE TAB										NEWLINE		//	COMPANY 	 2024-01-09 	 
+		WORD TAB DATE TAB TAB TAB TAB TAB						NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 	 
+		WORD TAB DATE TAB TAB TAB								NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 
+		WORD TAB DATE TAB TAB TAB TAB TAB						NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 	 
+		WORD TAB DATE TAB TAB TAB TAB TAB						NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 	 
+		WORD TAB DATE TAB TAB TAB TAB							NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 
+		WORD TAB DATE TAB										NEWLINE		//	COMPANY 	 2024-01-09 	 
+		WORD TAB DATE TAB										NEWLINE		//	COMPANY 	 2024-01-09 	 
+		WORD TAB DATE TAB										NEWLINE		//	COMPANY 	 2024-01-09 	 
+		WORD TAB DATE TAB										NEWLINE		//	COMPANY 	 2024-01-09 	 
+		WORD TAB DATE TAB TAB TAB TAB TAB						NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 	 
+		WORD TAB DATE TAB TAB TAB TAB							NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 
+		WORD TAB DATE TAB TAB TAB TAB TAB						NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 	 
+		WORD TAB DATE TAB TAB TAB TAB TAB						NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 	 
+		WORD TAB DATE TAB TAB TAB TAB							NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 
+		WORD TAB DATE TAB										NEWLINE		//	COMPANY 	 2024-01-09 	 
+		WORD TAB DATE TAB										NEWLINE		//	COMPANY 	 2024-01-09 	 
+		WORD TAB DATE TAB										NEWLINE		//	COMPANY 	 2024-01-09 	 
+		WORD TAB DATE TAB										NEWLINE		//	COMPANY 	 2024-01-09 	 
+		WORD TAB DATE TAB TAB TAB TAB TAB						NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 	 
+		WORD TAB DATE TAB TAB TAB								NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 
+		WORD TAB DATE TAB TAB TAB TAB TAB						NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 	 
+		WORD TAB DATE TAB TAB TAB TAB TAB						NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 	 
+		WORD TAB DATE TAB TAB TAB TAB							NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 
+		WORD TAB DATE TAB										NEWLINE		//	COMPANY 	 2024-01-09 	 
+		WORD TAB DATE TAB										NEWLINE		//	COMPANY 	 2024-01-09 	 
+		WORD TAB DATE TAB										NEWLINE		//	COMPANY 	 2024-01-09 	 
+		WORD TAB DATE TAB TAB TAB TAB TAB						NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 	 
+		WORD TAB DATE TAB TAB TAB								NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 
+		WORD TAB DATE TAB TAB TAB TAB TAB						NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 	 
+		WORD TAB DATE TAB TAB TAB TAB TAB						NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 	 
+		WORD TAB DATE TAB TAB TAB TAB							NEWLINE		//	COMPANY 	 2024-01-09 	 	 	 	 
+		WORD TAB DATE TAB WORD									NEWLINE		//	COMPANY 	 2024-01-09 	 종목코드종목명시장구분소속부종가대비등락률시가고가저가거래량거래대금시가총액상장주식수 
+		WORD TAB DATE TAB										NEWLINE		//	COMPANY 	 2024-01-09 	 
+		((
+			WORD TAB DATE TAB code=word							NEWLINE		//	COMPANY 	 2024-01-09 	 00104K 
+			WORD TAB DATE TAB symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*	NEWLINE		//	COMPANY 	 2024-01-09 	 3S 
+			WORD TAB DATE TAB type=word word*					NEWLINE		//	COMPANY 	 2024-01-09 	 KOSDAQ GLOBAL 
+			WORD TAB DATE TAB WORD?								NEWLINE		//	COMPANY 	 2024-01-09 	 중견기업부 
+			WORD TAB DATE TAB closing=NUMBER					NEWLINE		//	COMPANY 	 2024-01-09 	 3,740 
+			WORD TAB DATE TAB NUMBER							NEWLINE		//	COMPANY 	 2024-01-09 	 215 
+			WORD TAB DATE TAB NUMBER							NEWLINE		//	COMPANY 	 2024-01-09 	 +6.10 
+			WORD TAB DATE TAB market=NUMBER						NEWLINE		//	COMPANY 	 2024-01-09 	 3,650 
+			WORD TAB DATE TAB high=NUMBER						NEWLINE		//	COMPANY 	 2024-01-09 	 3,740 
+			WORD TAB DATE TAB low=NUMBER						NEWLINE		//	COMPANY 	 2024-01-09 	 3,470 
+			WORD TAB DATE TAB volume=NUMBER						NEWLINE		//	COMPANY 	 2024-01-09 	 3,336,537 
+			WORD TAB DATE TAB NUMBER							NEWLINE		//	COMPANY 	 2024-01-09 	 12,249,855,340 
+			WORD TAB DATE TAB NUMBER							NEWLINE		//	COMPANY 	 2024-01-09 	 181,527,041,080 
+			WORD TAB DATE TAB volumeOfListedShares=NUMBER		NEWLINE		//	COMPANY 	 2024-01-09 	 48,536,642 
+			WORD TAB base=DATE TAB								NEWLINE		//	COMPANY 	 2024-01-09 	 
+			{
+				ParserService.crawlPriceCompanyEtf(20240105
+					, $code.text, $symbol.text
+					, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
+				);
+				ParserService.crawlItemDetailCompanyThread(20240105
+					, $code.text, $type.text
+					, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
+					, null, null
+					, $volumeOfListedShares.text
+					, null
+				);
+			}
+		) | (
+			WORD TAB DATE TAB NUMBER symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* closing=NUMBER	NEWLINE		//	ETF 	 2024-01-09 	 078935 GS우 KOSPI 34,250 
+			WORD TAB base=DATE TAB NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER		NEWLINE		//	ETF 	 2024-01-09 	 34,300 34,500 34,100 1,993 68,209,450 61,130,290,500 1,784,826 
+			{
+				ParserService.crawlPriceCompanyEtf(20240105
+					, $code.text, $symbol.text
+					, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
+				);
+			}
+		))+
+
+		WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27 
+	)+ 
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 KRX 	 주식 > 종목시세 > 전종목 시세 	 http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020101 
 ;
 
 

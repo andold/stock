@@ -88,33 +88,8 @@ class StockRepository {
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
-	async crawlDividendHistoryCompany(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.get(`./api/crawl/dividend/history/company`, request)
-			.then(response => onSuccess && onSuccess(request, response.data, element))
-			.catch(error => onError && onError(request, error, element));
-	}
-	async crawlDividendHistoryEtf(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.get(`./api/crawl/dividend/history/etf`, request)
-			.then(response => onSuccess && onSuccess(request, response.data, element))
-			.catch(error => onError && onError(request, error, element));
-	}
 	async crawlDividendHistoryEtfMonthly(request: any, onSuccess?: any, onError?: any, element?: any) {
 		return axios.post("./api/crawl/divident/history/etf/monthly", request)
-			.then(response => onSuccess && onSuccess(request, response.data, element))
-			.catch(error => onError && onError(request, error, element));
-	}
-	async crawlPrice(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.get(`./api/crawl/price`, request)
-			.then(response => onSuccess && onSuccess(request, response.data, element))
-			.catch(error => onError && onError(request, error, element));
-	}
-	async crawlPriceCompany(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.get(`./api/crawl/price/company`, request)
-			.then(response => onSuccess && onSuccess(request, response.data, element))
-			.catch(error => onError && onError(request, error, element));
-	}
-	async crawlPriceEtf(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.get(`./api/crawl/price/etf`, request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}

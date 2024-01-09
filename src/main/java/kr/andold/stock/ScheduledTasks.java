@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @ConditionalOnProperty(value = "app.scheduling.enable", havingValue = "true", matchIfMissing = true)
 public class ScheduledTasks {
 	@Autowired
-	private CrawlerService stockCrawlerService;
+	private CrawlerService crawlerService;
 
 	@Autowired
 	private IdempotentService idempotentService;
@@ -41,10 +41,10 @@ public class ScheduledTasks {
 	}
 
 	// 평일
-	@Scheduled(cron = "15 30 22 * * MON-FRI")
+	@Scheduled(cron = "50 40 21 * * MON-FRI")
 	public void scheduleTaskDaily() {
-		Date start = Date.from(LocalDate.now().minusMonths(1).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST));
-		stockCrawlerService.crawlPrice(start);
+		Date start = Date.from(LocalDate.now().minusDays(1).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST));
+		crawlerService.crawlPrice(start);
 	}
 
 	// 매주 일요일
@@ -52,16 +52,16 @@ public class ScheduledTasks {
 	public void scheduleTaskWeekly() {
 		// 3주전꺼부터 수집
 		Date start = Date.from(LocalDate.now().minusWeeks(3).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST));
-		stockCrawlerService.crawlDividendHistoryEtf(start);		//	ETF 배당 이력
-		stockCrawlerService.crawlDividendHistoryCompany(start);	//	기업주식 배당 이력
+		crawlerService.crawlDividendHistoryEtf(start);		//	ETF 배당 이력
+		crawlerService.crawlDividendHistoryCompany(start);	//	기업주식 배당 이력
 	}
 
 	// 매월 1일
 	@Scheduled(cron = "15 30 23 1 * *")
 	public void scheduleTaskMonthly() {
-		stockCrawlerService.crawlItemDividendTopCompany();	// 기업 배당 상위
-		stockCrawlerService.crawlItemDetailEtf();			//	ETF 상세
-		stockCrawlerService.crawlItemDetailCompany();		//	기업주식 상세
+		crawlerService.crawlItemDividendTopCompany();	// 기업 배당 상위
+		crawlerService.crawlItemDetailEtf();			//	ETF 상세
+		crawlerService.crawlItemDetailCompany();		//	기업주식 상세
 	}
 
 	// 매분기 첫달 8일

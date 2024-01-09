@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -136,61 +135,6 @@ public class ApiStockController {
 		ParserResult result = stockCrawlerService.crawlItemEtf();
 
 		log.info("{} {} - crawlItemEtf()", Utility.indentEnd(), result);
-		return result;
-	}
-
-	@ResponseBody
-	@GetMapping(value = "crawl/price")
-	public ParserResult crawlPrice(@RequestParam(value = "start", required = false) Date start) {
-		log.info("{} crawlPrice()", Utility.indentStart());
-
-		ParserResult result = stockCrawlerService.crawlPrice(start);
-
-		log.info("{} {} - crawlPrice()", Utility.indentEnd(), result);
-		return result;
-	}
-
-	@ResponseBody
-	@GetMapping(value = "crawl/price/company")
-	public ParserResult crawlPriceCompay(@RequestParam(value = "start", required = false) Date start) {
-		log.info("{} crawlPriceCompay()", Utility.indentStart());
-
-		ParserResult result = stockCrawlerService.crawlPriceCompany(start);
-
-		log.info("{} {} - crawlPriceCompay()", Utility.indentEnd(), result);
-		return result;
-	}
-
-	@ResponseBody
-	@GetMapping(value = "crawl/price/etf")
-	public ParserResult crawlPriceEtf(@RequestParam(value = "start", required = false) Date start) {
-		log.info("{} crawlPriceEtf()", Utility.indentStart());
-
-		ParserResult result = stockCrawlerService.crawlPriceEtf(start);
-
-		log.info("{} {} - crawlPriceEtf()", Utility.indentEnd(), result);
-		return result;
-	}
-
-	@ResponseBody
-	@GetMapping(value = "crawl/dividend/history/company")
-	public ParserResult crawlDividendHistoryCompany(@RequestParam(value = "start", required = false) Date start) {
-		log.info("{} crawlDividendHistoryCompany({})", Utility.indentStart(), start);
-
-		ParserResult result = stockCrawlerService.crawlDividendHistoryCompany(start);
-
-		log.info("{} {} - crawlDividendHistoryCompany({})", Utility.indentEnd(), result, start);
-		return result;
-	}
-
-	@ResponseBody
-	@GetMapping(value = "crawl/dividend/history/etf")
-	public ParserResult crawlDividendHistoryEtf(@RequestParam(value = "start", required = false) Date start) {
-		log.info("{} crawlDividendHistoryEtf({})", Utility.indentStart(), start);
-
-		ParserResult result = stockCrawlerService.crawlDividendHistoryEtf(start);
-
-		log.info("{} {} - crawlDividendHistoryEtf({})", Utility.indentEnd(), result, start);
 		return result;
 	}
 

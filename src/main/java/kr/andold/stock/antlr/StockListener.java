@@ -26,6 +26,26 @@ public interface StockListener extends ParseTreeListener {
 	 */
 	void exitStockDocument(StockParser.StockDocumentContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link StockParser#etcAllPrice}.
+	 * @param ctx the parse tree
+	 */
+	void enterEtcAllPrice(StockParser.EtcAllPriceContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link StockParser#etcAllPrice}.
+	 * @param ctx the parse tree
+	 */
+	void exitEtcAllPrice(StockParser.EtcAllPriceContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link StockParser#companyAllPrice}.
+	 * @param ctx the parse tree
+	 */
+	void enterCompanyAllPrice(StockParser.CompanyAllPriceContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link StockParser#companyAllPrice}.
+	 * @param ctx the parse tree
+	 */
+	void exitCompanyAllPrice(StockParser.CompanyAllPriceContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link StockParser#crawlPriceKrx}.
 	 * @param ctx the parse tree
 	 */

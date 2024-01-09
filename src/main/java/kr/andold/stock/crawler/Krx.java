@@ -26,6 +26,12 @@ import lombok.extern.slf4j.Slf4j;
 public class Krx implements Crawler {
 	private static final String URL = "http://data.krx.co.kr/";
 	private static final String MARK_START_END_POINT = String.format("KEYWORD\t%s\t%s\t%s\n", "주가일별시세", "KRX", URL);
+
+	private static final String URL_PRICE_COMPANY_ALL = "http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020101";
+	private static final String URL_PRICE_ETF_ALL = "http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201030101";
+	private static final String MARK_START_END_POINT_PRICE_COMPANY_ALL = String.format("KEYWORD\t%s\t%s\t%s\n", "KRX", "주식 > 종목시세 > 전종목 시세", URL_PRICE_COMPANY_ALL);
+	private static final String MARK_START_END_POINT_PRICE_ETF_ALL = String.format("KEYWORD\t%s\t%s\t%s\n", "KRX", "ETF > 전종목 시세", URL_PRICE_ETF_ALL);
+
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
 	private static final int TIMEOUT = 4000;
 	private static final Boolean debug = CrawlerService.debug;
@@ -52,7 +58,7 @@ public class Krx implements Crawler {
 
 		Result<ParserResult> resultEtf = priceAsEtf(item, histories);
 
-		log.info("{} {} dividend({}, {}) - {}", Utility.indentEnd(), resultEtf, item, Utility.size(histories), Utility.toStringPastTimeReadable(started));
+		log.info("{} {} price({}, {}) - {}", Utility.indentEnd(), resultEtf, item, Utility.size(histories), Utility.toStringPastTimeReadable(started));
 		return resultEtf;
 	}
 
@@ -192,7 +198,7 @@ public class Krx implements Crawler {
 			ParserResult result = ParserService.parse(new String(sb), debug);
 
 			log.debug("{} 『{}』 priceAsEtf(..., {}, {}) - {}", Utility.indentEnd(), result, item, history, Utility.toStringPastTimeReadable(started));
-			return Result.<ParserResult>builder().status(Result.SUCCESS).result(result).build();
+			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
 		
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
@@ -200,7 +206,7 @@ public class Krx implements Crawler {
 		}
 
 		log.debug("{} 『{}』 priceAsEtf(..., {}, {}) - {}", Utility.indentEnd(), "EXCEPTION", item, history, Utility.toStringPastTimeReadable(started));
-		return Result.<ParserResult>builder().status(Result.EXCEPTION).build();
+		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 	}
 
 	private Result<ParserResult> priceAsCompany(ItemDomain item, List<DividendHistoryDomain> histories) {
@@ -339,7 +345,7 @@ public class Krx implements Crawler {
 			ParserResult result = ParserService.parse(new String(sb), debug);
 
 			log.debug("{} 『{}』 priceAsCompany(..., {}, {}) - {}", Utility.indentEnd(), result, item, history, Utility.toStringPastTimeReadable(started));
-			return Result.<ParserResult>builder().status(Result.SUCCESS).result(result).build();
+			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
 		
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
@@ -347,7 +353,163 @@ public class Krx implements Crawler {
 		}
 
 		log.debug("{} 『{}』 priceAsCompany(..., {}, {}) - {}", Utility.indentEnd(), "EXCEPTION", item, history, Utility.toStringPastTimeReadable(started));
-		return Result.<ParserResult>builder().status(Result.EXCEPTION).build();
+		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+	}
+
+	@Override
+	public Result<ParserResult> price(Date date) {
+		log.info("{} price({})", Utility.indentStart(), date);
+		long started = System.currentTimeMillis();
+
+		ParserResult resultContainer = new ParserResult().clear();
+		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(resultContainer).build();
+
+		Result<ParserResult> resultCompanyDefault = priceCompany(null);
+		resultContainer.addAll(resultCompanyDefault.getResult());
+		Result<ParserResult> resultCompany = priceCompany(date);
+		if (resultCompany.getStatus() == STATUS.SUCCESS) {
+			resultContainer.addAll(resultCompany.getResult());
+		} else {
+			result.setStatus(resultCompany.getStatus());
+		}			
+
+		Result<ParserResult> resultEtfDefault = priceEtf(null);
+		resultContainer.addAll(resultEtfDefault.getResult());
+		Result<ParserResult> resultEtf = priceEtf(date);
+		if (resultEtf.getStatus() == STATUS.SUCCESS) {
+			resultContainer.addAll(resultEtf.getResult());
+		} else {
+			result.setStatus(resultEtf.getStatus());
+		}			
+
+		log.info("{} {} price({}) - {}", Utility.indentEnd(), result, date, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
+	private Result<ParserResult> priceEtf(Date date) {
+		log.debug("{} priceEtf({})", Utility.indentStart(), date);
+		long started = System.currentTimeMillis();
+
+		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		try {
+			driver.navigate().to(URL_PRICE_ETF_ALL);
+
+			// 기본 일자 수집 = 오늘
+			WebElement dateElement = driver.findElement(By.xpath("//*[@id='trdDd']"), TIMEOUT);
+			if (date == null) {
+				date = Utility.parseDateTime(dateElement.getAttribute("value"));
+			} else {
+				dateElement.clear();
+				dateElement.sendKeys(String.format("%1$tY%1$tm%1$td\t", date));
+			}
+
+			// 조회 클릭
+			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), TIMEOUT).click();
+
+			// 3. 내용 저장
+			StringBuffer sb = new StringBuffer();
+			sb.append(MARK_START_END_POINT_PRICE_ETF_ALL);
+			for (String prev = ""; true;) {
+				long forStarted = System.currentTimeMillis();
+
+				WebElement tableElement = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), TIMEOUT);
+				sb.append(driver.getAttribute(tableElement, "textContent", String.format("ETF\t%1$tY-%1$tm-%1$td\t", date)));
+				sb.append(MARK_ANDOLD_SINCE);
+
+				List<WebElement> trs = tableElement.findElements(By.xpath("//tr"));
+				WebElement lastTr = trs.get(trs.size() - 1);
+				String curr = lastTr.getAttribute("textContent");
+				if (prev.contentEquals(curr)) {
+					break;
+				}
+
+				prev = curr;
+
+				// 표 마지막줄까지 스크롤한다
+				((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", lastTr);
+				// 확대/축소를 하면 화면이 바뀌면서 테이블 내용도 바뀐다
+				driver.clickIfExist(By.xpath("//*[@id='jsViewSizeButton']"));
+
+				log.debug("{} 『{}』 priceEtf({}) - {}", Utility.indentMiddle(), Utility.ellipsisEscape(prev, 32), date, Utility.toStringPastTimeReadable(forStarted));
+			}
+			driver.quit();
+			sb.append(MARK_START_END_POINT_PRICE_ETF_ALL);
+
+			ParserResult parserResult = ParserService.parse(new String(sb), debug);
+			Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(parserResult).build();
+
+			log.debug("{} 『{}』 priceEtf({}) - {}", Utility.indentEnd(), result, date, Utility.toStringPastTimeReadable(started));
+			return result;
+		} catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+			driver.quit();
+		}
+
+		log.warn("{} 『{}』 priceEtf({}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, date, Utility.toStringPastTimeReadable(started));
+		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+	}
+
+	private Result<ParserResult> priceCompany(Date date) {
+		log.debug("{} priceCompany({})", Utility.indentStart(), date);
+		long started = System.currentTimeMillis();
+
+		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		try {
+			driver.navigate().to(URL_PRICE_COMPANY_ALL);
+
+			// 기본 일자 수집 = 오늘
+			WebElement dateElement = driver.findElement(By.xpath("//*[@id='trdDd']"), TIMEOUT);
+			if (date == null) {
+				date = Utility.parseDateTime(dateElement.getAttribute("value"));
+			} else {
+				dateElement.clear();
+				dateElement.sendKeys(String.format("%1$tY%1$tm%1$td\t", date));
+			}
+
+			// 조회 클릭
+			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), TIMEOUT).click();
+
+			// 3. 내용 저장
+			StringBuffer sb = new StringBuffer();
+			sb.append(MARK_START_END_POINT_PRICE_COMPANY_ALL);
+			for (String prev = ""; true;) {
+				long forStarted = System.currentTimeMillis();
+
+				WebElement tableElement = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), TIMEOUT);
+				sb.append(driver.getAttribute(tableElement, "textContent", String.format("COMPANY\t%1$tY-%1$tm-%1$td\t", date)));
+				sb.append(MARK_ANDOLD_SINCE);
+
+				List<WebElement> trs = tableElement.findElements(By.xpath("//tr"));
+				WebElement lastTr = trs.get(trs.size() - 1);
+				String curr = lastTr.getAttribute("textContent");
+				if (prev.contentEquals(curr)) {
+					break;
+				}
+
+				prev = curr;
+
+				// 표 마지막줄까지 스크롤한다
+				((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", lastTr);
+				// 확대/축소를 하면 화면이 바뀌면서 테이블 내용도 바뀐다
+				driver.clickIfExist(By.xpath("//*[@id='jsViewSizeButton']"));
+
+				log.debug("{} 『{}』 priceCompany({}) - {}", Utility.indentMiddle(), Utility.ellipsisEscape(prev, 32), date, Utility.toStringPastTimeReadable(forStarted));
+			}
+			driver.quit();
+			sb.append(MARK_START_END_POINT_PRICE_COMPANY_ALL);
+
+			ParserResult parserResult = ParserService.parse(new String(sb), debug);
+			Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(parserResult).build();
+
+			log.debug("{} 『{}』 priceCompany({}) - {}", Utility.indentEnd(), result, date, Utility.toStringPastTimeReadable(started));
+			return result;
+		} catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+			driver.quit();
+		}
+
+		log.warn("{} 『{}』 priceCompany({}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, date, Utility.toStringPastTimeReadable(started));
+		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 	}
 
 }
