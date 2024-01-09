@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import kr.andold.stock.domain.Result;
 import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
 
@@ -78,7 +79,7 @@ public class CrawlerServiceTest {
 
 	@Test
 	public void testCrawlPrice() {
-		ParserResult result = service.crawlPrice(Date.valueOf("2010-01-01"));
+		Result<ParserResult> result = service.crawlPrice(Date.valueOf("2010-01-01"));
 		log.info("{}", result);
 	}
 

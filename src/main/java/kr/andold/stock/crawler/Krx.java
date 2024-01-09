@@ -364,8 +364,6 @@ public class Krx implements Crawler {
 		ParserResult resultContainer = new ParserResult().clear();
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(resultContainer).build();
 
-		Result<ParserResult> resultCompanyDefault = priceCompany(null);
-		resultContainer.addAll(resultCompanyDefault.getResult());
 		Result<ParserResult> resultCompany = priceCompany(date);
 		if (resultCompany.getStatus() == STATUS.SUCCESS) {
 			resultContainer.addAll(resultCompany.getResult());
@@ -373,8 +371,6 @@ public class Krx implements Crawler {
 			result.setStatus(resultCompany.getStatus());
 		}			
 
-		Result<ParserResult> resultEtfDefault = priceEtf(null);
-		resultContainer.addAll(resultEtfDefault.getResult());
 		Result<ParserResult> resultEtf = priceEtf(date);
 		if (resultEtf.getStatus() == STATUS.SUCCESS) {
 			resultContainer.addAll(resultEtf.getResult());

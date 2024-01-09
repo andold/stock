@@ -41,10 +41,9 @@ public class ScheduledTasks {
 	}
 
 	// 평일
-	@Scheduled(cron = "50 40 21 * * MON-FRI")
+	@Scheduled(cron = "50 40 22 * * MON-FRI")
 	public void scheduleTaskDaily() {
-		Date start = Date.from(LocalDate.now().minusDays(1).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST));
-		crawlerService.crawlPrice(start);
+		crawlerService.crawlPrice(Date.from(LocalDate.now().atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)));
 	}
 
 	// 매주 일요일

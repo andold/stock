@@ -11,6 +11,7 @@ import itemStore from "../store/ItemStore";
 import dividendHistoryStore from "../store/DividendHistoryStore";
 import priceStore from "../store/PriceStore";
 import idempotentStore from "../store/IdempotentStore";
+import crawlStore from "../store/CrawlStore";
 
 
 // view
@@ -95,6 +96,7 @@ function Header(props: any) {
 	const [spinner, setSpinner] = useState<number>(0);
 	const [collapsed, setCollapsed] = useState(true);
 	const [disableRunIdempotent, setDisableRunIdempotent] = useState(false);
+	const [disableCrawlPricaAll, setDisableCrawlPriceAll] = useState(false);
 	const [jobs, setJobs] = useState({
 		play: false,
 		queue: [],
@@ -136,6 +138,13 @@ function Header(props: any) {
 		setDisableRunIdempotent(true);
 		idempotentStore.run(null, (_: any, response: any) => {
 			setDisableRunIdempotent(false);
+			console.log(response);
+		});
+	}
+	function handleOnClickCrawlPriceAll() {
+		setDisableCrawlPriceAll(true);
+		crawlStore.crawlPriceAll({base: moment().format("YYYY-MM-DDTHH:mm:ss.SSSZZ")}, (_: any, response: any) => {
+			setDisableCrawlPriceAll(false);
 			console.log(response);
 		});
 	}
@@ -351,6 +360,10 @@ function Header(props: any) {
 									<Button size="sm" variant="secondary" className="ms-1" disabled={disableRunIdempotent} onClick={handleOnClickRunIdempotent}>
 										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableRunIdempotent} />
 										점진적인 수집 실행
+									</Button>
+									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCrawlPricaAll} onClick={handleOnClickCrawlPriceAll}>
+										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlPricaAll} />
+										오늘 기준 주가 수집
 									</Button>
 								</>)}
 								<Button size="sm" variant="secondary" className="ms-1" title={form.mode.toString()} onClick={handleOnClickDownload}>다운로드</Button>
