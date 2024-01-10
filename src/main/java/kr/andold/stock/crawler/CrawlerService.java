@@ -222,6 +222,7 @@ public class CrawlerService {
 	}
 
 	// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당순위
+	@Deprecated
 	public ParserResult crawlItemDividendTopCompany() {
 		log.info("{} crawlItemDividendTopCompany()", Utility.indentStart());
 		long started = System.currentTimeMillis();
@@ -428,6 +429,7 @@ public class CrawlerService {
 	}
 
 	// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
+	@Deprecated
 	public ParserResult crawlItemDetailEtf() {
 		log.info("{} crawlItemDetailEtf()", Utility.indentStart());
 		long started = System.currentTimeMillis();
@@ -446,6 +448,7 @@ public class CrawlerService {
 	}
 
 	// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 종목종합내역 (KSD증권정보포털(SEIBro) > 기업 > 기업기본정보와 동일)
+	@Deprecated
 	public ParserResult crawlItemDetailCompany() {
 		log.info("{} crawlItemDetailCompany()", Utility.indentStart());
 		long started = System.currentTimeMillis();
