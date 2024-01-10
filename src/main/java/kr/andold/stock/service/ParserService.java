@@ -131,6 +131,8 @@ public class ParserService {
 			item.setType("KOSPI");
 		} else if ("코스닥".equalsIgnoreCase(type)) {
 			item.setType("KOSDAQ");
+		} else {
+			item.setType(type);
 		}
 		item.setCategory(category, fics);
 		LIST_STOCK_ITEM.add(item);
@@ -158,7 +160,7 @@ public class ParserService {
 				, fee
 				, ea
 		);
-		ItemDomain item = ItemDomain.builder().code(code).etf(true).build();
+		ItemDomain item = ItemDomain.builder().code(code).type("ETF").etf(true).build();
 		item.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
 		item.setSymbol(item.getSymbol().split("\\[[0-9]+")[0]);
 		item.setCategory(category, category1, category2, category3, category4, category5, category6, category7);
@@ -269,6 +271,7 @@ public class ParserService {
 			log.info("{} parse(『\n{}\n』)", Utility.indentMiddle(), text);
 			infoPrintTokens(text);
 		} else {
+			log.debug("{} parse(『\n{}\n』)", Utility.indentMiddle(), text);
 			debugPrintTokens(text);
 		}
 

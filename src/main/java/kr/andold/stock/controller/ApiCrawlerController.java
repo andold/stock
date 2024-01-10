@@ -1,6 +1,7 @@
 package kr.andold.stock.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +29,17 @@ public class ApiCrawlerController {
 		Result<ParserResult> result = service.crawlPrice(param.getBase());
 		
 		log.info("{} {} - crawlPriceAll({})", Utility.indentEnd(), result, param);
+		return result;
+	}
+
+	@ResponseBody
+	@GetMapping(value = "item/all")
+	public Result<ParserResult> crawlItemAll() {
+		log.info("{} crawlItemAll()", Utility.indentStart());
+
+		Result<ParserResult> result = service.crawlItemAll();
+		
+		log.info("{} {} - crawlItemAll()", Utility.indentEnd(), result);
 		return result;
 	}
 

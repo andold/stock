@@ -97,6 +97,7 @@ function Header(props: any) {
 	const [collapsed, setCollapsed] = useState(true);
 	const [disableRunIdempotent, setDisableRunIdempotent] = useState(false);
 	const [disableCrawlPricaAll, setDisableCrawlPriceAll] = useState(false);
+	const [disableCrawlItemAll, setDisableCrawlItemAll] = useState(false);
 	const [jobs, setJobs] = useState({
 		play: false,
 		queue: [],
@@ -145,6 +146,13 @@ function Header(props: any) {
 		setDisableCrawlPriceAll(true);
 		crawlStore.crawlPriceAll({base: moment().format("YYYY-MM-DDTHH:mm:ss.SSSZZ")}, (_: any, response: any) => {
 			setDisableCrawlPriceAll(false);
+			console.log(response);
+		});
+	}
+	function handleOnClickCrawlItemAll() {
+		setDisableCrawlItemAll(true);
+		crawlStore.crawlItemAll({}, (_: any, response: any) => {
+			setDisableCrawlItemAll(false);
 			console.log(response);
 		});
 	}
@@ -360,6 +368,10 @@ function Header(props: any) {
 									<Button size="sm" variant="secondary" className="ms-1" disabled={disableRunIdempotent} onClick={handleOnClickRunIdempotent}>
 										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableRunIdempotent} />
 										점진적인 수집 실행
+									</Button>
+									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCrawlItemAll} onClick={handleOnClickCrawlItemAll}>
+										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlItemAll} />
+										모든 주식종목 수집
 									</Button>
 									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCrawlPricaAll} onClick={handleOnClickCrawlPriceAll}>
 										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlPricaAll} />

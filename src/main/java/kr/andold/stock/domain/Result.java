@@ -21,6 +21,7 @@ public class Result<T> {
 			, FAIL_NO_DATA
 			, FAIL_MANY_DATA
 		, EXCEPTION
+		, NOT_SUPPORT
 	}
 
 }

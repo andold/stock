@@ -10,6 +10,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.crawler.IdempotentService;
+import kr.andold.stock.domain.Result;
+import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.stock.service.Utility;
 import lombok.extern.slf4j.Slf4j;
 
@@ -63,9 +65,15 @@ public class ScheduledTasks {
 		crawlerService.crawlItemDetailCompany();		//	기업주식 상세
 	}
 
-	// 매분기 첫달 8일
-	@Scheduled(cron = "15 30 20 8 1,4,7,10 *")
+	// 매분기 첫달 첫번째 일요일
+	@Scheduled(cron = "19 17 17 1-7 1,4,7,10 SUN")
 	public void scheduleTaskQuarter() {
+		log.info("{} scheduleTaskQuarter()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		Result<ParserResult> result = crawlerService.crawlItemAll();
+
+		log.info("{} {} scheduleTaskQuarter() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 	}
 
 	// 매년 1월 7일

@@ -246,7 +246,7 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 				// 2. 조회기간 설정
 				WebElement startDateElement = driver.findElement(By.xpath("//input[@id='strdDd']"), TIMEOUT);
 				startDateElement.clear();
-				startDateElement.sendKeys(Instant.ofEpochMilli(start.getTime()).atZone(Utility.ZONE_ID_KST).toLocalDate().format(DateTimeFormatter.ofPattern("YYYYMMdd"))); // 조회기간 시작일
+				startDateElement.sendKeys(Instant.ofEpochMilli(start.getTime()).atZone(Utility.ZONE_ID_KST).toLocalDate().format(DateTimeFormatter.BASIC_ISO_DATE)); // 조회기간 시작일
 				startDateElement.sendKeys(Keys.TAB); // 시작일 입력
 				return true;
 			} catch (Exception e) {
@@ -294,13 +294,13 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 					// 2. 조회기간 설정
 					WebElement startDateElement = driver.findElement(By.xpath("//*[@id='strtDd']"), TIMEOUT);
 					startDateElement.clear();
-					String startDateString = cx.minusYears(2).plusDays(1).format(DateTimeFormatter.ofPattern("YYYYMMdd"));
+					String startDateString = cx.minusYears(2).plusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
 					startDateElement.sendKeys(startDateString); // 조회기간 시작일
 					startDateElement.sendKeys(Keys.TAB); // 시작일 입력
 
 					WebElement endDateElement = driver.findElement(By.xpath("//*[@id='endDd']"), TIMEOUT);
 					endDateElement.clear();
-					String endDateString = cx.format(DateTimeFormatter.ofPattern("YYYYMMdd"));
+					String endDateString = cx.format(DateTimeFormatter.BASIC_ISO_DATE);
 					endDateElement.sendKeys(endDateString); // 조회기간 종료일
 					endDateElement.sendKeys(Keys.TAB); // 종료일 입력
 					

@@ -26,15 +26,35 @@ public interface StockListener extends ParseTreeListener {
 	 */
 	void exitStockDocument(StockParser.StockDocumentContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link StockParser#etcAllPrice}.
+	 * Enter a parse tree produced by {@link StockParser#krxBasicInfoEtf}.
 	 * @param ctx the parse tree
 	 */
-	void enterEtcAllPrice(StockParser.EtcAllPriceContext ctx);
+	void enterKrxBasicInfoEtf(StockParser.KrxBasicInfoEtfContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link StockParser#etcAllPrice}.
+	 * Exit a parse tree produced by {@link StockParser#krxBasicInfoEtf}.
 	 * @param ctx the parse tree
 	 */
-	void exitEtcAllPrice(StockParser.EtcAllPriceContext ctx);
+	void exitKrxBasicInfoEtf(StockParser.KrxBasicInfoEtfContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link StockParser#krxBasicInfoCompany}.
+	 * @param ctx the parse tree
+	 */
+	void enterKrxBasicInfoCompany(StockParser.KrxBasicInfoCompanyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link StockParser#krxBasicInfoCompany}.
+	 * @param ctx the parse tree
+	 */
+	void exitKrxBasicInfoCompany(StockParser.KrxBasicInfoCompanyContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link StockParser#etfAllPrice}.
+	 * @param ctx the parse tree
+	 */
+	void enterEtfAllPrice(StockParser.EtfAllPriceContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link StockParser#etfAllPrice}.
+	 * @param ctx the parse tree
+	 */
+	void exitEtfAllPrice(StockParser.EtfAllPriceContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link StockParser#companyAllPrice}.
 	 * @param ctx the parse tree

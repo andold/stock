@@ -551,4 +551,17 @@ public class CrawlerService {
 		}
 	}
 
+	public Result<ParserResult> crawlItemAll() {
+		log.info("{} crawlItemAll()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		Result<ParserResult> result = krx.basicInfoAll();
+		if (result.getStatus() == STATUS.SUCCESS) {
+			put(result.getResult());
+		}
+
+		log.info("{} {} crawlItemAll() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
 }

@@ -22,4 +22,16 @@ public class KrxTest {
 		log.info("{}", result);
 	}
 
+	@Test
+	public void testBasicInfoAll() {
+		Result<ParserResult> result = krx.basicInfoAll();
+		log.info("{}", result);
+	}
+
+	@Test
+	public void testBasicInfoAllEtf() {
+		Result<ParserResult> result = krx.basicInfoAllEtf();
+		log.info("{}", result);
+	}
+
 }

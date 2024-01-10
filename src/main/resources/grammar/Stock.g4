@@ -26,12 +26,178 @@ stockDocument
 |	crawlPriceEtf					// KSD 증권정보포털 SEIBro > ETF > ETF종합정보 > 기준가추이
 |	crawlPriceKrx					// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 개별종목 시세 추이
 |	companyAllPrice					// KRX 정보데이터시스템 > 기본통계 > 주식 > 종목시세 > 전종목 시세
-|	etcAllPrice						// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 전종목 시세
+|	etfAllPrice						// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 전종목 시세
+|	krxBasicInfoCompany				// KRX 정보데이터시스템 > 기본통계 > 주식 > 종목정보 > 전종목 기본정보
+|	krxBasicInfoEtf					// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 전종목 기본정보
+;
+
+// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 전종목 기본정보
+krxBasicInfoEtf:
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD WORD TAB WORD					NEWLINE		//	KEYWORD 	 KRX 	 증권상품 > ETF > 전종목 기본정보 	 http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201030104 
+	(
+		WORD TAB										NEWLINE		//	ETF 	 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		WORD TAB TAB TAB WORD									NEWLINE		//	ETF 	 	 	 표준코드단축코드한글종목명한글종목약명영문종목명상장일기초지수명지수산출기관추적배수복제방법기초시장분류기초자산분류상장좌수운용사CU수량총보수과세유형 
+		WORD TAB TAB TAB										NEWLINE		//	ETF 	 	 	 
+		((
+			WORD TAB WORD									NEWLINE		//	ETF 	 KR7391680006 
+			WORD TAB code=word								NEWLINE		//	ETF 	 391680 
+			WORD TAB										NEWLINE		//	ETF 	 
+			WORD TAB TAB word+								NEWLINE		//	ETF 	 	 흥국 HK 하이볼액티브증권상장지수투자신탁(주식) 
+			WORD TAB TAB symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*	NEWLINE		//	ETF 	 	 HK 하이볼액티브 
+			WORD TAB										NEWLINE		//	ETF 	 
+			WORD TAB word+									NEWLINE		//	ETF 	 Heungkuk HK HighVol Active ETF 
+			WORD TAB ipo=DATE								NEWLINE		//	ETF 	 2021/07/06 
+			WORD TAB word+									NEWLINE		//	ETF 	 코스피 200 
+			WORD TAB word+									NEWLINE		//	ETF 	 KRX | (ICE Data Indices, LLC)
+			WORD TAB word+									NEWLINE		//	ETF 	 일반 | (2X 레버리지)
+			WORD TAB WORD									NEWLINE		//	ETF 	 실물(액티브) 
+			WORD TAB										NEWLINE		//	ETF 	 
+			WORD TAB TAB WORD								NEWLINE		//	ETF 	 	 국내 
+			WORD TAB TAB WORD								NEWLINE		//	ETF 	 	 주식 
+			WORD TAB TAB									NEWLINE		//	ETF 	 	 
+			WORD TAB volumeOfListedShares=NUMBER			NEWLINE		//	ETF 	 550,000 
+			WORD TAB word+									NEWLINE		//	ETF 	 흥국자산운용 
+			WORD TAB NUMBER									NEWLINE		//	ETF 	 50,000 
+			WORD TAB fee=NUMBER								NEWLINE		//	ETF 	 0.300000 
+			WORD TAB WORD									NEWLINE		//	ETF 	 배당소득세(보유기간과세) 
+			WORD TAB										NEWLINE		//	ETF 	 
+			{
+				ParserService.crawlEtfDetailThread(20231217
+					, $code.text
+					, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
+					, null, null, null, null, null, null, null, null
+					, $ipo.text
+					, $fee.text
+					, $volumeOfListedShares.text
+				);
+			}
+		))+
+
+		WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27 
+	)+ 
+
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD WORD TAB WORD					NEWLINE		//	KEYWORD 	 KRX 	 증권상품 > ETF > 전종목 기본정보 	 http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201030104 
+;
+
+
+// KRX 정보데이터시스템 > 기본통계 > 주식 > 종목정보 > 전종목 기본정보
+krxBasicInfoCompany:
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 KRX 	 주식 > 종목정보 > 전종목 기본정보 	 http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020201 
+	(
+		KEYWORD TAB										NEWLINE		//	KEYWORD 	 
+		KEYWORD TAB										NEWLINE		//	KEYWORD 	 
+		KEYWORD TAB										NEWLINE		//	KEYWORD 	 
+		KEYWORD TAB										NEWLINE		//	KEYWORD 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 
+		KEYWORD TAB										NEWLINE		//	KEYWORD 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 
+		KEYWORD TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 
+		KEYWORD TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB										NEWLINE		//	KEYWORD 	 	 
+		KEYWORD TAB										NEWLINE		//	KEYWORD 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 
+		KEYWORD TAB										NEWLINE		//	KEYWORD 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 
+		KEYWORD TAB										NEWLINE		//	KEYWORD 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 
+		KEYWORD TAB										NEWLINE		//	KEYWORD 	 
+		KEYWORD TAB										NEWLINE		//	KEYWORD 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 
+		KEYWORD TAB										NEWLINE		//	KEYWORD 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 
+		KEYWORD TAB										NEWLINE		//	KEYWORD 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 	 
+		KEYWORD TAB TAB TAB TAB										NEWLINE		//	KEYWORD 	 	 	 	 
+		KEYWORD TAB WORD										NEWLINE		//	KEYWORD 	 표준코드단축코드한글종목명한글종목약명영문종목명상장일시장구분증권구분소속부주식종류액면가상장주식수 
+		KEYWORD TAB										NEWLINE		//	KEYWORD 	 
+		((
+			KEYWORD TAB WORD							NEWLINE		//	KEYWORD 	 KR7098120009 
+			KEYWORD TAB code=word						NEWLINE		//	KEYWORD 	 098120 | 00104K
+			KEYWORD TAB									NEWLINE		//	KEYWORD 	 
+			KEYWORD TAB TAB								NEWLINE		//	KEYWORD 	 	 
+			KEYWORD TAB TAB TAB word+					NEWLINE		//	KEYWORD 	 	 	 (주)마이크로컨텍솔루션 
+			KEYWORD TAB TAB TAB symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*	NEWLINE		//	KEYWORD 	 	 	 마이크로컨텍솔 
+			KEYWORD TAB TAB TAB word+					NEWLINE		//	KEYWORD 	 	 	 Micro Contact Solution Co.,Ltd. 
+			KEYWORD TAB TAB TAB							NEWLINE		//	KEYWORD 	 	 	 
+			KEYWORD TAB TAB TAB							NEWLINE		//	KEYWORD 	 	 	 
+			KEYWORD TAB TAB								NEWLINE		//	KEYWORD 	 	 
+			KEYWORD TAB ipo=DATE						NEWLINE		//	KEYWORD 	 2008/09/23 
+			KEYWORD TAB type=WORD word*					NEWLINE		//	KEYWORD 	 KOSDAQ 
+			KEYWORD TAB WORD							NEWLINE		//	KEYWORD 	 주권 
+			KEYWORD TAB word*							NEWLINE		//	KEYWORD 	 중견기업부 
+			KEYWORD TAB WORD							NEWLINE		//	KEYWORD 	 보통주 
+			KEYWORD TAB word							NEWLINE		//	KEYWORD 	 500 | 무액면
+			KEYWORD TAB volumeOfListedShares=NUMBER		NEWLINE		//	KEYWORD 	 8,312,766 
+			KEYWORD TAB									NEWLINE		//	KEYWORD 	 
+			{
+				ParserService.crawlItemDetailCompanyThread(20231217
+					, $code.text, $type.text
+					, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
+					, null
+					, null
+					, $volumeOfListedShares.text
+					, $ipo.text
+				);
+			}
+		))+
+
+		WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27 
+	)+ 
+
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 KRX 	 주식 > 종목정보 > 전종목 기본정보 	 http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020201 
 ;
 
 
 // KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 전종목 시세
-etcAllPrice:
+etfAllPrice:
 	KEYWORD TAB WORD TAB WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 KRX 	 ETF > 전종목 시세 	 http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020101 
 	(
 		WORD TAB DATE TAB										NEWLINE		//	ETF 	 2024-01-09 	 

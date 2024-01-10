@@ -361,14 +361,19 @@ public class Seibro implements Crawler {
 	@Override
 	public Result<ParserResult> price(ItemDomain item, List<DividendHistoryDomain> histories) {
 		log.error("{} {} price({}, #{})", Utility.indentMiddle(), "NOT SUPPORTED", item, Utility.size(histories));
-		return null;
+		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
 	}
-
 
 	@Override
 	public Result<ParserResult> price(Date date) {
-		// TODO Auto-generated method stub
-		return null;
+		log.error("{} {} price({})", Utility.indentMiddle(), "NOT SUPPORTED", date);
+		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
+	}
+
+	@Override
+	public Result<ParserResult> basicInfoAll() {
+		log.error("{} {} basicInfoAll()", Utility.indentMiddle(), "NOT SUPPORTED");
+		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
 	}
 
 }

@@ -25,12 +25,22 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class Krx implements Crawler {
 	private static final String URL = "http://data.krx.co.kr/";
+	// KRX 정보데이터시스템 > 기본통계 > 주식 > 종목시세 > 개별종목 시세 추이 클릭
+	private static final String URL_PRICE_COMPANY_EACH = "http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020103";
 	private static final String MARK_START_END_POINT = String.format("KEYWORD\t%s\t%s\t%s\n", "주가일별시세", "KRX", URL);
 
 	private static final String URL_PRICE_COMPANY_ALL = "http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020101";
 	private static final String URL_PRICE_ETF_ALL = "http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201030101";
 	private static final String MARK_START_END_POINT_PRICE_COMPANY_ALL = String.format("KEYWORD\t%s\t%s\t%s\n", "KRX", "주식 > 종목시세 > 전종목 시세", URL_PRICE_COMPANY_ALL);
 	private static final String MARK_START_END_POINT_PRICE_ETF_ALL = String.format("KEYWORD\t%s\t%s\t%s\n", "KRX", "ETF > 전종목 시세", URL_PRICE_ETF_ALL);
+
+	// KRX 정보데이터시스템 > 기본통계 > 주식 > 종목정보 > 전종목 기본정보
+	private static final String URL_COMPANY_BASIC_INFO_ALL = "http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020201";
+	private static final String MARK_START_END_POINT_COMPANY_BASIC_INFO_ALL = String.format("KEYWORD\t%s\t%s\t%s\n", "KRX", "주식 > 종목정보 > 전종목 기본정보", URL_COMPANY_BASIC_INFO_ALL);
+
+	// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 전종목 기본정보
+	private static final String URL_ETF_BASIC_INFO_ALL = "http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201030104";
+	private static final String MARK_START_END_POINT_ETF_BASIC_INFO_ALL = String.format("KEYWORD\t%s\t%s\t%s\n", "KRX", "증권상품 > ETF > 전종목 기본정보", URL_ETF_BASIC_INFO_ALL);
 
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
 	private static final int TIMEOUT = 4000;
@@ -155,16 +165,16 @@ public class Krx implements Crawler {
 		try {
 			// 2. 조회기간 설정
 			LocalDate date = Instant.ofEpochMilli(history.getBase().getTime()).atZone(Utility.ZONE_ID_KST).toLocalDate();
+			String endDateString = date.format(DateTimeFormatter.BASIC_ISO_DATE);
+			String startDateString = date.minusWeeks(2).format(DateTimeFormatter.BASIC_ISO_DATE);
 
 			WebElement startDateElement = driver.findElement(By.xpath("//*[@id='strtDd']"), TIMEOUT);
 			startDateElement.clear();
-			String startDateString = date.minusWeeks(2).format(DateTimeFormatter.ofPattern("YYYYMMdd"));
 			startDateElement.sendKeys(startDateString); // 조회기간 시작일
 			startDateElement.sendKeys(Keys.TAB); // 시작일 입력
 	
 			WebElement endDateElement = driver.findElement(By.xpath("//*[@id='endDd']"), TIMEOUT);
 			endDateElement.clear();
-			String endDateString = date.format(DateTimeFormatter.ofPattern("YYYYMMdd"));
 			endDateElement.sendKeys(endDateString); // 조회기간 종료일
 			endDateElement.sendKeys(Keys.TAB); // 종료일 입력
 			
@@ -252,17 +262,10 @@ public class Krx implements Crawler {
 
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
 		try {
-			driver.navigate().to(URL);
-			Actions actions = new Actions(driver);
+			driver.navigate().to(URL_PRICE_COMPANY_EACH);
 
-			// 1. KRX 정보데이터시스템 > 기본통계 > 주식 > 종목시세 > 개별종목 시세 추이 클릭
-			driver.waitUntilTextInclude(By.xpath("//*[@id='jsMainLnbWrap']/ol[1]/li[2]/ol/li[1]/a"), TIMEOUT * 4, "종목시세");
-			actions.moveToElement(driver.findElement(By.xpath("//aside[@id='jsMainLnbWrap']/ol/li/ol/li/a[contains(text(),'종목시세')]"), TIMEOUT));
-			actions.moveToElement(driver.findElement(By.xpath("//aside[@id='jsMainLnbWrap']/ol/li/ol/li/div/ul/li/a[contains(text(),'개별종목 시세 추이')]"), TIMEOUT));
-			actions.click().build().perform();
-			
 			// 종목명에 코드 검색 - 코드 입력
-			WebElement keywordElement = driver.findElement(By.xpath("//*[@id='tboxisuCd_finder_stkisu0_0']"), TIMEOUT);
+			WebElement keywordElement = driver.findElement(By.xpath("//*[@id='tboxisuCd_finder_stkisu0_0']"), TIMEOUT * 4);
 			keywordElement.clear();
 			keywordElement.sendKeys(item.getCode());
 			keywordElement.sendKeys(Keys.TAB);
@@ -302,16 +305,16 @@ public class Krx implements Crawler {
 		try {
 			// 2. 조회기간 설정
 			LocalDate date = Instant.ofEpochMilli(history.getBase().getTime()).atZone(Utility.ZONE_ID_KST).toLocalDate();
+			String endDateString = date.minusWeeks(0).format(DateTimeFormatter.BASIC_ISO_DATE);
+			String startDateString = date.minusWeeks(2).format(DateTimeFormatter.BASIC_ISO_DATE);
 
 			WebElement startDateElement = driver.findElement(By.xpath("//*[@id='strdDd']"), TIMEOUT);
 			startDateElement.clear();
-			String startDateString = date.minusWeeks(2).format(DateTimeFormatter.ofPattern("YYYYMMdd"));
 			startDateElement.sendKeys(startDateString); // 조회기간 시작일
 			startDateElement.sendKeys(Keys.TAB); // 시작일 입력
 	
 			WebElement endDateElement = driver.findElement(By.xpath("//*[@id='endDd']"), TIMEOUT);
 			endDateElement.clear();
-			String endDateString = date.format(DateTimeFormatter.ofPattern("YYYYMMdd"));
 			endDateElement.sendKeys(endDateString); // 조회기간 종료일
 			endDateElement.sendKeys(Keys.TAB); // 종료일 입력
 			
@@ -395,7 +398,7 @@ public class Krx implements Crawler {
 			if (date == null) {
 				date = Utility.parseDateTime(dateElement.getAttribute("value"));
 			} else {
-				dateElement.clear();
+//				dateElement.clear();
 				dateElement.sendKeys(String.format("%1$tY%1$tm%1$td\t", date));
 			}
 
@@ -458,8 +461,9 @@ public class Krx implements Crawler {
 			if (date == null) {
 				date = Utility.parseDateTime(dateElement.getAttribute("value"));
 			} else {
-				dateElement.clear();
-				dateElement.sendKeys(String.format("%1$tY%1$tm%1$td\t", date));
+//				dateElement.clear();
+				String dateString = String.format("%1$tY%1$tm%1$td\t", date);
+				dateElement.sendKeys(dateString);
 			}
 
 			// 조회 클릭
@@ -506,6 +510,126 @@ public class Krx implements Crawler {
 
 		log.warn("{} 『{}』 priceCompany({}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, date, Utility.toStringPastTimeReadable(started));
 		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+	}
+
+	@Override
+	public Result<ParserResult> basicInfoAll() {
+		log.trace("{} basicInfoAll()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		ParserResult container = new ParserResult().clear();
+		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(container).build();
+		Result<ParserResult> resultCompany = basicInfoAllCompany();
+		if (resultCompany.getStatus().equals(STATUS.SUCCESS)) {
+			container.addAll(resultCompany.getResult());
+		} else {
+			result.setStatus(resultCompany.getStatus());
+		}
+
+		Result<ParserResult> resultEtf = basicInfoAllEtf();
+		if (resultEtf.getStatus().equals(STATUS.SUCCESS)) {
+			container.addAll(resultEtf.getResult());
+		} else {
+			result.setStatus(resultEtf.getStatus());
+		}
+
+		log.warn("{} 『{}』 basicInfoAll({}, #{}) - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		return result;
+
+	}
+
+	private Result<ParserResult> basicInfoAllCompany() {
+		log.debug("{} basicInfoAllCompany()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		try {
+			driver.navigate().to(URL_COMPANY_BASIC_INFO_ALL);
+
+			StringBuffer sb = new StringBuffer();
+			sb.append(MARK_START_END_POINT_COMPANY_BASIC_INFO_ALL);
+			for (String prev = ""; true;) {
+				long forStarted = System.currentTimeMillis();
+
+				WebElement tableElement = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), TIMEOUT);
+				sb.append(driver.getAttribute(tableElement, "textContent", "KEYWORD\t"));
+				sb.append(MARK_ANDOLD_SINCE);
+
+				List<WebElement> trs = tableElement.findElements(By.xpath("//tr"));
+				WebElement lastTr = trs.get(trs.size() - 1);
+				String curr = lastTr.getAttribute("textContent");
+				if (prev.contentEquals(curr)) {
+					break;
+				}
+
+				prev = curr;
+				((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", lastTr);
+				driver.clickIfExist(By.xpath("//*[@id='jsViewSizeButton']"));
+
+				log.debug("{} 『{}』 basicInfoAllCompany() - {}", Utility.indentMiddle(), Utility.ellipsisEscape(prev, 32), Utility.toStringPastTimeReadable(forStarted));
+			}
+			driver.quit();
+
+			sb.append(MARK_START_END_POINT_COMPANY_BASIC_INFO_ALL);
+			ParserResult result = ParserService.parse(new String(sb), debug);
+
+			log.debug("{} 『{}』 basicInfoAll() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
+		} catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+			driver.quit();
+		}
+
+		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+		log.warn("{} 『{}』 basicInfoAllCompany() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
+	protected Result<ParserResult> basicInfoAllEtf() {
+		log.debug("{} basicInfoAllEtf()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		try {
+			driver.navigate().to(URL_ETF_BASIC_INFO_ALL);
+
+			StringBuffer sb = new StringBuffer();
+			sb.append(MARK_START_END_POINT_ETF_BASIC_INFO_ALL);
+			for (String prev = ""; true;) {
+				long forStarted = System.currentTimeMillis();
+
+				WebElement tableElement = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), TIMEOUT);
+				sb.append(driver.getAttribute(tableElement, "textContent", "ETF\t"));
+				sb.append(MARK_ANDOLD_SINCE);
+
+				List<WebElement> trs = tableElement.findElements(By.xpath("//tr"));
+				WebElement lastTr = trs.get(trs.size() - 1);
+				String curr = lastTr.getAttribute("textContent");
+				if (prev.contentEquals(curr)) {
+					break;
+				}
+
+				prev = curr;
+				((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", lastTr);
+				driver.clickIfExist(By.xpath("//*[@id='jsViewSizeButton']"));
+
+				log.debug("{} 『{}』 basicInfoAllEtf() - {}", Utility.indentMiddle(), Utility.ellipsisEscape(prev, 32), Utility.toStringPastTimeReadable(forStarted));
+			}
+			driver.quit();
+
+			sb.append(MARK_START_END_POINT_ETF_BASIC_INFO_ALL);
+			ParserResult result = ParserService.parse(new String(sb), debug);
+
+			log.debug("{} 『{}』 basicInfoAllEtf() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
+		} catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+			driver.quit();
+		}
+
+		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+		log.warn("{} 『{}』 basicInfoAllEtf() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
 	}
 
 }
