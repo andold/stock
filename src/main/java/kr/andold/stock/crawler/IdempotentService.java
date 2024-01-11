@@ -336,9 +336,19 @@ public class IdempotentService {
 	}
 
 	private IDEMPOTENT_STATUS processDividend(ItemDomain item) {
-		ZonedDateTime ipoZonedDate = ZonedDateTime.ofInstant(item.getIpoDate().toInstant(), Utility.ZONE_ID_KST);
+		if (item == null) {
+			return IDEMPOTENT_STATUS.INVALID_JOB;
+		}
+		
+		Date ipoDate = item.getIpoDate();
+		if (ipoDate == null) {
+			log.warn("{} 상장일이 없다 processDividend({})", Utility.indentMiddle(), Utility.toStringJson(item));
+			return IDEMPOTENT_STATUS.INVALID_JOB;
+		}
+
+		ZonedDateTime ipoZonedDate = ZonedDateTime.ofInstant(ipoDate.toInstant(), Utility.ZONE_ID_KST);
 		List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
-		if (histories != null && !histories.isEmpty() && histories.get(histories.size() - 1).getBase().before(item.getIpoDate())) {
+		if (histories != null && !histories.isEmpty() && histories.get(histories.size() - 1).getBase().before(ipoDate)) {
 			return IDEMPOTENT_STATUS.ALEADY_DONE_JOB;
 		}
 
