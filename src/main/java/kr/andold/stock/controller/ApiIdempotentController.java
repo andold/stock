@@ -21,6 +21,15 @@ public class ApiIdempotentController {
 	@Autowired
 	private IdempotentService service;
 
+	@GetMapping(value = "test")
+	public void test() {
+		log.info("{} test()", Utility.indentStart());
+
+		service.once();
+
+		log.info("{} test()", Utility.indentEnd());
+	}
+
 	@ResponseBody
 	@GetMapping(value = "run")
 	public ParserResult crawlItemDividendTopCompany() throws InterruptedException, ExecutionException {

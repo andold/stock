@@ -363,6 +363,7 @@ function Header(props: any) {
 										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlItemEtf}>Crawl Item ETF</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemCompanyDetails}>Crawl Item Detail Company</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemEtfDetails}>Crawl Item Detail ETF</NavDropdown.Item>
+										<NavDropdown.Item className="mx-1" onClick={() => store.test()}>TEST</NavDropdown.Item>
 									</NavDropdown>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCompile}>Compile</Button>
 									<Button size="sm" variant="secondary" className="ms-1" disabled={disableRunIdempotent} onClick={handleOnClickRunIdempotent}>

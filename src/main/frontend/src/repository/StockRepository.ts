@@ -108,6 +108,11 @@ class StockRepository {
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
+	async test(request: any, onSuccess?: any, onError?: any, element?: any) {
+		return axios.get(`./api/idempotent/test`, request)
+			.then(response => onSuccess && onSuccess(request, response.data, element))
+			.catch(error => onError && onError(request, error, element));
+	}
 
 	// stock item section
 	async searchItem(request: any, onSuccess?: any, onError?: any, element?: any) {

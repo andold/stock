@@ -26,6 +26,16 @@ public class ScheduledTasks {
 	@Autowired
 	private IdempotentService idempotentService;
 
+	@Scheduled(initialDelay = 1000 * 30, fixedDelay = Long.MAX_VALUE)
+	public void scheduleTaskOnce() {
+		log.trace("{} scheduleTaskOnce()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		idempotentService.once();
+
+		log.trace("{} scheduleTaskOnce() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
+	}
+	
 	// 매시마다
 	@Scheduled(cron = "15 * * * * *")
 	public void scheduleTaskMinutely() {

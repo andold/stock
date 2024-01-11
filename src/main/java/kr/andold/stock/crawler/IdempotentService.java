@@ -33,13 +33,19 @@ import lombok.extern.slf4j.Slf4j;
 public class IdempotentService {
 	private static final int BATCH_SIZE = 1;
 
-	@Autowired private Seibro seibro;
-	@Autowired private Krx krx;
+	@Autowired
+	private Seibro seibro;
+	@Autowired
+	private Krx krx;
 
-	@Autowired private ItemService itemService;
-	@Autowired private DividendService dividendService;
-	@Autowired private DividendHistoryService dividendHistoryService;
-	@Autowired private PriceService priceService;
+	@Autowired
+	private ItemService itemService;
+	@Autowired
+	private DividendService dividendService;
+	@Autowired
+	private DividendHistoryService dividendHistoryService;
+	@Autowired
+	private PriceService priceService;
 
 	public static enum IDEMPOTENT_STATUS {
 		SUCCESS("성공")
@@ -48,15 +54,19 @@ public class IdempotentService {
 		, NOTHING_TO_DO("다시해봐도 할게없다")
 		, DONE_RESTART("할게 있을수 있다")
 		, INVALID_JOB("뭬야")
-		, ALEADY_DONE_JOB("한거다");
+		, ALEADY_DONE_JOB("한거다")
+		, RESERVED("예약")
+	;
 
 		private String title;
+
 		private IDEMPOTENT_STATUS(String string) {
 			title = string;
 		}
+
 		public String get() {
-		    return title;
-	  }
+			return title;
+		}
 	}
 
 	private ConcurrentLinkedDeque<ItemDomain> qDividend = new ConcurrentLinkedDeque<>();
@@ -91,7 +101,7 @@ public class IdempotentService {
 				cx--;
 				continue;
 			}
-			
+
 			if (qDividend.isEmpty()) {
 				// 배당일자 주가 수집
 				ItemDomain item = qPrice.poll();
@@ -100,14 +110,14 @@ public class IdempotentService {
 					cx--;
 					continue;
 				}
-				
+
 				List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
 				if (!isRequireCrawlPrice(histories)) {
 					log.info("{} 배당주가 #{}:#{}:{}:{} run() - {}", Utility.indentMiddle(), Utility.size(qDividend), Utility.size(qPrice), IDEMPOTENT_STATUS.ALEADY_DONE_JOB, Utility.toStringPastTimeReadable(started));
 					cx--;
 					continue;
 				}
-				
+
 				Result<ParserResult> result = krx.price(item, histories);
 				switch (result.getStatus()) {
 				case SUCCESS:
@@ -134,7 +144,7 @@ public class IdempotentService {
 				cx--;
 				continue;
 			}
-			
+
 			ZonedDateTime startZonedDate = LocalDate.of(LocalDate.now().getYear() - 8, 1, 1).atStartOfDay(Utility.ZONE_ID_KST);
 			Date start = Date.from(startZonedDate.toInstant());
 			List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
@@ -143,7 +153,7 @@ public class IdempotentService {
 				cx--;
 				continue;
 			}
-			
+
 			Result<ParserResult> result = seibro.dividend(item, start);
 			switch (result.getStatus()) {
 			case SUCCESS:
@@ -174,13 +184,13 @@ public class IdempotentService {
 			if (history == null) {
 				continue;
 			}
-			
+
 			Integer dividend = history.getDividend();
-			
+
 			if (dividend == null || dividend <= 0) {
 				continue;
 			}
-			
+
 			if (history.getPriceBase() == null || history.getPriceClosing() == null) {
 				return true;
 			}
@@ -200,6 +210,158 @@ public class IdempotentService {
 
 		log.debug("{} put({}) - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;
+	}
+
+	private static final long PAUSE_MIN = 1000 * 10;
+	private static final long PAUSE_MAX = 1000 * 60 * 60 * 2;
+	@Async
+	public synchronized void once() {
+		ConcurrentLinkedDeque<ItemDomain> q0 = new ConcurrentLinkedDeque<>();	// 상세정보
+		ConcurrentLinkedDeque<ItemDomain> q1 = new ConcurrentLinkedDeque<>();	// 배당정보
+		ConcurrentLinkedDeque<ItemDomain> q2 = new ConcurrentLinkedDeque<>();	// 주가정보
+		ConcurrentLinkedDeque<ItemDomain> q3 = new ConcurrentLinkedDeque<>();	// reserved
+		long pause = PAUSE_MAX;
+
+		for (int cx = 0;; cx++) {
+			long started = System.currentTimeMillis();
+			int precessed = 0;
+
+			for (ItemDomain item = q0.poll(); item != null; item = q0.poll()) {
+				long forStarted = System.currentTimeMillis();
+				IDEMPOTENT_STATUS status = processDetailInfo(item);
+				switch (status) {
+				case FAILURE:
+				case SUCCESS:
+					precessed++;
+					Utility.sleep(PAUSE_MIN);
+					break;
+				default:
+					break;
+				}
+				log.info("{} #{} #{}:#{}:#{}:#{} once() - {}/{}", Utility.indentMiddle(), cx, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+			}
+			for (ItemDomain item = q1.poll(); item != null; item = q1.poll()) {
+				long forStarted = System.currentTimeMillis();
+				IDEMPOTENT_STATUS status = processDividend(item);
+				switch (status) {
+				case FAILURE:
+				case SUCCESS:
+					precessed++;
+					Utility.sleep(PAUSE_MIN);
+					break;
+				default:
+					break;
+				}
+				log.info("{} #{} #{}:#{}:#{}:#{} once() - {}/{}", Utility.indentMiddle(), cx, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+			}
+			for (ItemDomain item = q2.poll(); item != null; item = q2.poll()) {
+				long forStarted = System.currentTimeMillis();
+				IDEMPOTENT_STATUS status = processPrice(item);
+				switch (status) {
+				case FAILURE:
+				case SUCCESS:
+					precessed++;
+					Utility.sleep(PAUSE_MIN);
+					break;
+				default:
+					break;
+				}
+				log.info("{} #{} #{}:#{}:#{}:#{} once() - {}/{}", Utility.indentMiddle(), cx, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+			}
+			for (ItemDomain item = q3.poll(); item != null; item = q3.poll()) {
+				long forStarted = System.currentTimeMillis();
+				IDEMPOTENT_STATUS status = processReserved(item);
+				switch (status) {
+				case FAILURE:
+				case SUCCESS:
+					precessed++;
+					Utility.sleep(PAUSE_MIN);
+					break;
+				default:
+					break;
+				}
+				log.info("{} #{} #{}:#{}:#{}:#{} once() - {}/{}", Utility.indentMiddle(), cx, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+			}
+
+			if (precessed > 0) {
+				List<ItemDomain> items = itemService.search(null);
+				q0.addAll(items);
+				q1.addAll(items);
+				q2.addAll(items);
+				q3.addAll(items);
+				log.info("{} #{} #{} - once() - {}", Utility.indentEnd(), cx, Utility.size(items), Utility.toStringPastTimeReadable(started));
+				pause = Math.max(PAUSE_MIN, pause / 2);
+			} else if (pause >= PAUSE_MAX) {
+				List<ItemDomain> items = itemService.search(null);
+				q0.addAll(items);
+				q1.addAll(items);
+				q2.addAll(items);
+				q3.addAll(items);
+				log.info("{} #{} #{} - once() - {}", Utility.indentEnd(), cx, Utility.size(items), Utility.toStringPastTimeReadable(started));
+				pause = PAUSE_MIN;
+			} else {
+				pause = Math.min(PAUSE_MAX, pause * 2);
+			}
+			
+			Utility.sleep(pause);
+			log.info("{} #{} #{}:#{}:#{}:#{} once() - {}", Utility.indentMiddle(), cx, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), Utility.toStringPastTimeReadable(started));
+		}
+	}
+
+	private IDEMPOTENT_STATUS processReserved(ItemDomain item) {
+		return IDEMPOTENT_STATUS.RESERVED;
+	}
+
+	private IDEMPOTENT_STATUS processPrice(ItemDomain item) {
+		List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
+		if (!isRequireCrawlPrice(histories)) {
+			log.info("{} {} processDividend()", Utility.indentMiddle(), IDEMPOTENT_STATUS.ALEADY_DONE_JOB);
+			return IDEMPOTENT_STATUS.ALEADY_DONE_JOB;
+		}
+
+		Result<ParserResult> result = krx.price(item, histories);
+		switch (result.getStatus()) {
+		case SUCCESS:
+			ParserResult parserResult = result.getResult();
+			parserResult.setHistories(histories);
+			List<PriceDomain> prices = parserResult.getPrices();
+			Map<String, PriceDomain> mapP = priceService.makeMap(prices);
+			dividendHistoryService.compile(histories, mapP);
+			put(parserResult);
+			return IDEMPOTENT_STATUS.SUCCESS;
+		default:
+			break;
+		}
+		return IDEMPOTENT_STATUS.FAILURE;
+	}
+
+	private IDEMPOTENT_STATUS processDividend(ItemDomain item) {
+		ZonedDateTime ipoZonedDate = ZonedDateTime.ofInstant(item.getIpoDate().toInstant(), Utility.ZONE_ID_KST);
+		List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
+		if (histories != null && !histories.isEmpty() && histories.get(histories.size() - 1).getBase().before(item.getIpoDate())) {
+			return IDEMPOTENT_STATUS.ALEADY_DONE_JOB;
+		}
+
+		Result<ParserResult> result = seibro.dividend(item, Date.from(ipoZonedDate.toInstant()));
+		switch (result.getStatus()) {
+		case SUCCESS:
+			ParserResult parserResult = result.getResult();
+			List<DividendHistoryDomain> founds = parserResult.getHistories();
+			founds.add(DividendHistoryDomain.builder()
+					.code(item.getCode())
+					.base(Date.from(ipoZonedDate.minusDays(1).toInstant()))
+					.dividend(-1)
+					.build());
+			put(parserResult);
+			return IDEMPOTENT_STATUS.SUCCESS;
+		default:
+			break;
+		}
+		return IDEMPOTENT_STATUS.FAILURE;
+	}
+
+	private IDEMPOTENT_STATUS processDetailInfo(ItemDomain item) {
+		return IDEMPOTENT_STATUS.RESERVED;
 	}
 
 }
