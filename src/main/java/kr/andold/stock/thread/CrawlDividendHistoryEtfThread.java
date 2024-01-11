@@ -196,6 +196,7 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 		return "";
 	}
 
+	@Deprecated
 	public static ParserResult crawl(List<ItemDomain> items, Date start) {
 		log.info("{} CrawlDividendHistoryEtfThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();

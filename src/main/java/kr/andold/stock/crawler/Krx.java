@@ -632,4 +632,10 @@ public class Krx implements Crawler {
 		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
 	}
 
+	@Override
+	public Result<ParserResult> dividend(Date start) {
+		log.error("{} {} dividend({})", Utility.indentMiddle(), "NOT SUPPORTED", start);
+		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
+	}
+
 }

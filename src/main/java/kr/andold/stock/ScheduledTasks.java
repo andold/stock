@@ -59,18 +59,19 @@ public class ScheduledTasks {
 	}
 
 	// 매주 일요일
-	@Scheduled(cron = "15 30 3 * * SUN")
+	@Scheduled(cron = "02 24 23 * * SUN")
 	public void scheduleTaskWeekly() {
-		// 3주전꺼부터 수집
-		Date start = Date.from(LocalDate.now().minusWeeks(3).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST));
-		crawlerService.crawlDividendHistoryEtf(start);		//	ETF 배당 이력
-		crawlerService.crawlDividendHistoryCompany(start);	//	기업주식 배당 이력
+		log.info("{} scheduleTaskWeekly()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		Result<ParserResult> result = crawlerService.crawlDividendAllRecent();
+
+		log.info("{} {} scheduleTaskWeekly() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 	}
 
 	// 매월 1일
 	@Scheduled(cron = "15 30 23 1 * *")
 	public void scheduleTaskMonthly() {
-		crawlerService.crawlItemDividendTopCompany();	// 기업 배당 상위
 		crawlerService.crawlItemDetailEtf();			//	ETF 상세
 		crawlerService.crawlItemDetailCompany();		//	기업주식 상세
 	}

@@ -98,11 +98,6 @@ class StockRepository {
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
-	async crawlItemDividendTopCompany(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.get(`./api/crawl/item/dividend/top/company`, request)
-			.then(response => onSuccess && onSuccess(request, response.data, element))
-			.catch(error => onError && onError(request, error, element));
-	}
 	async crawlItemEtf(request: any, onSuccess?: any, onError?: any, element?: any) {
 		return axios.get(`./api/crawl/item/etf`, request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))

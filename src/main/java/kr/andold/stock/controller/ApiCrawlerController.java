@@ -43,4 +43,15 @@ public class ApiCrawlerController {
 		return result;
 	}
 
+	@ResponseBody
+	@GetMapping(value = "dividend/all/recent")
+	public Result<ParserResult> crawlDividendAllRecent() {
+		log.info("{} crawlDividendAllRecent()", Utility.indentStart());
+
+		Result<ParserResult> result = service.crawlDividendAllRecent();
+		
+		log.info("{} {} - crawlDividendAllRecent()", Utility.indentEnd(), result);
+		return result;
+	}
+
 }

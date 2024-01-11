@@ -14,6 +14,9 @@ class CrawlStore {
 	crawlItemAll(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlItemAll(request, onSuccess, onError, element);
 	}
+	crawlDividendAllRecent(request?: any, onSuccess?: any, onError?: any, element?: any) {
+		repository.crawlDividendAllRecent(request, onSuccess, onError, element);
+	}
 
 
 }

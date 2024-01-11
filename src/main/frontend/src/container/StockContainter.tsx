@@ -95,7 +95,7 @@ function Header(props: any) {
 
 	const [spinner, setSpinner] = useState<number>(0);
 	const [collapsed, setCollapsed] = useState(true);
-	const [disableRunIdempotent, setDisableRunIdempotent] = useState(false);
+	const [disableCrawlDividendAllRecent, setDisableCrawlDividendAllRecent] = useState(false);
 	const [disableCrawlPricaAll, setDisableCrawlPriceAll] = useState(false);
 	const [disableCrawlItemAll, setDisableCrawlItemAll] = useState(false);
 	const [jobs, setJobs] = useState({
@@ -135,10 +135,10 @@ function Header(props: any) {
 		const yyyymmdd = moment().format("YYYYMMDD");
 		store.download({ filename: `stock-${yyyymmdd}.json`, });
 	}
-	function handleOnClickRunIdempotent() {
-		setDisableRunIdempotent(true);
-		idempotentStore.run(null, (_: any, response: any) => {
-			setDisableRunIdempotent(false);
+	function handleOnClickCrawlDividendAllRecent() {
+		setDisableCrawlDividendAllRecent(true);
+		crawlStore.crawlDividendAllRecent(null, (_: any, response: any) => {
+			setDisableCrawlDividendAllRecent(false);
 			console.log(response);
 		});
 	}
@@ -239,18 +239,10 @@ function Header(props: any) {
 			onChange && onChange({});
 		});
 	}
+	//handleOnClickCrawlDividendAllRecent
 	function handleOnClickCrawlItemEtfDetails() {
 		setSpinner(spinner + 1);
 		store.crawlItemEtfDetails({}, (_: any) => {
-			if (spinner == 1) {	// 마지막에서만 재검색
-				onChange && onChange({});
-			}
-			setSpinner(spinner - 1);
-		});
-	}
-	function handleOnCrawlItemDividendTopCompany() {
-		setSpinner(spinner + 1);
-		store.crawlItemDividendTopCompany({}, (_: any) => {
 			if (spinner == 1) {	// 마지막에서만 재검색
 				onChange && onChange({});
 			}
@@ -359,16 +351,14 @@ function Header(props: any) {
 								{!collapsed && (<>
 									<NavDropdown title="Crawl" className="mx-1">
 										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlItemDetailAll}>Crawl Item 상세 모두 {jobs.play ? "do PAUSE" : "do PLAY"}</NavDropdown.Item>
-										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlItemDividendTopCompany}>Crawl Item Dividend Top Company</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlItemEtf}>Crawl Item ETF</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemCompanyDetails}>Crawl Item Detail Company</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemEtfDetails}>Crawl Item Detail ETF</NavDropdown.Item>
-										<NavDropdown.Item className="mx-1" onClick={() => store.test()}>TEST</NavDropdown.Item>
 									</NavDropdown>
 									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCompile}>Compile</Button>
-									<Button size="sm" variant="secondary" className="ms-1" disabled={disableRunIdempotent} onClick={handleOnClickRunIdempotent}>
-										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableRunIdempotent} />
-										점진적인 수집 실행
+									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCrawlDividendAllRecent} onClick={handleOnClickCrawlDividendAllRecent}>
+										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlDividendAllRecent} />
+										최근 배당 수집
 									</Button>
 									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCrawlItemAll} onClick={handleOnClickCrawlItemAll}>
 										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlItemAll} />

@@ -13,5 +13,6 @@ public interface Crawler {
 	public Result<ParserResult> dividend(ItemDomain item, Date start);
 	public Result<ParserResult> price(ItemDomain item, List<DividendHistoryDomain> histories);
 	public Result<ParserResult> price(Date date);
+	public Result<ParserResult> dividend(Date start);
 	
 }

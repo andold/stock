@@ -1,5 +1,6 @@
 package kr.andold.stock.crawler;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -89,8 +90,7 @@ public class Seibro implements Crawler {
 
 			StringBuffer sb = new StringBuffer();
 			sb.append(MARK_START_END_POINT_ETF);
-			sb.append(String.format("KEYWORD\t%s\n", item.getCode()));
-			sb.append(driver.extractTextFromTableElement(table));
+			sb.append(driver.extractTextContentFromTableElement(table));
 			sb.append(MARK_ANDOLD_SINCE);
 			sb.append(MARK_START_END_POINT_ETF);
 			close(driver);
@@ -180,7 +180,6 @@ public class Seibro implements Crawler {
 			return driver;
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
-//			close(driver);
 		}
 		return null;
 	}
@@ -374,6 +373,248 @@ public class Seibro implements Crawler {
 	public Result<ParserResult> basicInfoAll() {
 		log.error("{} {} basicInfoAll()", Utility.indentMiddle(), "NOT SUPPORTED");
 		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
+	}
+
+	@Override
+	public Result<ParserResult> dividend(Date start) {
+		log.trace("{} dividend({})", Utility.indentStart(), start);
+		long started = System.currentTimeMillis();
+
+		ParserResult container = new ParserResult().clear();
+		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(container).build();
+		Result<ParserResult> resultCompany = dividendCompany(start);
+		if (resultCompany.getStatus().equals(STATUS.SUCCESS)) {
+			container.addAll(resultCompany.getResult());
+		} else {
+			result.setStatus(resultCompany.getStatus());
+		}
+
+		Result<ParserResult> resultEtf = dividendEtf(start);
+		if (resultEtf.getStatus().equals(STATUS.SUCCESS)) {
+			container.addAll(resultEtf.getResult());
+		} else {
+			result.setStatus(resultEtf.getStatus());
+		}
+
+		log.warn("{} 『{}』 dividend({}) - {}", Utility.indentEnd(), result, start, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
+	private Result<ParserResult> dividendCompany(Date start) {
+		log.debug("{} dividendCompany({})", Utility.indentStart(), start);
+		long started = System.currentTimeMillis();
+
+		ChromeDriverWrapper driver = null;
+		try {
+			driver = CrawlerService.defaultChromeDriver();
+			driver.navigate().to(URL_COMPANY);
+
+			// 넓게 보기 아이콘 크릭
+			driver.findElement(By.xpath("//*[@id=\"btn_wide\"]"), TIMEOUT * 4).click();
+
+			// 시작일 입력
+			WebElement startElement = driver.findElement(By.id("inputCalendar1_input"), TIMEOUT);
+			startElement.clear();
+			startElement.sendKeys(String.format("%1$tY%1$tm%1$td", start));
+			startElement.sendKeys(Keys.TAB); // 시작일 입력
+
+			By BY_TABLE_1ST_LINE = By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]");
+			By BY_NEXT_PAGE_ICON = By.xpath("//div[@id='cntsPaging01']/ul/li[@id='cntsPaging01_next_btn']/a");
+			By BY_CURRENT_PAGE = By.xpath("//div[@id='cntsPaging01']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']");
+
+			// 첫번째 라인 저장
+			String previous1stLine = driver.getText(BY_TABLE_1ST_LINE, TIMEOUT, MARK_ANDOLD_SINCE);
+
+			// 조회 클릭
+			if (!clickSearchIconInCompany(driver)) {
+				log.debug("{} {} dividendCompany({}) - {}", Utility.indentEnd(), "FAILURE SEARH", start, Utility.toStringPastTimeReadable(started));
+				driver.quit();
+				return Result.<ParserResult>builder().status(STATUS.FAIL).build();
+			}
+
+			// 시작 표시
+			StringBuffer sb = new StringBuffer();
+			sb.append(MARK_START_END_POINT_COMPANY);
+
+			// 페이징 처리 - 여기부터
+			String currentPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, "andold"); // 현재 페이지 번호
+			while (true) {
+				WebElement table = driver.findElement(By.xpath("//*[@id='grid1_body_table']"), TIMEOUT);
+				sb.append(driver.extractTextFromTableElement(table));
+
+				// 다음 페이지 클릭
+				driver.clickIfExist(BY_NEXT_PAGE_ICON);
+
+				// 변경 확인
+				driver.waitUntilTextNotInclude(BY_TABLE_1ST_LINE, TIMEOUT, previous1stLine);
+				previous1stLine = driver.getText(BY_TABLE_1ST_LINE, TIMEOUT, MARK_ANDOLD_SINCE);
+
+				String nextPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, currentPage);
+				if (currentPage.equalsIgnoreCase(nextPage)) {
+					break;
+				}
+
+				log.debug("{} 쪽:{} dividendCompany({}) - {}", Utility.indentMiddle(), currentPage, start, Utility.toStringPastTimeReadable(started));
+				currentPage = nextPage;
+			}
+			// 페이징 처리 - 여기까지
+
+			// 마지막 표시
+			sb.append(MARK_ANDOLD_SINCE);
+			sb.append(MARK_START_END_POINT_COMPANY);
+			ParserResult result = ParserService.parse(new String(sb), false);
+
+			log.debug("{} {} dividendCompany({}) - {}", Utility.indentEnd(), result, start, Utility.toStringPastTimeReadable(started));
+			driver.quit();
+			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
+		} catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+			driver.quit();
+		}
+
+		log.debug("{} {} dividendCompany({}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, start, Utility.toStringPastTimeReadable(started));
+		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+	}
+
+	protected Result<ParserResult> dividendEtf(Date start) {
+		log.debug("{} dividendEtf({})", Utility.indentStart(), start);
+		long started = System.currentTimeMillis();
+
+		ChromeDriverWrapper driver = null;
+		try {
+			driver = CrawlerService.defaultChromeDriver();
+			driver.navigate().to(URL_ETF);
+
+			// 조회기간 시작일
+			WebElement startDateElement = driver.findElement(By.xpath("//input[@id='sd1_inputCalendar1_input']"), TIMEOUT * 4);
+			startDateElement.clear();
+			startDateElement.sendKeys(String.format("%1$tY%1$tm%1$td", start)); // 조회기간 시작일
+			startDateElement.sendKeys(Keys.TAB); // 시작일 입력
+
+			// 넓게 보기 아이콘
+			driver.findElement(By.id("btn_wide_img"), TIMEOUT).click();
+
+			// 조회 아이콘 클릭
+			By BY_MARK_DIVIDEND_SEARCH_DONE = By.xpath("//*[@id='grid1_cell_0_8']");
+			driver.setText(BY_MARK_DIVIDEND_SEARCH_DONE, MARK_ANDOLD_SINCE, TIMEOUT);
+			String textPrevious = driver.getText(BY_MARK_DIVIDEND_SEARCH_DONE, 1, "andold");
+			driver.waitUntilIsDisplayed(By.xpath("//*[@id='wframe46']"), false, TIMEOUT);
+			driver.findElement(By.xpath("//*[@id='image17']"), TIMEOUT).click();
+			// 내용이 바뀔 때까지
+			driver.waitUntilTextNotInclude(BY_MARK_DIVIDEND_SEARCH_DONE, TIMEOUT, textPrevious);
+
+			// 내용 저장
+			StringBuffer sb = new StringBuffer();
+			sb.append(MARK_START_END_POINT_ETF);
+
+			// 페이징 처리 - 여기부터
+			By BY_CURRENT_PAGE = By.xpath("//div[@id='pageList1']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']");
+			By BY_NEXT_PAGE_ICON = By.xpath("//*[@id='pageList1_next_btn']/a");
+			By BY_TABLE_1ST_LINE = By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]");
+			String currentPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, "andold"); // 현재 페이지 번호
+			for(String previous1stLine = driver.getText(BY_TABLE_1ST_LINE, TIMEOUT, MARK_ANDOLD_SINCE);;) {
+				WebElement table = driver.findElement(By.xpath("//*[@id='grid1_body_table']"), TIMEOUT);
+				sb.append(driver.extractTextContentFromTableElement(table));
+				sb.append(MARK_ANDOLD_SINCE);
+
+				// 다음 페이지 클릭
+				driver.clickIfExist(BY_NEXT_PAGE_ICON);
+
+				// 변경 확인
+				driver.waitUntilTextNotInclude(BY_TABLE_1ST_LINE, TIMEOUT, previous1stLine);
+				previous1stLine = driver.getText(BY_TABLE_1ST_LINE, TIMEOUT, MARK_ANDOLD_SINCE);
+
+				String nextPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, currentPage);
+				if (currentPage.equalsIgnoreCase(nextPage)) {
+					break;
+				}
+
+				log.debug("{} 쪽:{} dividendEtf({}) - {}", Utility.indentMiddle(), currentPage, start, Utility.toStringPastTimeReadable(started));
+				currentPage = nextPage;
+			}
+			// 페이징 처리 - 여기까지
+
+			sb.append(MARK_START_END_POINT_ETF);
+			driver.quit();
+
+			ParserResult parserResult = ParserService.parse(new String(sb), false);
+			Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(parserResult).build();
+
+			log.debug("{} {} dividendEtf({}) - {}", Utility.indentEnd(), result, start, Utility.toStringPastTimeReadable(started));
+			return result;
+		} catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+			driver.quit();
+		}
+
+		log.debug("{} {} dividendEtf({}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, start, Utility.toStringPastTimeReadable(started));
+		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+	}
+
+	// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당순위
+	@Deprecated
+	public ParserResult crawlItemDividendTopCompany() {
+		log.info("{} crawlItemDividendTopCompany()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01042V.xml&menuNo=286";
+		String MARK_START_END_POINT = String.format("KEYWORD\t%s\t%s\tURL\t%s\n", "crawlItemDividendTopCompany", "주식 상위 배당", URL);
+		int YEARS = 3;
+
+		StringBuffer sb = new StringBuffer();
+		sb.append(MARK_START_END_POINT);
+		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		try {
+			driver.navigate().to(URL);
+			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT * 4).click();
+			driver.findElementIncludeText(By.xpath("//th"), TIMEOUT, "결산월");
+
+			new Select(driver.findElement(By.xpath("//select[@id='select_marketKind_input_0']"), TIMEOUT)).selectByVisibleText("유가증권시장"); // 시장구분을 유가증권시장
+			for (int cx = LocalDate.now().getYear() - 1, sizex = LocalDate.now().getYear() - YEARS; cx > sizex; cx--) {
+				String year = String.format("%d년", cx);
+				new Select(driver.findElement(By.xpath("//select[@id='selectbox2_input_0']"), TIMEOUT)).selectByVisibleText(year); // 2022년
+				String previous = driver.getText(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), TIMEOUT, "andold");
+				driver.findElement(By.xpath("//a[@id='group57']"), 2000).click();
+				driver.findElement(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), TIMEOUT, previous);
+				for (int cy = 1; cy < 5; cy++) {
+					String pageString = String.format("%d", cy);
+					log.debug("{} {} {} {} - crawlItemDividendTopCompany() - {}", Utility.indentMiddle(), "유가증권시장", year, cy, Utility.toStringPastTimeReadable(started));
+					driver.findElementIncludeText(By.xpath("//div[@id='cntsPaging01']//a"), TIMEOUT, pageString).click();
+					driver.findElementIncludeTextAndClass(By.xpath("//div[@id='cntsPaging01']//a"), TIMEOUT, pageString, "w2pageList_label_selected");
+					WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
+					sb.append(driver.extractTextContentFromTableElement(table, "KOSPI\t"));
+					sb.append(MARK_ANDOLD_SINCE);
+				}
+			}
+
+			new Select(driver.findElement(By.xpath("//select[@id='select_marketKind_input_0']"), TIMEOUT)).selectByVisibleText("코스닥시장"); // 시장구분을 코스닥시장
+			for (int cx = LocalDate.now().getYear() - 1, sizex = LocalDate.now().getYear() - YEARS; cx > sizex; cx--) {
+				String year = String.format("%d년", cx);
+				new Select(driver.findElement(By.xpath("//select[@id='selectbox2_input_0']"), TIMEOUT)).selectByVisibleText(year); // 2022년
+				String previous = driver.getText(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), TIMEOUT, "andold");
+				driver.findElement(By.xpath("//a[@id='group57']"), 2000).click();
+				driver.findElement(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), TIMEOUT, previous);
+				for (int cy = 1; cy < 5; cy++) {
+					String pageString = String.format("%d", cy);
+					log.debug("{} {} {} {} - crawlItemDividendTopCompany() - {}", Utility.indentMiddle(), "코스닥시장", year, cy, Utility.toStringPastTimeReadable(started));
+					driver.findElementIncludeText(By.xpath("//div[@id='cntsPaging01']//a"), TIMEOUT, pageString).click();
+					driver.findElementIncludeTextAndClass(By.xpath("//div[@id='cntsPaging01']//a"), TIMEOUT, pageString, "w2pageList_label_selected");
+					WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
+					sb.append(driver.extractTextContentFromTableElement(table, "KOSDAQ\t"));
+					sb.append(MARK_ANDOLD_SINCE);
+				}
+			}
+		} catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+		}
+		driver.quit();
+
+		sb.append(MARK_START_END_POINT);
+		String text = new String(sb);
+		ParserResult result = ParserService.parse(text, false);
+
+		log.info("{} {} crawlItemDividendTopCompany() - {}", Utility.indentMiddle(), result, Utility.toStringPastTimeReadable(started));
+		return result;
 	}
 
 }

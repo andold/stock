@@ -1,7 +1,7 @@
 package kr.andold.stock.crawler;
 
 import java.time.Duration;
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.Select;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -35,12 +34,10 @@ import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.stock.thread.CrawlItemDetailCompanyThread;
-import kr.andold.stock.thread.CrawlDividendHistoryCompanyThread;
 import kr.andold.stock.thread.CrawlPriceCompanyThread;
 import kr.andold.stock.thread.CrawlPriceEtfThread;
 import kr.andold.stock.thread.CrawlPriceThread;
 import kr.andold.stock.thread.CrawlItemDetailEtfThread;
-import kr.andold.stock.thread.CrawlDividendHistoryEtfThread;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,6 +48,7 @@ public class CrawlerService {
 	private static final int TIMEOUT = 4000;
 
 	@Autowired private Krx krx;
+	@Autowired private Seibro seibro;
 
 	@Autowired
 	private ItemService stockItemService;
@@ -221,73 +219,6 @@ public class CrawlerService {
 		return dividendsRecent;
 	}
 
-	// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당순위
-	@Deprecated
-	public ParserResult crawlItemDividendTopCompany() {
-		log.info("{} crawlItemDividendTopCompany()", Utility.indentStart());
-		long started = System.currentTimeMillis();
-
-		String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01042V.xml&menuNo=286";
-		String MARK_START_END_POINT = String.format("KEYWORD\t%s\t%s\tURL\t%s\n", "crawlItemDividendTopCompany", "주식 상위 배당", URL);
-		int YEARS = 3;
-
-		StringBuffer sb = new StringBuffer();
-		sb.append(MARK_START_END_POINT);
-		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
-		try {
-			driver.navigate().to(URL);
-			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT * 4).click();
-			driver.findElementIncludeText(By.xpath("//th"), TIMEOUT, "결산월");
-
-			new Select(driver.findElement(By.xpath("//select[@id='select_marketKind_input_0']"), TIMEOUT)).selectByVisibleText("유가증권시장"); // 시장구분을 유가증권시장
-			for (int cx = LocalDate.now().getYear() - 1, sizex = LocalDate.now().getYear() - YEARS; cx > sizex; cx--) {
-				String year = String.format("%d년", cx);
-				new Select(driver.findElement(By.xpath("//select[@id='selectbox2_input_0']"), TIMEOUT)).selectByVisibleText(year); // 2022년
-				String previous = driver.getText(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), TIMEOUT, "andold");
-				driver.findElement(By.xpath("//a[@id='group57']"), 2000).click();
-				driver.findElement(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), TIMEOUT, previous);
-				for (int cy = 1; cy < 5; cy++) {
-					String pageString = String.format("%d", cy);
-					log.debug("{} {} {} {} - crawlItemDividendTopCompany() - {}", Utility.indentMiddle(), "유가증권시장", year, cy, Utility.toStringPastTimeReadable(started));
-					driver.findElementIncludeText(By.xpath("//div[@id='cntsPaging01']//a"), TIMEOUT, pageString).click();
-					driver.findElementIncludeTextAndClass(By.xpath("//div[@id='cntsPaging01']//a"), TIMEOUT, pageString, "w2pageList_label_selected");
-					WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
-					sb.append(driver.extractTextContentFromTableElement(table, "KOSPI\t"));
-					sb.append(MARK_ANDOLD_SINCE);
-				}
-			}
-
-			new Select(driver.findElement(By.xpath("//select[@id='select_marketKind_input_0']"), TIMEOUT)).selectByVisibleText("코스닥시장"); // 시장구분을 코스닥시장
-			for (int cx = LocalDate.now().getYear() - 1, sizex = LocalDate.now().getYear() - YEARS; cx > sizex; cx--) {
-				String year = String.format("%d년", cx);
-				new Select(driver.findElement(By.xpath("//select[@id='selectbox2_input_0']"), TIMEOUT)).selectByVisibleText(year); // 2022년
-				String previous = driver.getText(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), TIMEOUT, "andold");
-				driver.findElement(By.xpath("//a[@id='group57']"), 2000).click();
-				driver.findElement(By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]/td[2]"), TIMEOUT, previous);
-				for (int cy = 1; cy < 5; cy++) {
-					String pageString = String.format("%d", cy);
-					log.debug("{} {} {} {} - crawlItemDividendTopCompany() - {}", Utility.indentMiddle(), "코스닥시장", year, cy, Utility.toStringPastTimeReadable(started));
-					driver.findElementIncludeText(By.xpath("//div[@id='cntsPaging01']//a"), TIMEOUT, pageString).click();
-					driver.findElementIncludeTextAndClass(By.xpath("//div[@id='cntsPaging01']//a"), TIMEOUT, pageString, "w2pageList_label_selected");
-					WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
-					sb.append(driver.extractTextContentFromTableElement(table, "KOSDAQ\t"));
-					sb.append(MARK_ANDOLD_SINCE);
-				}
-			}
-		} catch (Exception e) {
-			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
-		}
-		driver.quit();
-
-		sb.append(MARK_START_END_POINT);
-		String text = new String(sb);
-		ParserResult result = ParserService.parse(text, false);
-		put(result);
-
-		log.info("{} {} crawlItemDividendTopCompany() - {}", Utility.indentMiddle(), result, Utility.toStringPastTimeReadable(started));
-		return result;
-	}
-
 	// KSD증권정보포털(SEIBro) > ETF > 종목발행현황
 	public ParserResult crawlItemEtf() {
 		log.info("{} crawlItemEtf()", Utility.indentStart());
@@ -358,39 +289,6 @@ public class CrawlerService {
 		return result;
 	}
 
-	// 주식=일반기업 배당금 내역 by KSD 증권정보포털 SEIBro
-	@Deprecated
-	public ParserResult crawlDividendHistoryCompany(Date start) {
-		log.info("{} crawlDividendHistoryCompany()", Utility.indentStart());
-		long started = System.currentTimeMillis();
-
-		if (LocalDate.now().isAfter(LocalDate.of(2024,  1,  1))) {
-			ParserResult result = CrawlDividendHistoryCompanyThread.crawl(start);
-			put(result);
-
-			log.info("{} {} crawlDividendHistoryCompany() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
-			return result;
-		}
-
-		ParserResult container = new ParserResult().clear();
-		/*
-		List<ItemDomain> items = stockItemService.search(null);
-		List<ItemDomain> filtered = items.stream()
-				.filter(item -> isPossibleCompany(item))
-				.collect(Collectors.toList());
-
-		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
-		for (List<ItemDomain> partition: partitions) {
-			ParserResult result = CrawlDividendHistoryCompanyThread.crawl(partition, start);
-			container.addAll(result);
-			put(result);
-		}
-		*/
-
-		log.info("{} {} crawlDividendHistoryCompany() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
-		return container;
-	}
-
 	private boolean isPossibleCompany(ItemDomain item) {
 		String code = item.getCode();
 		Boolean etf = item.getEtf();
@@ -398,29 +296,7 @@ public class CrawlerService {
 		return (code != null && !code.isBlank() && (etf == null || !etf.booleanValue()));
 	}
 
-	// ETF 배당금 내역 by KSD 증권정보포털 SEIBro
 	@Deprecated
-	public ParserResult crawlDividendHistoryEtf(Date start) {
-		log.info("{} crawlDividendHistoryEtf({})", Utility.indentStart(), start);
-		long started = System.currentTimeMillis();
-
-		ParserResult container = new ParserResult().clear();
-		List<ItemDomain> items = stockItemService.search(null);
-		List<ItemDomain> filtered = items.stream()
-				.filter(item -> isPossibleEtf(item))			
-				.collect(Collectors.toList());
-		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
-		for (List<ItemDomain> partition: partitions) {
-			ParserResult result = CrawlDividendHistoryEtfThread.crawl(partition, start);
-			container.addAll(result);
-			put(result);
-		}
-
-		log.info("{} {} crawlDividendHistoryEtf({}) - {}", Utility.indentEnd(), container, start, Utility.toStringPastTimeReadable(started));
-		return container;
-	}
-
-
 	private boolean isPossibleEtf(ItemDomain item) {
 		String code = item.getCode();
 		Boolean etf = item.getEtf();
@@ -564,6 +440,19 @@ public class CrawlerService {
 		}
 
 		log.info("{} {} crawlItemAll() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
+	public Result<ParserResult> crawlDividendAllRecent() {
+		log.info("{} crawlDividendAllRecent()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		Result<ParserResult> result = seibro.dividend(Date.from(ZonedDateTime.now().minusMonths(1).toInstant()));
+		if (result.getStatus() == STATUS.SUCCESS) {
+			put(result.getResult());
+		}
+
+		log.info("{} {} crawlDividendAllRecent() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 

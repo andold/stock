@@ -18,26 +18,8 @@ public class CrawlerServiceTest {
 	private CrawlerService service;
 
 	@Test
-	public void testCrawlDividendHistoryEtf() {
-		ParserResult result = service.crawlDividendHistoryEtf(null);
-		log.info("{}", result);
-	}
-
-	@Test
-	public void testCrawlDividendHistoryCompany() {
-		ParserResult result = service.crawlDividendHistoryCompany(null);
-		log.info("{}", result);
-	}
-
-	@Test
 	public void testCrawlItemDetailEtf() {
 		ParserResult result = service.crawlItemDetailEtf();
-		log.info("{}", result);
-	}
-
-	@Test
-	public void testCrawlCompanyTopDividend() {
-		ParserResult result = service.crawlItemDividendTopCompany();
 		log.info("{}", result);
 	}
 
@@ -80,6 +62,12 @@ public class CrawlerServiceTest {
 	@Test
 	public void testCrawlPrice() {
 		Result<ParserResult> result = service.crawlPrice(Date.valueOf("2010-01-01"));
+		log.info("{}", result);
+	}
+
+	@Test
+	public void testCrawlDividendAllRecent() {
+		Result<ParserResult> result = service.crawlDividendAllRecent();
 		log.info("{}", result);
 	}
 
