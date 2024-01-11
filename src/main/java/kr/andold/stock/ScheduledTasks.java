@@ -36,13 +36,13 @@ public class ScheduledTasks {
 		log.trace("{} scheduleTaskOnce() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
 	
-	// 매시마다
+	// 매분마다
 	@Scheduled(cron = "15 * * * * *")
 	public void scheduleTaskMinutely() {
 		log.trace("{} scheduleTaskMinutely()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		idempotentService.run();
+//		idempotentService.run();
 
 		log.trace("{} {} scheduleTaskMinutely() - {}", Utility.indentEnd(), "비동기", Utility.toStringPastTimeReadable(started));
 	}
