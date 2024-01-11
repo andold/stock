@@ -212,7 +212,7 @@ public class IdempotentService {
 		return result;
 	}
 
-	private static final long PAUSE_MIN = 1000 * 10;
+	private static final long PAUSE_MIN = 1000 * 1;
 	private static final long PAUSE_MAX = 1000 * 60 * 60 * 2;
 	@Async
 	public synchronized void once() {
