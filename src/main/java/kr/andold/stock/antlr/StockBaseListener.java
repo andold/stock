@@ -36,6 +36,18 @@ public class StockBaseListener implements StockListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterKrxPriceEtf(StockParser.KrxPriceEtfContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitKrxPriceEtf(StockParser.KrxPriceEtfContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterKrxItemInfoCompany(StockParser.KrxItemInfoCompanyContext ctx) { }
 	/**
 	 * {@inheritDoc}

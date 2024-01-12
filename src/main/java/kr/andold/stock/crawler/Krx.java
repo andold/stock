@@ -31,7 +31,7 @@ public class Krx implements Crawler {
 
 	// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 개별종목 시세 추이
 	private static final String URL_PRICE_ETF_EACH = "http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201030103";
-//	private static final String MARK_START_END_POINT_PRICE_ETF_EACH = String.format("KEYWORD\t%s\t%s\t%s\n", "KRX", "증권상품 > ETF > 개별종목 시세 추이", URL_PRICE_ETF_EACH);
+	private static final String MARK_START_END_POINT_PRICE_ETF_EACH = String.format("KEYWORD\t%s\t%s\t%s\n", "KRX", "증권상품 > ETF > 개별종목 시세 추이", URL_PRICE_ETF_EACH);
 
 	private static final String URL_PRICE_COMPANY_ALL = "http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020101";
 	private static final String URL_PRICE_ETF_ALL = "http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201030101";
@@ -850,22 +850,19 @@ public class Krx implements Crawler {
 				return result;
 			}
 
-			// 2. 조회기간 설정
-			String startDateString = LocalDate.ofInstant(start.toInstant(), Utility.ZONE_ID_KST).format(DateTimeFormatter.BASIC_ISO_DATE);
+			StringBuffer sb = new StringBuffer();
+			sb.append(MARK_START_END_POINT);
 
+			// 2. 조회기간 설정, 2년 기간 제한이 없다, ETF만 있다
 			WebElement startDateElement = driver.findElement(By.xpath("//*[@id='strdDd']"), TIMEOUT);
 			startDateElement.clear();
-			startDateElement.sendKeys(startDateString); // 조회기간 시작일
+			startDateElement.sendKeys(LocalDate.ofInstant(start.toInstant(), Utility.ZONE_ID_KST).format(DateTimeFormatter.BASIC_ISO_DATE)); // 조회기간 시작일
 			startDateElement.sendKeys(Keys.TAB); // 시작일 입력
 			
 			// 조회 클릭
 			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), TIMEOUT).click();
 
-			// 3. 내용 저장
-			StringBuffer sb = new StringBuffer();
-			sb.append(MARK_START_END_POINT);
-			
-			for (String prev = driver.getAttributeLast(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table//tr"), "textContent", TIMEOUT, "");;) {
+			for (String prev = "";;) {
 				long forStarted = System.currentTimeMillis();
 
 				WebElement table = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), TIMEOUT);
@@ -939,43 +936,54 @@ public class Krx implements Crawler {
 				return result;
 			}
 
-			// 2. 조회기간 설정
-			String startDateString = LocalDate.ofInstant(start.toInstant(), Utility.ZONE_ID_KST).format(DateTimeFormatter.BASIC_ISO_DATE);
-
-			WebElement startDateElement = driver.findElement(By.xpath("//*[@id='strtDd']"), TIMEOUT);
-			startDateElement.clear();
-			startDateElement.sendKeys(startDateString); // 조회기간 시작일
-			startDateElement.sendKeys(Keys.TAB); // 시작일 입력
-			
-			// 조회 클릭
-			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), TIMEOUT).click();
-
-			// 3. 내용 저장
+			// 2. 조회기간 설정, 2년 기간 제한이 있다 ETF만 있다
 			StringBuffer sb = new StringBuffer();
-			sb.append(MARK_START_END_POINT);
-			for (String prev = driver.getAttributeLast(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table//tr"), "textContent", TIMEOUT, "");;) {
-				long forStarted = System.currentTimeMillis();
+			sb.append(MARK_START_END_POINT_PRICE_ETF_EACH);
+			for (LocalDate cx = LocalDate.now(), startLocalDate = LocalDate.ofInstant(start.toInstant(), Utility.ZONE_ID_KST);
+					cx.isAfter(startLocalDate);
+					cx = cx.minusYears(2)) {
 
-				WebElement table = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), TIMEOUT);
-				sb.append(driver.extractTextContentFromTableElement(table, String.format("ETF\t%s\t", code)));
-				sb.append(MARK_ANDOLD_SINCE);
+				String endDateString = cx.format(DateTimeFormatter.BASIC_ISO_DATE);
+				String startDateString = cx.minusYears(2).plusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
+				WebElement startDateElement = driver.findElement(By.xpath("//*[@id='strtDd']"), TIMEOUT);
 
-				List<WebElement> trs = table.findElements(By.xpath("//tr"));
-				WebElement lastTr = trs.get(trs.size() - 1);
-				String curr = lastTr.getAttribute("textContent");
-				if (prev.contentEquals(curr)) {
-					break;
+				startDateElement.clear();
+				startDateElement.sendKeys(startDateString); // 조회기간 시작일
+				startDateElement.sendKeys(Keys.TAB); // 시작일 입력
+		
+				WebElement endDateElement = driver.findElement(By.xpath("//*[@id='endDd']"), TIMEOUT);
+				endDateElement.clear();
+				endDateElement.sendKeys(endDateString); // 조회기간 종료일
+				endDateElement.sendKeys(Keys.TAB); // 종료일 입력
+				
+				// 조회 클릭
+				driver.findElement(By.xpath("//*[@id='jsSearchButton']"), TIMEOUT).click();
+
+				for (String prev = "";;) {
+					long forStarted = System.currentTimeMillis();
+
+					WebElement table = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), TIMEOUT);
+					sb.append(driver.getAttribute(table, "textContent", String.format("%s\t", code)));
+					sb.append(MARK_ANDOLD_SINCE);
+
+					String curr = driver.getAttributeLast(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table//tr"), "textContent", TIMEOUT, "");
+					if (prev.contentEquals(curr)) {
+						break;
+					}
+
+					prev = curr;
+
+					List<WebElement> trs = table.findElements(By.xpath("//tr"));
+					WebElement lastTr = trs.get(trs.size() - 1);
+					((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", lastTr);
+					driver.clickIfExist(By.xpath("//*[@id='jsViewSizeButton']"));
+
+					log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentEnd(), Utility.ellipsisEscape(prev, 32), code, start, Utility.toStringPastTimeReadable(forStarted));
 				}
-
-				prev = curr;
-				((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", lastTr);
-				driver.clickIfExist(By.xpath("//*[@id='jsViewSizeButton']"));
-
-				log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentEnd(), Utility.ellipsisEscape(prev, 32), code, start, Utility.toStringPastTimeReadable(forStarted));
 			}
 			driver.quit();
 
-			sb.append(MARK_START_END_POINT);
+			sb.append(MARK_START_END_POINT_PRICE_ETF_EACH);
 			ParserResult result = ParserService.parse(new String(sb), debug);
 
 			log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentEnd(), result, code, start, Utility.toStringPastTimeReadable(started));

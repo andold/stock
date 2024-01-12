@@ -62,7 +62,7 @@ public class KrxTest {
 	@Test
 	public void testPriceEtfStringDate() {
 //		Result<ParserResult> resultInvalid = krx.priceEtf("001680", Date.from(ZonedDateTime.now().minusDays(7).toInstant()));
-		Result<ParserResult> result = krx.priceEtf("441680", Date.from(ZonedDateTime.now().minusDays(7).toInstant()));
+		Result<ParserResult> result = krx.priceEtf("402970", Date.from(ZonedDateTime.now().minusYears(3).toInstant()));
 		log.info("{}", result);
 		assertEquals(result.getStatus(), STATUS.SUCCESS);
 	}

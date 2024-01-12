@@ -80,70 +80,6 @@ public class ParserService {
 
 	}
 
-	// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 일자별시세
-	// KSD 증권정보포털 SEIBro > ETF > ETF종합정보 > 기준가추이
-	public static void crawlPriceCompanyEtf(Integer date
-			, String code, String symbol
-			, String base, String closing, String market, String high, String low, String volume
-			) {
-		log.debug("{} crawlPriceCompanyEtf(『{}』『{} {}』『{} {} {} {} {} {}』)", Utility.indentMiddle(), date
-				, code, symbol
-				, base, closing, market, high, low, volume);
-		if (code == null || base == null) {
-			return;
-		}
-
-		LIST_STOCK_PRICE.add(PriceDomain.builder()
-				.code(code)
-				.base(Utility.parseDateTime(base, null))
-				.closing(Utility.parseInteger(closing, null))
-				.market(Utility.parseInteger(market, null))
-				.high(Utility.parseInteger(high, null))
-				.low(Utility.parseInteger(low, null))
-				.volume(Utility.parseInteger(volume, null))
-				.flag(0)
-				.build());
-	}
-
-	// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 종목종합내역 (KSD증권정보포털(SEIBro) > 기업 > 기업기본정보와 동일)
-	public static void crawlItemDetailCompanyThread(Integer date
-			, String code, String type
-			, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7
-			, String category, String fics
-			, String ea
-			, String ipo
-			) {
-		log.debug("{} crawlItemDetailCompanyThread(『{}』『{} {}』『{} {} {} {} {} {} {} {}』『{} {}』『{}』『{}』)", Utility.indentMiddle(), date
-				, code, type
-				, symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7
-				, category, fics
-				, ea
-				, ipo);
-		ItemDomain item = ItemDomain.builder()
-				.code(code)
-				.etf(false)
-				.volumeOfListedShares(Utility.parseInteger(ea, null))
-				.ipoDate(Utility.parseDateTime(ipo, null))
-				.build();
-		item.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
-		item.setSymbol(item.getSymbol().split("[\\s\\(]+").clone()[0]);
-		if ("유가증권".equalsIgnoreCase(type)) {
-			item.setType("KOSPI");
-		} else if ("코스닥".equalsIgnoreCase(type)) {
-			item.setType("KOSDAQ");
-		} else {
-			item.setType(type);
-		}
-		item.setCategory(category, fics);
-		LIST_STOCK_ITEM.add(item);
-	}
-
-	// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당순위
-	public static void crawlItemDividendTopCompany(Integer date
-			, String code, String type) {
-		LIST_STOCK_ITEM.add(ItemDomain.builder().code(code).type(type).build());
-	}
-
 	public static void item(int mark
 			, String code
 			, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7
@@ -167,41 +103,47 @@ public class ParserService {
 		}
 		ItemDomain item = ItemDomain.builder()
 				.code(code)
-				.type(type)
 				.build();
 		item.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
 		item.setSymbol(item.getSymbol().split("\\[[0-9]+")[0]);
 		item.setCategory(category, category1, category2, category3, category4, category5, category6, category7);
+		if ("유가증권".equalsIgnoreCase(type)) {
+			item.setType("KOSPI");
+		} else if ("코스닥".equalsIgnoreCase(type)) {
+			item.setType("KOSDAQ");
+		} else {
+			item.setType(type);
+		}
 		item.setIpoDate(Utility.parseDateTime(ipo, null));
 		item.setVolumeOfListedShares(ea);
 		LIST_STOCK_ITEM.add(item);
 	}
 
-	// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
-	public static void crawlEtfDetailThread(Integer mark
+	public static void price(int mark
 			, String code
-			, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7
-			, String category, String category1, String category2, String category3, String category4, String category5, String category6, String category7
-			, String date
-			, String fee
-			, String ea
-	) {
-		log.debug("{} crawlEtfDetailThread(『{} {}』『{} {} {} {} {} {} {} {}』『{}』『{} {} {} {} {} {} {} {}』『{}』 『{}』)", Utility.indentMiddle(), mark
+			, String base, String closing, String market, String high, String low, String volume
+			) {
+		log.debug("{} price(『{}』『{}』『{} {} {} {} {} {}』)", Utility.indentMiddle(), mark
 				, code
-				, symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7
-				, date
-				, category, category1, category2, category3, category4, category5, category6, category7
-				, fee
-				, ea
-		);
-		item(mark
-			, code
-			, symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7
-			, category, category1, category2, category3, category4, category5, category6, category7
-			, "ETF"
-			, date
-			, ea
-			, fee);
+				, base, closing, market, high, low, volume);
+		if (code == null || base == null) {
+			return;
+		}
+
+		if (code.startsWith("KR")) {
+			code = code.substring(3, 9);
+		}
+
+		LIST_STOCK_PRICE.add(PriceDomain.builder()
+				.code(code)
+				.base(Utility.parseDateTime(base, null))
+				.closing(Utility.parseInteger(closing, null))
+				.market(Utility.parseInteger(market, null))
+				.high(Utility.parseInteger(high, null))
+				.low(Utility.parseInteger(low, null))
+				.volume(Utility.parseInteger(volume, null))
+				.flag(0)
+				.build());
 	}
 
 	public static void crawlDividendHistoryEtfThread(Integer date, String code, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7, String base, String pay, String dividend,

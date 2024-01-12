@@ -31,8 +31,57 @@ stockDocument
 |	krxBasicInfoEtf					// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 전종목 기본정보
 |	krxItemInfoCompany				// KRX 정보데이터시스템 > 기본통계 > 주식 > 종목정보 > 개별정보 종합정보
 |	krxItemInfoEtf					// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 개별종목 종합정보
+|	krxPriceEtf						// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 개별종목 시세 추이
 ;
 
+
+
+// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 개별종목 시세 추이
+krxPriceEtf:
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 KRX 	 증권상품 > ETF > 개별종목 시세 추이 	 http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201030103
+	(
+		(
+			NUMBER TAB									NEWLINE		//	402970 	 
+			NUMBER TAB TAB TAB							NEWLINE		//	402970 	 	 	 
+			NUMBER TAB TAB TAB							NEWLINE		//	402970 	 	 	 
+			NUMBER TAB TAB TAB							NEWLINE		//	402970 	 	 	 
+			NUMBER TAB TAB TAB							NEWLINE		//	402970 	 	 	 
+			NUMBER TAB TAB TAB							NEWLINE		//	402970 	 	 	 
+			NUMBER TAB TAB TAB							NEWLINE		//	402970 	 	 	 
+			NUMBER TAB TAB TAB WORD						NEWLINE		//	402970 	 	 	 일자종가대비등락률순자산가치(NAV)시가고가저가거래량거래대금시가총액순자산총액상장좌수지수명종가대비등락률 
+			NUMBER TAB TAB TAB							NEWLINE		//	402970
+			(
+				code=word TAB base=DATE					NEWLINE		//	402970 	 2021/10/21 
+				NUMBER TAB closing=NUMBER					NEWLINE		//	402970 	 10,080 
+				NUMBER TAB NUMBER						NEWLINE		//	402970 	 85 
+				NUMBER TAB NUMBER						NEWLINE		//	402970 	 +0.85 
+				NUMBER TAB nav=NUMBER					NEWLINE		//	402970 	 10,108.12 
+				NUMBER TAB market=NUMBER				NEWLINE		//	402970 	 10,050 
+				NUMBER TAB high=NUMBER					NEWLINE		//	402970 	 10,140 
+				NUMBER TAB low=NUMBER					NEWLINE		//	402970 	 10,050 
+				NUMBER TAB volume=NUMBER				NEWLINE		//	402970 	 42,219 
+				NUMBER TAB NUMBER						NEWLINE		//	402970 	 425,885,480 
+				NUMBER TAB NUMBER						NEWLINE		//	402970 	 10,080,000,000 
+				NUMBER TAB NUMBER						NEWLINE		//	402970 	 10,108,122,720 
+				NUMBER TAB volumeOfListedShares=NUMBER	NEWLINE		//	402970 	 1,000,000 
+				NUMBER TAB word+						NEWLINE		//	402970 	 Dow Jones U.S. Dividend 100 Price Return Index 
+				NUMBER TAB NUMBER						NEWLINE		//	402970 	 5,507.43 
+				NUMBER TAB word							NEWLINE		//	402970 	 - 
+				NUMBER TAB word							NEWLINE		//	402970 	 - 
+				NUMBER TAB								NEWLINE		//	402970 	 
+				{
+					ParserService.price(20240112
+						, $code.text
+						, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
+					);
+				}
+			)+ 	 	 	 
+		)+
+		WORD TAB WORD TAB DATE							NEWLINE		//	andold 	 since 	 2023-11-27 
+	)+
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 KRX 	 증권상품 > ETF > 개별종목 시세 추이 	 http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201030103 
+
+;
 
 
 // KRX 정보데이터시스템 > 기본통계 > 주식 > 종목정보 > 개별정보 종합정보
@@ -307,8 +356,8 @@ etfAllPrice:
 			WORD TAB DATE TAB word								NEWLINE		//	ETF 	 2024-01-09 	 0.00 
 			WORD TAB base=DATE TAB								NEWLINE		//	ETF 	 2024-01-09 	 
 			{
-				ParserService.crawlPriceCompanyEtf(20240105
-					, $code.text, $symbol.text
+				ParserService.price(20240112
+					, $code.text
 					, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
 				);
 				ParserService.item(20240112
@@ -325,8 +374,8 @@ etfAllPrice:
 			WORD TAB DATE TAB NUMBER symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* closing=NUMBER	NEWLINE		//	ETF 	 2024-01-09 	 078935 GS우 KOSPI 34,250 
 			WORD TAB base=DATE TAB NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER		NEWLINE		//	ETF 	 2024-01-09 	 34,300 34,500 34,100 1,993 68,209,450 61,130,290,500 1,784,826 
 			{
-				ParserService.crawlPriceCompanyEtf(20240105
-					, $code.text, $symbol.text
+				ParserService.price(20240112
+					, $code.text
 					, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
 				);
 			}
@@ -402,8 +451,8 @@ companyAllPrice:
 			WORD TAB DATE TAB volumeOfListedShares=NUMBER		NEWLINE		//	COMPANY 	 2024-01-09 	 48,536,642 
 			WORD TAB base=DATE TAB								NEWLINE		//	COMPANY 	 2024-01-09 	 
 			{
-				ParserService.crawlPriceCompanyEtf(20240105
-					, $code.text, $symbol.text
+				ParserService.price(20240112
+					, $code.text
 					, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
 				);
 				ParserService.item(20240112
@@ -420,8 +469,8 @@ companyAllPrice:
 			WORD TAB DATE TAB NUMBER symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* closing=NUMBER	NEWLINE		//	ETF 	 2024-01-09 	 078935 GS우 KOSPI 34,250 
 			WORD TAB base=DATE TAB NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER		NEWLINE		//	ETF 	 2024-01-09 	 34,300 34,500 34,100 1,993 68,209,450 61,130,290,500 1,784,826 
 			{
-				ParserService.crawlPriceCompanyEtf(20240105
-					, $code.text, $symbol.text
+				ParserService.price(20240112
+					, $code.text
 					, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
 				);
 			}
@@ -447,8 +496,8 @@ crawlPriceKrx:
 					WORD TAB code=NUMBER TAB base=DATE TAB closing=NUMBER TAB NUMBER TAB NUMBER TAB market=NUMBER TAB high=NUMBER TAB low=NUMBER TAB volume=NUMBER TAB NUMBER TAB NUMBER TAB NUMBER TAB		NEWLINE
 							//	ETF 	 175330 	 2022/06/20 	 7,830 	 110 	 -1.39 	 7,980 	 8,000 	 7,720 	 225,863 	 1,768,097,000 	 1,542,376,060,020 	 196,982,894 	 
 					{
-						ParserService.crawlPriceCompanyEtf(20240105
-							, $code.text, $symbol.text
+						ParserService.price(20240112
+							, $code.text
 							, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
 						);
 					}
@@ -462,8 +511,8 @@ crawlPriceKrx:
 						NUMBER TAB NUMBER TAB NUMBER TAB		NEWLINE
 							//	ETF 	 441680 	 2022/11/22 	 9,710 	 10 	 +0.10 	 9,769.51 	 9,725 	 9,750 	 9,680 	 36,868 	 357,580,550 	 30,101,000,000 	 30,285,495,972 	 3,100,000 	 Cboe Nasdaq-100 BuyWrite V2 지수 (Total Return) 	 747.74 	 6.63 	 +0.89 	 
 					{
-						ParserService.crawlPriceCompanyEtf(20240105
-							, $code.text, $symbol.text
+						ParserService.price(20240112
+							, $code.text
 							, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
 						);
 					}
@@ -543,8 +592,8 @@ crawlPriceEtf:
 				base=DATE? TAB closing=NUMBER? TAB NUMBER? TAB market=NUMBER? TAB high=NUMBER? TAB low=NUMBER TAB volume=NUMBER TAB NUMBER? TAB		NEWLINE
 						//	2023/12/15 	 32,300 	 320 	 32,165 	 32,320 	 32,070 	 121,115 	 3,900 	 
 				{
-					ParserService.crawlPriceCompanyEtf(20231217
-						, $code.text, $symbol.text
+					ParserService.price(20240112
+						, $code.text
 						, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
 					);
 				}
@@ -569,8 +618,8 @@ KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD						NEWLINE		//	KEYWORD 	 주�
 			base=DATE TAB closing=NUMBER TAB NUMBER TAB market=NUMBER TAB high=NUMBER TAB low=NUMBER TAB volume=NUMBER TAB		NEWLINE
 					//	2023/12/18 	 11,430 	 30 	 11,400 	 11,500 	 11,370 	 16,124 
 			{
-				ParserService.crawlPriceCompanyEtf(20231217
-					, $code.text, $symbol.text
+				ParserService.price(20240112
+					, $code.text
 					, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
 				);
 			}
