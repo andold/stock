@@ -39,17 +39,14 @@ public class Seibro implements Crawler {
 		long started = System.currentTimeMillis();
 
 		Result<ParserResult> resultCompany = dividendAsCompany(item, start);
-		switch (resultCompany.getStatus()) {
-		case SUCCESS:
-			log.info("{} {} dividend({}, {}) - {}", Utility.indentEnd(), resultCompany, item, start, Utility.toStringPastTimeReadable(started));
+		if (resultCompany.getStatus().equals(STATUS.SUCCESS)) {
+			log.info("{} 『{}』 dividend({}, {}) - {}", Utility.indentEnd(), resultCompany, item, start, Utility.toStringPastTimeReadable(started));
 			return resultCompany;
-		default:
-			break;
 		}
 
 		Result<ParserResult> resultEtf = dividendAsEtf(item, start);
 
-		log.info("{} {} dividend({}, {}) - {}", Utility.indentEnd(), resultEtf, item, start, Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』 dividend({}, {}) - {}", Utility.indentEnd(), resultEtf, item, start, Utility.toStringPastTimeReadable(started));
 		return resultEtf;
 	}
 
@@ -98,14 +95,14 @@ public class Seibro implements Crawler {
 			ParserResult parserResult = ParserService.parse(new String(sb), false);
 			Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(parserResult).build();
 
-			log.debug("{} {} extractAsEtf({}, {}) - {}", Utility.indentEnd(), result, item, start, Utility.toStringPastTimeReadable(started));
+			log.debug("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), result, item, start, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 			close(driver);
 		}
 
-		log.debug("{} {} extractAsEtf({}, {}) - {}", Utility.indentEnd(), "EXCEPTION", item, start, Utility.toStringPastTimeReadable(started));
+		log.debug("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), "EXCEPTION", item, start, Utility.toStringPastTimeReadable(started));
 		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 	}
 
@@ -615,6 +612,18 @@ public class Seibro implements Crawler {
 
 		log.info("{} {} crawlItemDividendTopCompany() - {}", Utility.indentMiddle(), result, Utility.toStringPastTimeReadable(started));
 		return result;
+	}
+
+	@Override
+	public Result<ParserResult> item(String code) {
+		log.error("{} 『{}』 item({})", Utility.indentMiddle(), "NOT SUPPORTED", code);
+		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
+	}
+
+	@Override
+	public Result<ParserResult> price(String code, Date start) {
+		log.error("{} 『{}』 price({}, {})", Utility.indentMiddle(), "NOT SUPPORTED", code, start);
+		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
 	}
 
 }

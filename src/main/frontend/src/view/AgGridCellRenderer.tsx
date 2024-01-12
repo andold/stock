@@ -3,15 +3,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { Button, Col, OverlayTrigger, Row, Spinner, Table, Tooltip } from "react-bootstrap";
 
 // model
-import StockDividendModel from "../model/StockModel";
 import Price from "../model/Price";
 
 // store
 import store from "../store/StockStore";
-import itemStore from "../store/ItemStore";
-import dividendHistoryStore from "../store/DividendHistoryStore";
-import priceStore from "../store/PriceStore";
 import DividendHistory from "../model/DividendHistory";
+import crawlStore from "../store/CrawlStore";
 
 const FILL_COLOR_PRIORITY = [
 	`rgb(128, 0, 0)`,
@@ -463,19 +460,9 @@ export function OperateColumn(props: any) {
 	}
 	async function handleOnClickCrawl(_: any) {
 		setSpinner(true);
-		const param = {
-			...data,
-			start: moment([2010, 1, 1]).toDate(),
-		};
-		itemStore.crawl(param, (_: any) => {
-			dividendHistoryStore.crawl(param, (_: any) => {
-				priceStore.crawl(param, (_: any) => {
-					store.compile(param, (_: any) => {
-						setSpinner(false);
-						onChange && onChange({});
-					});
-				});
-			});
+		crawlStore.crawlItem(data, (_: any) => {
+			setSpinner(false);
+			onChange && onChange({});
 		});
 	}
 

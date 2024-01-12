@@ -25,6 +25,7 @@ import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.domain.Result;
 import kr.andold.stock.domain.Result.STATUS;
+import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.DividendHistoryService;
 import kr.andold.stock.service.DividendService;
 import kr.andold.stock.service.ItemService;
@@ -439,7 +440,7 @@ public class CrawlerService {
 			put(result.getResult());
 		}
 
-		log.info("{} {} crawlItemAll() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』 crawlItemAll() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
@@ -452,7 +453,42 @@ public class CrawlerService {
 			put(result.getResult());
 		}
 
-		log.info("{} {} crawlDividendAllRecent() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』 crawlDividendAllRecent() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
+	public Result<ParserResult> crawlItem(ItemParam item) {
+		log.info("{} crawlItem({})", Utility.indentStart(), item);
+		long started = System.currentTimeMillis();
+
+		ParserResult container = new ParserResult().clear();
+		Result<ParserResult> result = Result.<ParserResult>builder().result(container).build();
+
+		Result<ParserResult> itemResult = krx.item(item.getCode());
+		if (itemResult.getStatus() == STATUS.SUCCESS) {
+			put(itemResult.getResult());
+			container.addAll(itemResult.getResult());
+		} else {
+			result.setStatus(itemResult.getStatus());
+		}
+	
+		Result<ParserResult> dividendResult = seibro.dividend(item, item.getIpoDate());
+		if (dividendResult.getStatus() == STATUS.SUCCESS) {
+			put(dividendResult.getResult());
+			container.addAll(dividendResult.getResult());
+		} else {
+			result.setStatus(dividendResult.getStatus());
+		}
+	
+		Result<ParserResult> priceResult = krx.price(item.getCode(), item.getIpoDate());
+		if (priceResult.getStatus() == STATUS.SUCCESS) {
+			put(priceResult.getResult());
+			container.addAll(priceResult.getResult());
+		} else {
+			result.setStatus(priceResult.getStatus());
+		}
+
+		log.info("{} 『{}』『{}:{}:{}』 crawlItem({}) - {}", Utility.indentEnd(), result, itemResult, dividendResult, priceResult, item, Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 

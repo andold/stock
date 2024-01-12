@@ -10,7 +10,6 @@ import store from "../store/StockStore";
 import itemStore from "../store/ItemStore";
 import dividendHistoryStore from "../store/DividendHistoryStore";
 import priceStore from "../store/PriceStore";
-import idempotentStore from "../store/IdempotentStore";
 import crawlStore from "../store/CrawlStore";
 
 

@@ -493,4 +493,17 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		return sb.toString();
 	}
 
+	public String getAttributeLast(By xpath, String attributeName, int milli, String value) {
+		try {
+			List<WebElement> es = findElements(xpath, milli);
+			if (es != null && es.size() > 0) {
+				WebElement e = es.get(es.size() - 1);
+				return e.getAttribute(attributeName);
+			}
+		} catch (Exception e) {
+		}
+
+		return value;
+	}
+
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.Result;
+import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.PriceParam;
 import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
@@ -22,13 +23,24 @@ public class ApiCrawlerController {
 	@Autowired private CrawlerService service;
 
 	@ResponseBody
+	@PostMapping(value = "item")
+	public Result<ParserResult> crawlItem(@RequestBody ItemParam param) {
+		log.info("{} crawlItem({})", Utility.indentStart(), param);
+
+		Result<ParserResult> result = service.crawlItem(param);
+		
+		log.info("{} 『{}』 - crawlItem({})", Utility.indentEnd(), result, param);
+		return result;
+	}
+
+	@ResponseBody
 	@PostMapping(value = "price/all")
 	public Result<ParserResult> crawlPriceAll(@RequestBody PriceParam param) {
 		log.info("{} crawlPriceAll({})", Utility.indentStart(), param);
 
 		Result<ParserResult> result = service.crawlPrice(param.getBase());
 		
-		log.info("{} {} - crawlPriceAll({})", Utility.indentEnd(), result, param);
+		log.info("{} 『{}』 - crawlPriceAll({})", Utility.indentEnd(), result, param);
 		return result;
 	}
 
@@ -39,7 +51,7 @@ public class ApiCrawlerController {
 
 		Result<ParserResult> result = service.crawlItemAll();
 		
-		log.info("{} {} - crawlItemAll()", Utility.indentEnd(), result);
+		log.info("{} 『{}』 - crawlItemAll()", Utility.indentEnd(), result);
 		return result;
 	}
 
@@ -50,7 +62,7 @@ public class ApiCrawlerController {
 
 		Result<ParserResult> result = service.crawlDividendAllRecent();
 		
-		log.info("{} {} - crawlDividendAllRecent()", Utility.indentEnd(), result);
+		log.info("{} 『{}』 - crawlDividendAllRecent()", Utility.indentEnd(), result);
 		return result;
 	}
 

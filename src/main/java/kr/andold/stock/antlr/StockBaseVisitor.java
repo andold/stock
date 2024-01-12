@@ -32,6 +32,20 @@ public class StockBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitKrxItemInfoCompany(StockParser.KrxItemInfoCompanyContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitKrxItemInfoEtf(StockParser.KrxItemInfoEtfContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitKrxBasicInfoEtf(StockParser.KrxBasicInfoEtfContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}

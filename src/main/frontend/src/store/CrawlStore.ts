@@ -8,6 +8,9 @@ class CrawlStore {
 		makeAutoObservable(this);
 	}
 
+	crawlItem(request?: any, onSuccess?: any, onError?: any, element?: any) {
+		repository.crawlItem(request, onSuccess, onError, element);
+	}
 	crawlPriceAll(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlPriceAll(request, onSuccess, onError, element);
 	}

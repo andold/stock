@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import kr.andold.stock.domain.Result;
+import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
 
@@ -68,6 +69,14 @@ public class CrawlerServiceTest {
 	@Test
 	public void testCrawlDividendAllRecent() {
 		Result<ParserResult> result = service.crawlDividendAllRecent();
+		log.info("{}", result);
+	}
+
+	@Test
+	public void testCrawlItem() {
+		Result<ParserResult> result = service.crawlItem(ItemParam.builder()
+				.code("441680")
+				.build());
 		log.info("{}", result);
 	}
 

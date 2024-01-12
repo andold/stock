@@ -144,8 +144,42 @@ public class ParserService {
 		LIST_STOCK_ITEM.add(ItemDomain.builder().code(code).type(type).build());
 	}
 
+	public static void item(int mark
+			, String code
+			, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7
+			, String category, String category1, String category2, String category3, String category4, String category5, String category6, String category7
+			, String type
+			, String ipo
+			, String ea
+			, String fee
+	) {
+		log.debug("{} item(『{}』『{}』『{} {} {} {} {} {} {} {}』『{} {} {} {} {} {} {} {}』『{}』『{}』『{}』『{}』)", Utility.indentMiddle(), mark
+				, code
+				, symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7
+				, category, category1, category2, category3, category4, category5, category6, category7
+				, type
+				, ipo
+				, ea
+				, fee
+		);
+		if (code.startsWith("KR")) {
+			code = code.substring(3, 9);
+		}
+		ItemDomain item = ItemDomain.builder()
+				.code(code)
+				.type(type)
+				.build();
+		item.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
+		item.setSymbol(item.getSymbol().split("\\[[0-9]+")[0]);
+		item.setCategory(category, category1, category2, category3, category4, category5, category6, category7);
+		item.setIpoDate(Utility.parseDateTime(ipo, null));
+		item.setVolumeOfListedShares(ea);
+		LIST_STOCK_ITEM.add(item);
+	}
+
 	// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
-	public static void crawlEtfDetailThread(Integer mark, String code
+	public static void crawlEtfDetailThread(Integer mark
+			, String code
 			, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7
 			, String category, String category1, String category2, String category3, String category4, String category5, String category6, String category7
 			, String date
@@ -160,13 +194,14 @@ public class ParserService {
 				, fee
 				, ea
 		);
-		ItemDomain item = ItemDomain.builder().code(code).type("ETF").etf(true).build();
-		item.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
-		item.setSymbol(item.getSymbol().split("\\[[0-9]+")[0]);
-		item.setCategory(category, category1, category2, category3, category4, category5, category6, category7);
-		item.setIpoDate(Utility.parseDateTime(date, null));
-		item.setVolumeOfListedShares(ea);
-		LIST_STOCK_ITEM.add(item);
+		item(mark
+			, code
+			, symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7
+			, category, category1, category2, category3, category4, category5, category6, category7
+			, "ETF"
+			, date
+			, ea
+			, fee);
 	}
 
 	public static void crawlDividendHistoryEtfThread(Integer date, String code, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7, String base, String pay, String dividend,
