@@ -25,17 +25,22 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class Krx implements Crawler {
 	private static final String URL = "http://data.krx.co.kr/";
-	// KRX 정보데이터시스템 > 기본통계 > 주식 > 종목시세 > 개별종목 시세 추이 클릭
-	private static final String URL_PRICE_COMPANY_EACH = "http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020103";
 	private static final String MARK_START_END_POINT = String.format("KEYWORD\t%s\t%s\t%s\n", "주가일별시세", "KRX", URL);
+	
+	// KRX 정보데이터시스템 > 기본통계 > 주식 > 종목시세 > 개별종목 시세 추이
+	private static final String URL_PRICE_COMPANY_EACH = "http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020103";
+	private static final String MARK_START_END_POINT_PRICE_COMPANY_EACH = String.format("KEYWORD\t%s\t%s\t%s\n", "KRX", "주식 > 종목시세 > 개별종목 시세 추이", URL_PRICE_COMPANY_EACH);
 
 	// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 개별종목 시세 추이
 	private static final String URL_PRICE_ETF_EACH = "http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201030103";
 	private static final String MARK_START_END_POINT_PRICE_ETF_EACH = String.format("KEYWORD\t%s\t%s\t%s\n", "KRX", "증권상품 > ETF > 개별종목 시세 추이", URL_PRICE_ETF_EACH);
 
+	// KRX 정보데이터시스템 > 기본통계 > 주식 > 종목시세 > 전종목 시세
 	private static final String URL_PRICE_COMPANY_ALL = "http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020101";
-	private static final String URL_PRICE_ETF_ALL = "http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201030101";
 	private static final String MARK_START_END_POINT_PRICE_COMPANY_ALL = String.format("KEYWORD\t%s\t%s\t%s\n", "KRX", "주식 > 종목시세 > 전종목 시세", URL_PRICE_COMPANY_ALL);
+
+	// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 전종목 시세
+	private static final String URL_PRICE_ETF_ALL = "http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201030101";
 	private static final String MARK_START_END_POINT_PRICE_ETF_ALL = String.format("KEYWORD\t%s\t%s\t%s\n", "KRX", "ETF > 전종목 시세", URL_PRICE_ETF_ALL);
 
 	// KRX 정보데이터시스템 > 기본통계 > 주식 > 종목정보 > 전종목 기본정보
@@ -851,7 +856,7 @@ public class Krx implements Crawler {
 			}
 
 			StringBuffer sb = new StringBuffer();
-			sb.append(MARK_START_END_POINT);
+			sb.append(MARK_START_END_POINT_PRICE_COMPANY_EACH);
 
 			// 2. 조회기간 설정, 2년 기간 제한이 없다, ETF만 있다
 			WebElement startDateElement = driver.findElement(By.xpath("//*[@id='strdDd']"), TIMEOUT);
@@ -866,7 +871,7 @@ public class Krx implements Crawler {
 				long forStarted = System.currentTimeMillis();
 
 				WebElement table = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), TIMEOUT);
-				sb.append(driver.extractTextContentFromTableElement(table, String.format("ETF\t%s\t", code)));
+				sb.append(driver.getAttribute(table, "textContent", String.format("%s\t", code)));
 				sb.append(MARK_ANDOLD_SINCE);
 
 				List<WebElement> trs = table.findElements(By.xpath("//tr"));
@@ -884,7 +889,7 @@ public class Krx implements Crawler {
 			}
 			driver.quit();
 			
-			sb.append(MARK_START_END_POINT);
+			sb.append(MARK_START_END_POINT_PRICE_COMPANY_EACH);
 			ParserResult result = ParserService.parse(new String(sb), debug);
 
 			log.debug("{} 『{}』 priceCompany({}, {}) - {}", Utility.indentEnd(), result, code, start, Utility.toStringPastTimeReadable(started));

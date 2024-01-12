@@ -54,7 +54,7 @@ public class KrxTest {
 
 	@Test
 	public void testPriceCompanyStringDate() {
-		Result<ParserResult> result = krx.priceCompany("175330", Date.from(ZonedDateTime.now().minusDays(7).toInstant()));
+		Result<ParserResult> result = krx.priceCompany("175330", Date.from(ZonedDateTime.now().minusYears(3).toInstant()));
 		log.info("{}", result);
 		assertEquals(result.getStatus(), STATUS.SUCCESS);
 	}

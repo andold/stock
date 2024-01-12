@@ -31,9 +31,76 @@ stockDocument
 |	krxBasicInfoEtf					// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 전종목 기본정보
 |	krxItemInfoCompany				// KRX 정보데이터시스템 > 기본통계 > 주식 > 종목정보 > 개별정보 종합정보
 |	krxItemInfoEtf					// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 개별종목 종합정보
+|	krxPriceCompany					// KRX 정보데이터시스템 > 기본통계 > 주식 > 종목시세 > 개별종목 시세 추이
 |	krxPriceEtf						// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 개별종목 시세 추이
 ;
 
+
+// KRX 정보데이터시스템 > 기본통계 > 주식 > 종목시세 > 개별종목 시세 추이
+krxPriceCompany:
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 KRX 	 주식 > 종목시세 > 개별종목 시세 추이 	 http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020103 
+	(
+		(
+			NUMBER TAB										NEWLINE		//	175330 	 
+			NUMBER TAB										NEWLINE		//	175330 	 
+			NUMBER TAB										NEWLINE		//	175330 	 
+			NUMBER TAB										NEWLINE		//	175330 	 
+			NUMBER TAB										NEWLINE		//	175330 	 
+			NUMBER TAB TAB TAB TAB TAB										NEWLINE		//	175330 	 	 	 	 	 
+			NUMBER TAB TAB TAB										NEWLINE		//	175330 	 	 	 
+			NUMBER TAB TAB TAB TAB TAB										NEWLINE		//	175330 	 	 	 	 	 
+			NUMBER TAB TAB TAB TAB TAB										NEWLINE		//	175330 	 	 	 	 	 
+			NUMBER TAB TAB TAB TAB										NEWLINE		//	175330 	 	 	 	 
+			NUMBER TAB										NEWLINE		//	175330 	 
+			NUMBER TAB TAB TAB TAB TAB										NEWLINE		//	175330 	 	 	 	 	 
+			NUMBER TAB TAB TAB										NEWLINE		//	175330 	 	 	 
+			NUMBER TAB TAB TAB TAB TAB										NEWLINE		//	175330 	 	 	 	 	 
+			NUMBER TAB TAB TAB TAB TAB										NEWLINE		//	175330 	 	 	 	 	 
+			NUMBER TAB TAB TAB TAB										NEWLINE		//	175330 	 	 	 	 
+			NUMBER TAB										NEWLINE		//	175330 	 
+			NUMBER TAB										NEWLINE		//	175330 	 
+			NUMBER TAB										NEWLINE		//	175330 	 
+			NUMBER TAB										NEWLINE		//	175330 	 
+			NUMBER TAB TAB TAB TAB TAB										NEWLINE		//	175330 	 	 	 	 	 
+			NUMBER TAB TAB TAB										NEWLINE		//	175330 	 	 	 
+			NUMBER TAB TAB TAB TAB TAB										NEWLINE		//	175330 	 	 	 	 	 
+			NUMBER TAB TAB TAB TAB TAB										NEWLINE		//	175330 	 	 	 	 	 
+			NUMBER TAB TAB TAB TAB										NEWLINE		//	175330 	 	 	 	 
+			NUMBER TAB										NEWLINE		//	175330 	 
+			NUMBER TAB										NEWLINE		//	175330 	 
+			NUMBER TAB										NEWLINE		//	175330 	 
+			NUMBER TAB TAB TAB TAB TAB										NEWLINE		//	175330 	 	 	 	 	 
+			NUMBER TAB TAB TAB										NEWLINE		//	175330 	 	 	 
+			NUMBER TAB TAB TAB TAB TAB										NEWLINE		//	175330 	 	 	 	 	 
+			NUMBER TAB TAB TAB TAB TAB										NEWLINE		//	175330 	 	 	 	 	 
+			NUMBER TAB TAB TAB TAB										NEWLINE		//	175330 	 	 	 	 
+			NUMBER TAB WORD										NEWLINE		//	175330 	 일자종가대비등락률시가고가저가거래량거래대금시가총액상장주식수 
+			NUMBER TAB										NEWLINE		//	175330 	 
+			(
+				code=NUMBER TAB base=DATE										NEWLINE		//	175330 	 2021/01/13 
+				NUMBER TAB closing=NUMBER										NEWLINE		//	175330 	 5,740 
+				NUMBER TAB NUMBER										NEWLINE		//	175330 	 50 
+				NUMBER TAB NUMBER										NEWLINE		//	175330 	 +0.88 
+				NUMBER TAB market=NUMBER				NEWLINE		//	402970 	 10,050 
+				NUMBER TAB high=NUMBER					NEWLINE		//	402970 	 10,140 
+				NUMBER TAB low=NUMBER					NEWLINE		//	402970 	 10,050 
+				NUMBER TAB volume=NUMBER				NEWLINE		//	402970 	 42,219 
+				NUMBER TAB NUMBER						NEWLINE		//	175330 	 5,470,752,030 
+				NUMBER TAB NUMBER						NEWLINE		//	175330 	 1,130,681,811,560 
+				NUMBER TAB volumeOfListedShares=NUMBER	NEWLINE		//	175330 	 196,982,894 
+				NUMBER TAB								NEWLINE		//	175330 	 
+				{
+					ParserService.price(20240112
+						, $code.text
+						, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
+					);
+				}
+			)+ 	 	 	 
+		)+
+		WORD TAB WORD TAB DATE							NEWLINE		//	andold 	 since 	 2023-11-27 
+	)+
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 KRX 	 주식 > 종목시세 > 개별종목 시세 추이 	 http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020103 
+;
 
 
 // KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 개별종목 시세 추이
