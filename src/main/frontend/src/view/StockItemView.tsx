@@ -36,72 +36,55 @@ export default ((props: any) => {
 			page: form.page,
 		};
 		store.searchItem(request, (_: any, result: any) => {
-			whenItemChange(result?.items);
+			const items = result?.items;
+			if (!items) {
+				return;
+			}
+
+			const codes = items.map((x: any) => x.code);
+			priceStore.search({
+					codes: codes,
+					start: moment().subtract(14, "days").format("YYYY-MM-DD"),
+				}, (_: any, pricesAll: Price[]) => {
+				const map = priceStore.makeMap(pricesAll);
+				items.forEach((item: Item) => {
+					const prices = map.get(item.code)?.sort(priceStore.compare);
+					const currentPrice = (prices?.length > 0) ? prices[0].closing : 10000;
+					let max = Number.MIN_SAFE_INTEGER;
+					let min = Number.MAX_SAFE_INTEGER;
+					prices?.forEach((price: Price) => {
+						max = Math.max(max, price.closing);
+						min = Math.min(min, price.closing);
+					});
+					item.custom = {
+						...item.custom,
+						prices: prices,
+						currentPrice: currentPrice,
+						minPrice: min,
+						maxPrice: max,
+					};
+				});
+				dividendHistoryStore.search({
+						start: moment().subtract(10, "years").startOf("year").format("YYYY-MM-DDTHH:mm:ss.SSSZZ"),
+						codes: codes,
+					}, (_: any, historiesAll: DividendHistory[]) => {
+					const map = dividendHistoryStore.makeMap(historiesAll.filter((history: DividendHistory) => history.dividend > 0));
+	
+					items.forEach((item: Item) => {
+						const histories = map.get(item.code)?.sort(dividendHistoryStore.compare);
+						const mapHistory = dividendHistoryStore.makeMapByYearMonth(histories);
+						item.custom = {
+							...item.custom,
+							histories: histories,
+							mapHistory: mapHistory,
+						};
+					});
+					setRowData(items);
+				});
+			});
 		});
 		return function() { setRowData([]); };
 	}, [form]);
-
-	function whenItemChange(items: Item[]) {
-		const codes = items?.map((x: any) => x.code);
-		const request = {
-			keyword: null,
-			start: null,
-			end: null,
-			codes: codes,
-		};
-		dividendStore.search(request, (_: any, dividends: StockDividendModel[]) => {
-			const map = store.makeMapDividend(dividends);
-			items.forEach((item: Item) => {
-				item.custom = {
-					...item.custom,
-					dividend: map.get(item.code),
-				};
-			});
-			whenItemDividendChange(items);
-		});
-
-		priceStore.search({codes: codes, start: moment().subtract(14, "days").format("YYYY-MM-DD")}, (_: any, pricesAll: Price[]) => {
-			const map = priceStore.makeMap(pricesAll);
-			items.forEach((item: Item) => {
-				const prices = map.get(item.code)?.sort(priceStore.compare);
-				const currentPrice = (prices?.length > 0) ? prices[0].closing : 10000;
-				let max = Number.MIN_SAFE_INTEGER;
-				let min = Number.MAX_SAFE_INTEGER;
-				prices?.forEach((price: Price) => {
-					max = Math.max(max, price.closing);
-					min = Math.min(min, price.closing);
-				});
-				item.custom = {
-					...item.custom,
-					prices: prices,
-					currentPrice: currentPrice,
-					minPrice: min,
-					maxPrice: max,
-				};
-			});
-			whenItemDividendChange(items);
-	});
-	}
-	function whenItemDividendChange(items: Item[]) {
-		const codes = items?.map((x: any) => x.code);
-		const request = {
-			start: moment().subtract(10, "years").startOf("year").format("YYYY-MM-DDTHH:mm:ss.SSSZZ"),
-			codes: codes,
-		};
-		dividendHistoryStore.search(request, (_: any, historiesAll: DividendHistory[]) => {
-			const map = dividendHistoryStore.makeMap(historiesAll.filter((history: DividendHistory) => history.dividend > 0));
-			items.forEach((item: Item) => {
-				const histories = map.get(item.code)?.sort(dividendHistoryStore.compare);
-				const mapHistory = dividendHistoryStore.makeMapByYearMonth(histories);
-				item.custom = {
-					...item.custom,
-					histories: histories,
-					mapHistory: mapHistory,
-				};
-			});
-			setRowData(items);
-		});
-	}
 
 	function doesExternalFilterPass(node: any) {
 		return (!form.etf && !form.kospi && !form.kosdaq)

@@ -107,10 +107,10 @@ export function PriceRecentCellRenderer(param: any) {
 		return Math.max(4, Math.floor((price.closing - info.min) / (info.max - info.min) * param.node.rowHeight));
 	}
 	return (<>
-		<Row className="mx-0 text-right">
-			<Col sm="5" md="4" xl="3" xxl="3" className="m-0 p-0 text-right">{param.value}</Col>
-			<Col ref={ref} className="ms-2 p-0">
-				<OverlayTrigger overlay={renderTooltip} trigger={["hover", "hover"]} placement="auto">
+		<OverlayTrigger overlay={renderTooltip} trigger={["hover", "hover"]} placement="auto">
+			<Row className="mx-0 text-right h-100">
+				<Col sm="5" md="4" xl="3" xxl="3" className="m-0 p-0 text-right">{param.value}</Col>
+				<Col ref={ref} className="ms-2 p-0">
 					<Row className="m-0 p-0"> {
 						prices?.map((price: Price) => (
 							<Col key={price.id} className={"px-0 bg-primary"}
@@ -122,9 +122,9 @@ export function PriceRecentCellRenderer(param: any) {
 							 ></Col>
 						))
 					}</Row>
-				</OverlayTrigger>
-			</Col>
-		</Row>
+				</Col>
+			</Row>
+		</OverlayTrigger>
 	</>);
 }
 
@@ -222,99 +222,29 @@ export function PriceEarningsRatioCellRenderer(param: any) {
 
 		return Math.max(4, Math.floor(limit * value / max));
 	}
-	if (max > 0) {
-		return (<>
-			<Row className="mx-0 text-right">
-				<Col sm="4" md="3" xl="2" xxl="2" className="m-0 p-0">
-					<span>{param.value?.toFixed(2)}</span>
-				</Col>
-				<Col ref={ref} sm="8" md="9" xl="10" xxl="10">
-					<Row className="m-0 p-0">
-					{
-						dividends.map((cx: number, index: number) => (
-							<Col key={index}
-								className={`px-0 ${index == YEARS - 1 ? "bg-danger" : cx > 0 ? "bg-primary" : "bg-black"}`}
-								style={{
-									marginRight: 2,
-									height: height(lineHeight, max, cx),
-									marginTop: lineHeight - height(lineHeight, max, cx),
-								}}
-							></Col>
-						))
-					}
-					</Row>
-				</Col>
-			</Row>
-		</>);
-	}
 
-	const { data } = param;
-
-	const dividend: StockDividendModel = data.custom?.dividend;
-	if (!dividend) {
+	if (max <= 0) {
 		return (<></>);
-	}
-	const [values, setValues] = useState<any>({
-		height: param.node.rowHeight ,
-		max: Math.max(dividend?.dividend, dividend?.dividend1YAgo, dividend?.dividend2YAgo, dividend?.dividend3YAgo),
-		value0: 1,
-		value1: 1,
-		value2: 1,
-		value3: 1,
-	});
-
-	useEffect(() => {
-		setValues({
-			...values,
-			height: param?.node?.rowHeight,
-			value0: values.height * dividend?.dividend / values.max,
-			value1: values.height * dividend?.dividend1YAgo / values.max,
-			value2: values.height * dividend?.dividend2YAgo / values.max,
-			value3: values.height * dividend?.dividend3YAgo / values.max,
-		});
-	}, [ref]);
-
-	function renderTooltip(props: any) {
-		return (<Tooltip id="button-tooltip" {...props}>
-			<Row className="mx-1 px-0 fw-bold text-warning" style={{ fontSize: 10 }}>
-				<Col xs={2} className="mx-1 px-0">항목</Col>
-				<Col className="mx-1 px-0 text-right">3년전</Col>
-				<Col className="mx-1 px-0 text-right">2년전</Col>
-				<Col className="mx-1 px-0 text-right">1년전</Col>
-				<Col className="mx-1 px-0 text-right">올해</Col>
-			</Row>
-			<Row className="mx-1 px-0" style={{ fontSize: 8 }}>
-				<Col xs={2} className="mx-1 px-0">배당금 (원)</Col>
-				<Col className="mx-1 px-0 text-right">{dividend.dividend3YAgo?.toLocaleString()}</Col>
-				<Col className="mx-1 px-0 text-right">{dividend.dividend2YAgo?.toLocaleString()}</Col>
-				<Col className="mx-1 px-0 text-right">{dividend.dividend1YAgo?.toLocaleString()}</Col>
-				<Col className="mx-1 px-0 text-right">{dividend.dividend?.toLocaleString()}</Col>
-			</Row>
-			<Row className="mx-1 px-0" style={{ fontSize: 8 }}>
-				<Col xs={2} className="mx-1 px-0">수익률 (%)</Col>
-				<Col className="mx-1 px-0 text-right">{(dividend.dividend3YAgo / dividend.currentPrice * 100).toFixed(2)}</Col>
-				<Col className="mx-1 px-0 text-right">{(dividend.dividend2YAgo / dividend.currentPrice * 100).toFixed(2)}</Col>
-				<Col className="mx-1 px-0 text-right">{(dividend.dividend1YAgo / dividend.currentPrice * 100).toFixed(2)}</Col>
-				<Col className="mx-1 px-0 text-right">{(dividend.dividend / dividend.currentPrice * 100).toFixed(2)}</Col>
-			</Row>
-		</Tooltip>
-		);
 	}
 
 	return (<>
 		<Row className="mx-0 text-right">
 			<Col sm="4" md="3" xl="2" xxl="2" className="m-0 p-0">
-				<span>{store.priceEarningsRatio(dividend, data?.custom?.histories).toFixed(2)}</span>
+				<span>{param.value?.toFixed(2)}</span>
 			</Col>
 			<Col ref={ref} sm="8" md="9" xl="10" xxl="10">
-				<OverlayTrigger overlay={renderTooltip}>
-					<Row className="m-0 p-0">
-						<Col className="px-0 bg-primary" style={{ marginRight: 2, height: values.value3, marginTop: values.height - values.value3, }}></Col>
-						<Col className="px-0 bg-primary" style={{ marginRight: 2, height: values.value2, marginTop: values.height - values.value2, }}></Col>
-						<Col className="px-0 bg-primary" style={{ marginRight: 2, height: values.value1, marginTop: values.height - values.value1, }}></Col>
-						<Col className="px-0 bg-primary" style={{ height: isNaN(values.value0) ? 0 : values.value0, marginTop: values.height - values.value0, }}></Col>
-					</Row>
-				</OverlayTrigger>
+				<Row className="m-0 p-0">{
+					dividends.map((cx: number, index: number) => (
+						<Col key={index}
+							className={`px-0 ${index == YEARS - 1 ? "bg-danger" : cx > 0 ? "bg-primary" : "bg-black"}`}
+							style={{
+								marginRight: 2,
+								height: height(lineHeight, max, cx),
+								marginTop: lineHeight - height(lineHeight, max, cx),
+							}}
+						></Col>
+					))
+				}</Row>
 			</Col>
 		</Row>
 	</>);
@@ -449,33 +379,30 @@ export function RecentDividendAgGridCellRenderer(param: any) {
 		return (
 			<Table bordered striped size="sm" variant="dark" className="my-0 py-0" style={{ fontSize: FONT_SIZE }}>
 				<thead><tr>
-					<th>연도</th>
-					{
+					<th>연도</th>{
 						store.range(12).map((cy: number) => (
-							<th key={Math.random()} className="text-end px-1">{cy + 1}</th>
+							<th key={cy} className="text-end px-1">{cy + 1}</th>
 						))
 					}
 					<th className="text-end px-1">합계</th>
-				</tr></thead><tbody>
-					{
-						store.range(end.year() - start.year()).map((cx: number) => (<tr key={Math.random()}>
-							<th className="px-1">{start.year() + cx}</th>
-							{
+				</tr></thead><tbody>{
+					store.range(end.year() - start.year()).map((cx: number) => (
+						<tr key={Math.random()}>
+							<th className="px-1">{start.year() + cx}</th>{
 								store.range(12).map((cy: number) => {
 									const history: DividendHistory = mapHistory.get(moment([start.year() + cx, cy]).format("YYYY-MM"));
 									if (!history?.dividend || !history?.priceClosing) {
 										return (<td key={Math.random()}></td>);
 									}
-
+	
 									return (
-										<td key={Math.random()} className="text-end px-1">{(history?.dividend / history?.priceClosing * 100)?.toFixed(2)}</td>
+										<td key={cy} className="text-end px-1">{(history?.dividend / history?.priceClosing * 100)?.toFixed(2)}</td>
 									);
 								})
-							}
-							<th className="text-end px-1">{mapHistory.get(start.year() + cx + 0.1)?.toFixed(2)}</th>
-						</tr>))
-					}
-				</tbody></Table>
+							}<th className="text-end px-1">{mapHistory.get(start.year() + cx + 0.1)?.toFixed(2)}</th>
+						</tr>
+					))
+				}</tbody></Table>
 		);
 	}
 	function renderTooltip(props: any) {
@@ -505,23 +432,19 @@ export function RecentDividendAgGridCellRenderer(param: any) {
 
 	return (<>
 		<OverlayTrigger overlay={renderTooltip} trigger={["hover", "hover"]} placement="auto" key={Math.random()}>
-			<Row className="m-0 p-0">
-				{
-					store.range(5).map((cx: number) => (
-						<Row key={Math.random()} className="mx-0 p-0" style={{ height: (param?.node?.rowHeight - 4) / 5 - 2, marginTop: 1 }}>
-							{
-								store.range(12).map((cy: number) => {
-									if (p(end.year() - 5 + cx, cy) > 0) {
-										return (
-											<span key={Math.random()} className="mx-0 px-0" style={{ width: `${p(end.year() - 5 + cx, cy)}%`, backgroundColor: FILL_COLOR_MONTH[cy] }}> </span>
-										);
-									}
-								})
+			<Row className="m-0 p-0 h-100">{
+				store.range(5).map((cx: number, index: number) => (
+					<Row key={index} className="mx-0 p-0" style={{ height: (param?.node?.rowHeight - 4) / 5 - 2, marginTop: 1 }}>{
+						store.range(12).map((cy: number, indexy: number) => {
+							if (p(end.year() - 5 + cx, cy) > 0) {
+								return (
+									<span key={indexy} className="mx-0 px-0" style={{ width: `${p(end.year() - 5 + cx, cy)}%`, backgroundColor: FILL_COLOR_MONTH[cy] }}> </span>
+								);
 							}
-						</Row>
-					))
-				}
-			</Row>
+						})
+					}</Row>
+				))
+			}</Row>
 		</OverlayTrigger>
 	</>);
 }

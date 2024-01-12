@@ -244,7 +244,7 @@ function Header(props: any) {
 	function handleOnClickCompile() {
 		setDisableCompile(true);
 		store.compile(null, () => {
-		setDisableCompile(false);
+			setDisableCompile(false);
 			onChange && onChange({});
 		});
 	}
