@@ -176,7 +176,7 @@ public class Seibro implements Crawler {
 			startDateElement.sendKeys(Keys.TAB); // 시작일 입력
 
 			// 넓게 보기 아이콘
-			driver.findElement(By.id("btn_wide_img"), TIMEOUT).click();
+			driver.findElement(By.xpath("//*[@id='btn_wide']"), TIMEOUT).click();
 			return driver;
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
