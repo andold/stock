@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -93,104 +92,26 @@ public class StockService {
 		return new StockParam(items, dividends, histories, prices);
 	}
 
-	public CrudList<DividendDomain> compile() {
+	public CrudList<ItemDomain> compile() {
 		log.info("{} compile()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		Calendar calendar = Calendar.getInstance();
+		// 주가, 주간/월간/연간 대표 지정
+		CrudList<PriceDomain> priceResult = priceService.compile();
+
+		List<ItemDomain> items = itemService.search(null);
 		List<DividendHistoryDomain> histories = dividendHistoryService.search(null);
 		List<PriceDomain> prices = priceService.search(null);
-		List<DividendDomain> dividends = dividendService.search(null);
+
+		// 상장일, 배당일 대표 지정
+		CrudList<PriceDomain> priceResult1 = priceService.compile(items, histories);
 
 		// 최근 배당수익률 적용
-		List<ItemDomain> items = compilePriceEarningsRatioByHistoriesAndPrices(histories, prices);
-		itemService.put(items);
+		List<ItemDomain> perItems = compilePriceEarningsRatioByHistoriesAndPrices(histories, prices);
+		CrudList<ItemDomain> itemResult = itemService.put(perItems);
 		
-		Map<String, DividendDomain> map = dividendService.makeMap(dividends);
-		for (DividendDomain dividend : dividends) {
-			dividend.setDividend(null);
-			dividend.setDividend1YAgo(null);
-			dividend.setDividend2YAgo(null);
-			dividend.setDividend3YAgo(null);
-		}
-		for (PriceDomain price : prices) {
-			Date base = price.getBase();
-			String code = price.getCode();
-			DividendDomain dividend = map.get(code);
-			if (dividend == null) {
-				dividend = DividendDomain.builder().code(code).build();
-				map.put(code, dividend);
-			}
-			Date baseMonth = dividend.getBaseMonth();
-			if (baseMonth == null || baseMonth.before(base)) {
-				dividend.setBaseMonth(base);
-				dividend.setCurrentPrice(price.getClosing());
-			}
-		}
-		for (DividendHistoryDomain history : histories) {
-			Date base = history.getBase();
-			calendar.setTime(base);
-			int index = LocalDate.now().getYear() - calendar.get(Calendar.YEAR);
-			String code = history.getCode();
-			Integer value = history.getDividend();
-			if (value == null || value == 0) {
-				continue;
-			}
-
-			DividendDomain dividend = map.get(code);
-			if (dividend == null) {
-				dividend = DividendDomain.builder().code(code).build();
-				map.put(code, dividend);
-			}
-			Integer currentPrice = dividend.getCurrentPrice();
-			switch (index) {
-			case 0:
-				if (dividend.getDividend() == null) {
-					dividend.setDividend(value);
-				} else {
-					dividend.setDividend(value + dividend.getDividend());
-				}
-				if (currentPrice == null) {
-					log.warn("{}", dividend);
-					break;
-				}
-				dividend.setPriceEarningsRatio(dividend.getDividend() * 100f / currentPrice);
-				break;
-			case 1:
-				if (dividend.getDividend1YAgo() == null) {
-					dividend.setDividend1YAgo(value);
-				} else {
-					dividend.setDividend1YAgo(value + dividend.getDividend1YAgo());
-				}
-				if (currentPrice == null) {
-					log.warn("{}", dividend);
-					break;
-				}
-				if (dividend.getDividend() == null) {
-					dividend.setPriceEarningsRatio(dividend.getDividend1YAgo() * 100f / currentPrice);
-				}
-				break;
-			case 2:
-				if (dividend.getDividend2YAgo() == null) {
-					dividend.setDividend2YAgo(value);
-				} else {
-					dividend.setDividend2YAgo(value + dividend.getDividend2YAgo());
-				}
-				break;
-			case 3:
-				if (dividend.getDividend3YAgo() == null) {
-					dividend.setDividend3YAgo(value);
-				} else {
-					dividend.setDividend3YAgo(value + dividend.getDividend3YAgo());
-				}
-				break;
-			}
-		}
-
-		CrudList<DividendDomain> result = dividendService.put(dividends);
-
-		log.info("{} {} compile() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
-		return result;
+		log.info("{} 『{}』『{}』『{}』 compile() - {}", Utility.indentEnd(), priceResult, priceResult1, itemResult, Utility.toStringPastTimeReadable(started));
+		return itemResult;
 	}
 
 	private List<ItemDomain> compilePriceEarningsRatioByHistoriesAndPrices(List<DividendHistoryDomain> histories, List<PriceDomain> prices) {

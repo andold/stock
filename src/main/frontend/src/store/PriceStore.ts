@@ -16,6 +16,9 @@ class PriceStore {
 	crawl(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawl(request, onSuccess, onError, element);
 	}
+	purge(request?: any, onSuccess?: any, onError?: any, element?: any) {
+		repository.purge(request, onSuccess, onError, element);
+	}
 
 	makeMap(prices: Price[]) {
 		const map = new Map();

@@ -95,9 +95,11 @@ function Header(props: any) {
 
 	const [spinner, setSpinner] = useState<number>(0);
 	const [collapsed, setCollapsed] = useState(true);
+	const [disableCompile, setDisableCompile] = useState(false);
 	const [disableCrawlDividendAllRecent, setDisableCrawlDividendAllRecent] = useState(false);
 	const [disableCrawlPricaAll, setDisableCrawlPriceAll] = useState(false);
 	const [disableCrawlItemAll, setDisableCrawlItemAll] = useState(false);
+	const [disablePurgePrice, setDisablePurgePrice] = useState(false);
 	const [jobs, setJobs] = useState({
 		play: false,
 		queue: [],
@@ -134,6 +136,13 @@ function Header(props: any) {
 	function handleOnClickDownload() {
 		const yyyymmdd = moment().format("YYYYMMDD");
 		store.download({ filename: `stock-${yyyymmdd}.json`, });
+	}
+	function handleOnClickPurgePrice() {
+		setDisablePurgePrice(true);
+		priceStore.purge(null, (_: any, response: any) => {
+			setDisablePurgePrice(false);
+			console.log(response);
+		});
 	}
 	function handleOnClickCrawlDividendAllRecent() {
 		setDisableCrawlDividendAllRecent(true);
@@ -233,9 +242,9 @@ function Header(props: any) {
 		});
 	}
 	function handleOnClickCompile() {
-		setSpinner(spinner + 1);
+		setDisableCompile(true);
 		store.compile(null, () => {
-			setSpinner(spinner - 1);
+		setDisableCompile(true);
 			onChange && onChange({});
 		});
 	}
@@ -355,7 +364,14 @@ function Header(props: any) {
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemCompanyDetails}>Crawl Item Detail Company</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemEtfDetails}>Crawl Item Detail ETF</NavDropdown.Item>
 									</NavDropdown>
-									<Button size="sm" variant="secondary" className="ms-1" onClick={handleOnClickCompile}>Compile</Button>
+									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCompile} onClick={handleOnClickCompile}>
+										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCompile} />
+										Compile
+									</Button>
+									<Button size="sm" variant="secondary" className="ms-1" disabled={disablePurgePrice} onClick={handleOnClickPurgePrice}>
+										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disablePurgePrice} />
+										주가 정리
+									</Button>
 									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCrawlDividendAllRecent} onClick={handleOnClickCrawlDividendAllRecent}>
 										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlDividendAllRecent} />
 										최근 배당 수집

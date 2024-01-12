@@ -1,8 +1,10 @@
 package kr.andold.stock.repository;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -41,5 +43,13 @@ public interface PriceRepository extends JpaRepository<PriceEntity, Integer> {
 
 	@Query(value = QUERY_SEARCH_PARAM, nativeQuery = false)
 	List<PriceEntity> search(@Param("param") PriceParam param);
+
+	@Modifying
+	@Query("	DELETE"
+			+ "		FROM PriceEntity	x"
+			+ "	WHERE"
+			+ "			x.base < :date"
+			+ "		AND	(x.flag	IS	NULL	OR	x.flag	=	0)")
+	int purge(@Param("date") Date date);
 
 }

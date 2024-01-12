@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.DividendDomain;
 import kr.andold.stock.domain.DividendHistoryDomain;
+import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.param.DividendParam;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.StockParam;
@@ -74,12 +75,12 @@ public class ApiStockController {
 
 	@ResponseBody
 	@GetMapping(value = "compile")
-	public CrudList<DividendDomain> compile() {
+	public CrudList<ItemDomain> compile() {
 		log.info("{} compile()", Utility.indentStart());
 
-		CrudList<DividendDomain> result = service.compile();
+		CrudList<ItemDomain> result = service.compile();
 
-		log.info("{} Dividend:{} - compile()", Utility.indentEnd(), result);
+		log.info("{} 『{}』 - compile()", Utility.indentEnd(), result);
 		return result;
 	}
 
@@ -90,7 +91,7 @@ public class ApiStockController {
 
 		CrudList<DividendHistoryDomain> result = service.compile(param);
 
-		log.info("{} DividendHistory:{} - compilePost({})", Utility.indentEnd(), result, param);
+		log.info("{} 『{}』 - compilePost({})", Utility.indentEnd(), result, param);
 		return result;
 	}
 
@@ -101,7 +102,7 @@ public class ApiStockController {
 
 		ParserResult result = stockCrawlerService.crawlItemDetailEtf();
 
-		log.info("{} {} - crawlItemEtfDetails()", Utility.indentEnd(), result);
+		log.info("{} 『{}』 - crawlItemEtfDetails()", Utility.indentEnd(), result);
 		return result;
 	}
 
@@ -112,7 +113,7 @@ public class ApiStockController {
 
 		ParserResult result = stockCrawlerService.crawlItemDetailCompany();
 
-		log.info("{} {} - crawlItemCompanyDetails()", Utility.indentEnd(), result);
+		log.info("{} 『{}』 - crawlItemCompanyDetails()", Utility.indentEnd(), result);
 		return result;
 	}
 
@@ -123,7 +124,7 @@ public class ApiStockController {
 
 		ParserResult result = stockCrawlerService.crawlItemEtf();
 
-		log.info("{} {} - crawlItemEtf()", Utility.indentEnd(), result);
+		log.info("{} 『{}』 - crawlItemEtf()", Utility.indentEnd(), result);
 		return result;
 	}
 

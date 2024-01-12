@@ -3,6 +3,7 @@ package kr.andold.stock.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,6 +42,17 @@ public class ApiPriceController {
 		ParserResult result = service.crawl(param);
 
 		log.info("{} {} - crawl({})", Utility.indentEnd(), result, param);
+		return result;
+	}
+
+	@ResponseBody
+	@GetMapping(value = "purge")
+	public int purge() {
+		log.info("{} purge()", Utility.indentStart());
+
+		int result = service.purge();
+
+		log.info("{} #{} purge()", Utility.indentEnd(), result);
 		return result;
 	}
 

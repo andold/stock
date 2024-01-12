@@ -10,8 +10,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.crawler.IdempotentService;
+import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.Result;
+import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.ParserService.ParserResult;
+import kr.andold.stock.service.PriceService;
+import kr.andold.stock.service.StockService;
 import kr.andold.stock.service.Utility;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,6 +29,9 @@ public class ScheduledTasks {
 
 	@Autowired
 	private IdempotentService idempotentService;
+
+	@Autowired private StockService stockService;
+	@Autowired private PriceService priceService;
 
 	@Scheduled(initialDelay = 1000 * 30, fixedDelay = Long.MAX_VALUE)
 	public void scheduleTaskOnce() {
@@ -55,7 +62,13 @@ public class ScheduledTasks {
 	// 평일
 	@Scheduled(cron = "50 40 22 * * MON-FRI")
 	public void scheduleTaskDaily() {
-		crawlerService.crawlPrice(Date.from(LocalDate.now().atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)));
+		log.info("{} scheduleTaskDaily()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		Result<ParserResult> crawlPriceResult = crawlerService.crawlPrice(Date.from(LocalDate.now().atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)));
+		CrudList<ItemDomain> compileResult = stockService.compile();
+
+		log.info("{} 『{}』『{}』 scheduleTaskDaily() - {}", Utility.indentEnd(), crawlPriceResult, compileResult, Utility.toStringPastTimeReadable(started));
 	}
 
 	// 매주 일요일
@@ -74,6 +87,7 @@ public class ScheduledTasks {
 	public void scheduleTaskMonthly() {
 		crawlerService.crawlItemDetailEtf();			//	ETF 상세
 		crawlerService.crawlItemDetailCompany();		//	기업주식 상세
+		priceService.purge();
 	}
 
 	// 매분기 첫달 첫번째 일요일
