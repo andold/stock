@@ -93,7 +93,6 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		return domains;
 	}
 
-	@CacheEvict(value = "prices")
 	@Override
 	public int remove(List<PriceDomain> domains) {
 		return 0;
@@ -351,6 +350,7 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 	}
 
 
+	@CacheEvict(value = "prices")
 	@Transactional
 	public int purge() {
 		ZonedDateTime date = ZonedDateTime.now().minusMonths(1);
