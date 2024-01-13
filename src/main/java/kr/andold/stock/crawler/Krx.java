@@ -64,8 +64,8 @@ public class Krx implements Crawler {
 
 	@Override
 	public Result<ParserResult> dividend(ItemDomain item, Date start) {
-		log.error("{} {} dividend({}, {})", Utility.indentMiddle(), "NOT SUPPORTED", item, start);
-		return null;
+		log.error("{} {} dividend({}, {})", Utility.indentMiddle(), STATUS.NOT_SUPPORT, item, start);
+		return  Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
 	}
 
 	@Override
@@ -153,13 +153,13 @@ public class Krx implements Crawler {
 			if (!driver.waitUntilExist(By.xpath("//*[@id='jsLayer_finder_secuprodisu1_1']"), true, TIMEOUT)) {
 				driver.quit();
 				Result<ChromeDriverWrapper> result = Result.<ChromeDriverWrapper>builder().status(STATUS.FAIL_NO_RESULT).build();
-				log.warn("{} 『{}』 initPriceAsEtf({}, #{}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
+				log.debug("{} 『{}』 initPriceAsEtf({}, #{}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
 				return result;
 			}
 			if (!driver.waitUntilExist(By.xpath("//div[@id='jsLayer_finder_secuprodisu1_1']"), false, TIMEOUT)) {
 				driver.quit();
 				Result<ChromeDriverWrapper> result = Result.<ChromeDriverWrapper>builder().status(STATUS.FAIL_NO_RESULT).build();
-				log.warn("{} 『{}』 initPriceAsEtf({}, #{}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
+				log.debug("{} 『{}』 initPriceAsEtf({}, #{}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
 				return result;
 			}
 
@@ -293,13 +293,13 @@ public class Krx implements Crawler {
 			if (!driver.waitUntilExist(By.xpath("//div[@id='jsLayer_finder_stkisu0_0']"), true, TIMEOUT)) {
 				driver.quit();
 				Result<ChromeDriverWrapper> result = Result.<ChromeDriverWrapper>builder().status(STATUS.FAIL_NO_RESULT).build();
-				log.warn("{} 『{}』 initPriceAsCompany({}, #{}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
+				log.debug("{} 『{}』 initPriceAsCompany({}, #{}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
 				return result;
 			}
 			if (!driver.waitUntilExist(By.xpath("//div[@id='jsLayer_finder_stkisu0_0']"), false, TIMEOUT)) {
 				driver.quit();
 				Result<ChromeDriverWrapper> result = Result.<ChromeDriverWrapper>builder().status(STATUS.FAIL_NO_RESULT).build();
-				log.warn("{} 『{}』 initPriceAsCompany({}, #{}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
+				log.debug("{} 『{}』 initPriceAsCompany({}, #{}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
 				return result;
 			}
 
@@ -698,13 +698,13 @@ public class Krx implements Crawler {
 			if (!driver.waitUntilExist(By.xpath("//div[@id='jsLayer_finder_stkisu0_0']"), true, TIMEOUT)) {
 				driver.quit();
 				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
-				log.warn("{} 『{}』 itemCompany({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+				log.debug("{} 『{}』 itemCompany({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
 				return result;
 			}
 			if (!driver.waitUntilExist(By.xpath("//div[@id='jsLayer_finder_stkisu0_0']"), false, TIMEOUT)) {
 				driver.quit();
 				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
-				log.warn("{} 『{}』 itemCompany({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+				log.debug("{} 『{}』 itemCompany({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
 				return result;
 			}
 
@@ -762,13 +762,13 @@ public class Krx implements Crawler {
 			if (!driver.waitUntilExist(By.xpath("//*[@id='jsLayer_finder_secuprodisu1_0']"), true, TIMEOUT)) {
 				driver.quit();
 				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
-				log.warn("{} 『{}』 itemEtf({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+				log.debug("{} 『{}』 itemEtf({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
 				return result;
 			}
 			if (!driver.waitUntilExist(By.xpath("//div[@id='jsLayer_finder_secuprodisu1_0']"), false, TIMEOUT)) {
 				driver.quit();
 				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
-				log.warn("{} 『{}』 itemEtf({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+				log.debug("{} 『{}』 itemEtf({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
 				return result;
 			}
 
@@ -849,13 +849,13 @@ public class Krx implements Crawler {
 			if (!driver.waitUntilExist(By.xpath("//div[@id='jsLayer_finder_stkisu0_0']"), true, TIMEOUT)) {
 				driver.quit();
 				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
-				log.warn("{} 『{}』 priceCompany({}, {}) - {}", Utility.indentEnd(), result, code, start, Utility.toStringPastTimeReadable(started));
+				log.debug("{} 『{}』 priceCompany({}, {}) - {}", Utility.indentEnd(), result, code, start, Utility.toStringPastTimeReadable(started));
 				return result;
 			}
 			if (!driver.waitUntilExist(By.xpath("//div[@id='jsLayer_finder_stkisu0_0']"), false, TIMEOUT)) {
 				driver.quit();
 				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
-				log.warn("{} 『{}』 priceCompany({}, {}) - {}", Utility.indentEnd(), result, code, start, Utility.toStringPastTimeReadable(started));
+				log.debug("{} 『{}』 priceCompany({}, {}) - {}", Utility.indentEnd(), result, code, start, Utility.toStringPastTimeReadable(started));
 				return result;
 			}
 
@@ -935,13 +935,13 @@ public class Krx implements Crawler {
 			if (!driver.waitUntilExist(By.xpath("//*[@id='jsLayer_finder_secuprodisu1_0']"), true, TIMEOUT)) {
 				driver.quit();
 				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
-				log.warn("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentEnd(), result, code, start, Utility.toStringPastTimeReadable(started));
+				log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentEnd(), result, code, start, Utility.toStringPastTimeReadable(started));
 				return result;
 			}
 			if (!driver.waitUntilExist(By.xpath("//div[@id='jsLayer_finder_secuprodisu1_0']"), false, TIMEOUT)) {
 				driver.quit();
 				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
-				log.warn("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentEnd(), result, code, start, Utility.toStringPastTimeReadable(started));
+				log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentEnd(), result, code, start, Utility.toStringPastTimeReadable(started));
 				return result;
 			}
 
