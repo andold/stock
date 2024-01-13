@@ -102,24 +102,14 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 	}
 
 	public ParserResult crawl(ItemParam param) {
-		Boolean etf = param.getEtf();
+		String type = param.getType();
 		ParserResult result = null;
-		if (etf == null) {
-			String type = param.getType();
-			if (type == null) {
-				result = CrawlDividendHistoryEtfThread.crawl(param);
-				if (result.getHistories().isEmpty()) {
-					result = CrawlDividendHistoryCompanyThread.crawl(param);
-				}
-			} else if ("KOSDAQ".equalsIgnoreCase(type)) {
+		if (type == null) {
+			result = CrawlDividendHistoryEtfThread.crawl(param);
+			if (result.getHistories().isEmpty()) {
 				result = CrawlDividendHistoryCompanyThread.crawl(param);
-			} else {
-				result = CrawlDividendHistoryEtfThread.crawl(param);
-				if (result.getHistories().isEmpty()) {
-					result = CrawlDividendHistoryCompanyThread.crawl(param);
-				}
 			}
-		} else if (etf) {
+		} else if (type.equalsIgnoreCase("ETF")) {
 			result = CrawlDividendHistoryEtfThread.crawl(param);
 		} else {
 			result = CrawlDividendHistoryCompanyThread.crawl(param);

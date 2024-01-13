@@ -292,17 +292,17 @@ public class CrawlerService {
 
 	private boolean isPossibleCompany(ItemDomain item) {
 		String code = item.getCode();
-		Boolean etf = item.getEtf();
+		String type = item.getType();
 
-		return (code != null && !code.isBlank() && (etf == null || !etf.booleanValue()));
+		return (code != null && !code.isBlank() && (type == null || !type.equalsIgnoreCase("ETF")));
 	}
 
 	@Deprecated
 	private boolean isPossibleEtf(ItemDomain item) {
 		String code = item.getCode();
-		Boolean etf = item.getEtf();
+		String type = item.getType();
 
-		return (code != null && !code.isBlank() && (etf == null || etf.booleanValue()));
+		return (code != null && !code.isBlank() && (type == null || type.equalsIgnoreCase("ETF")));
 	}
 
 	// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
@@ -383,7 +383,8 @@ public class CrawlerService {
 					String url = String.format("%s%s", "https://finance.naver.com/item/coinfo.naver?code=", item.getCode());
 					driver.navigate().to(url);
 
-					if (item.getEtf()) {
+					String type = item.getType();
+					if (type != null && type.equalsIgnoreCase("ETF")) {
 						driver.findElement(By.xpath("//a/span[contains(text(),'ETF분석')]"), 2000).click(); // ETF분석
 					} else if (!driver.isEmpty(By.xpath("//a/span[contains(text(),'종목분석')]"), 2000)) { // null case support
 						driver.findElement(By.xpath("//a/span[contains(text(),'종목분석')]")).click(); // 종목분석

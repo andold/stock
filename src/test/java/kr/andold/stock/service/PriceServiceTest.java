@@ -16,13 +16,13 @@ public class PriceServiceTest {
 
 	@Test
 	public void testCrawlCompany() {
-		ParserResult result = service.crawl(ItemParam.builder().code("168490").symbol("한국패러랠").etf(false).type("KOSPI").build());
+		ParserResult result = service.crawl(ItemParam.builder().code("168490").symbol("한국패러랠").type("KOSPI").build());
 		log.info("{}", Utility.toStringJson(result));
 	}
 
 	@Test
 	public void testCrawlEtf() {
-		ParserResult result = service.crawl(ItemParam.builder().code("441680").symbol("TIGER 미국나스닥100커버드콜(합성)").etf(true).type("KOSPI").build());
+		ParserResult result = service.crawl(ItemParam.builder().code("441680").symbol("TIGER 미국나스닥100커버드콜(합성)").type("ETF").build());
 		log.info("{}", Utility.toStringJson(result));
 	}
 

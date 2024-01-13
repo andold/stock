@@ -16,7 +16,7 @@ public class ItemServiceTest {
 
 	@Test
 	public void testCrawl() {
-		ParserResult result = service.crawl(ItemParam.builder().code("069500").etf(true).type("KOSPI").build());
+		ParserResult result = service.crawl(ItemParam.builder().code("069500").type("ETF").build());
 		log.info("{}", Utility.toStringJsonPretty(result));
 	}
 

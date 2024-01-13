@@ -9,6 +9,7 @@ import Price from "../model/Price";
 import store from "../store/StockStore";
 import DividendHistory from "../model/DividendHistory";
 import crawlStore from "../store/CrawlStore";
+import Item from "../model/Item";
 
 const FILL_COLOR_PRIORITY = [
 	`rgb(128, 0, 0)`,
@@ -127,19 +128,19 @@ export function PriceRecentCellRenderer(param: any) {
 
 // 종목이름 타입 코드
 export function SymbolTypeCode(param: any) {
-	const { data } = param;
+	const data: Item = param.data;
 
 	return (<>
 		<Row className="mx-0 px-0">
 			<Col className="ms-1 px-0 text-start text-truncate">{data.symbol}</Col>
 			<Col xs="auto" className="ms-1 px-0 text-end">
 				{
-					data.etf
+					"ETF" == data.type
 						? (<><Button variant="outline-success" className="py-0 px-1" style={{ fontSize: 8 }}>ETF</Button></>)
 						: data.type == "KOSPI"
 							? (<><Button variant="outline-light" className="py-0 px-1" style={{ fontSize: 8 }}>KOSPI</Button></>)
 							: !data.type ? ""
-								: (<><Button variant="outline-danger" className="py-0 px-1" style={{ fontSize: 8 }}>KOSDAQ</Button></>)
+								: (<><Button variant="outline-danger" className="py-0 px-1" style={{ fontSize: 8 }}>{data.type}</Button></>)
 				}
 				<span className="ms-1" style={{ fontSize: 8 }}>{data.code}</span>
 			</Col>

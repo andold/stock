@@ -25,7 +25,6 @@ public class ItemDomain extends ItemEntity {
 			.symbol(symbol)
 			.code(code)
 			.volumeOfListedShares(Utility.parseInteger(volumeOfListedShares, null))
-			.etf(etf)
 			.type(type)
 			.category(category)
 			.ipoDate(Utility.parseDateTime(ipoDate, null))
@@ -133,11 +132,6 @@ public class ItemDomain extends ItemEntity {
 		}
 
 		compared = Utility.compare(getVolumeOfListedShares(), you.getVolumeOfListedShares());
-		if (compared != 0) {
-			return compared;
-		}
-
-		compared = Utility.compare(getEtf(), you.getEtf());
 		if (compared != 0) {
 			return compared;
 		}

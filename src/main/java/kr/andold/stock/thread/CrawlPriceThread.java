@@ -77,6 +77,7 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 			long forStarted = System.currentTimeMillis();
 
 			JobControl job = jobs.poll();
+			String type = job.getItem().getType();
 			if (CrawlerService.getDebug() && new Random().nextDouble() < 0.99) {
 				continue;
 			} else if (job.getCompanyFail() && job.getEtfFail()) {
@@ -85,7 +86,7 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 				result.addAll(etf.extract(job));
 			} else  if (job.getEtfFail()) {
 				result.addAll(company.extract(job));
-			} else  if (job.getItem().getEtf()) {
+			} else  if (type != null && type.equalsIgnoreCase("ETF")) {
 				result.addAll(etf.extract(job));
 			} else {
 				result.addAll(company.extract(job));

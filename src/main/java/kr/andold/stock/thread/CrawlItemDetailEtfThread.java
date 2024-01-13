@@ -96,7 +96,7 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 	}
 
 	private String extract(ItemDomain item) {
-		log.debug("{} CrawlItemDetailEtfThread.extract({} {} {})", Utility.indentStart(), item, item.getEtf(), item.getType());
+		log.debug("{} CrawlItemDetailEtfThread.extract({} {})", Utility.indentStart(), item, item.getType());
 		long started = System.currentTimeMillis();
 
 		try {
@@ -132,8 +132,8 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 				if (resultSearch.size() <= cx) {
 					driver.switchTo().defaultContent();
 					popupCloseIconElement.click();
-					log.warn("{} #{} 없는 종목 『{}, eft:{}, type: {}』 CrawlItemDetailEtfThread.extract() - {}", Utility.indentEnd()
-							, Utility.size(items), item, item.getEtf(), item.getType(), Utility.toStringPastTimeReadable(started));
+					log.warn("{} #{} 없는 종목 『{}, type: {}』 CrawlItemDetailEtfThread.extract() - {}", Utility.indentEnd()
+							, Utility.size(items), item, item.getType(), Utility.toStringPastTimeReadable(started));
 					return "";
 				}
 				

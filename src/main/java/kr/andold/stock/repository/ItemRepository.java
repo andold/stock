@@ -24,10 +24,6 @@ public interface ItemRepository extends JpaRepository<ItemEntity, Integer> {
 			+ "			OR	x.symbol	LIKE	CONCAT('%', :#{#param.keyword}, '%')"
 			+ "			OR	x.code		LIKE	CONCAT('%', :#{#param.keyword}, '%')"
 			+ "			OR	x.category	LIKE	CONCAT('%', :#{#param.keyword}, '%')"
-			//	etf
-			+ "		)	AND	("
-			+ "				:#{#param.etf}	IS NULL"
-			+ "			OR	x.etf		=	:#{#param.etf}"
 			//	type
 			+ "		)	AND	("
 			+ "				:#{#param.type}	IS NULL"

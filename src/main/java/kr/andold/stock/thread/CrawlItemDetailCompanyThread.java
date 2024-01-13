@@ -114,15 +114,15 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 
 			// 종목명 검색 아이콘 클릭
 			if (clickSearchIconInPopup(driver) <= 0) {
-				log.warn("{} 종목 없음 #{} 『{} {} {}』 CrawlItemDetailCompanyThread.extract(...) - {}", Utility.indentEnd()
-						, Utility.size(items), item, item.getEtf(), item.getType(), Utility.toStringPastTimeReadable(started));
+				log.warn("{} 종목 없음 #{} 『{} {}』 CrawlItemDetailCompanyThread.extract(...) - {}", Utility.indentEnd()
+						, Utility.size(items), item, item.getType(), Utility.toStringPastTimeReadable(started));
 				return "";
 			}
 
 			//	검색 결과에서 선택
 			if (!clickItemCode(driver, code)) {
-				log.warn("{} 종목 없음 #{} 『{} {} {}』 CrawlItemDetailCompanyThread.extract(...) - {}", Utility.indentEnd()
-						, Utility.size(items), item, item.getEtf(), item.getType(), Utility.toStringPastTimeReadable(started));
+				log.warn("{} 종목 없음 #{} 『{} {}』 CrawlItemDetailCompanyThread.extract(...) - {}", Utility.indentEnd()
+						, Utility.size(items), item, item.getType(), Utility.toStringPastTimeReadable(started));
 				return "";
 			}
 

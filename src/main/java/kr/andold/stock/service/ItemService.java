@@ -123,24 +123,14 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 	}
 
 	public ParserResult crawl(ItemParam param) {
-		Boolean etf = param.getEtf();
+		String type = param.getType();
 		ParserResult result = null;
-		if (etf == null) {
-			String type = param.getType();
-			if (type == null) {
-				result = CrawlItemDetailEtfThread.crawl(param);
-				if (result.getHistories().isEmpty()) {
-					result = CrawlItemDetailCompanyThread.crawl(param);
-				}
-			} else if ("KOSDAQ".equalsIgnoreCase(type)) {
+		if (type == null) {
+			result = CrawlItemDetailEtfThread.crawl(param);
+			if (result.getHistories().isEmpty()) {
 				result = CrawlItemDetailCompanyThread.crawl(param);
-			} else {
-				result = CrawlItemDetailEtfThread.crawl(param);
-				if (result.getHistories().isEmpty()) {
-					result = CrawlItemDetailCompanyThread.crawl(param);
-				}
 			}
-		} else if (etf) {
+		} else if (type.equalsIgnoreCase("ETF")) {
 			result = CrawlItemDetailEtfThread.crawl(param);
 		} else {
 			result = CrawlItemDetailCompanyThread.crawl(param);

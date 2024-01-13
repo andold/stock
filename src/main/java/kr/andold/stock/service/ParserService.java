@@ -159,7 +159,7 @@ public class ParserService {
 				.build());
 		ItemDomain item = ItemDomain.builder()
 				.code(code)
-				.etf(true)
+				.type("ETF")
 				.build();
 		item.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
 		item.setSymbol(item.getSymbol().split("\\[[0-9]+")[0]);

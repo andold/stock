@@ -70,7 +70,8 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 				}
 				
 				String code = item.getCode();
-				if (code == null || code.isBlank() || (item.getEtf() != null && item.getEtf().booleanValue())) {
+				String type = item.getType();
+				if (code == null || code.isBlank() || (type != null && type.equalsIgnoreCase("ETF"))) {
 					log.info("{} {}/{} 대상아님 『{}』 CrawlDividendHistoryCompanyThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;

@@ -16,13 +16,13 @@ public class DividendHistoryServiceTest {
 
 	@Test
 	public void testCrawl() {
-		ParserResult result = service.crawl(ItemParam.builder().code("168490").symbol("한국패러랠").etf(false).type("KOSPI").build());
+		ParserResult result = service.crawl(ItemParam.builder().code("168490").symbol("한국패러랠").type("KOSPI").build());
 		log.info("{}", Utility.toStringJson(result));
 	}
 
 	@Test
 	public void testCrawlEtf() {
-		ParserResult result = service.crawl(ItemParam.builder().code("429740").symbol("ARIRANG K리츠Fn").etf(true).type("KOSPI").build());
+		ParserResult result = service.crawl(ItemParam.builder().code("429740").symbol("ARIRANG K리츠Fn").type("ETF").build());
 		log.info("{}", Utility.toStringJsonPretty(result));
 	}
 

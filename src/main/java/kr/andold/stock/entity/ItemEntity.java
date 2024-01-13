@@ -48,7 +48,7 @@ public class ItemEntity {
 	private Integer volumeOfListedShares;
 	
 	// etf?: 개별기업
-	private Boolean etf;
+//	private Boolean etf;
 
 	// 코스피, 코스닥
 	@Column(name = "field_type")

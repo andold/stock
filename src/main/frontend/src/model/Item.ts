@@ -8,7 +8,7 @@ export default interface Item {
 	priority?: number;	//	우선순위
 	priceEarningsRatio?: number;	//	배당수익률(%)
 	volumeOfListedShares?: number;	//	상장주식수
-	etf?: boolean;		//	etf?: 개별기업
+//	etf?: boolean;		//	etf?: 개별기업
 	type?: string;		//	코스피, 코스닥
 	category?: string;	//	분류
 	ipoDate?: number;	//	상장일
