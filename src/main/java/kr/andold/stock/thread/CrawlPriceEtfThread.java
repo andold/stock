@@ -351,13 +351,10 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.add(item);
 		CrawlPriceEtfThread thread = new CrawlPriceEtfThread(queue, item.getStart());
-		boolean debug = CrawlerService.getDebug();
-		CrawlerService.setDebug(false);
 		ExecutorService service = Executors.newFixedThreadPool(1);
 		Future<ParserResult> future = service.submit(thread);
 		try {
 			ParserResult result = future.get();
-			CrawlerService.setDebug(debug);
 
 			log.info("{} {} CrawlPriceEtfThread.crawl({}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
 			return result;
@@ -365,7 +362,6 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
 		}
 
-		CrawlerService.setDebug(debug);
 		log.info("{} EMPY CrawlPriceEtfThread.crawl({}) - {}", Utility.indentEnd(), item, Utility.toStringPastTimeReadable(started));
 		return new ParserResult().clear();
 	}

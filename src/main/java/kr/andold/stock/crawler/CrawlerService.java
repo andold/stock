@@ -72,7 +72,7 @@ public class CrawlerService {
 
 	@Getter private static Boolean debug = false;
 	@Value("${app.crawler.debug:false}")
-	public static void setDebug(Boolean value) {
+	public void setDebug(Boolean value) {
 		log.info("{} INIT::CrawlerService.setDegug({})", Utility.indentMiddle(), value);
 		debug = value;
 	}

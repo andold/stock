@@ -394,7 +394,7 @@ public class Seibro implements Crawler {
 		return result;
 	}
 
-	private Result<ParserResult> dividendCompany(Date start) {
+	protected Result<ParserResult> dividendCompany(Date start) {
 		log.debug("{} dividendCompany({})", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();
 
@@ -456,7 +456,7 @@ public class Seibro implements Crawler {
 			// 마지막 표시
 			sb.append(MARK_ANDOLD_SINCE);
 			sb.append(MARK_START_END_POINT_COMPANY);
-			ParserResult result = ParserService.parse(new String(sb), false);
+			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
 
 			log.debug("{} {} dividendCompany({}) - {}", Utility.indentEnd(), result, start, Utility.toStringPastTimeReadable(started));
 			driver.quit();
@@ -531,7 +531,7 @@ public class Seibro implements Crawler {
 			sb.append(MARK_START_END_POINT_ETF);
 			driver.quit();
 
-			ParserResult parserResult = ParserService.parse(new String(sb), false);
+			ParserResult parserResult = ParserService.parse(new String(sb), CrawlerService.getDebug());
 			Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(parserResult).build();
 
 			log.debug("{} {} dividendEtf({}) - {}", Utility.indentEnd(), result, start, Utility.toStringPastTimeReadable(started));

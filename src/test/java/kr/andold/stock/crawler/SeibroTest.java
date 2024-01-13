@@ -23,4 +23,10 @@ public class SeibroTest {
 		log.info("{}", result);
 	}
 
+	@Test
+	public void testDividendCompany() {
+		Result<ParserResult> result = seibro.dividendCompany(Date.from(ZonedDateTime.now().minusMonths(1).toInstant()));
+		log.info("{}", result);
+	}
+
 }

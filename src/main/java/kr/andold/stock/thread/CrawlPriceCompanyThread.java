@@ -278,13 +278,10 @@ public class CrawlPriceCompanyThread implements Callable<ParserResult> {
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.add(item);
 		CrawlPriceCompanyThread thread = new CrawlPriceCompanyThread(queue, item.getStart());
-		boolean debug = CrawlerService.getDebug();
-		CrawlerService.setDebug(false);
 		ExecutorService service = Executors.newFixedThreadPool(1);
 		Future<ParserResult> future = service.submit(thread);
 		try {
 			ParserResult result = future.get();
-			CrawlerService.setDebug(debug);
 
 			log.info("{} {} CrawlPriceCompanyThread.crawl({}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
 			return result;
@@ -292,7 +289,6 @@ public class CrawlPriceCompanyThread implements Callable<ParserResult> {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
 		}
 
-		CrawlerService.setDebug(debug);
 		log.info("{} EMPY CrawlPriceCompanyThread.crawl({}) - {}", Utility.indentEnd(), item, Utility.toStringPastTimeReadable(started));
 		return new ParserResult().clear();
 	}

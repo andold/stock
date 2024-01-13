@@ -240,17 +240,13 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.add(item);
 		CrawlItemDetailEtfThread thread = new CrawlItemDetailEtfThread(queue);
-		boolean debug = CrawlerService.getDebug();
-		CrawlerService.setDebug(false);
 		ExecutorService service = Executors.newFixedThreadPool(1);
 		Future<ParserResult> future = service.submit(thread);
 		try {
-			CrawlerService.setDebug(debug);
 			return future.get();
 		} catch (InterruptedException e) {
 		} catch (ExecutionException e) {
 		}
-		CrawlerService.setDebug(debug);
 		return new ParserResult().clear();
 	}
 
