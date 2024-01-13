@@ -55,8 +55,15 @@ public class ScheduledTasks {
 	}
 
 	// 매시마다
-	@Scheduled(cron = "15 30 8-16 * * *")
+	@Scheduled(cron = "19 10 * * * *")
 	public void scheduleTaskHourly() {
+		log.info("{} scheduleTaskHourly()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		CrudList<ItemDomain> compileResult = stockService.compile();
+		int purged = priceService.purge();
+
+		log.info("{} 『{} #{}』 scheduleTaskHourly() - {}", Utility.indentEnd(), compileResult, purged, Utility.toStringPastTimeReadable(started));
 	}
 
 	// 평일
