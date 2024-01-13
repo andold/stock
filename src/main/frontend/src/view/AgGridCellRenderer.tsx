@@ -231,16 +231,31 @@ export function PriceEarningsRatioCellRenderer(param: any) {
 			</Col>
 			<Col ref={ref} sm="8" md="9" xl="10" xxl="10">
 				<Row className="m-0 p-0">{
-					dividends.map((cx: number, index: number) => (
-						<Col key={index}
-							className={`px-0 ${index == YEARS - 1 ? "bg-danger" : cx > 0 ? "bg-primary" : "bg-black"}`}
-							style={{
-								marginRight: 2,
-								height: height(lineHeight, max, cx),
-								marginTop: lineHeight - height(lineHeight, max, cx),
-							}}
-						></Col>
-					))
+					dividends.map((cx: number, index: number) => {
+						const ipoYear = param?.data?.ipoDate ? moment(param.data.ipoDate).year() : 2000;
+						if (ipoYear > (thisYear - YEARS + index + 1)) {
+							return (
+								<Col key={index}
+									className="px-0 bg-black"
+									style={{
+										marginLeft: 0,
+										height: lineHeight,
+										marginTop: 0,
+									}}
+								></Col>
+							);
+						}
+						return (
+							<Col key={index}
+								className={`px-0 ${index == YEARS - 1 ? "bg-danger" : cx > 0 ? "bg-primary" : "bg-black"}`}
+								style={{
+									marginLeft: 2,
+									height: height(lineHeight, max, cx),
+									marginTop: lineHeight - height(lineHeight, max, cx),
+								}}
+							></Col>
+						);
+					})
 				}</Row>
 			</Col>
 		</Row>
