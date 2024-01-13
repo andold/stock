@@ -66,7 +66,7 @@ public class Seibro implements Crawler {
 				break;
 			default:
 				close(driver);
-				log.warn("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), searchItemResult, item, start, Utility.toStringPastTimeReadable(started));
+				log.debug("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), searchItemResult, item, start, Utility.toStringPastTimeReadable(started));
 				return searchItemResult;
 			
 			}
@@ -239,7 +239,7 @@ public class Seibro implements Crawler {
 					break;
 				}
 
-				log.info("{} 쪽:{} dividendAsCompany(..., {}) - {}", Utility.indentMiddle(), currentPage, start, Utility.toStringPastTimeReadable(started));
+				log.debug("{} 쪽:{} dividendAsCompany(..., {}) - {}", Utility.indentMiddle(), currentPage, start, Utility.toStringPastTimeReadable(started));
 				currentPage = nextPage;
 			}
 			// 페이징 처리 - 여기까지
@@ -339,7 +339,6 @@ public class Seibro implements Crawler {
 				driver.clickIfExist(BY_PROPER_RESULT);
 				return Result.<String>builder().status(STATUS.SUCCESS).build();
 			default:
-				log.warn("{} FAIL_MANY_DATA count:{}, item:{}, {}", Utility.indentMiddle(), count, item, driver.getText(result));
 				break;
 			}
 
@@ -354,25 +353,25 @@ public class Seibro implements Crawler {
 
 	@Override
 	public Result<ParserResult> price(ItemDomain item, List<DividendHistoryDomain> histories) {
-		log.error("{} {} price({}, #{})", Utility.indentMiddle(), "NOT SUPPORTED", item, Utility.size(histories));
+		log.error("{} {} price({}, #{})", Utility.indentMiddle(), STATUS.NOT_SUPPORT, item, Utility.size(histories));
 		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
 	}
 
 	@Override
 	public Result<ParserResult> price(Date date) {
-		log.error("{} {} price({})", Utility.indentMiddle(), "NOT SUPPORTED", date);
+		log.error("{} {} price({})", Utility.indentMiddle(), STATUS.NOT_SUPPORT, date);
 		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
 	}
 
 	@Override
 	public Result<ParserResult> basicInfoAll() {
-		log.error("{} {} basicInfoAll()", Utility.indentMiddle(), "NOT SUPPORTED");
+		log.error("{} {} basicInfoAll()", Utility.indentMiddle(), STATUS.NOT_SUPPORT);
 		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
 	}
 
 	@Override
 	public Result<ParserResult> dividend(Date start) {
-		log.trace("{} dividend({})", Utility.indentStart(), start);
+		log.info("{} dividend({})", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();
 
 		ParserResult container = new ParserResult().clear();
@@ -391,7 +390,7 @@ public class Seibro implements Crawler {
 			result.setStatus(resultEtf.getStatus());
 		}
 
-		log.warn("{} 『{}』 dividend({}) - {}", Utility.indentEnd(), result, start, Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』 dividend({}) - {}", Utility.indentEnd(), result, start, Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
@@ -614,13 +613,13 @@ public class Seibro implements Crawler {
 
 	@Override
 	public Result<ParserResult> item(String code) {
-		log.error("{} 『{}』 item({})", Utility.indentMiddle(), "NOT SUPPORTED", code);
+		log.error("{} 『{}』 item({})", Utility.indentMiddle(), STATUS.NOT_SUPPORT, code);
 		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
 	}
 
 	@Override
 	public Result<ParserResult> price(String code, Date start) {
-		log.error("{} 『{}』 price({}, {})", Utility.indentMiddle(), "NOT SUPPORTED", code, start);
+		log.error("{} 『{}』 price({}, {})", Utility.indentMiddle(), STATUS.NOT_SUPPORT, code, start);
 		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
 	}
 
