@@ -34,7 +34,6 @@ public class IdempotentServiceTest {
 
 	@Test
 	public void testOnce() {
-		CrawlerService.setDebug(false);
 		service.once();
 		Utility.sleep(Integer.MAX_VALUE);
 	}
