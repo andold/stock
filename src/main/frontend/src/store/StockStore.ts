@@ -65,9 +65,6 @@ class StockStore {
 	crawlItemEtf(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlItemEtf(request, onSuccess, onError, element);
 	}
-	test(request?: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.test(request, onSuccess, onError, element);
-	}
 	// 
 
 	//	stock item section

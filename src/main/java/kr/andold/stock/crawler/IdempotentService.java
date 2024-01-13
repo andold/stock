@@ -214,12 +214,12 @@ public class IdempotentService {
 
 	private static final long PAUSE_MIN = 1000 * 1;
 	private static final long PAUSE_MAX = 1000 * 60 * 60 * 2;
+	ConcurrentLinkedDeque<ItemDomain> q0 = new ConcurrentLinkedDeque<>();	// 상세정보
+	ConcurrentLinkedDeque<ItemDomain> q1 = new ConcurrentLinkedDeque<>();	// 배당정보
+	ConcurrentLinkedDeque<ItemDomain> q2 = new ConcurrentLinkedDeque<>();	// 주가정보
+	ConcurrentLinkedDeque<ItemDomain> q3 = new ConcurrentLinkedDeque<>();	// reserved
 	@Async
 	public synchronized void once() {
-		ConcurrentLinkedDeque<ItemDomain> q0 = new ConcurrentLinkedDeque<>();	// 상세정보
-		ConcurrentLinkedDeque<ItemDomain> q1 = new ConcurrentLinkedDeque<>();	// 배당정보
-		ConcurrentLinkedDeque<ItemDomain> q2 = new ConcurrentLinkedDeque<>();	// 주가정보
-		ConcurrentLinkedDeque<ItemDomain> q3 = new ConcurrentLinkedDeque<>();	// reserved
 		long pause = PAUSE_MAX;
 
 		for (int cx = 0;; cx++) {

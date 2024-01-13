@@ -11,6 +11,9 @@ class IdempotentStore {
 	run(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.run(request, onSuccess, onError, element);
 	}
+	once(request?: any, onSuccess?: any, onError?: any, element?: any) {
+		repository.once(request, onSuccess, onError, element);
+	}
 
 
 }

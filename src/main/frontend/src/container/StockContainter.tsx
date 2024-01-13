@@ -11,6 +11,7 @@ import itemStore from "../store/ItemStore";
 import dividendHistoryStore from "../store/DividendHistoryStore";
 import priceStore from "../store/PriceStore";
 import crawlStore from "../store/CrawlStore";
+import idempotentStore from "../store/IdempotentStore";
 
 
 // view
@@ -101,6 +102,8 @@ function Header(props: any) {
 	const [disableCrawlPricaAll, setDisableCrawlPriceAll] = useState(false);
 	const [disableCrawlItemAll, setDisableCrawlItemAll] = useState(false);
 	const [disablePurgePrice, setDisablePurgePrice] = useState(false);
+	const [disableOnce, setDisableOnce] = useState(false);
+	
 	const [jobs, setJobs] = useState({
 		play: false,
 		queue: [],
@@ -244,6 +247,10 @@ function Header(props: any) {
 			onChange && onChange({});
 		});
 	}
+	function handleOnClickOnce() {
+		setDisableOnce(true);
+		idempotentStore.once(null, () => setDisableOnce(false));
+	}
 	//handleOnClickCrawlDividendAllRecent
 	function handleOnClickCrawlItemEtfDetails() {
 		setSpinner(spinner + 1);
@@ -372,13 +379,17 @@ function Header(props: any) {
 										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlDividendAllRecent} />
 										최근 배당 수집
 									</Button>
-									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCrawlItemAll} onClick={handleOnClickCrawlItemAll}>
+									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCrawlItemAll} onClick={handleOnClickCrawlItemAll} hidden={true}>
 										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlItemAll} />
 										모든 주식종목 수집
 									</Button>
 									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCrawlPricaAll} onClick={handleOnClickCrawlPriceAll}>
 										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlPricaAll} />
 										오늘 기준 주가 수집
+									</Button>
+									<Button size="sm" variant="danger" className="ms-1" disabled={disableOnce} onClick={handleOnClickOnce}>
+										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableOnce} />
+										테스트(once)
 									</Button>
 								</>)}
 									<Button size="sm" variant="secondary" className="ms-1" disabled={disableDownload} onClick={handleOnClickDownload} title={form.mode.toString()}>
