@@ -104,10 +104,22 @@ export function PriceRecentCellRenderer(param: any) {
 
 		return Math.max(4, Math.floor((price.closing - info.min) / (info.max - info.min) * param.node.rowHeight));
 	}
+	function currentPrice(): string {
+		if (param?.value > 0) {
+			return param?.value;
+		}
+
+		if (!prices || prices.length == 0) {
+			return "-";
+		}
+
+		const price = prices[prices.length - 1];
+		return price.closing.toLocaleString();
+	}
 	return (<>
 		<OverlayTrigger overlay={renderTooltip} trigger={["hover", "hover"]} placement="auto">
 			<Row className="mx-0 text-right h-100">
-				<Col sm="5" md="4" xl="3" xxl="3" className="m-0 p-0 text-right">{param.value}</Col>
+				<Col sm="5" md="4" xl="3" xxl="3" className="m-0 p-0 text-right">{currentPrice()}</Col>
 				<Col ref={ref} className="ms-2 p-0">
 					<Row className="m-0 p-0"> {
 						prices?.map((price: Price) => (
