@@ -94,7 +94,9 @@ function Header(props: any) {
 
 	const [spinner, setSpinner] = useState<number>(0);
 	const [collapsed, setCollapsed] = useState(true);
+
 	const [disableCompile, setDisableCompile] = useState(false);
+	const [disableDownload, setDisableDownload] = useState(false);
 	const [disableCrawlDividendAllRecent, setDisableCrawlDividendAllRecent] = useState(false);
 	const [disableCrawlPricaAll, setDisableCrawlPriceAll] = useState(false);
 	const [disableCrawlItemAll, setDisableCrawlItemAll] = useState(false);
@@ -133,22 +135,17 @@ function Header(props: any) {
 	}, [jobs]);
 
 	function handleOnClickDownload() {
+		setDisableDownload(true);
 		const yyyymmdd = moment().format("YYYYMMDD");
-		store.download({ filename: `stock-${yyyymmdd}.json`, });
+		store.download({ filename: `stock-${yyyymmdd}.json`, }, () => setDisableDownload(false));
 	}
 	function handleOnClickPurgePrice() {
 		setDisablePurgePrice(true);
-		priceStore.purge(null, (_: any, response: any) => {
-			setDisablePurgePrice(false);
-			console.log(response);
-		});
+		priceStore.purge(null, () => setDisablePurgePrice(false));
 	}
 	function handleOnClickCrawlDividendAllRecent() {
 		setDisableCrawlDividendAllRecent(true);
-		crawlStore.crawlDividendAllRecent(null, (_: any, response: any) => {
-			setDisableCrawlDividendAllRecent(false);
-			console.log(response);
-		});
+		crawlStore.crawlDividendAllRecent(null, () => setDisableCrawlDividendAllRecent(false));
 	}
 	function handleOnClickCrawlPriceAll() {
 		setDisableCrawlPriceAll(true);
@@ -384,7 +381,10 @@ function Header(props: any) {
 										오늘 기준 주가 수집
 									</Button>
 								</>)}
-								<Button size="sm" variant="secondary" className="ms-1" title={form.mode.toString()} onClick={handleOnClickDownload}>다운로드</Button>
+									<Button size="sm" variant="secondary" className="ms-1" disabled={disableDownload} onClick={handleOnClickDownload} title={form.mode.toString()}>
+										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableDownload} />
+										다운로드
+									</Button>
 								<UploadButtonView />
 								<Button size="sm" variant={form.mode % 2 ? "success" : "secondary"} className="ms-1" title={form.mode.toString()} onClick={(e: any) => handleOnClickMode(e)}>모드</Button>
 							</InputGroup>

@@ -132,7 +132,7 @@ krxPriceEtf:
 				NUMBER TAB NUMBER						NEWLINE		//	402970 	 10,108,122,720 
 				NUMBER TAB volumeOfListedShares=NUMBER	NEWLINE		//	402970 	 1,000,000 
 				NUMBER TAB word+						NEWLINE		//	402970 	 Dow Jones U.S. Dividend 100 Price Return Index 
-				NUMBER TAB NUMBER						NEWLINE		//	402970 	 5,507.43 
+				NUMBER TAB word							NEWLINE		//	402970 	 5,507.43 
 				NUMBER TAB word							NEWLINE		//	402970 	 - 
 				NUMBER TAB word							NEWLINE		//	402970 	 - 
 				NUMBER TAB								NEWLINE		//	402970 	 

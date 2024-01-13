@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import kr.andold.stock.domain.Result;
 import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.service.ParserService.ParserResult;
+import kr.andold.stock.service.Utility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -63,6 +64,14 @@ public class KrxTest {
 	public void testPriceEtfStringDate() {
 //		Result<ParserResult> resultInvalid = krx.priceEtf("001680", Date.from(ZonedDateTime.now().minusDays(7).toInstant()));
 		Result<ParserResult> result = krx.priceEtf("402970", Date.from(ZonedDateTime.now().minusYears(3).toInstant()));
+		log.info("{}", result);
+		assertEquals(result.getStatus(), STATUS.SUCCESS);
+	}
+
+	@Test
+	public void testPriceStringDate() {
+		// 265690 "2017-03-21"
+		Result<ParserResult> result = krx.price("265690", Date.from(ZonedDateTime.of(2017, 3, 21, 0, 0, 0, 0, Utility.ZONE_ID_KST).toInstant()));
 		log.info("{}", result);
 		assertEquals(result.getStatus(), STATUS.SUCCESS);
 	}

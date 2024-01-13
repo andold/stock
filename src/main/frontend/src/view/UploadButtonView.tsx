@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 
-import { Button } from "react-bootstrap";
+import { Button, Spinner } from "react-bootstrap";
 import { useDrop } from "react-dnd";
 import { NativeTypes } from "react-dnd-html5-backend";
 
@@ -11,13 +11,16 @@ import store from "../store/StockStore";
 
 //	UploadButtonView.tsx
 export default ((_: any) => {
+	const [disableUpload, setDisableUpload] = useState(false);
+
 	const types=["application/json"];
 
 	const [{ isOver, canDrop }, drop] = useDrop(
 		() => ({
 			accept: [NativeTypes.FILE],
 			drop: (item: any) => {
-				store.upload(item.files[0]);
+				setDisableUpload(true);
+				store.upload(item.files[0], () => setDisableUpload(false));
 			},
 			canDrop: (item: any) => {
 				let acceptType = false;
@@ -43,7 +46,10 @@ export default ((_: any) => {
 	}
 
 	return (<>
-		<Button ref={drop} size="sm" variant={v} className="ms-1">업로드 영역</Button>
+		<Button ref={drop} size="sm" variant={v} className="ms-1" disabled={disableUpload}>
+			<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableUpload} />
+			업로드 영역
+		</Button>
 	</>);
 
 });
