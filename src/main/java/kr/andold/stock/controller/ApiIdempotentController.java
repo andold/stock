@@ -21,13 +21,13 @@ public class ApiIdempotentController {
 	@Autowired
 	private IdempotentService service;
 
-	@GetMapping(value = "test")
+	@GetMapping(value = "once")
 	public void test() {
-		log.info("{} test()", Utility.indentStart());
+		log.info("{} once()", Utility.indentStart());
 
 		service.once();
 
-		log.info("{} test()", Utility.indentEnd());
+		log.info("{} once()", Utility.indentEnd());
 	}
 
 	@ResponseBody

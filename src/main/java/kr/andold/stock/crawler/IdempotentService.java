@@ -219,7 +219,7 @@ public class IdempotentService {
 	ConcurrentLinkedDeque<ItemDomain> q2 = new ConcurrentLinkedDeque<>();	// 주가정보
 	ConcurrentLinkedDeque<ItemDomain> q3 = new ConcurrentLinkedDeque<>();	// reserved
 	@Async
-	public synchronized void once() {
+	public void once() {
 		long pause = PAUSE_MAX;
 
 		for (int cx = 0;; cx++) {
