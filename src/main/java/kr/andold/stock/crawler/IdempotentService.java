@@ -315,7 +315,6 @@ public class IdempotentService {
 	private IDEMPOTENT_STATUS processPrice(ItemDomain item) {
 		List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
 		if (!isRequireCrawlPrice(histories)) {
-			log.info("{} {} processDividend()", Utility.indentMiddle(), IDEMPOTENT_STATUS.ALEADY_DONE_JOB);
 			return IDEMPOTENT_STATUS.ALEADY_DONE_JOB;
 		}
 
