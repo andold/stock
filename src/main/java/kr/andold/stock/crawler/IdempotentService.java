@@ -238,7 +238,7 @@ public class IdempotentService {
 				default:
 					break;
 				}
-				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), item, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 			}
 			for (ItemDomain item = q1.poll(); item != null; item = q1.poll()) {
 				long forStarted = System.currentTimeMillis();
@@ -252,7 +252,7 @@ public class IdempotentService {
 				default:
 					break;
 				}
-				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), item, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 			}
 			for (ItemDomain item = q2.poll(); item != null; item = q2.poll()) {
 				long forStarted = System.currentTimeMillis();
@@ -266,7 +266,7 @@ public class IdempotentService {
 				default:
 					break;
 				}
-				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), item, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 			}
 			for (ItemDomain item = q3.poll(); item != null; item = q3.poll()) {
 				long forStarted = System.currentTimeMillis();
@@ -280,7 +280,7 @@ public class IdempotentService {
 				default:
 					break;
 				}
-				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), item, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 			}
 
 			if (precessed > 0) {
