@@ -157,13 +157,6 @@ public class ParserService {
 				.pay(Utility.parseDateTime(pay))
 				.dividend(Utility.parseInteger(dividend, null))
 				.build());
-		ItemDomain item = ItemDomain.builder()
-				.code(code)
-				.type("ETF")
-				.build();
-		item.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
-		item.setSymbol(item.getSymbol().split("\\[[0-9]+")[0]);
-		LIST_STOCK_ITEM.add(item);
 	}
 
 	public static void crawlDividendHistoryCompanyThread(Integer date, String base, String pay, String code, String symbol, String dividend) {
