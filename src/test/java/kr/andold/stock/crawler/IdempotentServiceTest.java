@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import kr.andold.stock.service.ParserService.ParserResult;
+import kr.andold.stock.service.Utility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -29,6 +30,13 @@ public class IdempotentServiceTest {
 			ParserResult result = future.get();
 			log.info("RESULT: {}", result);
 		}
+	}
+
+	@Test
+	public void testOnce() {
+		CrawlerService.setDebug(false);
+		service.once();
+		Utility.sleep(Integer.MAX_VALUE);
 	}
 
 }

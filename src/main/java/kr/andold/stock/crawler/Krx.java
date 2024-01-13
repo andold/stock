@@ -61,7 +61,6 @@ public class Krx implements Crawler {
 
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
 	private static final int TIMEOUT = 4000;
-	private static final Boolean debug = CrawlerService.debug;
 
 	@Override
 	public Result<ParserResult> dividend(ItemDomain item, Date start) {
@@ -222,7 +221,7 @@ public class Krx implements Crawler {
 				log.debug("{} 『{}』 priceAsEtf(..., {}, {}) - {}", Utility.indentEnd(), Utility.ellipsisEscape(prev, 32), item, history, Utility.toStringPastTimeReadable(forStarted));
 			}
 			sb.append(MARK_START_END_POINT);
-			ParserResult result = ParserService.parse(new String(sb), debug);
+			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
 
 			log.debug("{} 『{}』 priceAsEtf(..., {}, {}) - {}", Utility.indentEnd(), result, item, history, Utility.toStringPastTimeReadable(started));
 			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
@@ -232,7 +231,7 @@ public class Krx implements Crawler {
 			driver.switchTo().defaultContent();
 		}
 
-		log.debug("{} 『{}』 priceAsEtf(..., {}, {}) - {}", Utility.indentEnd(), "EXCEPTION", item, history, Utility.toStringPastTimeReadable(started));
+		log.debug("{} 『{}』 priceAsEtf(..., {}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, item, history, Utility.toStringPastTimeReadable(started));
 		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 	}
 
@@ -362,7 +361,7 @@ public class Krx implements Crawler {
 				log.debug("{} 『{}』 priceAsCompany(..., {}, {}) - {}", Utility.indentMiddle(), Utility.ellipsisEscape(prev, 32), item, history, Utility.toStringPastTimeReadable(forStarted));
 			}
 			sb.append(MARK_START_END_POINT);
-			ParserResult result = ParserService.parse(new String(sb), debug);
+			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
 
 			log.debug("{} 『{}』 priceAsCompany(..., {}, {}) - {}", Utility.indentEnd(), result, item, history, Utility.toStringPastTimeReadable(started));
 			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
@@ -372,7 +371,7 @@ public class Krx implements Crawler {
 			driver.switchTo().defaultContent();
 		}
 
-		log.debug("{} 『{}』 priceAsCompany(..., {}, {}) - {}", Utility.indentEnd(), "EXCEPTION", item, history, Utility.toStringPastTimeReadable(started));
+		log.debug("{} 『{}』 priceAsCompany(..., {}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, item, history, Utility.toStringPastTimeReadable(started));
 		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 	}
 
@@ -451,7 +450,7 @@ public class Krx implements Crawler {
 			driver.quit();
 			sb.append(MARK_START_END_POINT_PRICE_ETF_ALL);
 
-			ParserResult parserResult = ParserService.parse(new String(sb), debug);
+			ParserResult parserResult = ParserService.parse(new String(sb), CrawlerService.getDebug());
 			Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(parserResult).build();
 
 			log.debug("{} 『{}』 priceEtf({}) - {}", Utility.indentEnd(), result, date, Utility.toStringPastTimeReadable(started));
@@ -515,7 +514,7 @@ public class Krx implements Crawler {
 			driver.quit();
 			sb.append(MARK_START_END_POINT_PRICE_COMPANY_ALL);
 
-			ParserResult parserResult = ParserService.parse(new String(sb), debug);
+			ParserResult parserResult = ParserService.parse(new String(sb), CrawlerService.getDebug());
 			Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(parserResult).build();
 
 			log.debug("{} 『{}』 priceCompany({}) - {}", Utility.indentEnd(), result, date, Utility.toStringPastTimeReadable(started));
@@ -588,7 +587,7 @@ public class Krx implements Crawler {
 			driver.quit();
 
 			sb.append(MARK_START_END_POINT_COMPANY_BASIC_INFO_ALL);
-			ParserResult result = ParserService.parse(new String(sb), debug);
+			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
 
 			log.debug("{} 『{}』 basicInfoAll() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
@@ -636,7 +635,7 @@ public class Krx implements Crawler {
 			driver.quit();
 
 			sb.append(MARK_START_END_POINT_ETF_BASIC_INFO_ALL);
-			ParserResult result = ParserService.parse(new String(sb), debug);
+			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
 
 			log.debug("{} 『{}』 basicInfoAllEtf() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
@@ -723,7 +722,7 @@ public class Krx implements Crawler {
 			driver.quit();
 
 			sb.append(MARK_START_END_POINT_COMPANY_EACH_SUMMARY_INFO);
-			ParserResult result = ParserService.parse(new String(sb), debug);
+			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
 
 			log.debug("{} 『{}』 itemCompany({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
 			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
@@ -787,7 +786,7 @@ public class Krx implements Crawler {
 			driver.quit();
 
 			sb.append(MARK_START_END_POINT_ETF_EACH_SUMMARY_INFO);
-			ParserResult result = ParserService.parse(new String(sb), debug);
+			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
 
 			log.debug("{} 『{}』 itemEtf({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
 			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
@@ -805,6 +804,11 @@ public class Krx implements Crawler {
 	public Result<ParserResult> price(String code, Date start) {
 		log.info("{} price({}, {})", Utility.indentStart(), code, start);
 		long started = System.currentTimeMillis();
+
+		if (code == null || start == null) {
+			log.warn("{} 『{}』 price({}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, code, start, Utility.toStringPastTimeReadable(started));
+			return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+		}
 
 		Result<ParserResult> resultCompany = priceCompany(code, start);
 		if (resultCompany.getStatus().equals(STATUS.SUCCESS)) {
@@ -824,7 +828,7 @@ public class Krx implements Crawler {
 		long started = System.currentTimeMillis();
 
 		if (code == null || start == null) {
-			log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentEnd(), "EXCEPTION", code, start, Utility.toStringPastTimeReadable(started));
+			log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, code, start, Utility.toStringPastTimeReadable(started));
 			return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 		}
 
@@ -890,7 +894,7 @@ public class Krx implements Crawler {
 			driver.quit();
 			
 			sb.append(MARK_START_END_POINT_PRICE_COMPANY_EACH);
-			ParserResult result = ParserService.parse(new String(sb), debug);
+			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
 
 			log.debug("{} 『{}』 priceCompany({}, {}) - {}", Utility.indentEnd(), result, code, start, Utility.toStringPastTimeReadable(started));
 			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
@@ -900,7 +904,7 @@ public class Krx implements Crawler {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 		}
 
-		log.debug("{} 『{}』 priceCompany({}, {}) - {}", Utility.indentEnd(), "EXCEPTION", code, start, Utility.toStringPastTimeReadable(started));
+		log.debug("{} 『{}』 priceCompany({}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, code, start, Utility.toStringPastTimeReadable(started));
 		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 	}
 
@@ -910,7 +914,7 @@ public class Krx implements Crawler {
 		long started = System.currentTimeMillis();
 
 		if (code == null || start == null) {
-			log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentEnd(), "EXCEPTION", code, start, Utility.toStringPastTimeReadable(started));
+			log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, code, start, Utility.toStringPastTimeReadable(started));
 			return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 		}
 
@@ -989,7 +993,7 @@ public class Krx implements Crawler {
 			driver.quit();
 
 			sb.append(MARK_START_END_POINT_PRICE_ETF_EACH);
-			ParserResult result = ParserService.parse(new String(sb), debug);
+			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
 
 			log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentEnd(), result, code, start, Utility.toStringPastTimeReadable(started));
 			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
@@ -999,7 +1003,7 @@ public class Krx implements Crawler {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 		}
 
-		log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentEnd(), "EXCEPTION", code, start, Utility.toStringPastTimeReadable(started));
+		log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, code, start, Utility.toStringPastTimeReadable(started));
 		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 	}
 

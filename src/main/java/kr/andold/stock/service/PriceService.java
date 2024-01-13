@@ -162,18 +162,33 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		long started = System.currentTimeMillis();
 
 		List<PriceDomain> after = search(null);
-		Map<String, List<PriceDomain>> map = makeMapByBase(after);
-		compileWeek(map);
-		compileMonth(map);
-		compileYear(map);
-		CrudList<PriceDomain> result = put(after);
+		CrudList<PriceDomain> result = compile(after, true);
 
 		log.info("{} 『{}』 compile() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
-	private void compileYear(Map<String, List<PriceDomain>> map) {
+	public CrudList<PriceDomain> compile(List<PriceDomain> prices, boolean doWrite) {
+		log.info("{} compile(#{}, {})", Utility.indentStart(), Utility.size(prices), doWrite);
+		long started = System.currentTimeMillis();
+
+		Map<String, List<PriceDomain>> map = makeMapByBase(prices);
+		int count = compileWeek(map);
+		count += compileMonth(map);
+		count += compileYear(map);
+		if (doWrite) {
+			CrudList<PriceDomain> result = put(prices);
+			log.info("{} 『{}』 compile(#{}, {}) - {}", Utility.indentEnd(), result, Utility.size(prices), doWrite, Utility.toStringPastTimeReadable(started));
+			return result;
+		}
+
+		log.info("{} 『#{}』 compile(#{}, {}) - {}", Utility.indentEnd(), count, Utility.size(prices), doWrite, Utility.toStringPastTimeReadable(started));
+		return CrudList.<PriceDomain>builder().build();
+	}
+
+	private int compileYear(Map<String, List<PriceDomain>> map) {
 		LocalDate startEndDate = LocalDate.now().minusYears(16);
+		int count = 0;
 		for (LocalDate cx = LocalDate.now().minusYears(1).with(TemporalAdjusters.lastDayOfYear());
 				cx.isAfter(startEndDate);
 			cx = cx.minusYears(1).with(TemporalAdjusters.lastDayOfYear())) {
@@ -186,14 +201,17 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 				
 				for (PriceDomain price: pricess) {
 					price.setFlagYear(true);
+					count++;
 				}
 				break;
 			}
 		}
+		return count;
 	}
 
-	private void compileMonth(Map<String, List<PriceDomain>> map) {
+	private int compileMonth(Map<String, List<PriceDomain>> map) {
 		LocalDate startEndDate = LocalDate.now().minusYears(2);
+		int count = 0;
 		for (LocalDate cx = LocalDate.now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
 				cx.isAfter(startEndDate);
 			cx = cx.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth())) {
@@ -206,14 +224,17 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 				
 				for (PriceDomain price: pricess) {
 					price.setFlagMonth(true);
+					count++;
 				}
 				break;
 			}
 		}
+		return count;
 	}
 
-	private void compileWeek(Map<String, List<PriceDomain>> map) {
+	private int compileWeek(Map<String, List<PriceDomain>> map) {
 		LocalDate startEndDate = LocalDate.now().minusYears(1);
+		int count = 0;
 		for (LocalDate cx = LocalDate.now().with(TemporalAdjusters.previous(DayOfWeek.FRIDAY));
 			cx.isAfter(startEndDate);
 			cx = cx.with(TemporalAdjusters.previous(DayOfWeek.FRIDAY))) {
@@ -225,10 +246,12 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 				
 				for (PriceDomain price: pricess) {
 					price.setFlagWeek(true);
+					count++;
 				}
 				break;
 			}
 		}
+		return count;
 	}
 
 	private Map<String, List<PriceDomain>> makeMapByBase(List<PriceDomain> prices) {

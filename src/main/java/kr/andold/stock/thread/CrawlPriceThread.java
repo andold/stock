@@ -29,7 +29,6 @@ import kr.andold.stock.service.ParserService;
 import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.Data;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -39,9 +38,6 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 8;
-
-	@Setter
-	private static Boolean debug = CrawlerService.debug;
 
 	private ConcurrentLinkedQueue<JobControl> jobs;
 	private Date start;
@@ -81,7 +77,7 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 			long forStarted = System.currentTimeMillis();
 
 			JobControl job = jobs.poll();
-			if (debug && new Random().nextDouble() < 0.99) {
+			if (CrawlerService.getDebug() && new Random().nextDouble() < 0.99) {
 				continue;
 			} else if (job.getCompanyFail() && job.getEtfFail()) {
 				log.error("{}", job);
@@ -112,7 +108,7 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 		long freeMemorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreeMemorySize();
 		int candidateProcessorsByFreeMemory = (int) (freeMemorySize / 512L / 1024L / 1024L);
 		int processors = Math.min(Math.max(1, candidateProcessorsByFreeMemory), Runtime.getRuntime().availableProcessors() - 1);
-		if (debug) {
+		if (CrawlerService.getDebug()) {
 			processors = 1;
 		}
 
@@ -219,7 +215,7 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 					log.info("{} {} {} COMPANY - {}", Utility.indentMiddle(), Utility.ellipsisEscape(curr, 32), item, Utility.toStringPastTimeReadable(forStarted));
 				}
 				sb.append(MARK_START_END_POINT);
-				ParserResult result = ParserService.parse(new String(sb), debug);
+				ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
 				log.debug("{} 『{}』 extract({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
 				return result;
 			} catch (Exception e) {
@@ -397,7 +393,7 @@ public class CrawlPriceThread implements Callable<ParserResult> {
 					log.info("{} {} {} ETF - {}", Utility.indentMiddle(), Utility.ellipsisEscape(prev, 32), item, Utility.toStringPastTimeReadable(forStarted));
 				}
 				sb.append(MARK_START_END_POINT);
-				ParserResult result = ParserService.parse(new String(sb), debug);
+				ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
 				log.debug("{} 『{}』 extract({}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
 				return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
 			} catch (Exception e) {

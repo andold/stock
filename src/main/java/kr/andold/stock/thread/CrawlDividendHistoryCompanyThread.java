@@ -24,7 +24,6 @@ import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.ParserService;
 import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 //KSD 증권정보포털 SEIBro > 주식 > 배당정보 > 배당내역전체검색:: 종목
@@ -36,7 +35,6 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 4;
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
-	@Setter private static Boolean debug = CrawlerService.debug;
 
 	private ConcurrentLinkedQueue<ItemDomain> items;
 	private String startDate = null;;
@@ -79,7 +77,7 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 				}
 
 
-				if (debug && new Random().nextDouble() < 0.9) {
+				if (CrawlerService.getDebug() && new Random().nextDouble() < 0.9) {
 					log.trace("{} {}/{} 뽑기 제외 『{}』 CrawlDividendHistoryCompanyThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
@@ -92,7 +90,7 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 			sb.append(MARK_START_END_POINT);
 
 			String text = new String(sb);
-			ParserResult resultDividendHistory = ParserService.parse(text, debug);
+			ParserResult resultDividendHistory = ParserService.parse(text, CrawlerService.getDebug());
 			result.addAll(resultDividendHistory);
 			log.debug("{} #{} {} CrawlDividendHistoryCompanyThread() - {}", Utility.indentMiddle(), Utility.size(items), resultDividendHistory, Utility.toStringPastTimeReadable(started));
 		}
@@ -264,11 +262,13 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.add(item);
 		CrawlDividendHistoryCompanyThread thread = new CrawlDividendHistoryCompanyThread(queue, item.getStart());
-		setDebug(false);
+		boolean debug = CrawlerService.getDebug();
+		CrawlerService.setDebug(false);
 		ExecutorService service = Executors.newFixedThreadPool(1);
 		Future<ParserResult> future = service.submit(thread);
 		try {
 			ParserResult result = future.get();
+			CrawlerService.setDebug(debug);
 
 			log.info("{} {} CrawlDividendHistoryCompanyThread.crawl({}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
 			return result;
@@ -276,6 +276,7 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
 		}
 
+		CrawlerService.setDebug(debug);
 		log.info("{} EMPY CrawlDividendHistoryCompanyThread.crawl({}) - {}", Utility.indentEnd(), item, Utility.toStringPastTimeReadable(started));
 		return new ParserResult().clear();
 	}
@@ -305,7 +306,7 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 		sb.append(MARK_START_END_POINT);
 
 		String text = new String(sb);
-		ParserResult result = ParserService.parse(text, debug);
+		ParserResult result = ParserService.parse(text, CrawlerService.getDebug());
 
 		log.info("{} {} crawl({}) - {}", Utility.indentEnd(), result, start, Utility.toStringPastTimeReadable(started));
 		return result;

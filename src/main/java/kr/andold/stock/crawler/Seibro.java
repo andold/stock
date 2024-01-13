@@ -17,7 +17,6 @@ import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.service.ParserService;
 import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -29,7 +28,6 @@ public class Seibro implements Crawler {
 	private static final String MARK_START_END_POINT_ETF = String.format("KEYWORD\t%s\t%s\tURL\t%s\n", "ETF 배당금 내역", "KSD 증권정보포털 SEIBro", URL_ETF);
 	private static final int TIMEOUT = 4000;
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
-	@Setter private static Boolean debug = CrawlerService.debug;
 
 	private Integer count = 0;
 

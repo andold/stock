@@ -20,7 +20,6 @@ import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.service.ParserService;
 import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 //KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
@@ -31,7 +30,6 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 8;
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
-	@Setter private static  Boolean debug = CrawlerService.debug;
 
 	private ConcurrentLinkedQueue<ItemDomain> items;
 	private ChromeDriverWrapper driver;
@@ -76,7 +74,7 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 					break;
 				}
 
-				if (debug && new Random().nextDouble() < 0.95) {
+				if (CrawlerService.getDebug() && new Random().nextDouble() < 0.95) {
 					log.trace("{} {}/{} 뽑기 제외 『{}』 CrawlItemDetailEtfThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
@@ -210,7 +208,7 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 		long freeMemorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreeMemorySize();
 		int candidateProcessorsByFreeMemory = (int) (freeMemorySize / 512L / 1024L / 1024L);
 		int processors = Math.min(Math.max(1, candidateProcessorsByFreeMemory), Runtime.getRuntime().availableProcessors() - 1);
-		if (debug) {
+		if (CrawlerService.getDebug()) {
 			processors = 1;
 		}
 
@@ -242,14 +240,17 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.add(item);
 		CrawlItemDetailEtfThread thread = new CrawlItemDetailEtfThread(queue);
-		setDebug(false);
+		boolean debug = CrawlerService.getDebug();
+		CrawlerService.setDebug(false);
 		ExecutorService service = Executors.newFixedThreadPool(1);
 		Future<ParserResult> future = service.submit(thread);
 		try {
+			CrawlerService.setDebug(debug);
 			return future.get();
 		} catch (InterruptedException e) {
 		} catch (ExecutionException e) {
 		}
+		CrawlerService.setDebug(debug);
 		return new ParserResult().clear();
 	}
 

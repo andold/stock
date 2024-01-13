@@ -74,7 +74,7 @@ public class StockService {
 			CrudList<DividendHistoryDomain> crudHistories = dividendHistoryService.put(histories);
 			CrudList<PriceDomain> crudPrices = priceService.put(prices);
 
-			log.info("{} {} items:{} dividends:{} histories:{} prices:{} upload({}) - {}", Utility.indentEnd(), false, crudItems, crudDividends, crudHistories, crudPrices, Utility.toStringJson(file, 16), Utility.toStringPastTimeReadable(started));
+			log.info("{} {} items:{} dividends:{} histories:{} prices:{} upload({}) - {}", Utility.indentEnd(), true, crudItems, crudDividends, crudHistories, crudPrices, Utility.toStringJson(file, 16), Utility.toStringPastTimeReadable(started));
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();

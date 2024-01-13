@@ -123,7 +123,7 @@ public class ParserService {
 			, String code
 			, String base, String closing, String market, String high, String low, String volume
 			) {
-		log.debug("{} price(『{}』『{}』『{} {} {} {} {} {}』)", Utility.indentMiddle(), mark
+		log.trace("{} price(『{}』『{}』『{} {} {} {} {} {}』)", Utility.indentMiddle(), mark
 				, code
 				, base, closing, market, high, low, volume);
 		if (code == null || base == null) {
@@ -176,11 +176,6 @@ public class ParserService {
 		StockLexer lexer = new StockLexer(CharStreams.fromString(text));
 		String tokensFromText = tokens(lexer, "NEWLINE");
 		log.info("{} tokensFromText = 『\n{}\n』", Utility.indentMiddle(), tokensFromText);
-	}
-	private static void debugPrintTokens(String text) {
-		StockLexer lexer = new StockLexer(CharStreams.fromString(text));
-		String tokensFromText = tokens(lexer, "NEWLINE");
-		log.debug("{} tokensFromText = 『\n{}\n』", Utility.indentMiddle(), tokensFromText);
 	}
 
 	public static String tokens(Lexer lexer, String eol) {
@@ -259,8 +254,7 @@ public class ParserService {
 			log.info("{} parse(『\n{}\n』)", Utility.indentMiddle(), text);
 			infoPrintTokens(text);
 		} else {
-			log.debug("{} parse(『\n{}\n』)", Utility.indentMiddle(), text);
-			debugPrintTokens(text);
+			log.debug("{} parse(『\n{}\n』)", Utility.indentMiddle(), Utility.ellipsis(text, 1024, 1024));
 		}
 
 		log.debug("{} {} parse(『{}』, 『{}』) - {}", Utility.indentEnd(), result, Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));

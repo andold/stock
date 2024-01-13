@@ -24,7 +24,6 @@ import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.ParserService;
 import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -34,7 +33,6 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 4;
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
-	@Setter private static Boolean debug = CrawlerService.debug;
 
 	private ConcurrentLinkedQueue<ItemDomain> items;
 	private String startDate = null;;
@@ -94,7 +92,7 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 					continue;
 				}
 				
-				if (debug && new Random().nextDouble() < 0.9) {
+				if (CrawlerService.getDebug() && new Random().nextDouble() < 0.9) {
 					log.trace("{} {}/{} 뽑기 제외 『{}』 CrawlDividendHistoryEtfThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
@@ -106,7 +104,7 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 			}
 			sb.append(MARK_END_POINT);
 			String text = new String(sb);
-			ParserResult resultDividendHistoryEtf = ParserService.parse(text, debug);
+			ParserResult resultDividendHistoryEtf = ParserService.parse(text, CrawlerService.getDebug());
 			result.addAll(resultDividendHistoryEtf);
 			log.debug("{} #{} {} CrawlDividendHistoryEtfThread() - {}", Utility.indentMiddle(), Utility.size(items), resultDividendHistoryEtf, Utility.toStringPastTimeReadable(started));
 		}
@@ -233,14 +231,17 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.add(item);
 		CrawlDividendHistoryEtfThread thread = new CrawlDividendHistoryEtfThread(queue, item.getStart());
-		setDebug(false);
+		boolean debug = CrawlerService.getDebug();
+		CrawlerService.setDebug(false);
 		ExecutorService service = Executors.newFixedThreadPool(1);
 		Future<ParserResult> future = service.submit(thread);
 		try {
+			CrawlerService.setDebug(debug);
 			return future.get();
 		} catch (InterruptedException e) {
 		} catch (ExecutionException e) {
 		}
+		CrawlerService.setDebug(debug);
 		return new ParserResult().clear();
 	}
 

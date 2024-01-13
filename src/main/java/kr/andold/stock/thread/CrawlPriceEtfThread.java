@@ -23,7 +23,6 @@ import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.ParserService;
 import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 // KSD 증권정보포털 SEIBro > ETF > ETF종합정보 > 기준가추이 :: 일별시세
@@ -38,7 +37,6 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 	private String startDate = null;;
 	private ConcurrentLinkedQueue<ItemDomain> items;
 	private ChromeDriverWrapper driver;
-	@Setter private static Boolean debug = CrawlerService.debug;
 
 	public CrawlPriceEtfThread(ConcurrentLinkedQueue<ItemDomain> list) {
 		this.items = list;
@@ -96,7 +94,7 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 					cx--;
 					continue;
 				}
-				if (debug && new Random().nextDouble() < 0.95) {
+				if (CrawlerService.getDebug() && new Random().nextDouble() < 0.95) {
 					log.trace("{} {}/{} 테스트 뽑기 제외 『{}』 CrawlPriceEtfThread()", Utility.indentMiddle(), cx, Utility.size(items), item);
 					cx--;
 					continue;
@@ -110,7 +108,7 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 			}
 			sb.append(MARK_START_END_POINT);
 			String text = new String(sb);
-			ParserResult resultParsed = ParserService.parse(text, debug);
+			ParserResult resultParsed = ParserService.parse(text, CrawlerService.getDebug());
 			result.addAll(resultParsed);
 		}
 		driver.quit();
@@ -317,7 +315,7 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 		long freeMemorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreeMemorySize();
 		int candidateProcessorsByFreeMemory = (int) (freeMemorySize / 512L / 1024L / 1024L);
 		int processors = Math.min(Math.max(1, candidateProcessorsByFreeMemory), Runtime.getRuntime().availableProcessors() - 1);
-		if (debug) {
+		if (CrawlerService.getDebug()) {
 			processors = 1;
 		}
 
@@ -352,11 +350,13 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.add(item);
 		CrawlPriceEtfThread thread = new CrawlPriceEtfThread(queue, item.getStart());
-		setDebug(false);
+		boolean debug = CrawlerService.getDebug();
+		CrawlerService.setDebug(false);
 		ExecutorService service = Executors.newFixedThreadPool(1);
 		Future<ParserResult> future = service.submit(thread);
 		try {
 			ParserResult result = future.get();
+			CrawlerService.setDebug(debug);
 
 			log.info("{} {} CrawlPriceEtfThread.crawl({}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
 			return result;
@@ -364,6 +364,7 @@ public class CrawlPriceEtfThread implements Callable<ParserResult> {
 			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
 		}
 
+		CrawlerService.setDebug(debug);
 		log.info("{} EMPY CrawlPriceEtfThread.crawl({}) - {}", Utility.indentEnd(), item, Utility.toStringPastTimeReadable(started));
 		return new ParserResult().clear();
 	}

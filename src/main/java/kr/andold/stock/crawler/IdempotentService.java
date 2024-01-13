@@ -238,7 +238,7 @@ public class IdempotentService {
 				default:
 					break;
 				}
-				log.info("{} #{}:#{} 『{}』 #{}:#{}:#{}:#{} once() - {}/{}", Utility.indentMiddle(), cx, precessed, item, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), item, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 			}
 			for (ItemDomain item = q1.poll(); item != null; item = q1.poll()) {
 				long forStarted = System.currentTimeMillis();
@@ -252,7 +252,7 @@ public class IdempotentService {
 				default:
 					break;
 				}
-				log.info("{} #{}:#{} 『{}』 #{}:#{}:#{}:#{} once() - {}/{}", Utility.indentMiddle(), cx, precessed, item, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), item, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 			}
 			for (ItemDomain item = q2.poll(); item != null; item = q2.poll()) {
 				long forStarted = System.currentTimeMillis();
@@ -266,7 +266,7 @@ public class IdempotentService {
 				default:
 					break;
 				}
-				log.info("{} #{}:#{} 『{}』 #{}:#{}:#{}:#{} once() - {}/{}", Utility.indentMiddle(), cx, precessed, item, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), item, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 			}
 			for (ItemDomain item = q3.poll(); item != null; item = q3.poll()) {
 				long forStarted = System.currentTimeMillis();
@@ -280,7 +280,7 @@ public class IdempotentService {
 				default:
 					break;
 				}
-				log.info("{} #{}:#{} 『{}』 #{}:#{}:#{}:#{} once() - {}/{}", Utility.indentMiddle(), cx, precessed, item, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), item, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 			}
 
 			if (precessed > 0) {
@@ -289,7 +289,7 @@ public class IdempotentService {
 				q1.addAll(items);
 				q2.addAll(items);
 				q3.addAll(items);
-				log.info("{} #{}:#{} #{} - once() - {}", Utility.indentEnd(), cx, precessed, Utility.size(items), Utility.toStringPastTimeReadable(started));
+				log.info("{} 『#{}:#{}』 #{} - once() - {}", Utility.indentEnd(), cx, precessed, Utility.size(items), Utility.toStringPastTimeReadable(started));
 				pause = Math.max(PAUSE_MIN, pause / 2);
 			} else if (pause >= PAUSE_MAX) {
 				List<ItemDomain> items = itemService.search(null);
@@ -297,14 +297,14 @@ public class IdempotentService {
 				q1.addAll(items);
 				q2.addAll(items);
 				q3.addAll(items);
-				log.info("{} #{}:#{} #{} - once() - {}", Utility.indentEnd(), cx, precessed, Utility.size(items), Utility.toStringPastTimeReadable(started));
+				log.info("{} 『#{}:#{}』 #{} - once() - {}", Utility.indentEnd(), cx, precessed, Utility.size(items), Utility.toStringPastTimeReadable(started));
 				pause = PAUSE_MIN;
 			} else {
 				pause = Math.min(PAUSE_MAX, pause * 2);
 			}
 			
 			Utility.sleep(pause);
-			log.info("{} #{}:#{} #{}:#{}:#{}:#{} once() - {}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), Utility.toStringPastTimeReadable(started));
+			log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 once() - {}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), Utility.toStringPastTimeReadable(started));
 		}
 	}
 
@@ -319,7 +319,7 @@ public class IdempotentService {
 			return IDEMPOTENT_STATUS.ALEADY_DONE_JOB;
 		}
 
-		Result<ParserResult> result = krx.price(item, histories);
+		Result<ParserResult> result = krx.price(item.getCode(), item.getIpoDate());
 		switch (result.getStatus()) {
 		case SUCCESS:
 			ParserResult parserResult = result.getResult();
@@ -327,6 +327,7 @@ public class IdempotentService {
 			List<PriceDomain> prices = parserResult.getPrices();
 			Map<String, PriceDomain> mapP = priceService.makeMap(prices);
 			dividendHistoryService.compile(histories, mapP);
+			priceService.compile(prices, false);
 			put(parserResult);
 			return IDEMPOTENT_STATUS.SUCCESS;
 		default:

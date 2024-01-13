@@ -70,9 +70,9 @@ public class CrawlerService {
 		webdriverPath = value;
 	}
 
-	public static Boolean debug = false;
+	@Getter private static Boolean debug = false;
 	@Value("${app.crawler.debug:false}")
-	public void setDegug(Boolean value) {
+	public static void setDebug(Boolean value) {
 		log.info("{} INIT::CrawlerService.setDegug({})", Utility.indentMiddle(), value);
 		debug = value;
 	}
