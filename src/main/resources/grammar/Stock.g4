@@ -154,6 +154,7 @@ krxPriceEtf:
 krxItemInfoCompany:
 	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 KRX 	 주식 > 종목정보 > 개별정보 종합정보 	 http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020203 
 
+	KEYWORD TAB type=WORD 										NEWLINE		//	KEYWORD 	 KOSPI 
 	WORD TAB WORD TAB
 			symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* TAB
 			word+ TAB											NEWLINE		//	한글명 	 영문명 	 JB금융지주 	 JB Financial Group Co., Ltd. 	 
@@ -177,7 +178,7 @@ krxItemInfoCompany:
 			, $code.text
 			, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
 			, $category.text, $category1.text, $category2.text, $category3.text, $category4.text, $category5.text, $category6.text, $category7.text
-			, null
+			, $type.text
 			, $ipo.text
 			, $volumeOfListedShares.text
 			, null

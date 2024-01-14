@@ -716,6 +716,11 @@ public class Krx implements Crawler {
 			
 			StringBuffer sb = new StringBuffer();
 			sb.append(MARK_START_END_POINT_COMPANY_EACH_SUMMARY_INFO);
+			
+			// 타입	ex)  | KOSDAQ
+			sb.append(String.format("KEYWORD\t%s\n", driver.getText(By.xpath("//*[@id='isuInfoTitle']/text()"), TIMEOUT, "-").replaceAll("[ \\|]+", "")));
+			
+			// 정보 테이블 출력
 			WebElement tableElement = driver.findElement(By.xpath("//*[@id='ovrvwGenBind']"), TIMEOUT);
 			sb.append(driver.extractTextContentFromTableElement(tableElement));
 			sb.append(MARK_ANDOLD_SINCE);
