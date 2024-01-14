@@ -165,7 +165,7 @@ krxItemInfoCompany:
 			category=word category1=word? category2=word? category3=word? category4=word? category5=word? category6=word? category7=word* TAB
 			word+ TAB											NEWLINE		//	업종명 	 대표이사 	 기타 금융업 	 김기홍 	 
 	WORD TAB word+ TAB											NEWLINE		//	주소 	 전라북도 전주시 덕진구 백제대로 566 	 
-	WORD TAB word+ TAB											NEWLINE		//	전화번호 	 02-2128-2714 	 
+	WORD TAB word* TAB											NEWLINE		//	전화번호 	 02-2128-2714 	 
 	WORD TAB WORD TAB											NEWLINE		//	홈페이지 	 www.jbfg.com 	 
 
 	WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27 
