@@ -221,10 +221,11 @@ public class IdempotentService {
 	ConcurrentLinkedDeque<ItemDomain> q3 = new ConcurrentLinkedDeque<>();	// reserved
 	@Async
 	public void once() {
+		long started = System.currentTimeMillis();
 		long pause = PAUSE_MAX;
 		int precessed = 0;
+
 		for (int cx = 0;; cx++) {
-			long started = System.currentTimeMillis();
 
 			ItemDomain item0 = q0.poll();
 			if (item0 != null) {
