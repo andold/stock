@@ -164,8 +164,8 @@ krxItemInfoCompany:
 	WORD TAB WORD TAB ipo=DATE TAB DATE TAB						NEWLINE		//	상장일 	 설립일 	 2013/07/18 	 2013/07/01 	 
 	WORD TAB WORD TAB
 			category=word category1=word? category2=word? category3=word? category4=word? category5=word? category6=word? category7=word* TAB
-			WORD TAB											NEWLINE		//	업종명 	 대표이사 	 기타 금융업 	 김기홍 	 
-	WORD TAB WORD WORD WORD WORD NUMBER TAB						NEWLINE		//	주소 	 전라북도 전주시 덕진구 백제대로 566 	 
+			word+ TAB											NEWLINE		//	업종명 	 대표이사 	 기타 금융업 	 김기홍 	 
+	WORD TAB word+ TAB											NEWLINE		//	주소 	 전라북도 전주시 덕진구 백제대로 566 	 
 	WORD TAB WORD TAB											NEWLINE		//	전화번호 	 02-2128-2714 	 
 	WORD TAB WORD TAB											NEWLINE		//	홈페이지 	 www.jbfg.com 	 
 
@@ -194,7 +194,7 @@ krxItemInfoEtf:
 			symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* TAB word+ TAB		NEWLINE
 					//	ETF종목명 	 자산운용사 	 미래에셋 TIGER 미국나스닥100커버드콜증권상장지수투자신탁(주식-파생형)(합성) 	 미래에셋자산운용 	 
 	WORD TAB WORD TAB WORD TAB code=word TAB								NEWLINE		//	표준코드 	 단축코드 	 KR7441680006 	 441680 	 
-	WORD TAB WORD TAB WORD WORD WORD WORD WORD WORD WORD TAB WORD TAB		NEWLINE		//	기초지수명 	 지수산출기관 	 Cboe Nasdaq-100 BuyWrite V2 지수 (Total Return) 	 NASDAQ 	 
+	WORD TAB WORD TAB word+ TAB word+ TAB									NEWLINE		//	기초지수명 	 지수산출기관 	 Cboe Nasdaq-100 BuyWrite V2 지수 (Total Return) 	 NASDAQ 	 
 	WORD TAB WORD TAB NUMBER TAB volumeOfListedShares=NUMBER TAB			NEWLINE		//	순자산규모(백만원) 	 상장좌수(좌) 	 252,027 	 25,400,000 	 
 	WORD TAB WORD TAB NUMBER TAB ipo=DATE TAB								NEWLINE		//	전일NAV 	 상장일 	 9,922.33 	 2022/09/22 	 
 	WORD TAB WORD TAB WORD TAB WORD TAB										NEWLINE		//	펀드형태 	 과세유형 	 수익증권형 	 배당소득세(보유기간과세) 	 
@@ -202,8 +202,8 @@ krxItemInfoEtf:
 	WORD TAB WORD TAB WORD TAB
 			category=word category1=word? category2=word? category3=word? category4=word? category5=word? category6=word? category7=word* TAB	NEWLINE
 					//	기초시장(국내/해외여부) 	 기초자산(주식/시장대표) 	 해외 	 주식-전략-구조화 	 
-	WORD WORD TAB WORD WORD WORD TAB										NEWLINE		//	분배금 기준일 	 매월 마지막 영업일 	 
-	WORD TAB WORD WORD WORD WORD WORD WORD WORD WORD WORD WORD TAB			NEWLINE		//	유동성공급자(LP) 	 신한증권, 한국증권, 대신증권, 미래에셋증권, 메리츠, NH투자증권, KB증권, 삼성증권, 키움증권, 이베스트 	 
+	WORD WORD TAB word+ TAB													NEWLINE		//	분배금 기준일 	 매월 마지막 영업일 	 
+	WORD TAB word+ TAB														NEWLINE		//	유동성공급자(LP) 	 신한증권, 한국증권, 대신증권, 미래에셋증권, 메리츠, NH투자증권, KB증권, 삼성증권, 키움증권, 이베스트 	 
 
 	WORD TAB WORD TAB DATE													NEWLINE		//	andold 	 since 	 2023-11-27 
 

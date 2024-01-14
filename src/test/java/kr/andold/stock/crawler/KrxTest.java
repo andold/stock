@@ -76,4 +76,11 @@ public class KrxTest {
 		assertEquals(result.getStatus(), STATUS.SUCCESS);
 	}
 
+	@Test
+	public void testItem() {
+		Result<ParserResult> result = krx.item("003540");
+		log.info("{}", result);
+		assertEquals(result.getResult().getItems().size(), 1);
+	}
+
 }
