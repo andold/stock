@@ -18,6 +18,7 @@ import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.domain.Result;
+import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.param.DividendHistoryParam;
 import kr.andold.stock.service.DividendHistoryService;
 import kr.andold.stock.service.DividendService;
@@ -390,7 +391,27 @@ public class IdempotentService {
 	}
 
 	private IDEMPOTENT_STATUS processDetailInfo(ItemDomain item) {
-		return IDEMPOTENT_STATUS.RESERVED;
+		if (item == null) {
+			return IDEMPOTENT_STATUS.INVALID_JOB;
+		}
+		
+		String symbol = item.getSymbol();
+		Date ipoDate = item.getIpoDate();
+		Integer volumeOfListedShares = item.getVolumeOfListedShares();
+		String type = item.getType();
+		String category = item.getCategory();
+
+		if (!(symbol == null || symbol.isBlank() || volumeOfListedShares == null || type == null || type.isBlank() || category == null || category.isBlank() || ipoDate == null)) {
+			return IDEMPOTENT_STATUS.ALEADY_DONE_JOB;
+		}
+
+		Result<ParserResult> itemResult = krx.item(item.getCode());
+		if (itemResult.getStatus() == STATUS.SUCCESS) {
+			put(itemResult.getResult());
+			return IDEMPOTENT_STATUS.SUCCESS;
+		}
+
+		return IDEMPOTENT_STATUS.FAILURE;
 	}
 
 }
