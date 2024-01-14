@@ -709,10 +709,10 @@ public class Krx implements Crawler {
 			}
 
 			// 조회 클릭
-			String MARK = "-1";
-			driver.setText(By.xpath("//*[@id='ovrvwGenBind']/tr[1]/td[1]"), MARK, TIMEOUT);
+			By BY_STANDARD_CODE = By.xpath("//*[@id='ovrvwGenBind']/tbody/tr[2]/td[1]/text()");	// 표준코드
+			String previousStandardCode = driver.getText(BY_STANDARD_CODE, TIMEOUT, URL_COMPANY_EACH_SUMMARY_INFO);
 			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), TIMEOUT).click();
-			driver.waitUntilTextNotInclude(By.xpath("//*[@id='ovrvwGenBind']/tr[1]/td[1]"), TIMEOUT, MARK);
+			driver.waitUntilTextNotInclude(BY_STANDARD_CODE, TIMEOUT, previousStandardCode);
 			
 			StringBuffer sb = new StringBuffer();
 			sb.append(MARK_START_END_POINT_COMPANY_EACH_SUMMARY_INFO);
@@ -778,10 +778,10 @@ public class Krx implements Crawler {
 			}
 
 			// 조회 클릭
-			String MARK = "-1";
-			driver.setText(By.xpath("//*[@id='jsGrid_MDCSTAT047_1']/tr[1]/td[1]"), MARK, TIMEOUT);
+			By BY_STANDARD_CODE = By.xpath("//*[@id='jsGrid_MDCSTAT047_1']/tbody/tr[3]/td[1]/text()");	// 표준코드
+			String previousStandardCode = driver.getText(BY_STANDARD_CODE, TIMEOUT, URL_ETF_EACH_SUMMARY_INFO);
 			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), TIMEOUT).click();
-			driver.waitUntilTextNotInclude(By.xpath("//*[@id='jsGrid_MDCSTAT047_1']/tr[1]/td[1]"), TIMEOUT, MARK);
+			driver.waitUntilTextNotInclude(BY_STANDARD_CODE, TIMEOUT, previousStandardCode);
 			
 			StringBuffer sb = new StringBuffer();
 			sb.append(MARK_START_END_POINT_ETF_EACH_SUMMARY_INFO);
