@@ -221,14 +221,14 @@ public class IdempotentService {
 	@Async
 	public void once() {
 		long pause = PAUSE_MAX;
-
+		int precessed = 0;
 		for (int cx = 0;; cx++) {
 			long started = System.currentTimeMillis();
-			int precessed = 0;
 
-			for (ItemDomain item = q0.poll(); item != null; item = q0.poll()) {
+			ItemDomain item0 = q0.poll();
+			if (item0 != null) {
 				long forStarted = System.currentTimeMillis();
-				IDEMPOTENT_STATUS status = processDetailInfo(item);
+				IDEMPOTENT_STATUS status = processDetailInfo(item0);
 				switch (status) {
 				case FAILURE:
 				case SUCCESS:
@@ -238,11 +238,14 @@ public class IdempotentService {
 				default:
 					break;
 				}
-				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item0, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+				continue;
 			}
-			for (ItemDomain item = q1.poll(); item != null; item = q1.poll()) {
+			
+			ItemDomain item1 = q1.poll();
+			if (item1 != null) {
 				long forStarted = System.currentTimeMillis();
-				IDEMPOTENT_STATUS status = processDividend(item);
+				IDEMPOTENT_STATUS status = processDividend(item1);
 				switch (status) {
 				case FAILURE:
 				case SUCCESS:
@@ -252,11 +255,14 @@ public class IdempotentService {
 				default:
 					break;
 				}
-				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item1, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+				continue;
 			}
-			for (ItemDomain item = q2.poll(); item != null; item = q2.poll()) {
+			
+			ItemDomain item2 = q2.poll();
+			if (item2 != null) {
 				long forStarted = System.currentTimeMillis();
-				IDEMPOTENT_STATUS status = processPrice(item);
+				IDEMPOTENT_STATUS status = processPrice(item2);
 				switch (status) {
 				case FAILURE:
 				case SUCCESS:
@@ -266,11 +272,14 @@ public class IdempotentService {
 				default:
 					break;
 				}
-				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item2, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+				continue;
 			}
-			for (ItemDomain item = q3.poll(); item != null; item = q3.poll()) {
+			
+			ItemDomain item3 = q3.poll();
+			if (item3 != null) {
 				long forStarted = System.currentTimeMillis();
-				IDEMPOTENT_STATUS status = processReserved(item);
+				IDEMPOTENT_STATUS status = processReserved(item3);
 				switch (status) {
 				case FAILURE:
 				case SUCCESS:
@@ -280,7 +289,8 @@ public class IdempotentService {
 				default:
 					break;
 				}
-				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item3, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+				continue;
 			}
 
 			if (precessed > 0) {
@@ -289,22 +299,31 @@ public class IdempotentService {
 				q1.addAll(items);
 				q2.addAll(items);
 				q3.addAll(items);
-				log.info("{} 『#{}:#{}』 #{} - once() - {}", Utility.indentEnd(), cx, precessed, Utility.size(items), Utility.toStringPastTimeReadable(started));
-				pause = Math.max(PAUSE_MIN, pause / 2);
-			} else if (pause >= PAUSE_MAX) {
+				pause = PAUSE_MIN;
+				precessed = 0;
+				log.info("{} DO_ALL 『#{}:#{}』 #{} - once() - {}", Utility.indentEnd(), cx, precessed, Utility.size(items), Utility.toStringPastTimeReadable(started));
+				continue;
+			}
+			
+			if (pause >= PAUSE_MAX) {
 				List<ItemDomain> items = itemService.search(null);
 				q0.addAll(items);
 				q1.addAll(items);
 				q2.addAll(items);
 				q3.addAll(items);
-				log.info("{} 『#{}:#{}』 #{} - once() - {}", Utility.indentEnd(), cx, precessed, Utility.size(items), Utility.toStringPastTimeReadable(started));
-				pause = PAUSE_MIN;
-			} else {
-				pause = Math.min(PAUSE_MAX, pause * 2);
+				pause = PAUSE_MAX;
+				log.info("{} NO_JOB_FINAL 『#{}:#{}』 #{} - once() - {}", Utility.indentEnd(), cx, precessed, Utility.size(items), Utility.toStringPastTimeReadable(started));
+				continue;
 			}
-			
+
+			List<ItemDomain> items = itemService.search(null);
+			q0.addAll(items);
+			q1.addAll(items);
+			q2.addAll(items);
+			q3.addAll(items);
+			pause = Math.min(PAUSE_MAX, pause * 2);
 			Utility.sleep(pause);
-			log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 once() - {}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), Utility.toStringPastTimeReadable(started));
+			log.info("{} NO_JOB 『#{}:#{}』『#{}:#{}:#{}:#{}』 once() - {}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), Utility.toStringPastTimeReadable(started));
 		}
 	}
 
