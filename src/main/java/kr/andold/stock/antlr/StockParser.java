@@ -1428,6 +1428,12 @@ public class StockParser extends Parser {
 		public TerminalNode NEWLINE(int i) {
 			return getToken(StockParser.NEWLINE, i);
 		}
+		public List<WordContext> word() {
+			return getRuleContexts(WordContext.class);
+		}
+		public WordContext word(int i) {
+			return getRuleContext(WordContext.class,i);
+		}
 		public List<TerminalNode> NUMBER() { return getTokens(StockParser.NUMBER); }
 		public TerminalNode NUMBER(int i) {
 			return getToken(StockParser.NUMBER, i);
@@ -1435,12 +1441,6 @@ public class StockParser extends Parser {
 		public List<TerminalNode> DATE() { return getTokens(StockParser.DATE); }
 		public TerminalNode DATE(int i) {
 			return getToken(StockParser.DATE, i);
-		}
-		public List<WordContext> word() {
-			return getRuleContexts(WordContext.class);
-		}
-		public WordContext word(int i) {
-			return getRuleContext(WordContext.class,i);
 		}
 		public KrxItemInfoCompanyContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1625,7 +1625,7 @@ public class StockParser extends Parser {
 			setState(561);
 			match(TAB);
 			setState(562);
-			match(NUMBER);
+			word();
 			setState(563);
 			match(TAB);
 			setState(564);
@@ -11008,7 +11008,7 @@ public class StockParser extends Parser {
 		"\u0012\u0000\u022c\u022d\u0005\u0003\u0000\u0000\u022d\u022e\u0005\u0004"+
 		"\u0000\u0000\u022e\u022f\u0005\n\u0000\u0000\u022f\u0230\u0005\u0003\u0000"+
 		"\u0000\u0230\u0231\u0005\n\u0000\u0000\u0231\u0232\u0005\u0003\u0000\u0000"+
-		"\u0232\u0233\u0005\b\u0000\u0000\u0233\u0234\u0005\u0003\u0000\u0000\u0234"+
+		"\u0232\u0233\u0003$\u0012\u0000\u0233\u0234\u0005\u0003\u0000\u0000\u0234"+
 		"\u0235\u0005\b\u0000\u0000\u0235\u0236\u0005\u0003\u0000\u0000\u0236\u0237"+
 		"\u0005\u0004\u0000\u0000\u0237\u0238\u0005\n\u0000\u0000\u0238\u0239\u0005"+
 		"\u0003\u0000\u0000\u0239\u023a\u0005\n\u0000\u0000\u023a\u023b\u0005\u0003"+

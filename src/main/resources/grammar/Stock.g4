@@ -158,7 +158,7 @@ krxItemInfoCompany:
 			symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* TAB
 			word+ TAB											NEWLINE		//	한글명 	 영문명 	 JB금융지주 	 JB Financial Group Co., Ltd. 	 
 	WORD TAB WORD TAB WORD TAB code=word TAB					NEWLINE		//	표준코드 	 종목코드 	 KR7175330000 	 175330 	 
-	WORD TAB WORD TAB NUMBER TAB NUMBER TAB						NEWLINE		//	액면가 	 결산월 	 5,000 	 12 	 
+	WORD TAB WORD TAB word TAB NUMBER TAB						NEWLINE		//	액면가 	 결산월 	 5,000 	 12 	 
 	WORD TAB WORD TAB volumeOfListedShares=NUMBER TAB WORD TAB	NEWLINE		//	상장주식수(주) 	 소속부 	 196,982,894 	 - 	 
 	WORD TAB WORD TAB ipo=DATE TAB DATE TAB						NEWLINE		//	상장일 	 설립일 	 2013/07/18 	 2013/07/01 	 
 	WORD TAB WORD TAB
