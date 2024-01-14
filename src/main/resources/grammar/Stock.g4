@@ -147,7 +147,6 @@ krxPriceEtf:
 		WORD TAB WORD TAB DATE							NEWLINE		//	andold 	 since 	 2023-11-27 
 	)+
 	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 KRX 	 증권상품 > ETF > 개별종목 시세 추이 	 http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201030103 
-
 ;
 
 
@@ -190,8 +189,8 @@ krxItemInfoCompany:
 krxItemInfoEtf:
 	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 KRX 	 증권상품 > ETF > 개별종목 종합정보 	 http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201030105 
 
-	WORD TAB WORD TAB
-			symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word* TAB word+ TAB		NEWLINE
+	KEYWORD TAB symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*		NEWLINE
+	WORD TAB WORD TAB word+ TAB word+ TAB									NEWLINE
 					//	ETF종목명 	 자산운용사 	 미래에셋 TIGER 미국나스닥100커버드콜증권상장지수투자신탁(주식-파생형)(합성) 	 미래에셋자산운용 	 
 	WORD TAB WORD TAB WORD TAB code=word TAB								NEWLINE		//	표준코드 	 단축코드 	 KR7441680006 	 441680 	 
 	WORD TAB WORD TAB word+ TAB word+ TAB									NEWLINE		//	기초지수명 	 지수산출기관 	 Cboe Nasdaq-100 BuyWrite V2 지수 (Total Return) 	 NASDAQ 	 

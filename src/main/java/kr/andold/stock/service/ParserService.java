@@ -105,7 +105,7 @@ public class ParserService {
 				.code(code)
 				.build();
 		item.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
-		item.setSymbol(item.getSymbol().split("\\[[0-9]+")[0]);
+		item.setSymbol(item.getSymbol().split("[\\\\\\(][0-9]+")[0].strip());
 		item.setCategory(category, category1, category2, category3, category4, category5, category6, category7);
 		if ("유가증권".equalsIgnoreCase(type)) {
 			item.setType("KOSPI");

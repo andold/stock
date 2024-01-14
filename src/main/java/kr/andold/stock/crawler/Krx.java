@@ -780,11 +780,16 @@ public class Krx implements Crawler {
 			
 			StringBuffer sb = new StringBuffer();
 			sb.append(MARK_START_END_POINT_ETF_EACH_SUMMARY_INFO);
+
+			// 종목명 약어 ex) TIGER 미국나스닥100커버드콜(합성) (441680)
+			sb.append(String.format("KEYWORD\t%s\n", driver.getText(By.xpath("//*[@id='jsIdxInfo']/p/label"), TIMEOUT, "-")));
+
+			// 테이블 전체 출력
 			WebElement tableElement = driver.findElement(By.xpath("//*[@id='jsGrid_MDCSTAT047_1']"), TIMEOUT);
 			sb.append(driver.extractTextContentFromTableElement(tableElement));
-			sb.append(MARK_ANDOLD_SINCE);
 			driver.quit();
 
+			sb.append(MARK_ANDOLD_SINCE);
 			sb.append(MARK_START_END_POINT_ETF_EACH_SUMMARY_INFO);
 			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
 
