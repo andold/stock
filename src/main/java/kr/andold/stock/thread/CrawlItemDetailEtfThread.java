@@ -201,6 +201,7 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 		return false;
 	}
 
+	@Deprecated
 	public static ParserResult crawl(List<ItemDomain> items) {
 		log.info("{} CrawlItemDetailEtfThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();

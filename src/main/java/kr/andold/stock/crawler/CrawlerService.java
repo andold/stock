@@ -34,11 +34,9 @@ import kr.andold.stock.service.PriceService;
 import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.ParserService.ParserResult;
-import kr.andold.stock.thread.CrawlItemDetailCompanyThread;
 import kr.andold.stock.thread.CrawlPriceCompanyThread;
 import kr.andold.stock.thread.CrawlPriceEtfThread;
 import kr.andold.stock.thread.CrawlPriceThread;
-import kr.andold.stock.thread.CrawlItemDetailEtfThread;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -303,44 +301,6 @@ public class CrawlerService {
 		String type = item.getType();
 
 		return (code != null && !code.isBlank() && (type == null || type.equalsIgnoreCase("ETF")));
-	}
-
-	// KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
-	@Deprecated
-	public ParserResult crawlItemDetailEtf() {
-		log.info("{} crawlItemDetailEtf()", Utility.indentStart());
-		long started = System.currentTimeMillis();
-
-		ParserResult container = new ParserResult().clear();
-		List<ItemDomain> items = stockItemService.search(null);
-		List<List<ItemDomain>> partitions = Lists.partition(items, 128);
-		for (List<ItemDomain> partition: partitions) {
-			ParserResult result = CrawlItemDetailEtfThread.crawl(partition);
-			container.addAll(result);
-			put(result);
-		}
-
-		log.info("{} {} crawlItemDetailEtf() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
-		return container;
-	}
-
-	// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 종목종합내역 (KSD증권정보포털(SEIBro) > 기업 > 기업기본정보와 동일)
-	@Deprecated
-	public ParserResult crawlItemDetailCompany() {
-		log.info("{} crawlItemDetailCompany()", Utility.indentStart());
-		long started = System.currentTimeMillis();
-
-		ParserResult container = new ParserResult().clear();
-		List<ItemDomain> items = stockItemService.search(null);
-		List<List<ItemDomain>> partitions = Lists.partition(items, 128);
-		for (List<ItemDomain> partition: partitions) {
-			ParserResult result = CrawlItemDetailCompanyThread.crawl(partition);
-			container.addAll(result);
-			put(result);
-		}
-
-		log.info("{} {} crawlItemDetailCompany() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
-		return container;
 	}
 
 	public static ChromeDriverWrapper defaultChromeDriver() {

@@ -199,6 +199,7 @@ public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 		return false;
 	}
 
+	@Deprecated
 	public static ParserResult crawl(List<ItemDomain> items) {
 		log.info("{} CrawlItemDetailCompanyThread.crawl(#{})", Utility.indentStart(), Utility.size(items));
 		long started = System.currentTimeMillis();

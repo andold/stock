@@ -1,9 +1,9 @@
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button, ButtonGroup, Col, Container, Form, InputGroup, NavDropdown, Navbar, Offcanvas, Spinner, ToggleButton } from "react-bootstrap";
 
 // domain
-import { StockDividendFormModel } from "../model/StockModel";
+import { StockForm } from "../model/StockModel";
 
 // store
 import store from "../store/StockStore";
@@ -22,7 +22,7 @@ import UploadButtonView from "../view/UploadButtonView";
 export default ((props: any) => {
 	const { } = props;
 
-	const [form, setForm] = useState<StockDividendFormModel>({
+	const [form, setForm] = useState<StockForm>({
 		mode: 0,
 
 		size: 32,
@@ -31,15 +31,10 @@ export default ((props: any) => {
 		rowHeight: 32,
 
 		filterDividendPayoutRatio: false,
-		filterSigma: false,
 
 		start: null,
 		end: null,
 		keyword: null,
-
-		etf: false,
-		kospi: false,
-		kosdaq: false,
 
 	});
 
@@ -93,6 +88,8 @@ export default ((props: any) => {
 function Header(props: any) {
 	const { form, onChange } = props;
 
+	const refSearhKeyword = useRef(null);
+
 	const [spinner, setSpinner] = useState<number>(0);
 	const [collapsed, setCollapsed] = useState(true);
 
@@ -137,6 +134,9 @@ function Header(props: any) {
 		});
 	}, [jobs]);
 
+	function handleOnKeyDownKeyword(event: any) {
+		(event.key === "Enter") && onChange && onChange({ keyword: event.target.value, });
+	}
 	function handleOnClickDownload() {
 		setDisableDownload(true);
 		const yyyymmdd = moment().format("YYYYMMDD");
@@ -251,28 +251,9 @@ function Header(props: any) {
 		setDisableOnce(true);
 		idempotentStore.once(null, () => setDisableOnce(false));
 	}
-	//handleOnClickCrawlDividendAllRecent
-	function handleOnClickCrawlItemEtfDetails() {
-		setSpinner(spinner + 1);
-		store.crawlItemEtfDetails({}, (_: any) => {
-			if (spinner == 1) {	// 마지막에서만 재검색
-				onChange && onChange({});
-			}
-			setSpinner(spinner - 1);
-		});
-	}
 	function handleOnCrawlItemEtf() {
 		setSpinner(spinner + 1);
 		store.crawlItemEtf({}, (_: any) => {
-			if (spinner == 1) {	// 마지막에서만 재검색
-				onChange && onChange({});
-			}
-			setSpinner(spinner - 1);
-		});
-	}
-	function handleOnClickCrawlItemCompanyDetails() {
-		setSpinner(spinner + 1);
-		store.crawlItemCompanyDetails({}, (_: any) => {
 			if (spinner == 1) {	// 마지막에서만 재검색
 				onChange && onChange({});
 			}
@@ -330,18 +311,11 @@ function Header(props: any) {
 								>{store.range(6).map(x => (<option key={x} value={(x + 3) * 8}>{(x + 3) * 8}</option>))}</Form.Select>
 							</InputGroup>
 						</Col>
-						<Col xs="auto" className="mx-1">
-							<ButtonGroup size="sm">
-								<ToggleButton id="toggle-check-etf" type="checkbox" variant="outline-primary" checked={form.etf} value={form.etf}
-									onChange={(e) => onChange && onChange({ etf: e.currentTarget.checked })}
-								>ETF</ToggleButton>
-								<ToggleButton id="toggle-check-kospi" type="checkbox" variant="outline-primary" checked={form.kospi} value={form.kospi}
-									onChange={(e) => onChange && onChange({ kospi: e.currentTarget.checked })}
-								>KOSPI</ToggleButton>
-								<ToggleButton id="toggle-check-kosdaq" type="checkbox" variant="outline-primary" checked={form.kosdaq} value={form.kosdaq}
-									onChange={(e) => onChange && onChange({ kosdaq: e.currentTarget.checked })}
-								>KOSDAQ</ToggleButton>
-							</ButtonGroup>
+						<Col xs="auto" className="px-1 me-auto">
+							<Form.Control size="sm" type="search" className="bg-dark text-white" defaultValue={form.keyword}
+								ref={refSearhKeyword}
+								onKeyDown={handleOnKeyDownKeyword}
+							/>
 						</Col>
 						<Col xs="auto" className="text-start me-auto" title="divider" />
 						<Col xs="auto" className="mx-0 py-0">
@@ -364,8 +338,6 @@ function Header(props: any) {
 									<NavDropdown title="Crawl" className="mx-1">
 										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlItemDetailAll}>Crawl Item 상세 모두 {jobs.play ? "do PAUSE" : "do PLAY"}</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlItemEtf}>Crawl Item ETF</NavDropdown.Item>
-										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemCompanyDetails}>Crawl Item Detail Company</NavDropdown.Item>
-										<NavDropdown.Item className="mx-1" onClick={handleOnClickCrawlItemEtfDetails}>Crawl Item Detail ETF</NavDropdown.Item>
 									</NavDropdown>
 									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCompile} onClick={handleOnClickCompile}>
 										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCompile} />

@@ -1,6 +1,7 @@
 // StockModel.ts
 
 // item section
+/*
 export interface StockItemFormModel {
 	keyword: string;
 	start: moment.Moment;
@@ -9,8 +10,9 @@ export interface StockItemFormModel {
 	// not support field. user custom.
 	custom: any;
 }
+*/
 // dividend section
-export interface StockDividendFormModel {
+export interface StockForm {
 	mode: number;
 
 	//	pageable
@@ -20,19 +22,15 @@ export interface StockDividendFormModel {
 	rowHeight: number,
 
 	filterDividendPayoutRatio: boolean;
-	filterSigma: boolean;
 
 	keyword: string;
 	start: moment.Moment;
 	end: moment.Moment;
 
-	etf: boolean;
-	kospi: boolean;
-	kosdaq: boolean;
-
 	// not support field. user custom.
 	custom?: any;
 }
+/*
 export default interface StockDividendModel {
 	id: number;
 	code: string;			//	종목코드
@@ -54,7 +52,7 @@ export default interface StockDividendModel {
 	// not support field. user custom.
 	custom: any;
 }
-
+*/
 // dividend history section
 // TODO define StockDividendHistoryFormModel
 // TODO define StockDividendHistoryModel

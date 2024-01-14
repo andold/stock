@@ -92,8 +92,6 @@ public class ScheduledTasks {
 	// 매월 1일
 	@Scheduled(cron = "15 30 23 1 * *")
 	public void scheduleTaskMonthly() {
-		crawlerService.crawlItemDetailEtf();			//	ETF 상세
-		crawlerService.crawlItemDetailCompany();		//	기업주식 상세
 		priceService.purge();
 	}
 

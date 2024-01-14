@@ -19,18 +19,6 @@ public class CrawlerServiceTest {
 	private CrawlerService service;
 
 	@Test
-	public void testCrawlItemDetailEtf() {
-		ParserResult result = service.crawlItemDetailEtf();
-		log.info("{}", result);
-	}
-
-	@Test
-	public void testCrawllItemDetailCompany() {
-		ParserResult result = service.crawlItemDetailCompany();
-		log.info("{}", result);
-	}
-
-	@Test
 	public void testCrawlPriceCompany() {
 		ParserResult result = service.crawlPriceCompany(null);
 		log.info("{}", result);

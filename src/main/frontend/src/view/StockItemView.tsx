@@ -3,12 +3,11 @@ import React, { useEffect, useRef, useState } from "react";
 import moment from "moment";
 
 // domain
-import StockDividendModel, { StockDividendFormModel } from "../model/StockModel";
+import { StockForm } from "../model/StockModel";
 
 // store
 import store from "../store/StockStore";
 import priceStore from "../store/PriceStore";
-import dividendStore from "../store/DividendStore";
 import dividendHistoryStore from "../store/DividendHistoryStore";
 import DividendHistory from "../model/DividendHistory";
 import Price from "../model/Price";
@@ -16,7 +15,7 @@ import Item from "../model/Item";
 
 //	StockItemView.tsx
 export default ((props: any) => {
-	const form = props.form as StockDividendFormModel;
+	const form = props.form as StockForm;
 	const { onChange} = props;
 
 	const gridRef = useRef<AgGridReact>();
@@ -86,13 +85,6 @@ export default ((props: any) => {
 		return function() { setRowData([]); };
 	}, [form]);
 
-	function doesExternalFilterPass(node: any) {
-		return (!form.etf && !form.kospi && !form.kosdaq)
-			|| (form.etf && node.data.etf)
-			|| (form.kospi && !node.data.etf && node.data.type === "KOSPI")
-			|| (form.kosdaq && node.data.type === "KOSDAQ")
-			;
-	}
 	function handleOnGridReady(_: any) {
 		gridRef?.current?.columnApi?.applyColumnState({
 			state: [{ colId: 'priceEarningsRatio', sort: 'desc' }],
@@ -115,8 +107,6 @@ export default ((props: any) => {
 				suppressMenu: true,
 			}}
 			rowHeight={form?.rowHeight}
-			isExternalFilterPresent={() => true}
-			doesExternalFilterPass={doesExternalFilterPass}
 			rowDragManaged={true}
 			onGridReady={handleOnGridReady}
 		/>

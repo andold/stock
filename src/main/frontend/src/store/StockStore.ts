@@ -1,6 +1,5 @@
 import { makeAutoObservable } from "mobx";
 import moment from "moment";
-import StockDividendModel from "../model/StockModel";
 
 import repository from "../repository/StockRepository";
 import { PriceEarningsRatioCellRenderer, PriorityCellRenderer, RecentDividendAgGridCellRenderer, OperateColumn, SymbolTypeCode as SymbolEtfTypeCode, PriceRecentCellRenderer } from "../view/AgGridCellRenderer";
@@ -53,14 +52,8 @@ class StockStore {
 			repository.compileGet(request, onSuccess, onError, element);
 		}
 	}
-	crawlItemCompanyDetails(request?: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.crawlItemCompanyDetails(request, onSuccess, onError, element);
-	}
 	crawlDividendHistoryEtfMonthly(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlDividendHistoryEtfMonthly(request, onSuccess, onError, element);
-	}
-	crawlItemEtfDetails(request?: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.crawlItemEtfDetails(request, onSuccess, onError, element);
 	}
 	crawlItemEtf(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlItemEtf(request, onSuccess, onError, element);
@@ -119,31 +112,6 @@ class StockStore {
 		if (!isNaN(value) && value >= 0) {
 			array.push(value);
 		}
-	}
-	valids(data: StockDividendModel): number[] {
-		const array = [];
-		this.pushIfNotNaNAndGreaterOrEqualsZero(array, data.dividend);
-		this.pushIfNotNaNAndGreaterOrEqualsZero(array, data.dividend1YAgo);
-		this.pushIfNotNaNAndGreaterOrEqualsZero(array, data.dividend2YAgo);
-		this.pushIfNotNaNAndGreaterOrEqualsZero(array, data.dividend3YAgo);
-		return array;
-	}
-	mean(data: StockDividendModel): number {
-		const array = this.valids(data);
-		return array.reduce((prev, curr) => prev + curr, 0) / array.length;
-	}
-	standardDeviation(data: StockDividendModel): number {
-		const mean = this.mean(data);
-		const array = this.valids(data);
-		return Math.sqrt(array.reduce((prev, curr) => prev + (curr - mean) * (curr - mean), 0) / array.length);
-	}
-	sigma(data: StockDividendModel): number {
-		if (!data) {
-			return 0;
-		}
-		const mean = this.mean(data);
-		const standardDeviation = this.standardDeviation(data);
-		return standardDeviation == 0 ? -999 : (data.dividend - mean) / standardDeviation;
 	}
 	isInDay(day: moment.Moment, start: moment.Moment, end: moment.Moment): boolean {
 		const startx = day.clone().startOf("day");
@@ -324,17 +292,6 @@ class StockStore {
 			cellStyle: CELL_STYLE_CENTER,
 			width: 32,
 		}, {
-			field: "sigma",
-			headerName: "시그마",
-			hide: hides && hides.includes("sigma"),
-			valueGetter: (params: any) => this.sigma(params.data.custom.dividend),
-			valueFormatter: (params: any) => isNaN(params.value) ? "" : params.value.toFixed(2),
-			cellStyle: (params: any) => ({
-				...CELL_STYLE_RIGHT,
-				color: this.colorSigma(params.value),
-			}),
-			width: 16,
-		}, {
 			field: "created",
 			hide: hides && hides.includes("created"),
 			editable: false,
@@ -359,13 +316,6 @@ class StockStore {
 			cellStyle: CELL_STYLE_LEFT,
 			width: 48,
 		}];
-	}
-
-	// stock dividend section
-	makeMapDividend(dividends: StockDividendModel[]) {
-		const map = new Map();
-		dividends.forEach((dividend: StockDividendModel) => map.set(dividend.code, dividend));
-		return map;
 	}
 
 	// stock dividend history section

@@ -96,28 +96,6 @@ public class ApiStockController {
 	}
 
 	@ResponseBody
-	@GetMapping(value = "crawl/item/etf/details")
-	public ParserResult crawlItemEtfDetails() {
-		log.info("{} crawlItemEtfDetails()", Utility.indentStart());
-
-		ParserResult result = stockCrawlerService.crawlItemDetailEtf();
-
-		log.info("{} 『{}』 - crawlItemEtfDetails()", Utility.indentEnd(), result);
-		return result;
-	}
-
-	@ResponseBody
-	@GetMapping(value = "crawl/item/company/details")
-	public ParserResult crawlItemCompanyDetails() {
-		log.info("{} crawlItemCompanyDetails()", Utility.indentStart());
-
-		ParserResult result = stockCrawlerService.crawlItemDetailCompany();
-
-		log.info("{} 『{}』 - crawlItemCompanyDetails()", Utility.indentEnd(), result);
-		return result;
-	}
-
-	@ResponseBody
 	@GetMapping(value = "crawl/item/etf")
 	public ParserResult crawlItemEtf() {
 		log.info("{} crawlItemEtf()", Utility.indentStart());
