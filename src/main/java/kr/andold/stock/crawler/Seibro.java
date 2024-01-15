@@ -718,13 +718,13 @@ public class Seibro implements Crawler {
 			driver.waitUntilIsDisplayed(By.xpath("//div[@id='group402']"), false, TIMEOUT * 4);
 			driver.findElement(By.xpath("//a[@id='group94']"), TIMEOUT).click();
 			// 조회결과 바뀐거 확인
-			WebElement symbolElement = driver.findElementIncludeText(By.xpath("//h3[@id='h3_tit_01']"), TIMEOUT * 4, code);
+			driver.waitUntilTextInclude(By.xpath("//h3[@id='h3_tit_01']"), TIMEOUT * 4, code);
 
 			//	내용 저장
 			StringBuffer sb = new StringBuffer();
 			sb.append(MARK_START_END_POINT_COMPANY_EACH_SUMMARY_INFO);
 
-			sb.append(String.format("KEYWORD\t%s\t%s\t%s\n", code, driver.getText(By.xpath("//p[@id='btn_item']"), TIMEOUT, "모름"), symbolElement.getText()));	// 종목명
+			sb.append(String.format("KEYWORD\t%s\t%s\t%s\n", code, driver.getText(By.xpath("//p[@id='btn_item']"), TIMEOUT, "모름"), driver.getText(By.xpath("//h3[@id='h3_tit_01']"), TIMEOUT, "종목명")));	// 종목명
 			sb.append(String.format("KEYWORD\t\"%s\"\n", driver.findElement(By.xpath("//dd[@id='item_add_info_left_01_dd']"), TIMEOUT).getText()));	// 표준산업분류
 			sb.append(String.format("KEYWORD\t\"%s\"\n", driver.findElement(By.xpath("//dd[@id='FICS']"), TIMEOUT).getText()));	// FICS
 			sb.append(String.format("KEYWORD\t%s\n", driver.findElement(By.xpath("//dd[@id='ISSU_SCHD_STKQTY']"), TIMEOUT).getText()));	//	// 발행주식총수
