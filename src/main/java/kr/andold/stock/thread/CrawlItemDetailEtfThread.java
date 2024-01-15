@@ -238,6 +238,7 @@ public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 		return container;
 	}
 
+	@Deprecated
 	public static ParserResult crawl(ItemDomain item) {
 		ConcurrentLinkedQueue<ItemDomain> queue = new ConcurrentLinkedQueue<ItemDomain>();
 		queue.add(item);

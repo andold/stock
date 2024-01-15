@@ -425,7 +425,7 @@ public class CrawlerService {
 		ParserResult container = new ParserResult().clear();
 		Result<ParserResult> result = Result.<ParserResult>builder().result(container).build();
 
-		Result<ParserResult> itemResult = krx.item(item.getCode());
+		Result<ParserResult> itemResult = seibro.item(item.getCode());
 		if (itemResult.getStatus() == STATUS.SUCCESS) {
 			put(itemResult.getResult());
 			container.addAll(itemResult.getResult());

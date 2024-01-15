@@ -676,8 +676,32 @@ public class Seibro implements Crawler {
 			driver.waitUntilTextNotInclude(BY_SEARCH_RESULT_COUNT, TIMEOUT, INVALID_COUNT);
 
 			//	검색 결과에서 선택
-			By BY_SEARCH_CODE_RESULT = By.xpath("//ul[@id='P_isinList']/li/a/span");
-			driver.findElementIncludeText(BY_SEARCH_CODE_RESULT, TIMEOUT, code).click();
+			String count = driver.getText(BY_SEARCH_RESULT_COUNT, TIMEOUT, "0");
+			if ("0".contentEquals(count)) {
+				driver.quit();
+				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
+				log.debug("{} 『{}』 itemCompany({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+				return result;
+			}
+
+			By BY_SEARCH_CODE_RESULT = By.xpath("//ul[@id='P_isinList']/li/a");
+			if ("1".contentEquals(count)) {
+				driver.findElementIncludeText(BY_SEARCH_CODE_RESULT, TIMEOUT, code).click();
+			} else {
+				List<WebElement> candidates = driver.findElements(BY_SEARCH_CODE_RESULT, TIMEOUT);
+				for (WebElement candidate : candidates) {
+					String href = candidate.getAttribute("href");	// javascript:SelectedValueReturn( 'KR7391680006', '흥국HK하이볼액티브증권상장지수투자신탁[주식]' ) 
+					if (href.matches(String.format(".+KR.%s.+", code))) {
+						candidate.click();
+						break;
+					}
+				}
+				driver.quit();
+				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
+				log.debug("{} 『{}』 itemCompany({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+				return result;
+			}
+
 			//	팝업이 닫혔다, 돌아간다
 			driver.switchTo().defaultContent();
 
