@@ -717,9 +717,8 @@ public class Seibro implements Crawler {
 			// 조회 아이콘 클릭
 			driver.waitUntilIsDisplayed(By.xpath("//div[@id='group402']"), false, TIMEOUT * 4);
 			driver.findElement(By.xpath("//a[@id='group94']"), TIMEOUT).click();
-
 			// 조회결과 바뀐거 확인
-			WebElement symbolElement = driver.findElementIncludeText(By.xpath("//h3[@id='h3_tit_01']"), TIMEOUT, code);
+			WebElement symbolElement = driver.findElementIncludeText(By.xpath("//h3[@id='h3_tit_01']"), TIMEOUT * 4, code);
 
 			//	내용 저장
 			StringBuffer sb = new StringBuffer();
