@@ -15,7 +15,7 @@ import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.PriceParam;
 import kr.andold.stock.service.PriceService;
 import kr.andold.stock.service.Utility;
-import kr.andold.stock.service.ParserService.ParserResult;
+import kr.andold.stock.service.CommonBlockService.CrudList;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -36,10 +36,10 @@ public class ApiPriceController {
 
 	@ResponseBody
 	@PostMapping(value = "crawl")
-	public ParserResult crawl(@RequestBody ItemParam param) {
+	public CrudList<PriceDomain> crawl(@RequestBody ItemParam param) {
 		log.info("{} crawl({})", Utility.indentStart(), param);
 
-		ParserResult result = service.crawl(param);
+		CrudList<PriceDomain> result = service.crawl(param);
 
 		log.info("{} {} - crawl({})", Utility.indentEnd(), result, param);
 		return result;

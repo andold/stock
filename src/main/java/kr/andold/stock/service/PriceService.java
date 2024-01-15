@@ -17,23 +17,23 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+import kr.andold.stock.crawler.Seibro;
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
+import kr.andold.stock.domain.Result;
 import kr.andold.stock.entity.PriceEntity;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.PriceParam;
 import kr.andold.stock.repository.PriceRepository;
 import kr.andold.stock.service.ParserService.ParserResult;
-import kr.andold.stock.thread.CrawlPriceCompanyThread;
-import kr.andold.stock.thread.CrawlPriceEtfThread;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 public class PriceService implements CommonBlockService<PriceParam, PriceDomain, PriceEntity> {
-	@Autowired
-	private PriceRepository repository;
+	@Autowired private PriceRepository repository;
+	@Autowired private Seibro seibro;
 
 	@CacheEvict(value = "prices")
 	@Override
@@ -106,21 +106,9 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		return toDomains(result);
 	}
 
-	public ParserResult crawl(ItemParam param) {
-		String type = param.getType();
-		ParserResult result = null;
-		if (type == null) {
-			result = CrawlPriceEtfThread.crawl(param);
-			if (result.getPrices().isEmpty()) {
-				result = CrawlPriceCompanyThread.crawl(param);
-			}
-		} else if (type.equalsIgnoreCase("ETF")) {
-			result = CrawlPriceEtfThread.crawl(param);
-		} else {
-			result = CrawlPriceCompanyThread.crawl(param);
-		}
-
-		put(result.getPrices());
+	public CrudList<PriceDomain> crawl(ItemParam param) {
+		Result<ParserResult> parserResult = seibro.price(param.getCode(), param.getIpoDate());
+		CrudList<PriceDomain> result = put(parserResult.getResult().getPrices());
 		return result;
 	}
 

@@ -12,18 +12,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import kr.andold.stock.crawler.Seibro;
 import kr.andold.stock.domain.ItemDomain;
+import kr.andold.stock.domain.Result;
 import kr.andold.stock.entity.ItemEntity;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.repository.ItemRepository;
 import kr.andold.stock.service.ParserService.ParserResult;
-import kr.andold.stock.thread.CrawlItemDetailCompanyThread;
-import kr.andold.stock.thread.CrawlItemDetailEtfThread;
 
 @Service
 public class ItemService implements CommonBlockService<ItemParam, ItemDomain, ItemEntity> {
-	@Autowired
-	private ItemRepository repository;
+	@Autowired private ItemRepository repository;
+	@Autowired private Seibro seibro;
 
 	@Cacheable(value= "items")
 	public ItemParam search(ItemParam param, Pageable pageable) {
@@ -122,21 +122,9 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 		domain.setUpdated(now);
 	}
 
-	public ParserResult crawl(ItemParam param) {
-		String type = param.getType();
-		ParserResult result = null;
-		if (type == null) {
-			result = CrawlItemDetailEtfThread.crawl(param);
-			if (result.getHistories().isEmpty()) {
-				result = CrawlItemDetailCompanyThread.crawl(param);
-			}
-		} else if (type.equalsIgnoreCase("ETF")) {
-			result = CrawlItemDetailEtfThread.crawl(param);
-		} else {
-			result = CrawlItemDetailCompanyThread.crawl(param);
-		}
-
-		put(result.getItems());
+	public CrudList<ItemDomain> crawl(ItemParam param) {
+		Result<ParserResult> parserResult = seibro.item(param.getCode());
+		CrudList<ItemDomain> result = put(parserResult.getResult().getItems());
 		return result;
 	}
 

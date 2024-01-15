@@ -4,8 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.param.ItemParam;
-import kr.andold.stock.service.ParserService.ParserResult;
+import kr.andold.stock.service.CommonBlockService.CrudList;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -16,7 +17,7 @@ public class ItemServiceTest {
 
 	@Test
 	public void testCrawl() {
-		ParserResult result = service.crawl(ItemParam.builder().code("069500").type("ETF").build());
+		CrudList<ItemDomain> result = service.crawl(ItemParam.builder().code("069500").type("ETF").build());
 		log.info("{}", Utility.toStringJsonPretty(result));
 	}
 

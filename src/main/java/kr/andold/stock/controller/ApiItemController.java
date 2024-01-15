@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.param.ItemParam;
+import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.Utility;
-import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -49,10 +49,10 @@ public class ApiItemController {
 
 	@ResponseBody
 	@PostMapping(value = "crawl")
-	public ParserResult crawl(@RequestBody ItemParam param) {
+	public CrudList<ItemDomain> crawl(@RequestBody ItemParam param) {
 		log.info("{} crawl({})", Utility.indentStart(), param);
 
-		ParserResult result = service.crawl(param);
+		CrudList<ItemDomain> result = service.crawl(param);
 
 		log.info("{} {} - crawl({})", Utility.indentEnd(), result, param);
 		return result;

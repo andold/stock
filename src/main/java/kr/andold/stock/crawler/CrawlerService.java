@@ -2,22 +2,15 @@ package kr.andold.stock.crawler;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Lists;
 
 import kr.andold.stock.domain.DividendDomain;
 import kr.andold.stock.domain.DividendHistoryDomain;
@@ -34,9 +27,6 @@ import kr.andold.stock.service.PriceService;
 import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.ParserService.ParserResult;
-import kr.andold.stock.thread.CrawlPriceCompanyThread;
-import kr.andold.stock.thread.CrawlPriceEtfThread;
-import kr.andold.stock.thread.CrawlPriceThread;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -82,62 +72,6 @@ public class CrawlerService {
 		crawlerDateStart = value;
 	}
 
-	@Deprecated
-	public ParserResult crawlPriceCompany(Date start) {
-		log.info("{} crawlPriceCompany({})", Utility.indentStart(), start);
-		long started = System.currentTimeMillis();
-
-		ParserResult container = new ParserResult().clear();;
-
-		List<ItemDomain> items = stockItemService.search(null);
-		List<ItemDomain> filtered = items.stream()
-				.filter(item -> isPossibleCompany(item))
-				.collect(Collectors.toList());
-		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
-		for (List<ItemDomain> partition: partitions) {
-			ParserResult result = CrawlPriceCompanyThread.crawl(partition, start);
-			put(result);
-
-			// 현재가 적용 to dividend
-			List<DividendDomain> dividends = currentPriceFromPrices(result.getPrices());
-			stockDividendService.put(dividends);
-
-			container.addAll(result);
-			container.getDividends().addAll(dividends);
-		}
-
-		log.info("{} {} crawlPriceCompany({}) - {}", Utility.indentEnd(), container, start, Utility.toStringPastTimeReadable(started));
-		return container;
-	}
-
-	@Deprecated
-	public ParserResult crawlPriceEtf(Date start) {
-		log.info("{} crawlPriceEtf({})", Utility.indentStart(), start);
-		long started = System.currentTimeMillis();
-
-		ParserResult container = new ParserResult().clear();
-
-		List<ItemDomain> items = stockItemService.search(null);
-		List<ItemDomain> filtered = items.stream()
-				.filter(item -> isPossibleEtf(item))
-				.collect(Collectors.toList());
-		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
-		for (List<ItemDomain> partition: partitions) {
-			ParserResult result = CrawlPriceEtfThread.crawl(partition, start);
-			put(result);
-
-			// 현재가 적용 to dividend
-			List<DividendDomain> dividends = currentPriceFromPrices(result.getPrices());
-			stockDividendService.put(dividends);
-
-			container.addAll(result);
-			container.getDividends().addAll(dividends);
-		}
-
-		log.info("{} {} crawlPriceEtf({}) - {}", Utility.indentEnd(), container, start, Utility.toStringPastTimeReadable(started));
-		return container;
-	}
-
 	public Result<ParserResult> crawlPrice(Date date) {
 		log.info("{} crawlPrice({})", Utility.indentStart(), date);
 		long started = System.currentTimeMillis();
@@ -149,33 +83,6 @@ public class CrawlerService {
 
 		log.info("{} {} crawlPrice({}) - {}", Utility.indentEnd(), result, date, Utility.toStringPastTimeReadable(started));
 		return result;
-	}
-	@Deprecated
-	public ParserResult crawlPrice1(Date start) {
-		log.info("{} crawlPrice({})", Utility.indentStart(), start);
-		long started = System.currentTimeMillis();
-
-		ParserResult container = new ParserResult().clear();
-
-		List<ItemDomain> items = stockItemService.search(null);
-		List<ItemDomain> filtered = items.stream()
-				.filter(item -> isPossibleEtf(item))
-				.collect(Collectors.toList());
-		List<List<ItemDomain>> partitions = Lists.partition(filtered, 128);
-		for (List<ItemDomain> partition: partitions) {
-			ParserResult result = CrawlPriceThread.crawl(partition, start);
-			put(result);
-
-			// 현재가 적용 to dividend
-			List<DividendDomain> dividends = currentPriceFromPrices(result.getPrices());
-			stockDividendService.put(dividends);
-
-			container.addAll(result);
-			container.getDividends().addAll(dividends);
-		}
-
-		log.info("{} {} crawlPrice({}) - {}", Utility.indentEnd(), container, start, Utility.toStringPastTimeReadable(started));
-		return container;
 	}
 
 	private void put(ParserResult result) {
@@ -189,33 +96,6 @@ public class CrawlerService {
 		log.debug("{} put({}) - items:{}, dividends:{}, histories:{}, prices:{}", Utility.indentMiddle(), result, items, dividends, histories, prices);
 
 		log.debug("{} put({}) - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
-	}
-
-	private List<DividendDomain> currentPriceFromPrices(List<PriceDomain> prices) {
-		log.info("{} currentPriceFromPrices(#{})", Utility.indentStart(), Utility.size(prices));
-
-		Map<String, PriceDomain> map = new HashMap<>();
-		prices.forEach(price -> {
-			String code = price.getCode();
-			PriceDomain previous = map.get(code);
-			if (previous == null) {
-				map.put(code, price);
-				return;
-			}
-
-			if (previous.getBase().before(price.getBase())) {
-				map.put(code, price);
-				return;
-			}
-		});
-		List<DividendDomain> dividendsRecent = new ArrayList<>();
-		map.forEach((code, price) -> {
-			DividendDomain dividend = DividendDomain.builder().code(code).currentPrice(price.getClosing()).build();
-			dividendsRecent.add(dividend);
-		});
-
-		log.info("{} #{} currentPriceFromPrices(#{})", Utility.indentEnd(), Utility.size(dividendsRecent), Utility.size(prices));
-		return dividendsRecent;
 	}
 
 	// KSD증권정보포털(SEIBro) > ETF > 종목발행현황
@@ -286,21 +166,6 @@ public class CrawlerService {
 
 		log.info("{} {} crawlItemEtf() - {}", Utility.indentMiddle(), result, Utility.toStringPastTimeReadable(started));
 		return result;
-	}
-
-	private boolean isPossibleCompany(ItemDomain item) {
-		String code = item.getCode();
-		String type = item.getType();
-
-		return (code != null && !code.isBlank() && (type == null || !type.equalsIgnoreCase("ETF")));
-	}
-
-	@Deprecated
-	private boolean isPossibleEtf(ItemDomain item) {
-		String code = item.getCode();
-		String type = item.getType();
-
-		return (code != null && !code.isBlank() && (type == null || type.equalsIgnoreCase("ETF")));
 	}
 
 	public static ChromeDriverWrapper defaultChromeDriver() {

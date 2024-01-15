@@ -1,8 +1,6 @@
 package kr.andold.stock.crawler;
 
 import java.sql.Date;
-import java.time.LocalDate;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,30 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 public class CrawlerServiceTest {
 	@Autowired
 	private CrawlerService service;
-
-	@Test
-	public void testCrawlPriceCompany() {
-		ParserResult result = service.crawlPriceCompany(null);
-		log.info("{}", result);
-	}
-
-	@Test
-	public void testCrawlPriceCompanyMultiPage() {
-		ParserResult result = service.crawlPriceCompany(Date.valueOf(LocalDate.now().minusMonths(1)));
-		log.info("{}", result);
-	}
-
-	@Test
-	public void testCrawlPriceEtfMultiPage() {
-		ParserResult result = service.crawlPriceEtf(Date.valueOf(LocalDate.now().minusMonths(1)));
-		log.info("{}", result);
-	}
-
-	@Test
-	public void testCrawlPriceEtf() {
-		ParserResult result = service.crawlPriceEtf(null);
-		log.info("{}", result);
-	}
 
 	@Test
 	public void testCrawlItemEtf() {

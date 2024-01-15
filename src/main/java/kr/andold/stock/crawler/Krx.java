@@ -477,7 +477,6 @@ public class Krx implements Crawler {
 			if (date == null) {
 				date = Utility.parseDateTime(dateElement.getAttribute("value"));
 			} else {
-//				dateElement.clear();
 				String dateString = String.format("%1$tY%1$tm%1$td\t", date);
 				dateElement.sendKeys(dateString);
 			}
