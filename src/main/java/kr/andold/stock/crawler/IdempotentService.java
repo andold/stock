@@ -28,19 +28,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class IdempotentService {
-	@Autowired
-	private Seibro seibro;
-	@Autowired
-	private Krx krx;
+	@Autowired private Seibro seibro;
+	@SuppressWarnings("unused") @Autowired private Krx krx;
 
-	@Autowired
-	private ItemService itemService;
-	@Autowired
-	private DividendService dividendService;
-	@Autowired
-	private DividendHistoryService dividendHistoryService;
-	@Autowired
-	private PriceService priceService;
+	@Autowired private ItemService itemService;
+	@Autowired private DividendService dividendService;
+	@Autowired private DividendHistoryService dividendHistoryService;
+	@Autowired private PriceService priceService;
 
 	public static enum IDEMPOTENT_STATUS {
 		SUCCESS("성공")
@@ -226,7 +220,7 @@ public class IdempotentService {
 			return IDEMPOTENT_STATUS.ALEADY_DONE_JOB;
 		}
 
-		Result<ParserResult> result = krx.price(item.getCode(), item.getIpoDate());
+		Result<ParserResult> result = seibro.price(item.getCode(), item.getIpoDate());
 		switch (result.getStatus()) {
 		case SUCCESS:
 			ParserResult parserResult = result.getResult();
