@@ -66,6 +66,10 @@
 		<appender-ref ref="stock" />
 		<appender-ref ref="error" />
 	</logger>
+	<logger name="kr.andold.stock.crawler.ChromeDriverWrapper" additivity="false" level="warn">
+		<appender-ref ref="general" />
+		<appender-ref ref="error" />
+	</logger>
 	<logger name="kr.andold.stock.crawler" additivity="false" level="debug">
 		<appender-ref ref="stock" />
 		<appender-ref ref="error" />
