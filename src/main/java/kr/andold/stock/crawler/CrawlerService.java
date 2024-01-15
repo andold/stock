@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import kr.andold.stock.domain.DividendDomain;
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
@@ -20,7 +19,6 @@ import kr.andold.stock.domain.Result;
 import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.DividendHistoryService;
-import kr.andold.stock.service.DividendService;
 import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.ParserService;
 import kr.andold.stock.service.PriceService;
@@ -41,9 +39,6 @@ public class CrawlerService {
 
 	@Autowired
 	private ItemService stockItemService;
-
-	@Autowired
-	private DividendService stockDividendService;
 
 	@Autowired
 	private DividendHistoryService stockDividendHistoryService;
@@ -90,10 +85,9 @@ public class CrawlerService {
 		long started = System.currentTimeMillis();
 
 		CrudList<ItemDomain> items = stockItemService.put(result.getItems());
-		CrudList<DividendDomain> dividends = stockDividendService.put(result.getDividends());
 		CrudList<DividendHistoryDomain> histories = stockDividendHistoryService.put(result.getHistories());
 		CrudList<PriceDomain> prices = stockPriceService.put(result.getPrices());
-		log.debug("{} put({}) - items:{}, dividends:{}, histories:{}, prices:{}", Utility.indentMiddle(), result, items, dividends, histories, prices);
+		log.debug("{} put({}) - items:{}, histories:{}, prices:{}", Utility.indentMiddle(), result, items, histories, prices);
 
 		log.debug("{} put({}) - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 	}

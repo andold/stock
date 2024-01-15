@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import kr.andold.stock.domain.DividendDomain;
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
@@ -17,7 +16,6 @@ import kr.andold.stock.domain.Result;
 import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.param.DividendHistoryParam;
 import kr.andold.stock.service.DividendHistoryService;
-import kr.andold.stock.service.DividendService;
 import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.PriceService;
 import kr.andold.stock.service.Utility;
@@ -32,7 +30,6 @@ public class IdempotentService {
 	@SuppressWarnings("unused") @Autowired private Krx krx;
 
 	@Autowired private ItemService itemService;
-	@Autowired private DividendService dividendService;
 	@Autowired private DividendHistoryService dividendHistoryService;
 	@Autowired private PriceService priceService;
 
@@ -85,10 +82,9 @@ public class IdempotentService {
 		long started = System.currentTimeMillis();
 
 		CrudList<ItemDomain> items = itemService.put(result.getItems());
-		CrudList<DividendDomain> dividends = dividendService.put(result.getDividends());
 		CrudList<DividendHistoryDomain> histories = dividendHistoryService.put(result.getHistories());
 		CrudList<PriceDomain> prices = priceService.put(result.getPrices());
-		log.debug("{} put({}) - items:{}, dividends:{}, histories:{}, prices:{}", Utility.indentMiddle(), result, items, dividends, histories, prices);
+		log.debug("{} put({}) - items:{}, histories:{}, prices:{}", Utility.indentMiddle(), result, items, histories, prices);
 
 		log.debug("{} put({}) - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;

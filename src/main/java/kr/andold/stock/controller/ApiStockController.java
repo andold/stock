@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,10 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletResponse;
 import kr.andold.stock.crawler.CrawlerService;
-import kr.andold.stock.domain.DividendDomain;
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
-import kr.andold.stock.param.DividendParam;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.StockParam;
 import kr.andold.stock.service.CommonBlockService.CrudList;
@@ -61,16 +58,6 @@ public class ApiStockController {
 
 		log.info("{} upload(『{}』)", Utility.indentEnd(), Utility.toStringJson(file, 64));
 		return result;
-	}
-
-	@PostMapping(value = {"search"})
-	public List<DividendDomain> search(@RequestBody DividendParam param) {
-		log.info("{} search({})", Utility.indentStart(), param);
-
-		List<DividendDomain> list = service.search(param);
-
-		log.info("{} #{} - search({})", Utility.indentEnd(), Utility.size(list));
-		return list;
 	}
 
 	@ResponseBody

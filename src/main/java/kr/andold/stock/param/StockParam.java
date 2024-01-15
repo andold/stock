@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import kr.andold.stock.domain.DividendDomain;
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
@@ -24,7 +23,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class StockParam {
 	private List<InnerItemParam> items;
-	private List<InnerDividendParam> dividends;
 	private List<InnerDividendHistoryParam> histories;
 	private List<InnerPriceParam> prices;
 
@@ -48,31 +46,6 @@ public class StockParam {
 
 		public ItemDomain toDomain() {
 			ItemDomain domain = new ItemDomain();
-			BeanUtils.copyProperties(this, domain);
-			return domain;
-		}
-
-	}
-
-	@Data
-	public static class InnerDividendParam {
-		private String code;
-		private Integer currentPrice;
-		private Integer dividend;
-		private Float priceEarningsRatio;
-		private Float dividendPayoutRatio;
-		private Integer dividend1YAgo;
-		private Integer dividend2YAgo;
-		private Integer dividend3YAgo;
-
-		public static InnerDividendParam of(DividendDomain domain) {
-			InnerDividendParam param = new InnerDividendParam();
-			BeanUtils.copyProperties(domain, param);
-			return param;
-		}
-
-		public DividendDomain toDomain() {
-			DividendDomain domain = new DividendDomain();
 			BeanUtils.copyProperties(this, domain);
 			return domain;
 		}
@@ -129,15 +102,10 @@ public class StockParam {
 		return Utility.toStringJsonPretty(this);
 	}
 
-	public StockParam(List<ItemDomain> items, List<DividendDomain> dividends, List<DividendHistoryDomain> histories, List<PriceDomain> prices) {
+	public StockParam(List<ItemDomain> items, List<DividendHistoryDomain> histories, List<PriceDomain> prices) {
 		this.items = new ArrayList<>();
 		for (ItemDomain item : items) {
 			this.items.add(InnerItemParam.of(item));
-		}
-
-		this.dividends = new ArrayList<>();
-		for (DividendDomain item : dividends) {
-			this.dividends.add(InnerDividendParam.of(item));
 		}
 
 		this.histories = new ArrayList<>();

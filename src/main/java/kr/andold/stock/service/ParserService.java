@@ -11,7 +11,6 @@ import org.antlr.v4.runtime.Vocabulary;
 
 import kr.andold.stock.antlr.StockLexer;
 import kr.andold.stock.antlr.StockParser;
-import kr.andold.stock.domain.DividendDomain;
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
@@ -24,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ParserService {
 	private static final List<ItemDomain> LIST_STOCK_ITEM = new ArrayList<>();
-	private static final List<DividendDomain> LIST_STOCK_DIVIDEND = new ArrayList<>();
 	private static final List<DividendHistoryDomain> LIST_STOCK_DIVIDEND_HOSTORY = new ArrayList<>();
 	private static final List<PriceDomain> LIST_STOCK_PRICE = new ArrayList<>();
 
@@ -34,24 +32,22 @@ public class ParserService {
 	@AllArgsConstructor
 	static public class ParserResult {
 		private List<ItemDomain> items;
-		private List<DividendDomain> dividends;
 		private List<DividendHistoryDomain> histories;
 		private List<PriceDomain> prices;
 
 		@Override
 		public String toString() {
-			return String.format("ParserResult(items: #%d, dividends: #%d, histories: #%d, prices: #%d)", Utility.size(items), Utility.size(dividends), Utility.size(histories), Utility.size(prices));
+			return String.format("ParserResult(items: #%d, histories: #%d, prices: #%d)", Utility.size(items), Utility.size(histories), Utility.size(prices));
 		}
 
 		public void addAll(ParserResult source) {
 			items.addAll(source.getItems());
-			dividends.addAll(source.getDividends());
 			histories.addAll(source.getHistories());
 			prices.addAll(source.getPrices());
 		}
 
 		public boolean isEmpty() {
-			return items.isEmpty() && dividends.isEmpty() && histories.isEmpty() && prices.isEmpty();
+			return items.isEmpty() && histories.isEmpty() && prices.isEmpty();
 		}
 
 		public ParserResult clear() {
@@ -59,11 +55,6 @@ public class ParserService {
 				items = new ArrayList<>();
 			} else {
 				items.clear();
-			}
-			if (dividends == null) {
-				dividends = new ArrayList<>();
-			} else {
-				dividends.clear();
 			}
 			if (histories == null) {
 				histories = new ArrayList<>();
@@ -229,13 +220,12 @@ public class ParserService {
 		long started = System.currentTimeMillis();
 
 		LIST_STOCK_ITEM.clear();
-		LIST_STOCK_DIVIDEND.clear();
 		LIST_STOCK_DIVIDEND_HOSTORY.clear();
 		LIST_STOCK_PRICE.clear();
 
 		if (text == null || text.isBlank()) {
 			log.debug("{} PARAMETER parse(『{}』, 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));
-			return ParserResult.builder().items(new ArrayList<>()).dividends(new ArrayList<>()).histories(new ArrayList<>()).prices(new ArrayList<>()).build();
+			return ParserResult.builder().items(new ArrayList<>()).histories(new ArrayList<>()).prices(new ArrayList<>()).build();
 		}
 
 		StockLexer lexer = new StockLexer(CharStreams.fromString(text));
@@ -249,7 +239,7 @@ public class ParserService {
 		parser.setTrace(false);
 		parser.stockDocument();
 
-		ParserResult result = ParserResult.builder().items(new ArrayList<>(LIST_STOCK_ITEM)).dividends(new ArrayList<>(LIST_STOCK_DIVIDEND)).histories(new ArrayList<>(LIST_STOCK_DIVIDEND_HOSTORY)).prices(new ArrayList<>(LIST_STOCK_PRICE))
+		ParserResult result = ParserResult.builder().items(new ArrayList<>(LIST_STOCK_ITEM)).histories(new ArrayList<>(LIST_STOCK_DIVIDEND_HOSTORY)).prices(new ArrayList<>(LIST_STOCK_PRICE))
 				.build();
 
 		if (debug || result.isEmpty()) {

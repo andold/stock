@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,20 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import kr.andold.stock.domain.DividendDomain;
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
-import kr.andold.stock.entity.DividendEntity;
 import kr.andold.stock.param.DividendHistoryParam;
-import kr.andold.stock.param.DividendParam;
 import kr.andold.stock.param.PriceParam;
 import kr.andold.stock.param.StockParam;
 import kr.andold.stock.param.StockParam.InnerDividendHistoryParam;
-import kr.andold.stock.param.StockParam.InnerDividendParam;
 import kr.andold.stock.param.StockParam.InnerItemParam;
 import kr.andold.stock.param.StockParam.InnerPriceParam;
-import kr.andold.stock.repository.StockRepository;
 import kr.andold.stock.service.CommonBlockService.CrudList;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,13 +30,9 @@ public class StockService {
 	@Autowired
 	private ItemService itemService;
 	@Autowired
-	private DividendService dividendService;
-	@Autowired
 	private DividendHistoryService dividendHistoryService;
 	@Autowired
 	private PriceService priceService;
-	@Autowired
-	private StockRepository repository;
 
 	public boolean upload(MultipartFile file) {
 		log.info("{} upload({})", Utility.indentStart(), Utility.toStringJson(file, 16));
@@ -53,14 +43,10 @@ public class StockService {
 			String text = Utility.extractStringFromText(inputStream);
 			StockParam param = StockParam.of(text);
 			List<ItemDomain> items = new ArrayList<>();
-			List<DividendDomain> dividends = new ArrayList<>();
 			List<DividendHistoryDomain> histories = new ArrayList<>();
 			List<PriceDomain> prices = new ArrayList<>();
 			for (InnerItemParam x : param.getItems()) {
 				items.add(x.toDomain());
-			}
-			for (InnerDividendParam x : param.getDividends()) {
-				dividends.add(x.toDomain());
 			}
 			for (InnerDividendHistoryParam x : param.getHistories()) {
 				histories.add(x.toDomain());
@@ -70,11 +56,10 @@ public class StockService {
 			}
 
 			CrudList<ItemDomain> crudItems = itemService.put(items);
-			CrudList<DividendDomain> crudDividends = dividendService.put(dividends);
 			CrudList<DividendHistoryDomain> crudHistories = dividendHistoryService.put(histories);
 			CrudList<PriceDomain> crudPrices = priceService.put(prices);
 
-			log.info("{} {} items:{} dividends:{} histories:{} prices:{} upload({}) - {}", Utility.indentEnd(), true, crudItems, crudDividends, crudHistories, crudPrices, Utility.toStringJson(file, 16), Utility.toStringPastTimeReadable(started));
+			log.info("{} {} items:{} histories:{} prices:{} upload({}) - {}", Utility.indentEnd(), true, crudItems, crudHistories, crudPrices, Utility.toStringJson(file, 16), Utility.toStringPastTimeReadable(started));
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -88,8 +73,7 @@ public class StockService {
 		List<ItemDomain> items = itemService.search(null);
 		List<DividendHistoryDomain> histories = dividendHistoryService.search(null);
 		List<PriceDomain> prices = priceService.search(null);
-		List<DividendDomain> dividends = dividendService.search(null);
-		return new StockParam(items, dividends, histories, prices);
+		return new StockParam(items, histories, prices);
 	}
 
 	public CrudList<ItemDomain> compile() {
@@ -237,116 +221,6 @@ public class StockService {
 
 		log.info("{} DividendHistory:{} Price:{} compile({}) - {}", Utility.indentEnd(), listHistories, listPrices, param, Utility.toStringPastTimeReadable(started));
 		return listHistories;
-	}
-
-	public List<DividendDomain> search(DividendDomain param) {
-		List<DividendEntity> entities = repository.findAll();
-		List<DividendDomain> domains = new ArrayList<DividendDomain>();
-		for (DividendEntity entity : entities) {
-			domains.add(DividendDomain.of(entity));
-		}
-		return domains;
-	}
-
-	private Map<String, DividendDomain> makeMap(List<DividendDomain> domains) {
-		Map<String, DividendDomain> map = new HashMap<>();
-		for (DividendDomain domain : domains) {
-			map.put(domain.key(), domain);
-		}
-		return map;
-	}
-
-	public int batch(DividendParam param) {
-		if (param == null) {
-			return 0;
-		}
-
-		int count = 0;
-		List<DividendDomain> creates = param.getCreates();
-		List<DividendDomain> updates = param.getUpdates();
-		List<DividendDomain> removes = param.getRemoves();
-
-		if (creates != null) {
-			List<DividendDomain> created = create(creates);
-			count += Utility.size(created);
-		}
-		if (removes != null) {
-			count += remove(removes);
-		}
-		if (updates != null) {
-			count += Utility.size(update(updates));
-		}
-
-		return count;
-	}
-
-	private List<?> update(List<DividendDomain> domains) {
-		List<DividendEntity> entities = toEntities(domains);
-		List<DividendEntity> result = repository.saveAllAndFlush(entities);
-		return toDomains(result);
-	}
-
-	private int remove(List<DividendDomain> domains) {
-		List<DividendEntity> entities = toEntities(domains);
-		repository.deleteAll(entities);
-		repository.flush();
-		return entities.size();
-	}
-
-	private List<DividendDomain> create(List<DividendDomain> domains) {
-		List<DividendEntity> entities = toEntities(domains);
-		List<DividendEntity> result = repository.saveAllAndFlush(entities);
-		return toDomains(result);
-	}
-
-	private List<DividendEntity> toEntities(List<DividendDomain> domains) {
-		List<DividendEntity> entities = new ArrayList<DividendEntity>();
-		for (DividendDomain domain : domains) {
-			entities.add(domain.toEntity());
-		}
-		return entities;
-	}
-
-	private List<DividendDomain> toDomains(List<DividendEntity> entities) {
-		List<DividendDomain> domains = new ArrayList<DividendDomain>();
-		for (DividendEntity entity : entities) {
-			domains.add(DividendDomain.of(entity));
-		}
-		return domains;
-	}
-
-	public DividendParam deduplicate() {
-		log.info("{} deduplicate()", Utility.indentStart());
-		List<DividendDomain> domains = search(null);
-		Map<String, DividendDomain> map = makeMap(domains);
-		Map<String, DividendDomain> mapDuplicate = new HashMap<>();
-		List<DividendDomain> removes = new ArrayList<DividendDomain>();
-		for (DividendDomain domain : domains) {
-			String key = domain.key();
-			DividendDomain before = map.get(key);
-			if (before == null) {
-				map.put(key, domain);
-				continue;
-			}
-
-			Date currentLastModified = domain.getUpdated();
-			Date beforeLastModified = before.getUpdated();
-			int compared = Utility.compare(currentLastModified, beforeLastModified);
-			if (compared < 0) {
-				removes.add(domain);
-				mapDuplicate.put(key, before);
-				continue;
-			}
-			if (compared > 0) {
-				removes.add(before);
-				map.put(key, domain);
-				mapDuplicate.put(key, domain);
-				continue;
-			}
-		}
-
-		log.info("{} deduplicate()", Utility.indentEnd());
-		return DividendParam.builder().duplicates(new ArrayList<>(mapDuplicate.values())).removes(removes).build();
 	}
 
 }
