@@ -1,6 +1,7 @@
 package kr.andold.stock.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -134,9 +135,17 @@ public class ParserService {
 			code = code.substring(3, 9);
 		}
 
+		Date baseDate = Utility.parseDateTime(base, null);
+		if (baseDate == null) {
+			log.warn("{} DATE_IS_INVALID price(『{}』『{}』『{} {} {} {} {} {}』)", Utility.indentMiddle(), mark
+					, code
+					, base, closing, market, high, low, volume);
+			return;
+		}
+
 		LIST_STOCK_PRICE.add(PriceDomain.builder()
 				.code(code)
-				.base(Utility.parseDateTime(base, null))
+				.base(baseDate)
 				.closing(Utility.parseInteger(closing, null))
 				.market(Utility.parseInteger(market, null))
 				.high(Utility.parseInteger(high, null))
