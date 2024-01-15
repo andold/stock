@@ -1,6 +1,7 @@
 package kr.andold.stock.crawler;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
@@ -36,6 +37,14 @@ public class Seibro implements Crawler {
 	// SEIBro > ETF > ETF종합정보 > 종목상세
 	private static final String URL_ETF_EACH_SUMMARY_INFO = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS906032V.xml&menuNo=514";
 	private static final String MARK_START_END_POINT_ETF_EACH_SUMMARY_INFO = String.format("KEYWORD\t%s\t%s\t%s\n", "SEIBro", "ETF > ETF종합정보 > 종목상세", URL_ETF_EACH_SUMMARY_INFO);
+
+	// SEIBro > 주식 > 종목별상세정보 > 일자별시세
+	private static final String URL_PRICE_COMPANY_EACH = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02007V.xml&menuNo=45";
+	private static final String MARK_START_END_POINT_PRICE_COMPANY_EACH = String.format("KEYWORD\t%s\t%s\t%s\n", "SEIBro", "주식 > 종목별상세정보 > 일자별시세", URL_PRICE_COMPANY_EACH);
+
+	// SEIBro > ETF > ETF종합정보 > 기준가추이 :: 일별시세
+	private static final String URL_PRICE_ETF_EACH = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06033V.xml&menuNo=182";
+	private static final String MARK_START_END_POINT_PRICE_ETF_EACH = String.format("KEYWORD\t%s\t%s\t%s\n", "SEIBro", "ETF > ETF종합정보 > 기준가추이 :: 일별시세", URL_PRICE_ETF_EACH);
 
 	private Integer count = 0;
 
@@ -838,8 +847,254 @@ public class Seibro implements Crawler {
 
 	@Override
 	public Result<ParserResult> price(String code, Date start) {
-		log.error("{} 『{}』 price({}, {})", Utility.indentMiddle(), STATUS.NOT_SUPPORT, code, start);
-		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
+		log.info("{} price({}, {})", Utility.indentStart(), code, start);
+		long started = System.currentTimeMillis();
+
+		if (code == null || start == null) {
+			log.warn("{} 『{}』 price({}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, code, start, Utility.toStringPastTimeReadable(started));
+			return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+		}
+
+		Result<ParserResult> resultCompany = priceCompany(code, start);
+		if (resultCompany.getStatus().equals(STATUS.SUCCESS)) {
+			log.info("{} 『{} price({}, {}) - {}", Utility.indentEnd(), resultCompany, code, start, Utility.toStringPastTimeReadable(started));
+			return resultCompany;
+		}
+
+		Result<ParserResult> resultEtf = priceEtf(code, start);
+
+		log.info("{} 『{} price({}, {}) - {}", Utility.indentEnd(), resultEtf, code, start, Utility.toStringPastTimeReadable(started));
+		return resultEtf;
+	}
+
+	// SEIBro > 주식 > 종목별상세정보 > 일자별시세
+	protected Result<ParserResult> priceCompany(String code, Date start) {
+		log.debug("{} priceCompany({}, {})", Utility.indentStart(), code, start);
+		long started = System.currentTimeMillis();
+
+		if (code == null || start == null) {
+			log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, code, start, Utility.toStringPastTimeReadable(started));
+			return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+		}
+
+		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		try {
+			driver.navigate().to(URL_PRICE_COMPANY_EACH);
+
+			// 넓게 보기 아이콘 크릭, 처음은 좀더 오래 기다려 준다
+			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT * 4).click();
+			
+			// 시작일 입력
+			WebElement startElement = driver.findElement(By.xpath("//input[@id='sd1_inputCalendar1_input']"), TIMEOUT);
+			startElement.clear();
+			startElement.sendKeys(LocalDate.ofInstant(start.toInstant(), Utility.ZONE_ID_KST).format(DateTimeFormatter.BASIC_ISO_DATE));
+			startElement.sendKeys(Keys.TAB); // 시작일 입력
+			
+			//	종목명 검색 링크 클릭
+			driver.findElement(By.xpath("//a[@id='sn_group4']"), TIMEOUT).click();
+
+			//	떠 있는 팝업으로 이동
+			driver.switchTo().frame(driver.findElement(By.xpath("//iframe[@id='iframe1']"), TIMEOUT));
+
+			//	코드 입력
+			WebElement inputSearchElement = driver.findElement(By.xpath("//input[@id='search_string']"), TIMEOUT);	// 입력창
+			inputSearchElement.clear();
+			inputSearchElement.sendKeys(code); // 코드 입력
+			
+			// 종목명 검색 아이콘 클릭
+			By BY_SEARCH_RESULT_COUNT = By.xpath("//span[@id='P_ListCnt']");
+			String INVALID_COUNT = "-1";
+			driver.setText(BY_SEARCH_RESULT_COUNT, INVALID_COUNT, TIMEOUT);
+			driver.findElement(By.xpath("//a[@id='P_group100']"), TIMEOUT).click(); // 종목명 검색 아이콘
+			driver.waitUntilTextNotInclude(BY_SEARCH_RESULT_COUNT, TIMEOUT, INVALID_COUNT);
+
+			//	검색 결과에서 선택
+			String count = driver.getText(BY_SEARCH_RESULT_COUNT, TIMEOUT, "0");
+			if ("0".contentEquals(count)) {
+				driver.quit();
+				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
+				log.debug("{} 『{}』 itemCompany({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+				return result;
+			}
+			driver.findElementIncludeText(By.xpath("//ul[@id='P_isinList']/li/a/span"), TIMEOUT, code).click();
+
+			//	팝업이 닫혔다, 돌아간다
+			driver.switchTo().defaultContent();
+
+			// 조회 아이콘 클릭
+			By BY_TABLE_1ST_LINE = By.xpath("//table/tbody/tr[1]");
+			String previous1stLine = driver.getText(BY_TABLE_1ST_LINE, 1, "andold");	//	이전거
+			driver.findElement(By.xpath("//a[@id='group44']"), TIMEOUT).click();
+			driver.waitUntilTextNotInclude(BY_TABLE_1ST_LINE, TIMEOUT, previous1stLine);	//	이전거
+
+			//	내용 저장
+			StringBuffer sb = new StringBuffer();
+			sb.append(MARK_START_END_POINT_PRICE_COMPANY_EACH);
+			By BY_CURRENT_PAGE = By.xpath("//div[@id='cntsPaging01']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']");
+			for (String pageNumber = "1";;) {
+				long forStarted = System.currentTimeMillis();
+
+				// 테이블
+				WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
+				sb.append(driver.extractTextContentFromTableElement(table, String.format("%s\t", code)));
+				sb.append(MARK_ANDOLD_SINCE);
+
+				// 다음 페이지
+				By BY_1ST_VOLUME = By.xpath("//*[@id='grid1_cell_0_6']/nobr");
+				String firstVolume = driver.getText(BY_1ST_VOLUME, TIMEOUT, "-");
+				driver.clickIfExist(By.xpath("//li[@id='cntsPaging01_next_btn']/a"));
+				driver.waitUntilTextNotInclude(BY_1ST_VOLUME, TIMEOUT, firstVolume);
+				String currentPageNumber = driver.getText(BY_CURRENT_PAGE, TIMEOUT, "-1");
+				
+				// 다음 페이지가 갔는데...
+				if (pageNumber.equalsIgnoreCase(currentPageNumber)) {
+					break;
+				}
+
+				pageNumber = currentPageNumber;
+
+				log.debug("{} 『{}』 priceCompany({}, {}) - {}", Utility.indentMiddle(), Utility.ellipsisEscape(pageNumber, 32), code, start, Utility.toStringPastTimeReadable(forStarted));
+			}
+			driver.quit();
+
+			sb.append(MARK_START_END_POINT_PRICE_COMPANY_EACH);
+			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
+
+			log.debug("{} 『{}』 priceCompany({}, {}) - {}", Utility.indentEnd(), result, code, start, Utility.toStringPastTimeReadable(started));
+			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
+		
+		} catch (Exception e) {
+			driver.quit();
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+		}
+
+		log.debug("{} 『{}』 priceCompany({}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, code, start, Utility.toStringPastTimeReadable(started));
+		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+	}
+
+	// SEIBro > ETF > ETF종합정보 > 기준가추이 :: 일별시세
+	protected Result<ParserResult> priceEtf(String code, Date start) {
+		log.debug("{} priceEtf({}, {})", Utility.indentStart(), code, start);
+		long started = System.currentTimeMillis();
+
+		if (code == null || start == null) {
+			log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, code, start, Utility.toStringPastTimeReadable(started));
+			return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+		}
+
+		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		try {
+			driver.navigate().to(URL_PRICE_ETF_EACH);
+
+			// 넓게 보기 아이콘 클릭
+			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT * 4).click();
+			
+			//	종목명 검색 링크 클릭
+			driver.findElement(By.xpath("//a[@id='sn_group4']"), TIMEOUT).click();
+
+			//	떠 있는 팝업으로 이동
+			driver.switchTo().frame(driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"), TIMEOUT));
+
+			//	코드 입력
+			WebElement inputSearchElement = driver.findElement(By.xpath("//input[@id='search_string']"), TIMEOUT);	// 입력창
+			inputSearchElement.clear();
+			inputSearchElement.sendKeys(code); // 코드 입력
+			
+			// 종목명 검색 아이콘 클릭
+			By BY_SEARCH_RESULT_COUNT = By.xpath("//span[@id='P_ListCnt']");
+			String INVALID_COUNT = "-1";
+			driver.setText(BY_SEARCH_RESULT_COUNT, INVALID_COUNT, TIMEOUT);
+			driver.findElement(By.xpath("//a[@id='group236']"), TIMEOUT).click(); // 종목명 검색 아이콘
+			driver.waitUntilTextNotInclude(BY_SEARCH_RESULT_COUNT, TIMEOUT, INVALID_COUNT);
+
+			//	검색 결과에서 선택
+			String count = driver.getText(BY_SEARCH_RESULT_COUNT, TIMEOUT, "0");
+			if ("0".contentEquals(count)) {
+				driver.quit();
+				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
+				log.debug("{} 『{}』 itemCompany({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+				return result;
+			}
+
+			By BY_SEARCH_CODE_RESULT = By.xpath("//ul[@id='contentsList']/li/a");
+			By BY_1ST_VOLUME = By.xpath("//*[@id='grid1_cell_0_6']/nobr");
+			if ("1".contentEquals(count)) {
+				String firstVolume = driver.getText(BY_1ST_VOLUME, TIMEOUT, "-");
+				driver.clickIfExist(BY_SEARCH_CODE_RESULT);
+				driver.waitUntilTextNotInclude(BY_1ST_VOLUME, TIMEOUT, firstVolume);
+			} else {
+				List<WebElement> candidates = driver.findElements(BY_SEARCH_CODE_RESULT, TIMEOUT);
+				for (WebElement candidate : candidates) {
+					String href = candidate.getAttribute("href");	// javascript:SelectedValueReturn( 'KR7391680006', '흥국HK하이볼액티브증권상장지수투자신탁[주식]' ) 
+					if (href.matches(String.format(".+KR.%s.+", code))) {
+						String firstVolume = driver.getText(BY_1ST_VOLUME, TIMEOUT, "-");
+						candidate.click();
+						driver.waitUntilTextNotInclude(BY_1ST_VOLUME, TIMEOUT, firstVolume);
+						break;
+					}
+				}
+				driver.quit();
+				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
+				log.debug("{} 『{}』 itemCompany({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+				return result;
+			}
+
+			//	팝업이 닫혔다, 돌아간다
+			driver.switchTo().defaultContent();
+
+			// 조회 클릭
+			driver.clickIfExist(By.xpath("//*[@id='group155']"));
+
+			// 시작일 입력
+			WebElement startElement = driver.findElement(By.xpath("//input[@id='inputCalendar1_input']"), TIMEOUT);
+			startElement.clear();
+			startElement.sendKeys(LocalDate.ofInstant(start.toInstant(), Utility.ZONE_ID_KST).format(DateTimeFormatter.BASIC_ISO_DATE));
+			startElement.sendKeys(Keys.TAB); // 시작일 입력
+			
+			// 일별시세 조회 클릭
+			driver.findElement(By.xpath("//*[@id='group155']"), TIMEOUT).click();
+
+			//	내용 저장
+			StringBuffer sb = new StringBuffer();
+			sb.append(MARK_START_END_POINT_PRICE_ETF_EACH);
+			By BY_CURRENT_PAGE = By.xpath("//div[@id='pageList1']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']");
+			for (String pageNumber = "1";;) {
+				long forStarted = System.currentTimeMillis();
+
+				//	테이블
+				WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
+				sb.append(driver.extractTextContentFromTableElement(table, String.format("%s\t", code)));
+				sb.append(MARK_ANDOLD_SINCE);
+
+				// 다음 페이지
+				String firstVolume = driver.getText(BY_1ST_VOLUME, TIMEOUT, "-");
+				driver.clickIfExist(By.xpath("//*[@id='pageList1_next_btn']/a"));
+				driver.waitUntilTextNotInclude(BY_1ST_VOLUME, TIMEOUT, firstVolume);
+				String currentPageNumber = driver.getText(BY_CURRENT_PAGE, TIMEOUT, "-1");
+				if (pageNumber.equalsIgnoreCase(currentPageNumber)) {
+					break;
+				}
+
+				pageNumber = currentPageNumber;
+
+				log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentMiddle(), Utility.ellipsisEscape(pageNumber, 32), code, start, Utility.toStringPastTimeReadable(forStarted));
+			}
+			driver.quit();
+
+			sb.append(MARK_START_END_POINT_PRICE_ETF_EACH);
+
+			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
+
+			log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentEnd(), result, code, start, Utility.toStringPastTimeReadable(started));
+			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
+		
+		} catch (Exception e) {
+			driver.quit();
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+		}
+
+		log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, code, start, Utility.toStringPastTimeReadable(started));
+		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 	}
 
 }

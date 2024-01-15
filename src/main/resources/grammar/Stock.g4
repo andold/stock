@@ -36,6 +36,54 @@ stockDocument
 
 |	seibroItemInfoCompany			// SEIBro 주식 > 종목별상세정보 > 종목종합내역
 |	seibroItemInfoEtf				// SEIBro ETF > ETF종합정보 > 종목상세
+|	seibroPriceCompany				// SEIBro 주식 > 종목별상세정보 > 일자별시세
+|	seibroPriceEtf					// SEIBro > ETF > ETF종합정보 > 기준가추이 :: 일별시세
+;
+
+
+// SEIBro 주식 > 종목별상세정보 > 일자별시세 TODO
+seibroPriceCompany:
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 SEIBro 	 주식 > 종목별상세정보 > 일자별시세 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02007V.xml&menuNo=45 
+	(
+		word TAB										NEWLINE		//	175330 	 
+		NUMBER TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE		//	175330 	 일자 	 종가 	 전일비 	 시가 	 고가 	 저가 	 거래량 	 
+		(
+			code=word TAB base=DATE TAB closing=NUMBER TAB NUMBER TAB market=NUMBER TAB high=NUMBER TAB low=NUMBER TAB volume=NUMBER TAB		NEWLINE
+					//	175330 	 2024/01/12 	 10,700 	 -10 	 10,720 	 10,840 	 10,630 	 232,427 	 
+			{
+				ParserService.price(20240112
+					, $code.text
+					, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
+				);
+			}
+		)+
+		WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27 
+	)+
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 SEIBro 	 주식 > 종목별상세정보 > 일자별시세 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02007V.xml&menuNo=45 
+;
+
+
+// SEIBro > ETF > ETF종합정보 > 기준가추이 :: 일별시세
+seibroPriceEtf:
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 SEIBro 	 ETF > ETF종합정보 > 기준가추이 :: 일별시세 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06033V.xml&menuNo=182 
+	(
+		word TAB																			NEWLINE		//	473590 	 
+		NUMBER TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB	NEWLINE		//	473590 	 일자 	 종가 	 전일비 	 시가 	 고가 	 저가 	 거래량 	 거래대금 	 
+		((
+			word TAB TAB TAB TAB TAB TAB TAB TAB TAB										NEWLINE		//	473590 	 	 	 	 	 	 	 	 	 
+		) | (
+			code=word TAB base=DATE TAB closing=NUMBER TAB NUMBER TAB market=NUMBER TAB high=NUMBER TAB low=NUMBER TAB  volume=NUMBER TAB NUMBER TAB		NEWLINE
+						//	473590 	 2024/01/09 	 9,935 	 240 	 9,875 	 9,960 	 9,875 	 1,081,229 	 10,733 	 
+			{
+				ParserService.price(20240112
+					, $code.text
+					, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
+				);
+			}
+		))+
+		WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27 
+	)+
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 SEIBro 	 ETF > ETF종합정보 > 기준가추이 :: 일별시세 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06033V.xml&menuNo=182 
 ;
 
 

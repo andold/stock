@@ -185,7 +185,7 @@ class StockStore {
 			field: "symbolEtfTypeCode",
 			headerName: "종목",
 			hide: hides && hides.includes("symbolEtfTypeCode"),
-			valueGetter: (params: any) => `${params.data.symbol == null ? "" : params.data.symbol} ${params.data.etf} ${params.data.type} ${params.data.code}`,
+			valueGetter: (params: any) => `${params.data.symbol == null ? "" : params.data.symbol} ${params.data.type} ${params.data.code}`,
 			cellRenderer: SymbolEtfTypeCode,
 			cellStyle: CELL_STYLE_LEFT,
 			width: 96,

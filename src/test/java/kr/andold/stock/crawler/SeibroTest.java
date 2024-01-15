@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import kr.andold.stock.domain.Result;
+import kr.andold.stock.domain.Result.STATUS;
+import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,6 +52,27 @@ public class SeibroTest {
 		Result<ParserResult> result = service.itemCompany("175330");
 		log.info("{}", result);
 		assertEquals(result.getResult().getItems().size(), 1);
+	}
+
+	@Test
+	public void testPriceCompanyStringDate() {
+		Result<ParserResult> result = service.priceCompany("017860", Date.from(ZonedDateTime.now().minusYears(3).toInstant()));
+		log.info("{}", result);
+		assertEquals(result.getStatus(), STATUS.SUCCESS);
+	}
+
+	@Test
+	public void testPriceEtfStringDate() {
+		Result<ParserResult> result = service.priceEtf("473590", Date.from(ZonedDateTime.now().minusYears(3).toInstant()));
+		log.info("{}", result);
+		assertEquals(result.getStatus(), STATUS.SUCCESS);
+	}
+
+	@Test
+	public void testPriceStringDate() {
+		Result<ParserResult> result = service.price("473590", Date.from(ZonedDateTime.of(2017, 3, 21, 0, 0, 0, 0, Utility.ZONE_ID_KST).toInstant()));
+		log.info("{}", result);
+		assertEquals(result.getStatus(), STATUS.SUCCESS);
 	}
 
 }
