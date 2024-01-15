@@ -149,6 +149,11 @@ public class StockService {
 			}
 			
 			if (max == null) {
+				items.add(ItemDomain
+						.builder()
+						.code(code)
+						.priceEarningsRatio(0f)
+						.build());
 				continue;
 			}
 			
