@@ -695,7 +695,7 @@ public class Seibro implements Crawler {
 
 			By BY_SEARCH_CODE_RESULT = By.xpath("//ul[@id='P_isinList']/li/a");
 			if ("1".contentEquals(count)) {
-				driver.findElementIncludeText(BY_SEARCH_CODE_RESULT, TIMEOUT, code).click();
+				driver.findElement(BY_SEARCH_CODE_RESULT, TIMEOUT).click();
 			} else {
 				List<WebElement> candidates = driver.findElements(BY_SEARCH_CODE_RESULT, TIMEOUT);
 				for (WebElement candidate : candidates) {
