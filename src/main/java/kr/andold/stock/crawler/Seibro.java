@@ -29,6 +29,14 @@ public class Seibro implements Crawler {
 	private static final int TIMEOUT = 4000;
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
 
+	// SEIBro > 주식 > 종목별상세정보 > 종목종합내역
+	private static final String URL_COMPANY_EACH_SUMMARY_INFO = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02006V.xml&menuNo=44";
+	private static final String MARK_START_END_POINT_COMPANY_EACH_SUMMARY_INFO = String.format("KEYWORD\t%s\t%s\t%s\n", "SEIBro", "주식 > 종목별상세정보 > 종목종합내역", URL_COMPANY_EACH_SUMMARY_INFO);
+
+	// SEIBro > ETF > ETF종합정보 > 종목상세
+	private static final String URL_ETF_EACH_SUMMARY_INFO = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS906032V.xml&menuNo=514";
+	private static final String MARK_START_END_POINT_ETF_EACH_SUMMARY_INFO = String.format("KEYWORD\t%s\t%s\t%s\n", "SEIBro", "ETF > ETF종합정보 > 종목상세", URL_ETF_EACH_SUMMARY_INFO);
+
 	private Integer count = 0;
 
 	@Override
@@ -613,8 +621,195 @@ public class Seibro implements Crawler {
 
 	@Override
 	public Result<ParserResult> item(String code) {
-		log.error("{} 『{}』 item({})", Utility.indentMiddle(), STATUS.NOT_SUPPORT, code);
-		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
+		log.info("{} item({})", Utility.indentStart(), code);
+		long started = System.currentTimeMillis();
+
+		Result<ParserResult> resultCompany = itemCompany(code);
+		if (resultCompany.getStatus().equals(STATUS.SUCCESS)) {
+			log.info("{} 『{}』 item({}) - {}", Utility.indentEnd(), resultCompany, code, Utility.toStringPastTimeReadable(started));
+			return resultCompany;
+		}
+
+		Result<ParserResult> resultEtf = itemEtf(code);
+
+		log.info("{} 『{}』 item({}) - {}", Utility.indentEnd(), resultEtf, code, Utility.toStringPastTimeReadable(started));
+		return resultEtf;
+	}
+
+	// SEIBro > 주식 > 종목별상세정보 > 종목종합내역
+	protected Result<ParserResult> itemCompany(String code) {
+		log.debug("{} itemCompany({})", Utility.indentStart(), code);
+		long started = System.currentTimeMillis();
+
+		if (code == null) {
+			return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+		}
+
+		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		try {
+			driver.navigate().to(URL_COMPANY_EACH_SUMMARY_INFO);
+
+			// 진행중 화면이 없어지고
+			driver.waitUntilIsDisplayed(By.xpath("//div[@id='___processbar2']"), false, TIMEOUT * 4);
+			// 종목명 검색 아이콘이 보이고
+			driver.waitUntilIsDisplayed(By.xpath("//img[@id='sn_image1']"), true, TIMEOUT * 4);
+
+			// 종목명 검색 클릭
+			driver.findElement(By.xpath("//img[@id='sn_image1']"), TIMEOUT).click(); // 종목명 검색 아이콘
+
+			// 프래임
+			driver.switchTo().frame(driver.findElement(By.xpath("//iframe[@id='iframe1']"), TIMEOUT));
+
+			//	코드입력
+			WebElement inputSearchElement = driver.findElement(By.xpath("//input[@id='search_string']"), TIMEOUT);	// 입력창
+			inputSearchElement.clear();
+			inputSearchElement.sendKeys(code); // 코드 입력
+
+			// 종목명 검색 아이콘 클릭
+			// 진행중 메시지가 없어질때까지
+			driver.waitUntilIsDisplayed(By.xpath("//div[@id='___processbar2']"), false, TIMEOUT);
+
+			By BY_SEARCH_RESULT_COUNT = By.xpath("//span[@id='P_ListCnt']");
+			String INVALID_COUNT = "-1";
+			driver.setText(BY_SEARCH_RESULT_COUNT, INVALID_COUNT, TIMEOUT);
+			driver.findElement(By.xpath("//a[@id='P_group100']"), TIMEOUT).click(); // 종목명 검색 아이콘
+			driver.waitUntilTextNotInclude(BY_SEARCH_RESULT_COUNT, TIMEOUT, INVALID_COUNT);
+
+			//	검색 결과에서 선택
+			By BY_SEARCH_CODE_RESULT = By.xpath("//ul[@id='P_isinList']/li/a/span");
+			driver.findElementIncludeText(BY_SEARCH_CODE_RESULT, TIMEOUT, code).click();
+			//	팝업이 닫혔다, 돌아간다
+			driver.switchTo().defaultContent();
+
+			// 조회 아이콘 클릭
+			driver.waitUntilIsDisplayed(By.xpath("//div[@id='group402']"), false, TIMEOUT * 4);
+			driver.findElement(By.xpath("//a[@id='group94']"), TIMEOUT).click();
+
+			// 조회결과 바뀐거 확인
+			WebElement symbolElement = driver.findElementIncludeText(By.xpath("//h3[@id='h3_tit_01']"), TIMEOUT, code);
+
+			//	내용 저장
+			StringBuffer sb = new StringBuffer();
+			sb.append(MARK_START_END_POINT_COMPANY_EACH_SUMMARY_INFO);
+
+			sb.append(String.format("KEYWORD\t%s\t%s\t%s\n", code, driver.getText(By.xpath("//p[@id='btn_item']"), TIMEOUT, "모름"), symbolElement.getText()));	// 종목명
+			sb.append(String.format("KEYWORD\t\"%s\"\n", driver.findElement(By.xpath("//dd[@id='item_add_info_left_01_dd']"), TIMEOUT).getText()));	// 표준산업분류
+			sb.append(String.format("KEYWORD\t\"%s\"\n", driver.findElement(By.xpath("//dd[@id='FICS']"), TIMEOUT).getText()));	// FICS
+			sb.append(String.format("KEYWORD\t%s\n", driver.findElement(By.xpath("//dd[@id='ISSU_SCHD_STKQTY']"), TIMEOUT).getText()));	//	// 발행주식총수
+			sb.append(String.format("KEYWORD\t%s\n", driver.findElement(By.xpath("//dd[@id='APLI_DT']"), TIMEOUT).getText()));	// 상장일
+			driver.quit();
+
+			sb.append(MARK_ANDOLD_SINCE);
+			sb.append(MARK_START_END_POINT_COMPANY_EACH_SUMMARY_INFO);
+			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
+
+			log.debug("{} 『{}』 itemCompany({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
+		} catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+			driver.quit();
+		}
+
+		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+		log.warn("{} 『{}』 itemCompany({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
+	// SEIBro > ETF > ETF종합정보 > 종목상세
+	protected Result<ParserResult> itemEtf(String code) {
+		log.debug("{} itemEtf({})", Utility.indentStart(), code);
+		long started = System.currentTimeMillis();
+
+		if (code == null) {
+			return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+		}
+
+		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		try {
+			// 화면 열기
+			driver.navigate().to(URL_ETF_EACH_SUMMARY_INFO);
+			
+			// 화면이 표시될 때까지
+			driver.waitUntilIsDisplayed(By.xpath("//div[@id='___processbar2']"), false, TIMEOUT * 4);	// 진행중 화면은 지워지고
+			driver.waitUntilIsDisplayed(By.xpath("//a[@id='btn_wide']"), true, TIMEOUT * 4);	//	넓게보기 아이콘은 보이고
+
+			// 넓게 보기 아이콘 클릭
+			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT).click();
+
+			// 여러개의 검색결과일 경우에 하나씩 확인해 보기 위해서
+			for (int cx = 0; cx < 4; cx++) {
+				driver.switchTo().defaultContent();
+
+				// 종목명 검색 아이콘 클릭
+				By BY_SEARCH_CODE_ICON = By.xpath("//div[@id='content']//a[@id='sn_group4']/img");
+				driver.waitUntilIsDisplayed(By.xpath("//div[@id='group239']"), false, TIMEOUT);
+				driver.waitUntilIsDisplayed(BY_SEARCH_CODE_ICON, true, TIMEOUT);
+				driver.clickIfExist(BY_SEARCH_CODE_ICON);
+
+				driver.switchTo().frame(driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"), TIMEOUT));
+
+				// 코드 입력
+				WebElement inputSearchElement = driver.findElement(By.xpath("//input[@id='search_string']"), TIMEOUT);	// 입력창
+				inputSearchElement.clear();
+				inputSearchElement.sendKeys(code);
+
+				// 검색 아이콘 클릭
+				// 진행중 메시지가 없어질때까지
+				By BY_SEARCH_RESULT_COUNT = By.xpath("//span[@id='P_ListCnt']");
+				String INVALID_COUNT = "-1";
+				driver.waitUntilIsDisplayed(By.xpath("//div[@id='___processbar2']"), false, TIMEOUT);
+				driver.setText(BY_SEARCH_RESULT_COUNT, INVALID_COUNT, TIMEOUT);
+				driver.findElement(By.xpath("//a[@id='group236']"), TIMEOUT).click();
+				driver.waitUntilTextNotInclude(BY_SEARCH_RESULT_COUNT, TIMEOUT, INVALID_COUNT);
+
+				// 검색 결과
+				By BY_CODE_SEARCH_RESULT = By.xpath("//ul[@id='contentsList']/li/a");
+				List<WebElement> resultSearch = driver.findElements(BY_CODE_SEARCH_RESULT, TIMEOUT);
+				if (resultSearch.size() <= cx) {
+					driver.quit();
+					Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
+
+					log.debug("{} 『{}』 itemEtf({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+					return result;
+				}
+				
+				// 선택
+				resultSearch.get(cx).click();
+
+				// 조회 클릭
+				driver.switchTo().defaultContent();
+				driver.findElement(By.xpath("//a[@id='group137']"), TIMEOUT).click();
+				
+				// 제목에 코드가 있으면, 성공
+				if (driver.waitUntilTextInclude(By.xpath("//h3[@id='KOR_SECN_NM']"), TIMEOUT, code)) {
+					break;
+				}
+
+			}
+			StringBuffer sb = new StringBuffer();
+			sb.append(MARK_START_END_POINT_ETF_EACH_SUMMARY_INFO);
+
+			sb.append(String.format("KEYWORD\t%s\t%s\n", code, driver.findElementIncludeText(By.xpath("//h3[@id='KOR_SECN_NM']"), TIMEOUT, code).getText()));
+			sb.append(String.format("%s\n", driver.findElementIncludeText(By.xpath("//h3[@id='KOR_SECN_NM']"), TIMEOUT, code).getText()));	// symbol
+			sb.append(String.format("%s\n", driver.findElement(By.xpath("//div[@id='ETF_BIG_SORT_NM']"), TIMEOUT).getText()));	// 분류
+			sb.append(String.format("%s\n", driver.findElement(By.xpath("//span[@id='SETUP_DT']"), TIMEOUT).getText()));	// 설정일
+			sb.append(String.format("%s\n", driver.getText(By.xpath("//*[@id='grid1_cell_0_3']/nobr"), TIMEOUT, "-1")));	// 총발행주식수
+			sb.append(String.format("%s\n", driver.findElement(By.xpath("//dd[@id='TOT_RECM_RATE']"), TIMEOUT).getText()));	// 보수(%)
+
+			sb.append(MARK_ANDOLD_SINCE);
+			sb.append(MARK_START_END_POINT_ETF_EACH_SUMMARY_INFO);
+			ParserResult result = ParserService.parse(sb.toString(), false);
+
+			log.debug("{} 『{}』 itemEtf({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
+		} catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+			driver.quit();
+		}
+
+		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+		log.warn("{} 『{}』 itemEtf({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+		return result;
 	}
 
 	@Override

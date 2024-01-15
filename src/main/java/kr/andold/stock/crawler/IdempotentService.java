@@ -406,7 +406,7 @@ public class IdempotentService {
 			return IDEMPOTENT_STATUS.ALEADY_DONE_JOB;
 		}
 
-		Result<ParserResult> itemResult = krx.item(item.getCode());
+		Result<ParserResult> itemResult = seibro.item(item.getCode());
 		if (itemResult.getStatus() == STATUS.SUCCESS) {
 			put(itemResult.getResult());
 			return IDEMPOTENT_STATUS.SUCCESS;

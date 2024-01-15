@@ -33,6 +33,67 @@ stockDocument
 |	krxItemInfoEtf					// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 개별종목 종합정보
 |	krxPriceCompany					// KRX 정보데이터시스템 > 기본통계 > 주식 > 종목시세 > 개별종목 시세 추이
 |	krxPriceEtf						// KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 개별종목 시세 추이
+
+|	seibroItemInfoCompany			// SEIBro 주식 > 종목별상세정보 > 종목종합내역
+|	seibroItemInfoEtf				// SEIBro ETF > ETF종합정보 > 종목상세
+;
+
+
+// SEIBro SEIBro 주식 > 종목별상세정보 > 종목종합내역
+seibroItemInfoCompany:
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 SEIBro 	 주식 > 종목별상세정보 > 종목종합내역 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02006V.xml&menuNo=44 
+	(
+		(
+			KEYWORD TAB code=NUMBER TAB type=WORD TAB
+						symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*	NEWLINE		//	KEYWORD 	 175330 	 유가증권 	 JB금융지주(175330) 
+			KEYWORD TAB category=STRING							NEWLINE		//	KEYWORD 	 "금융업" 
+			KEYWORD TAB fics=STRING								NEWLINE		//	KEYWORD 	 "금융 > 은행 > 상업은행" 
+			KEYWORD TAB volumeOfListedShares=NUMBER WORD		NEWLINE		//	KEYWORD 	 196,982,894 주 
+			KEYWORD TAB ipo=DATE								NEWLINE		//	KEYWORD 	 2013/07/18 
+			{
+				ParserService.item(20240112
+					, $code.text
+					, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
+					, $category.text, $fics.text, null, null, null, null, null, null
+					, $type.text
+					, $ipo.text
+					, $volumeOfListedShares.text
+					, null
+				);
+			}
+		)
+		WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27 
+	)+
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 SEIBro 	 주식 > 종목별상세정보 > 종목종합내역 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02006V.xml&menuNo=44 
+;
+
+
+// SEIBro ETF > ETF종합정보 > 종목상세
+seibroItemInfoEtf:
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 SEIBro 	 ETF > ETF종합정보 > 종목상세 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS906032V.xml&menuNo=514 
+	(
+		(
+			KEYWORD TAB code=word TAB word+		NEWLINE		//	KEYWORD 	 441680 	 TIGER 미국나스닥100커버드콜(합성)[441680] 
+			symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*					NEWLINE		//	TIGER 미국나스닥100커버드콜(합성)[441680] 
+			category=word category1=word? category2=word? category3=word? category4=word? category5=word? category6=word? category7=word*	NEWLINE		//	파생상품/구조화
+			ipo=DATE word+						NEWLINE		//	2022/09/20 (1년 3개월) 
+			volumeOfListedShares=NUMBER			NEWLINE		//	23,800,000
+			fee=NUMBER							NEWLINE		//	0.37 
+			{
+				ParserService.item(20240112
+					, $code.text
+					, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
+					, $category.text, $category1.text, $category2.text, $category3.text, $category4.text, $category5.text, $category6.text, $category7.text
+					, "ETF"
+					, $ipo.text
+					, $volumeOfListedShares.text
+					, $fee.text
+				);
+			}
+		)+
+		WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27 
+	)+
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 SEIBro 	 ETF > ETF종합정보 > 종목상세 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS906032V.xml&menuNo=514 
 ;
 
 

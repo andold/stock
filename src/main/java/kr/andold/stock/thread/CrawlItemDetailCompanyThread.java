@@ -23,6 +23,7 @@ import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
 
 // KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 종목종합내역 (KSD증권정보포털(SEIBro) > 기업 > 기업기본정보와 동일)
+@Deprecated
 @Slf4j
 public class CrawlItemDetailCompanyThread implements Callable<ParserResult> {
 	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02006V.xml&menuNo=44";

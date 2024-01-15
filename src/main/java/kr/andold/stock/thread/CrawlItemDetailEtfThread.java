@@ -23,6 +23,7 @@ import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
 
 //KSD증권정보포털(SEIBro) > ETF > ETF종합정보 > 종목상세
+@Deprecated
 @Slf4j
 public class CrawlItemDetailEtfThread implements Callable<ParserResult> {
 	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS906032V.xml&menuNo=514";
