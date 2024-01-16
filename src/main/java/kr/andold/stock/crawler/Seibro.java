@@ -930,6 +930,7 @@ public class Seibro implements Crawler {
 			StringBuffer sb = new StringBuffer();
 			sb.append(MARK_START_END_POINT_PRICE_COMPANY_EACH);
 			By BY_CURRENT_PAGE = By.xpath("//div[@id='cntsPaging01']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']");
+			long pause = 1000;
 			for (String pageNumber = "1";;) {
 				long forStarted = System.currentTimeMillis();
 
@@ -951,7 +952,15 @@ public class Seibro implements Crawler {
 				}
 
 				pageNumber = currentPageNumber;
+				
+				if (System.currentTimeMillis() - forStarted > 1024 * 8) {
+					pause = Math.max(32, pause / 2);
+				} else {
+					pause = pause * 2;
+					pause = Math.min(4096, pause * 2);
+				}
 
+				Thread.sleep(pause);
 				log.debug("{} 『{}』 priceCompany({}, {}) - {}", Utility.indentMiddle(), Utility.ellipsisEscape(pageNumber, 32), code, start, Utility.toStringPastTimeReadable(forStarted));
 			}
 			driver.quit();
@@ -1057,6 +1066,7 @@ public class Seibro implements Crawler {
 			StringBuffer sb = new StringBuffer();
 			sb.append(MARK_START_END_POINT_PRICE_ETF_EACH);
 			By BY_CURRENT_PAGE = By.xpath("//div[@id='pageList1']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']");
+			long pause = 1000;
 			for (String pageNumber = "1";;) {
 				long forStarted = System.currentTimeMillis();
 
@@ -1076,6 +1086,15 @@ public class Seibro implements Crawler {
 
 				pageNumber = currentPageNumber;
 
+				
+				if (System.currentTimeMillis() - forStarted > 1024 * 8) {
+					pause = Math.max(32, pause / 2);
+				} else {
+					pause = pause * 2;
+					pause = Math.min(4096, pause * 2);
+				}
+
+				Thread.sleep(pause);
 				log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentMiddle(), Utility.ellipsisEscape(pageNumber, 32), code, start, Utility.toStringPastTimeReadable(forStarted));
 			}
 			driver.quit();
