@@ -1090,7 +1090,6 @@ public class Seibro implements Crawler {
 				if (System.currentTimeMillis() - forStarted > 1024 * 8) {
 					pause = Math.max(32, pause / 2);
 				} else {
-					pause = pause * 2;
 					pause = Math.min(4096, pause * 2);
 				}
 
