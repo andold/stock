@@ -952,12 +952,10 @@ public class Seibro implements Crawler {
 				}
 
 				pageNumber = currentPageNumber;
-				
 				if (System.currentTimeMillis() - forStarted > 1024 * 8) {
 					pause = Math.max(32, pause / 2);
 				} else {
-					pause = pause * 2;
-					pause = Math.min(4096, pause * 2);
+					pause = Math.min(1024 * 8, pause * 2);
 				}
 
 				Thread.sleep(pause);
@@ -1085,15 +1083,13 @@ public class Seibro implements Crawler {
 				}
 
 				pageNumber = currentPageNumber;
-
-				
 				if (System.currentTimeMillis() - forStarted > 1024 * 8) {
 					pause = Math.max(32, pause / 2);
 				} else {
-					pause = Math.min(4096, pause * 2);
+					pause = Math.min(1024 * 8, pause * 2);
 				}
 
-				Thread.sleep(pause);
+				Utility.sleep(Math.round(pause * Math.random()));
 				log.debug("{} 『{}』 priceEtf({}, {}) - {}", Utility.indentMiddle(), Utility.ellipsisEscape(pageNumber, 32), code, start, Utility.toStringPastTimeReadable(forStarted));
 			}
 			driver.quit();
