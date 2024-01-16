@@ -26,6 +26,36 @@ public interface StockListener extends ParseTreeListener {
 	 */
 	void exitStockDocument(StockParser.StockDocumentContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link StockParser#seibroPriceCurrentEtf}.
+	 * @param ctx the parse tree
+	 */
+	void enterSeibroPriceCurrentEtf(StockParser.SeibroPriceCurrentEtfContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link StockParser#seibroPriceCurrentEtf}.
+	 * @param ctx the parse tree
+	 */
+	void exitSeibroPriceCurrentEtf(StockParser.SeibroPriceCurrentEtfContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link StockParser#naverPriceCurrentEtf}.
+	 * @param ctx the parse tree
+	 */
+	void enterNaverPriceCurrentEtf(StockParser.NaverPriceCurrentEtfContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link StockParser#naverPriceCurrentEtf}.
+	 * @param ctx the parse tree
+	 */
+	void exitNaverPriceCurrentEtf(StockParser.NaverPriceCurrentEtfContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link StockParser#seibroPriceCurrentCompany}.
+	 * @param ctx the parse tree
+	 */
+	void enterSeibroPriceCurrentCompany(StockParser.SeibroPriceCurrentCompanyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link StockParser#seibroPriceCurrentCompany}.
+	 * @param ctx the parse tree
+	 */
+	void exitSeibroPriceCurrentCompany(StockParser.SeibroPriceCurrentCompanyContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link StockParser#seibroPriceCompany}.
 	 * @param ctx the parse tree
 	 */

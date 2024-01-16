@@ -36,6 +36,7 @@ public class CrawlerService {
 
 	@Autowired private Krx krx;
 	@Autowired private Seibro seibro;
+	@SuppressWarnings("unused") @Autowired private Naver naver;
 
 	@Autowired
 	private ItemService stockItemService;
@@ -71,13 +72,20 @@ public class CrawlerService {
 		log.info("{} crawlPrice({})", Utility.indentStart(), date);
 		long started = System.currentTimeMillis();
 
-		Result<ParserResult> result = krx.price(date);
-		if (result.getStatus() == STATUS.SUCCESS) {
-			put(result.getResult());
+		Result<ParserResult> resultSeibro = seibro.price(date);	// 주식
+		if (resultSeibro.getStatus() == STATUS.SUCCESS) {
+			put(resultSeibro.getResult());
 		}
 
-		log.info("{} {} crawlPrice({}) - {}", Utility.indentEnd(), result, date, Utility.toStringPastTimeReadable(started));
-		return result;
+		/*
+		Result<ParserResult> resultNaver = naver.price(date);	// ETF
+		if (resultNaver.getStatus() == STATUS.SUCCESS) {
+			put(resultNaver.getResult());
+		}
+		*/
+
+		log.info("{} {} crawlPrice({}) - {}", Utility.indentEnd(), resultSeibro, date, Utility.toStringPastTimeReadable(started));
+		return resultSeibro;
 	}
 
 	private void put(ParserResult result) {
@@ -300,7 +308,7 @@ public class CrawlerService {
 			result.setStatus(dividendResult.getStatus());
 		}
 	
-		Result<ParserResult> priceResult = krx.price(item.getCode(), item.getIpoDate());
+		Result<ParserResult> priceResult = seibro.price(item.getCode(), item.getIpoDate());
 		if (priceResult.getStatus() == STATUS.SUCCESS) {
 			put(priceResult.getResult());
 			container.addAll(priceResult.getResult());

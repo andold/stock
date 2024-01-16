@@ -46,6 +46,14 @@ public class Seibro implements Crawler {
 	private static final String URL_PRICE_ETF_EACH = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06033V.xml&menuNo=182";
 	private static final String MARK_START_END_POINT_PRICE_ETF_EACH = String.format("KEYWORD\t%s\t%s\t%s\n", "SEIBro", "ETF > ETF종합정보 > 기준가추이 :: 일별시세", URL_PRICE_ETF_EACH);
 
+	// SEIBro > 주식 > 종목전체검색 > 주식종목전체검색
+	private static final String URL_PRICE_COMPANY_CURRENT = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02004V.xml&menuNo=41";
+	private static final String MARK_START_END_POINT_PRICE_COMPANY_CURRENT = String.format("KEYWORD\t%s\t%s\t%s\n", "SEIBro", "주식 > 종목전체검색 > 주식종목전체검색", URL_PRICE_COMPANY_CURRENT);
+
+	// SEIBro > ETF > 종목발행현황
+	private static final String URL_PRICE_ETF_CURRENT = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06025V.xml&menuNo=174";
+	private static final String MARK_START_END_POINT_PRICE_ETF_CURRENT = String.format("KEYWORD\t%s\t%s\t%s\n", "SEIBro", "ETF > 종목발행현황", URL_PRICE_ETF_CURRENT);
+
 	private Integer count = 0;
 
 	@Override
@@ -376,8 +384,216 @@ public class Seibro implements Crawler {
 
 	@Override
 	public Result<ParserResult> price(Date date) {
-		log.error("{} {} price({})", Utility.indentMiddle(), STATUS.NOT_SUPPORT, date);
-		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
+		log.info("{} price({})", Utility.indentStart(), date);
+		long started = System.currentTimeMillis();
+
+		ParserResult resultContainer = new ParserResult().clear();
+		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(resultContainer).build();
+
+		Result<ParserResult> resultKospi = priceCurrentCompany(true);
+		if (resultKospi.getStatus() == STATUS.SUCCESS) {
+			resultContainer.addAll(resultKospi.getResult());
+		} else {
+			result.setStatus(resultKospi.getStatus());
+		}			
+
+		Result<ParserResult> resultKosdaq = priceCurrentCompany(false);
+		if (resultKosdaq.getStatus() == STATUS.SUCCESS) {
+			resultContainer.addAll(resultKosdaq.getResult());
+		} else {
+			result.setStatus(resultKosdaq.getStatus());
+		}			
+
+		Result<ParserResult> resultEtf = priceCurrentEtf(date);
+		if (resultEtf.getStatus() == STATUS.SUCCESS) {
+			resultContainer.addAll(resultEtf.getResult());
+		} else {
+			result.setStatus(resultEtf.getStatus());
+		}			
+
+		log.info("{} {} price({}) - {}", Utility.indentEnd(), result, date, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
+	protected Result<ParserResult> priceCurrentCompany(boolean kospi) {
+		log.debug("{} priceCurrentCompany({})", Utility.indentStart(), kospi);
+		long started = System.currentTimeMillis();
+
+		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		try {
+			driver.navigate().to(URL_PRICE_COMPANY_CURRENT);
+
+			// 넓게 보기 아이콘 클릭
+			driver.findElement(By.xpath("//*[@id='btn_wide']"), TIMEOUT * 4).click();
+			driver.waitUntilIsDisplayed(By.xpath("//li[@class='w2checkbox_item w2checkbox_item_0']"), false, TIMEOUT);
+
+			// 시장종류: 유가증권시장 (default)
+			if (!kospi) {
+				driver.findElement(By.xpath("//*[@id='CHECKBOX_MART_TYPE_input_2']"), TIMEOUT).click();
+			}
+			// 주식종류: 전체
+			driver.findElement(By.xpath("//*[@id='CHECKBOX_SECN_TYPE_input_0']"), TIMEOUT).click();
+			// 항목 설정
+			// 발행형태: uncheck
+			driver.findElement(By.xpath("//*[@id='CHECKBOK_VISIBLE_COLUMN_input_25']"), TIMEOUT).click();
+			// 시가: check
+			driver.findElement(By.xpath("//*[@id='CHECKBOK_VISIBLE_COLUMN_input_2']"), TIMEOUT).click();
+			// 고가: check
+			driver.findElement(By.xpath("//*[@id='CHECKBOK_VISIBLE_COLUMN_input_7']"), TIMEOUT).click();
+			// 저가: check
+			driver.findElement(By.xpath("//*[@id='CHECKBOK_VISIBLE_COLUMN_input_12']"), TIMEOUT).click();
+			// 시가총액: uncheck
+			driver.findElement(By.xpath("//*[@id='CHECKBOK_VISIBLE_COLUMN_input_17']"), TIMEOUT).click();
+			// 등락률: uncheck
+			driver.findElement(By.xpath("//*[@id='CHECKBOK_VISIBLE_COLUMN_input_22']"), TIMEOUT).click();
+			// PER: uncheck
+			driver.findElement(By.xpath("//*[@id='CHECKBOK_VISIBLE_COLUMN_input_14']"), TIMEOUT).click();
+
+			// 조회 클릭	//*[@id="grid1_cell_0_9"]/nobr
+			By BY_MARK_PAGE_CHANGE = By.xpath("//*[@id='grid1_cell_0_9']/nobr");
+			String count = driver.getText(By.xpath("//*[@id='totalCnt']"), TIMEOUT, "(-1건)");
+			String markPageChange = driver.getText(BY_MARK_PAGE_CHANGE, TIMEOUT, "");
+			driver.findElement(By.xpath("//*[@id='group166']"), TIMEOUT).click();
+			driver.waitUntilTextNotInclude(By.xpath("//*[@id='totalCnt']"), TIMEOUT, count);
+			driver.waitUntilIsDisplayed(By.xpath("//*[@id='___processbar2_i']"), false, TIMEOUT);
+			driver.waitUntilTextNotInclude(BY_MARK_PAGE_CHANGE, TIMEOUT, markPageChange);
+
+			// 기준일 수집
+			String base = driver.getText(By.xpath("//*[@id='D_day1']"), TIMEOUT, "기준일 : 1980/05/18");
+			
+			// 페이지마다 - 테이블 내용 저장
+			StringBuffer sb = new StringBuffer();
+			sb.append(MARK_START_END_POINT_PRICE_COMPANY_CURRENT);
+			By BY_CURRENT_PAGE = By.xpath("//div[@id='cntsPaging01']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']");
+			long pause = 1000;
+			for (String pageNumber = "1";;) {
+				long forStarted = System.currentTimeMillis();
+
+				// 테이블
+				WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
+				sb.append(driver.getTextFromTableElement(table, String.format("%s\t", base)));
+				sb.append(MARK_ANDOLD_SINCE);
+
+				// 다음 페이지
+				markPageChange = driver.getText(BY_MARK_PAGE_CHANGE, TIMEOUT, "-");
+				if (CrawlerService.getDebug()) {
+					driver.clickIfExist(By.xpath("//*[@id='cntsPaging01_nextPage_btn']/a"));
+				} else {
+					driver.clickIfExist(By.xpath("//li[@id='cntsPaging01_next_btn']/a"));
+				}
+				driver.waitUntilIsDisplayed(By.xpath("//*[@id='___processbar2_i']"), false, TIMEOUT);
+				driver.waitUntilTextNotInclude(BY_MARK_PAGE_CHANGE, TIMEOUT, markPageChange);
+				String currentPageNumber = driver.getText(BY_CURRENT_PAGE, TIMEOUT, "-1");
+				
+				// 다음 페이지가 갔는데...
+				if (pageNumber.equalsIgnoreCase(currentPageNumber)) {
+					break;
+				}
+
+				pageNumber = currentPageNumber;
+				if (System.currentTimeMillis() - forStarted > 1024 * 4) {
+					pause = Math.max(32, pause / 2);
+				} else {
+					pause = Math.min(1024 * 4, pause * 2);
+				}
+				Utility.sleep(Math.round(pause * Math.random()));
+
+				log.debug("{} 『{}』 priceCurrentCompany({}, {}) - {}", Utility.indentMiddle(), pageNumber, kospi, base, Utility.toStringPastTimeReadable(forStarted));
+			}
+			driver.quit();
+
+			sb.append(MARK_START_END_POINT_PRICE_COMPANY_CURRENT);
+			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
+
+			log.debug("{} 『{}』 priceCurrentCompany({}, {}) - {}", Utility.indentEnd(), result, kospi, base, Utility.toStringPastTimeReadable(started));
+			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
+		} catch (Exception e) {
+			driver.quit();
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+		}
+
+		log.debug("{} 『{}』 priceCurrentCompany({}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, kospi, "base", Utility.toStringPastTimeReadable(started));
+		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+	}
+
+	// SEIBro > ETF > 종목발행현황
+	protected Result<ParserResult> priceCurrentEtf(Date date) {
+		log.info("{} priceCurrentEtf({})", Utility.indentStart(), date);
+		long started = System.currentTimeMillis();
+
+		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		try {
+			driver.navigate().to(URL_PRICE_ETF_CURRENT);
+
+			// 넓게 보기 아이콘 클릭
+			driver.findElement(By.xpath("//*[@id='btn_wide']"), TIMEOUT * 4).click();
+
+			// 조회 클릭	//*[@id="grid1_cell_0_9"]/nobr
+			By BY_MARK_PAGE_CHANGE = By.xpath("//*[@id='grid1_cell_0_6']/nobr");
+			By BY_COUNT = By.xpath("//*[@id='LIST_CNT']");
+			String count = driver.getText(BY_COUNT, TIMEOUT, "(-1)건");
+			String markPageChange = driver.getText(BY_MARK_PAGE_CHANGE, TIMEOUT, "");
+			driver.findElement(By.xpath("//*[@id='group133']"), TIMEOUT).click();
+			driver.waitUntilTextNotInclude(BY_COUNT, TIMEOUT, count);
+			driver.waitUntilIsDisplayed(By.xpath("//*[@id='___processbar2_i']"), false, TIMEOUT);
+			driver.waitUntilTextNotInclude(BY_MARK_PAGE_CHANGE, TIMEOUT, markPageChange);
+
+			// 기준일 수집
+			String base = driver.getText(By.xpath("//*[@id='STD_DT']"), TIMEOUT, "기준일 : 1980/05/18");
+			
+			// 페이지마다 - 테이블 내용 저장
+			StringBuffer sb = new StringBuffer();
+			sb.append(MARK_START_END_POINT_PRICE_ETF_CURRENT);
+			By BY_CURRENT_PAGE = By.xpath("//div[@id='pageList1']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']");
+			long pause = 1000;
+			for (String pageNumber = "1";;) {
+				long forStarted = System.currentTimeMillis();
+
+				// 테이블
+				WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
+				sb.append(driver.extractTextContentFromTableElement(table, String.format("%s\t", base)));
+				sb.append(MARK_ANDOLD_SINCE);
+
+				// 다음 페이지
+				markPageChange = driver.getText(BY_MARK_PAGE_CHANGE, TIMEOUT, "-");
+				if (CrawlerService.getDebug()) {
+					driver.clickIfExist(By.xpath("//*[@id='pageList1_nextPage_btn']/a"));
+				} else {
+					driver.clickIfExist(By.xpath("//*[@id='pageList1_next_btn']/a"));
+				}
+				driver.waitUntilIsDisplayed(By.xpath("//*[@id='___processbar2_i']"), false, TIMEOUT);
+				driver.waitUntilTextNotInclude(BY_MARK_PAGE_CHANGE, TIMEOUT, markPageChange);
+				String currentPageNumber = driver.getText(BY_CURRENT_PAGE, TIMEOUT, "-1");
+				
+				// 다음 페이지가 갔는데...
+				if (pageNumber.equalsIgnoreCase(currentPageNumber)) {
+					break;
+				}
+
+				pageNumber = currentPageNumber;
+				if (System.currentTimeMillis() - forStarted > 1024 * 4) {
+					pause = Math.max(32, pause / 2);
+				} else {
+					pause = Math.min(1024 * 4, pause * 2);
+				}
+				Utility.sleep(Math.round(pause * Math.random()));
+
+				log.debug("{} 『{}』 priceCurrentCompany({}, {}) - {}", Utility.indentMiddle(), pageNumber, date, base, Utility.toStringPastTimeReadable(forStarted));
+			}
+			driver.quit();
+
+			sb.append(MARK_START_END_POINT_PRICE_ETF_CURRENT);
+			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
+
+			log.debug("{} 『{}』 priceCurrentCompany({}, {}) - {}", Utility.indentEnd(), result, date, base, Utility.toStringPastTimeReadable(started));
+			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
+		} catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+			driver.quit();
+		}
+
+		log.warn("{} 『{}』 priceCurrentEtf({}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, date, Utility.toStringPastTimeReadable(started));
+		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 	}
 
 	@Override
@@ -889,6 +1105,14 @@ public class Seibro implements Crawler {
 			startElement.sendKeys(LocalDate.ofInstant(start.toInstant(), Utility.ZONE_ID_KST).format(DateTimeFormatter.BASIC_ISO_DATE));
 			startElement.sendKeys(Keys.TAB); // 시작일 입력
 			
+			if (code.equals("00400")) {
+				// 종료일 입력
+				WebElement endElement = driver.findElement(By.xpath("//*[@id='sd1_inputCalendar2_input']"), TIMEOUT);
+				endElement.clear();
+				endElement.sendKeys("20080131");
+				endElement.sendKeys(Keys.TAB); // 시작일 입력
+			}
+			
 			//	종목명 검색 링크 클릭
 			driver.findElement(By.xpath("//a[@id='sn_group4']"), TIMEOUT).click();
 
@@ -958,7 +1182,7 @@ public class Seibro implements Crawler {
 					pause = Math.min(1024 * 4, pause * 2);
 				}
 
-				Thread.sleep(pause);
+				Utility.sleep(Math.round(pause * Math.random()));
 				log.debug("{} 『{}』 priceCompany({}, {}) - {}", Utility.indentMiddle(), Utility.ellipsisEscape(pageNumber, 32), code, start, Utility.toStringPastTimeReadable(forStarted));
 			}
 			driver.quit();

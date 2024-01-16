@@ -47,9 +47,6 @@ public class ItemEntity {
 	// 상장주식수
 	private Integer volumeOfListedShares;
 	
-	// etf?: 개별기업
-//	private Boolean etf;
-
 	// 코스피, 코스닥
 	@Column(name = "field_type")
 	private String type;
@@ -61,7 +58,13 @@ public class ItemEntity {
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Asia/Seoul")
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date ipoDate;
+	private Date ipoOpen;
+
+	// 폐장일
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Asia/Seoul")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date ipoClose;
 
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Asia/Seoul")

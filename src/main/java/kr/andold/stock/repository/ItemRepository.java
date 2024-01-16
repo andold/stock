@@ -28,10 +28,10 @@ public interface ItemRepository extends JpaRepository<ItemEntity, Integer> {
 			+ "		)	AND	("
 			+ "				:#{#param.type}	IS NULL"
 			+ "			OR	x.type		=	:#{#param.type}"
-			//	ipoDate
+			//	ipoOpen
 			+ "		)	AND	("
-			+ "				:#{#param.ipoDate}	IS NULL"
-			+ "			OR	x.ipoDate	>=	:#{#param.ipoDate}"
+			+ "				:#{#param.ipoOpen}	IS NULL"
+			+ "			OR	x.ipoOpen	>=	:#{#param.ipoOpen}"
 			//	updated
 			+ "		)	AND	("
 			+ "				:#{#param.updated}	IS NULL"

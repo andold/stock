@@ -55,22 +55,43 @@ public class SeibroTest {
 	}
 
 	@Test
-	public void testPriceCompanyStringDate() {
-		Result<ParserResult> result = service.priceCompany("017860", Date.from(ZonedDateTime.now().minusYears(3).toInstant()));
-		log.info("{}", result);
-		assertEquals(result.getStatus(), STATUS.SUCCESS);
-	}
+		public void testPriceCurrentCompanyStringDate() {
+			Result<ParserResult> result = service.priceCompany("017860", Date.from(ZonedDateTime.now().minusYears(3).toInstant()));
+			log.info("{}", result);
+			assertEquals(result.getStatus(), STATUS.SUCCESS);
+		}
 
 	@Test
-	public void testPriceEtfStringDate() {
-		Result<ParserResult> result = service.priceEtf("473590", Date.from(ZonedDateTime.now().minusYears(3).toInstant()));
-		log.info("{}", result);
-		assertEquals(result.getStatus(), STATUS.SUCCESS);
-	}
+		public void testPriceCurrentCompanyStringDate00400() {
+			Result<ParserResult> result = service.priceCompany("00400", Date.from(ZonedDateTime.of(1976, 4, 15, 0, 0, 0, 0, Utility.ZONE_ID_KST).toInstant()));
+			log.info("{}", result);
+			assertEquals(result.getStatus(), STATUS.SUCCESS);
+		}
+
+	@Test
+		public void testPriceCurrentEtfStringDate() {
+			Result<ParserResult> result = service.priceEtf("473590", Date.from(ZonedDateTime.now().minusYears(3).toInstant()));
+			log.info("{}", result);
+			assertEquals(result.getStatus(), STATUS.SUCCESS);
+		}
 
 	@Test
 	public void testPriceStringDate() {
 		Result<ParserResult> result = service.price("473590", Date.from(ZonedDateTime.of(2017, 3, 21, 0, 0, 0, 0, Utility.ZONE_ID_KST).toInstant()));
+		log.info("{}", result);
+		assertEquals(result.getStatus(), STATUS.SUCCESS);
+	}
+
+	@Test
+		public void testPriceCurrentCompanyBoolean() {
+			Result<ParserResult> result = service.priceCurrentCompany(true);
+			log.info("{}", result);
+			assertEquals(result.getStatus(), STATUS.SUCCESS);
+		}
+
+	@Test
+	public void testPriceCurrentEtf() {
+		Result<ParserResult> result = service.priceCurrentEtf(null);
 		log.info("{}", result);
 		assertEquals(result.getStatus(), STATUS.SUCCESS);
 	}

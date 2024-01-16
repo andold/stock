@@ -25,6 +25,24 @@ public interface StockVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStockDocument(StockParser.StockDocumentContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link StockParser#seibroPriceCurrentEtf}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSeibroPriceCurrentEtf(StockParser.SeibroPriceCurrentEtfContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link StockParser#naverPriceCurrentEtf}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNaverPriceCurrentEtf(StockParser.NaverPriceCurrentEtfContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link StockParser#seibroPriceCurrentCompany}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSeibroPriceCurrentCompany(StockParser.SeibroPriceCurrentCompanyContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link StockParser#seibroPriceCompany}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

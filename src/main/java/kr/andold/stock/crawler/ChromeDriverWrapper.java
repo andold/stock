@@ -506,4 +506,13 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		return value;
 	}
 
+	public List<WebElement> findElements(WebElement element, By by) {
+		try {
+			return element.findElements(by);
+		} catch (Exception e) {
+		}
+
+		return null;
+	}
+
 }

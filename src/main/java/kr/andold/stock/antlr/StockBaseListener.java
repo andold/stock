@@ -36,6 +36,42 @@ public class StockBaseListener implements StockListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterSeibroPriceCurrentEtf(StockParser.SeibroPriceCurrentEtfContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSeibroPriceCurrentEtf(StockParser.SeibroPriceCurrentEtfContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNaverPriceCurrentEtf(StockParser.NaverPriceCurrentEtfContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNaverPriceCurrentEtf(StockParser.NaverPriceCurrentEtfContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSeibroPriceCurrentCompany(StockParser.SeibroPriceCurrentCompanyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSeibroPriceCurrentCompany(StockParser.SeibroPriceCurrentCompanyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterSeibroPriceCompany(StockParser.SeibroPriceCompanyContext ctx) { }
 	/**
 	 * {@inheritDoc}

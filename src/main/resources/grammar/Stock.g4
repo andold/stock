@@ -37,7 +37,86 @@ stockDocument
 |	seibroItemInfoCompany			// SEIBro 주식 > 종목별상세정보 > 종목종합내역
 |	seibroItemInfoEtf				// SEIBro ETF > ETF종합정보 > 종목상세
 |	seibroPriceCompany				// SEIBro 주식 > 종목별상세정보 > 일자별시세
-|	seibroPriceEtf					// SEIBro > ETF > ETF종합정보 > 기준가추이 :: 일별시세
+|	seibroPriceEtf					// SEIBro ETF > ETF종합정보 > 기준가추이 :: 일별시세
+|	seibroPriceCurrentCompany		// SEIBro 주식 > 종목전체검색 > 주식종목전체검색
+|	seibroPriceCurrentEtf			// SEIBro > ETF > 종목발행현황
+
+|	naverPriceCurrentEtf			// SEIBro 주식 > 종목전체검색 > 주식종목전체검색
+;
+
+
+// SEIBro > ETF > 종목발행현황
+seibroPriceCurrentEtf:
+	KEYWORD TAB WORD TAB WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 SEIBro 	 ETF > 종목발행현황 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06025V.xml&menuNo=174 
+	(
+		WORD DATE TAB										NEWLINE		//	기준일: 2024/01/15 	 
+		WORD DATE TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB	NEWLINE
+				//	기준일: 2024/01/15 	 선택 	 종목명 	 단축종목코드 	 유형 	 순자산 	 종가 	 거래량(3개월평균) 	 수익률(%) 	 수익률(%) 	 수익률(%) 	 수익률(%) 	 수익률(%) 	 수익률(%) 	 수익률(%) 	 수익률(%) 	 총보수(%) 	 운용사 	 
+
+		((
+			WORD base=DATE TAB TAB word+ TAB code=word TAB word+ TAB NUMBER TAB closing=NUMBER TAB volume=NUMBER TAB NUMBER TAB NUMBER TAB NUMBER? TAB NUMBER? TAB NUMBER TAB NUMBER? TAB NUMBER? TAB NUMBER? TAB NUMBER TAB WORD TAB		NEWLINE
+					//	기준일: 2024/01/15 	 	 TIGER MSCI Korea TR 	 310970 	 시장지수/MSCI Korea Index 	 11,559 	 14,440 	 157,624 	 -2.37 	 -0.48 	 4.22 	 -2.79 	 -5.65 	 10.02 	 -9.18 	 -16.77 	 0.12 	 미래에셋자산운용 	 
+			{
+				ParserService.price(20240112
+					, $code.text
+					, $base.text, $closing.text, null, null, null, $volume.text
+				);
+			}
+		))*
+		WORD TAB WORD TAB DATE									NEWLINE		//	andold 	 since 	 2023-11-27 
+	)+
+	KEYWORD TAB WORD TAB WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 SEIBro 	 ETF > 종목발행현황 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06025V.xml&menuNo=174 
+;
+
+
+// Naver 증권 > 국내증시 > 주요시세정보 > ETF
+naverPriceCurrentEtf:
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 Naver 	 주식 > 종목전체검색 > 주식종목전체검색 	 https://finance.naver.com/sise/etf.naver 
+	(
+		DATE TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB	NEWLINE
+				//	종목명 	 https://finance.naver.com/sise/etf.naver# 	 현재가 	 https://finance.naver.com/sise/etf.naver# 	 전일비 	 https://finance.naver.com/sise/etf.naver# 	 등락률 	 https://finance.naver.com/sise/etf.naver# 	 NAV 	 https://finance.naver.com/sise/etf.naver# 	 3개월수익률 	 https://finance.naver.com/sise/etf.naver# 	 거래량 	 https://finance.naver.com/sise/etf.naver# 	 거래대금(백만) 	 https://finance.naver.com/sise/etf.naver# 	 시가총액(억) 	 
+		((
+			DATE TAB TAB										NEWLINE		//		 
+		) | (
+			base=DATE TAB code=NUMBER TAB word+ TAB closing=NUMBER TAB NUMBER TAB WORD TAB NUMBER TAB WORD TAB volume=NUMBER TAB NUMBER TAB NUMBER TAB							NEWLINE
+					//	407300 	 HANARO Fn골프테마 	 5,825 	 50 	 -0.85% 	 5,830 	 -1.84% 	 468 	 2 	 38 
+			{
+				ParserService.price(20240112
+					, $code.text
+					, $base.text, $closing.text, null, null, null, $volume.text
+				);
+			}
+		))*
+		WORD TAB WORD TAB DATE									NEWLINE		//	andold 	 since 	 2023-11-27 
+	)+
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 Naver 	 주식 > 종목전체검색 > 주식종목전체검색 	 https://finance.naver.com/sise/etf.naver 
+;
+
+
+// SEIBro 주식 > 종목전체검색 > 주식종목전체검색
+seibroPriceCurrentCompany:
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD TAB WORD			NEWLINE		//	KEYWORD 	 SEIBro 	 주식 > 종목전체검색 > 주식종목전체검색 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02004V.xml&menuNo=41 
+	(
+		WORD WORD DATE TAB WORD WORD WORD WORD WORD WORD WORD WORD	NEWLINE		//	기준일 : 2024/01/15 	 종목코드 종목명 시장구분 종가 거래량 시가 고가 저가 
+		(
+			WORD WORD base=DATE TAB code=word						NEWLINE		//	기준일 : 2024/01/15 	 011785 
+			WORD WORD DATE TAB word+								NEWLINE		//	기준일 : 2024/01/15 	 금호석유화학1우 
+			WORD WORD DATE TAB WORD									NEWLINE		//	기준일 : 2024/01/15 	 유가증권 
+			WORD WORD DATE TAB closing=NUMBER						NEWLINE		//	기준일 : 2024/01/15 	 60,000 
+			WORD WORD DATE TAB volume=NUMBER						NEWLINE		//	기준일 : 2024/01/15 	 6,505 
+			WORD WORD DATE TAB market=NUMBER						NEWLINE		//	기준일 : 2024/01/15 	 59,900 
+			WORD WORD DATE TAB high=NUMBER							NEWLINE		//	기준일 : 2024/01/15 	 60,200 
+			WORD WORD DATE TAB low=NUMBER							NEWLINE		//	기준일 : 2024/01/15 	 59,700 
+			{
+				ParserService.price(20240112
+					, $code.text
+					, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
+				);
+			}
+		)*
+		WORD TAB WORD TAB DATE									NEWLINE		//	andold 	 since 	 2023-11-27 
+	)+
+	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 SEIBro 	 주식 > 종목전체검색 > 주식종목전체검색 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02004V.xml&menuNo=41 
 ;
 
 
