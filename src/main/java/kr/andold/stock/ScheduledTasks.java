@@ -67,7 +67,7 @@ public class ScheduledTasks {
 	}
 
 	// 평일
-	@Scheduled(cron = "50 40 22 * * MON-FRI")
+	@Scheduled(cron = "50 40 22 * * MON-SAT")
 	public void scheduleTaskDaily() {
 		log.info("{} scheduleTaskDaily()", Utility.indentStart());
 		long started = System.currentTimeMillis();
