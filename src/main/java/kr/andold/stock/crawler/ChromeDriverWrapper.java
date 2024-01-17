@@ -82,6 +82,18 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		throw exception;
 	}
 
+	public WebElement findElement(WebElement element, By xpath, int timeout) {
+		while (timeout > 0) {
+			try {
+				return element.findElement(xpath);
+			} catch (Exception e) {
+			}
+			Utility.sleep(PAUSE);
+			timeout -= PAUSE;
+		}
+		return null;
+	}
+
 	public boolean waitUntilTextNotInclude(By xpath, int milli, String... marks) throws Exception {
 		log.info("{} waitUntilTextNotInclude(..., {}, 『{}』)", Utility.indentStart(), milli, Utility.ellipsisEscape(marks, 16));
 		long started = System.currentTimeMillis();

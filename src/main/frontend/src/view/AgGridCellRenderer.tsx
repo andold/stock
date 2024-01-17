@@ -144,7 +144,7 @@ export function SymbolTypeCode(param: any) {
 
 	return (<>
 		<Row className="mx-0 px-0">
-			<Col className="ms-1 px-0 text-start text-truncate">{data.symbol}</Col>
+			<Col className={`ms-1 px-0 text-start text-truncate${data.ipoClose ? " text-decoration-line-through" : ""}`}>{data.symbol}</Col>
 			<Col xs="auto" className="ms-1 px-0 text-end">
 				{
 					"ETF" == data.type

@@ -11,7 +11,8 @@ export default interface Item {
 //	etf?: boolean;		//	etf?: 개별기업
 	type?: string;		//	코스피, 코스닥
 	category?: string;	//	분류
-	ipoDate?: number;	//	상장일
+	ipoOpen?: number;	//	상장일
+	ipoClose?: number;	//	상장폐지일
 
 	created?: number;	//	생성일
 	updated?: number;	//	수저일

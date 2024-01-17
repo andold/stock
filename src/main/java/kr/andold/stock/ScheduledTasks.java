@@ -24,12 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 @EnableScheduling
 @ConditionalOnProperty(value = "app.scheduling.enable", havingValue = "true", matchIfMissing = true)
 public class ScheduledTasks {
-	@Autowired
-	private CrawlerService crawlerService;
-
-	@Autowired
-	private IdempotentService idempotentService;
-
+	@Autowired private CrawlerService crawlerService;
+	@Autowired private IdempotentService idempotentService;
 	@Autowired private StockService stockService;
 	@Autowired private PriceService priceService;
 
@@ -84,9 +80,10 @@ public class ScheduledTasks {
 		log.info("{} scheduleTaskWeekly()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		Result<ParserResult> result = crawlerService.crawlDividendAllRecent();
+		Result<ParserResult> resultDividendAllRecent = crawlerService.crawlDividendAllRecent();
+		Result<ParserResult> resultDividendAsssllRecent = crawlerService.crawlItemIpoClose();
 
-		log.info("{} {} scheduleTaskWeekly() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』『{}』 scheduleTaskWeekly() - {}", Utility.indentEnd(), resultDividendAllRecent, resultDividendAsssllRecent, Utility.toStringPastTimeReadable(started));
 	}
 
 	// 매월 1일

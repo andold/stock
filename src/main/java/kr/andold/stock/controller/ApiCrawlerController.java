@@ -66,4 +66,15 @@ public class ApiCrawlerController {
 		return result;
 	}
 
+	@ResponseBody
+	@GetMapping(value = "test")
+	public Result<ParserResult> testt() {
+		log.info("{} test()", Utility.indentStart());
+
+		Result<ParserResult> result = service.crawlItemIpoClose();
+		
+		log.info("{} 『{}』 - test()", Utility.indentEnd(), result);
+		return result;
+	}
+
 }

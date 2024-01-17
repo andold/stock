@@ -260,6 +260,15 @@ function Header(props: any) {
 			setSpinner(spinner - 1);
 		});
 	}
+	function handleOnCrawlTest() {
+		setSpinner(spinner + 1);
+		crawlStore.test({}, (_: any) => {
+			if (spinner == 1) {	// 마지막에서만 재검색
+				onChange && onChange({});
+			}
+			setSpinner(spinner - 1);
+		});
+	}
 	function handleOnClickMode(e: any) {
 		if (e.ctrlKey) {
 			onChange && onChange({ mode: form.mode - 1 });
@@ -338,6 +347,7 @@ function Header(props: any) {
 									<NavDropdown title="Crawl" className="mx-1">
 										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlItemDetailAll}>Crawl Item 상세 모두 {jobs.play ? "do PAUSE" : "do PLAY"}</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlItemEtf}>Crawl Item ETF</NavDropdown.Item>
+										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlTest}>Crawl Test</NavDropdown.Item>
 									</NavDropdown>
 									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCompile} onClick={handleOnClickCompile}>
 										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCompile} />

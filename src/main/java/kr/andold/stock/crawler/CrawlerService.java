@@ -36,6 +36,7 @@ public class CrawlerService {
 
 	@Autowired private Krx krx;
 	@Autowired private Seibro seibro;
+	@Autowired private Kind kind;
 	@SuppressWarnings("unused") @Autowired private Naver naver;
 
 	@Autowired
@@ -318,6 +319,10 @@ public class CrawlerService {
 
 		log.info("{} 『{}』『{}:{}:{}』 crawlItem({}) - {}", Utility.indentEnd(), result, itemResult, dividendResult, priceResult, item, Utility.toStringPastTimeReadable(started));
 		return result;
+	}
+
+	public Result<ParserResult> crawlItemIpoClose() {
+		return kind.basicInfoAll();
 	}
 
 }
