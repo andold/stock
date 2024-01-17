@@ -945,6 +945,7 @@ public class Seibro implements Crawler {
 			sb.append(String.format("KEYWORD\t\"%s\"\n", driver.findElement(By.xpath("//dd[@id='FICS']"), TIMEOUT).getText()));	// FICS
 			sb.append(String.format("KEYWORD\t%s\n", driver.findElement(By.xpath("//dd[@id='ISSU_SCHD_STKQTY']"), TIMEOUT).getText()));	//	// 발행주식총수
 			sb.append(String.format("KEYWORD\t%s\n", driver.findElement(By.xpath("//dd[@id='APLI_DT']"), TIMEOUT).getText()));	// 상장일
+			sb.append(String.format("KEYWORD\t%s\n", driver.findElement(By.xpath("//dd[@id='DLIST_DT']"), TIMEOUT).getText()));	// 상장폐지일
 			driver.quit();
 
 			sb.append(MARK_ANDOLD_SINCE);

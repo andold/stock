@@ -77,16 +77,16 @@ public class ParserService {
 			, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7
 			, String category, String category1, String category2, String category3, String category4, String category5, String category6, String category7
 			, String type
-			, String ipo
+			, String ipoOpen, String ipoClose
 			, String ea
 			, String fee
 	) {
-		log.debug("{} item(『{}』『{}』『{} {} {} {} {} {} {} {}』『{} {} {} {} {} {} {} {}』『{}』『{}』『{}』『{}』)", Utility.indentMiddle(), mark
+		log.debug("{} item(『{}』『{}』『{} {} {} {} {} {} {} {}』『{} {} {} {} {} {} {} {}』『{}』『{}{}』『{}』『{}』)", Utility.indentMiddle(), mark
 				, code
 				, symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7
 				, category, category1, category2, category3, category4, category5, category6, category7
 				, type
-				, ipo
+				, ipoOpen, ipoClose
 				, ea
 				, fee
 		);
@@ -106,7 +106,8 @@ public class ParserService {
 		} else {
 			item.setType(type);
 		}
-		item.setIpoDate(Utility.parseDateTime(ipo, null));
+		item.setIpoOpen(Utility.parseDateTime(ipoOpen, null));
+		item.setIpoClose(Utility.parseDateTime(ipoClose, null));
 		item.setVolumeOfListedShares(ea);
 		LIST_STOCK_ITEM.add(item);
 	}

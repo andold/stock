@@ -176,14 +176,16 @@ seibroItemInfoCompany:
 			KEYWORD TAB category=STRING							NEWLINE		//	KEYWORD 	 "금융업" 
 			KEYWORD TAB fics=STRING								NEWLINE		//	KEYWORD 	 "금융 > 은행 > 상업은행" 
 			KEYWORD TAB volumeOfListedShares=NUMBER WORD		NEWLINE		//	KEYWORD 	 196,982,894 주 
-			KEYWORD TAB ipo=DATE								NEWLINE		//	KEYWORD 	 2013/07/18 
+			KEYWORD TAB ipoOpen=DATE							NEWLINE		//	KEYWORD 	 2013/07/18 
+			KEYWORD TAB ipoClose=DATE							NEWLINE		//	KEYWORD 	 2013/07/18 
 			{
 				ParserService.item(20240112
 					, $code.text
 					, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
 					, $category.text, $fics.text, null, null, null, null, null, null
 					, $type.text
-					, $ipo.text
+					, $ipoOpen.text
+					, $ipoClose.text
 					, $volumeOfListedShares.text
 					, null
 				);
@@ -213,6 +215,7 @@ seibroItemInfoEtf:
 					, $category.text, $category1.text, $category2.text, $category3.text, $category4.text, $category5.text, $category6.text, $category7.text
 					, "ETF"
 					, $ipo.text
+					, null
 					, $volumeOfListedShares.text
 					, $fee.text
 				);
@@ -368,6 +371,7 @@ krxItemInfoCompany:
 			, $category.text, $category1.text, $category2.text, $category3.text, $category4.text, $category5.text, $category6.text, $category7.text
 			, $type.text
 			, $ipo.text
+			, null
 			, $volumeOfListedShares.text
 			, null
 		);
@@ -404,6 +408,7 @@ krxItemInfoEtf:
 			, $category.text, $category1.text, $category2.text, $category3.text, $category4.text, $category5.text, $category6.text, $category7.text
 			, "ETF"
 			, $ipo.text
+			, null
 			, $volumeOfListedShares.text
 			, null
 		);
@@ -466,6 +471,7 @@ krxBasicInfoEtf:
 					, null, null, null, null, null, null, null, null
 					, null
 					, $ipo.text
+					, null
 					, $volumeOfListedShares.text
 					, null
 				);
@@ -565,6 +571,7 @@ krxBasicInfoCompany:
 					, null, null, null, null, null, null, null, null
 					, $type.text
 					, $ipo.text
+					, null
 					, $volumeOfListedShares.text
 					, null
 				);
@@ -621,6 +628,7 @@ etfAllPrice:
 					, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
 					, null, null, null, null, null, null, null, null
 					, "ETF"
+					, null
 					, null
 					, $volumeOfListedShares.text
 					, null
@@ -717,6 +725,7 @@ companyAllPrice:
 					, null, null, null, null, null, null, null, null
 					, $type.text
 					, null
+					, null
 					, $volumeOfListedShares.text
 					, null
 				);
@@ -809,6 +818,7 @@ crawlItemEtf:
 					, "ETF"
 					, null
 					, null
+					, null
 					, $fee.text
 				);
 			}
@@ -834,6 +844,7 @@ crawlPriceEtf:
 					, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
 					, $category.text, $category1.text, $category2.text, $category3.text, $category4.text, $category5.text, $category6.text, $category7.text
 					, "ETF"
+					, null
 					, null
 					, $ea.text
 					, null
@@ -906,6 +917,7 @@ KEYWORD TAB WORD WORD TAB WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 주식 �
 			, $category.text, $fics.text, null, null, null, null, null, null
 			, null
 			, $ipo.text
+			, null
 			, $ea.text
 			, null
 		);
@@ -930,6 +942,7 @@ KEYWORD TAB WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 cra
 				, null, null, null, null, null, null, null, null
 				, null, null, null, null, null, null, null, null
 				, $type.text
+				, null
 				, null
 				, null
 				, null
@@ -959,6 +972,7 @@ crawlEtfDetailThread:
 				, $category.text, $category1.text, $category2.text, $category3.text, $category4.text, $category5.text, $category6.text, $category7.text
 				, null
 				, $ipo.text
+				, null
 				, null
 				, $fee.text
 			);
