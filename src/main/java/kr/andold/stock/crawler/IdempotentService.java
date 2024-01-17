@@ -84,9 +84,8 @@ public class IdempotentService {
 		CrudList<ItemDomain> items = itemService.put(result.getItems());
 		CrudList<DividendHistoryDomain> histories = dividendHistoryService.put(result.getHistories());
 		CrudList<PriceDomain> prices = priceService.put(result.getPrices());
-		log.debug("{} put({}) - items:{}, histories:{}, prices:{}", Utility.indentMiddle(), result, items, histories, prices);
 
-		log.debug("{} put({}) - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		log.debug("{} 『items:{}, histories:{}, prices:{}』 put({}) - {}", Utility.indentEnd(), items, histories, prices, result, Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
