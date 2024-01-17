@@ -1307,10 +1307,10 @@ public class Seibro implements Crawler {
 				}
 
 				pageNumber = currentPageNumber;
-				if (System.currentTimeMillis() - forStarted > 1024 * 4) {
+				if (System.currentTimeMillis() - forStarted > 1024 * 8) {
 					pause = Math.max(32, pause / 2);
 				} else {
-					pause = Math.min(1024 * 4, pause * 2);
+					pause = Math.min(1024 * 8, pause * 2);
 				}
 
 				Utility.sleep(Math.round(pause * Math.random()));
