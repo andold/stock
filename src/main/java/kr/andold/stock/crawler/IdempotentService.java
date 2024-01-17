@@ -216,7 +216,7 @@ public class IdempotentService {
 			return IDEMPOTENT_STATUS.ALEADY_DONE_JOB;
 		}
 
-		Result<ParserResult> result = seibro.price(item.getCode(), item.getIpoDate());
+		Result<ParserResult> result = seibro.price(item.getCode(), item.getIpoOpen());
 		switch (result.getStatus()) {
 		case SUCCESS:
 			ParserResult parserResult = result.getResult();
@@ -238,15 +238,22 @@ public class IdempotentService {
 			return IDEMPOTENT_STATUS.INVALID_JOB;
 		}
 		
-		Date ipoDate = item.getIpoDate();
-		if (ipoDate == null) {
+		Date ipoOpen = item.getIpoOpen();
+		if (ipoOpen == null) {
 			log.warn("{} 상장일이 없다 processDividend({})", Utility.indentMiddle(), Utility.toStringJson(item));
 			return IDEMPOTENT_STATUS.INVALID_JOB;
 		}
 
-		ZonedDateTime ipoZonedDate = ZonedDateTime.ofInstant(ipoDate.toInstant(), Utility.ZONE_ID_KST);
+		Date today = new Date();
+		Date ipoClose = item.getIpoClose();
+		if (ipoClose != null && ipoClose.before(today)) {
+			log.warn("{} 상장폐지 processDividend({})", Utility.indentMiddle(), Utility.toStringJson(item));
+			return IDEMPOTENT_STATUS.INVALID_JOB;
+		}
+
+		ZonedDateTime ipoZonedDate = ZonedDateTime.ofInstant(ipoOpen.toInstant(), Utility.ZONE_ID_KST);
 		List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
-		if (histories != null && !histories.isEmpty() && histories.get(histories.size() - 1).getBase().before(ipoDate)) {
+		if (histories != null && !histories.isEmpty() && histories.get(histories.size() - 1).getBase().before(ipoOpen)) {
 			return IDEMPOTENT_STATUS.ALEADY_DONE_JOB;
 		}
 
@@ -274,12 +281,18 @@ public class IdempotentService {
 		}
 		
 		String symbol = item.getSymbol();
-		Date ipoDate = item.getIpoDate();
+		Date ipoOpen = item.getIpoOpen();
+		Date ipoClose = item.getIpoClose();
 		Integer volumeOfListedShares = item.getVolumeOfListedShares();
 		String type = item.getType();
 		String category = item.getCategory();
+		Date today = new Date();
 
-		if (!(symbol == null || symbol.isBlank() || volumeOfListedShares == null || type == null || type.isBlank() || category == null || category.isBlank() || ipoDate == null)) {
+		if (!(symbol == null || symbol.isBlank()
+				|| volumeOfListedShares == null
+				|| type == null || type.isBlank()
+				|| category == null || category.isBlank() || ipoOpen == null)
+			|| (ipoClose != null && ipoClose.before(today))) {
 			return IDEMPOTENT_STATUS.ALEADY_DONE_JOB;
 		}
 
