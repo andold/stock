@@ -86,10 +86,10 @@ export function PriceRecentCellRenderer(param: any) {
 								<tr key={price.id}>
 									<th className="px-1">{moment(price.base).format("YYYY-MM-DD (dd)")}</th>
 									<td className="text-end px-1">{price.closing.toLocaleString()}</td>
-									<td className="text-end px-1">{price.market.toLocaleString()}</td>
-									<td className="text-end px-1">{price.high.toLocaleString()}</td>
-									<td className="text-end px-1">{price.low.toLocaleString()}</td>
-									<td className="text-end px-1">{price.volume.toLocaleString()}</td>
+									<td className="text-end px-1">{price.market?.toLocaleString()}</td>
+									<td className="text-end px-1">{price.high?.toLocaleString()}</td>
+									<td className="text-end px-1">{price.low?.toLocaleString()}</td>
+									<td className="text-end px-1">{price.volume?.toLocaleString()}</td>
 								</tr>))
 						}
 					</tbody></Table>
