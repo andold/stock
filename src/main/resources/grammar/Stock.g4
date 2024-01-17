@@ -207,7 +207,7 @@ seibroItemInfoEtf:
 			category=word category1=word? category2=word? category3=word? category4=word? category5=word? category6=word? category7=word*	NEWLINE		//	파생상품/구조화
 			ipo=DATE word+						NEWLINE		//	2022/09/20 (1년 3개월) 
 			volumeOfListedShares=NUMBER			NEWLINE		//	23,800,000
-			fee=NUMBER							NEWLINE		//	0.37 
+			fee=word							NEWLINE		//	0.37 | NaN
 			{
 				ParserService.item(20240112
 					, $code.text

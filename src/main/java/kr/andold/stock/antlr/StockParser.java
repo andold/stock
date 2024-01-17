@@ -2294,7 +2294,7 @@ public class StockParser extends Parser {
 		public WordContext category7;
 		public Token ipo;
 		public Token volumeOfListedShares;
-		public Token fee;
+		public WordContext fee;
 		public List<TerminalNode> KEYWORD() { return getTokens(StockParser.KEYWORD); }
 		public TerminalNode KEYWORD(int i) {
 			return getToken(StockParser.KEYWORD, i);
@@ -2593,7 +2593,7 @@ public class StockParser extends Parser {
 						setState(785);
 						match(NEWLINE);
 						setState(786);
-						((SeibroItemInfoEtfContext)_localctx).fee = match(NUMBER);
+						((SeibroItemInfoEtfContext)_localctx).fee = word();
 						setState(787);
 						match(NEWLINE);
 
@@ -2605,7 +2605,7 @@ public class StockParser extends Parser {
 											, (((SeibroItemInfoEtfContext)_localctx).ipo!=null?((SeibroItemInfoEtfContext)_localctx).ipo.getText():null)
 											, null
 											, (((SeibroItemInfoEtfContext)_localctx).volumeOfListedShares!=null?((SeibroItemInfoEtfContext)_localctx).volumeOfListedShares.getText():null)
-											, (((SeibroItemInfoEtfContext)_localctx).fee!=null?((SeibroItemInfoEtfContext)_localctx).fee.getText():null)
+											, (((SeibroItemInfoEtfContext)_localctx).fee!=null?_input.getText(((SeibroItemInfoEtfContext)_localctx).fee.start,((SeibroItemInfoEtfContext)_localctx).fee.stop):null)
 										);
 									
 						}
@@ -13622,7 +13622,7 @@ public class StockParser extends Parser {
 		"\u0000\u0000\u030d\u030b\u0001\u0000\u0000\u0000\u030d\u030e\u0001\u0000"+
 		"\u0000\u0000\u030e\u030f\u0001\u0000\u0000\u0000\u030f\u0310\u0005\u0004"+
 		"\u0000\u0000\u0310\u0311\u0005\b\u0000\u0000\u0311\u0312\u0005\u0004\u0000"+
-		"\u0000\u0312\u0313\u0005\b\u0000\u0000\u0313\u0314\u0005\u0004\u0000\u0000"+
+		"\u0000\u0312\u0313\u00032\u0019\u0000\u0313\u0314\u0005\u0004\u0000\u0000"+
 		"\u0314\u0315\u0006\u0007\uffff\uffff\u0000\u0315\u0317\u0001\u0000\u0000"+
 		"\u0000\u0316\u02cb\u0001\u0000\u0000\u0000\u0317\u0318\u0001\u0000\u0000"+
 		"\u0000\u0318\u0316\u0001\u0000\u0000\u0000\u0318\u0319\u0001\u0000\u0000"+
