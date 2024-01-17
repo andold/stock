@@ -33,28 +33,6 @@ public class IdempotentService {
 	@Autowired private DividendHistoryService dividendHistoryService;
 	@Autowired private PriceService priceService;
 
-	public static enum IDEMPOTENT_STATUS {
-		SUCCESS("성공")
-		, FAILURE("실패")
-		, BUSY("바쁘다")
-		, NOTHING_TO_DO("다시해봐도 할게없다")
-		, DONE_RESTART("할게 있을수 있다")
-		, INVALID_JOB("뭬야")
-		, ALEADY_DONE_JOB("한거다")
-		, RESERVED("예약")
-	;
-
-		private String title;
-
-		private IDEMPOTENT_STATUS(String string) {
-			title = string;
-		}
-
-		public String get() {
-			return title;
-		}
-	}
-
 	private boolean isRequireCrawlPrice(List<DividendHistoryDomain> histories) {
 		if (histories == null) {
 			return false;
@@ -106,7 +84,7 @@ public class IdempotentService {
 			ItemDomain item0 = q0.poll();
 			if (item0 != null) {
 				long forStarted = System.currentTimeMillis();
-				IDEMPOTENT_STATUS status = processDetailInfo(item0);
+				STATUS status = processDetailInfo(item0);
 				switch (status) {
 				case FAILURE:
 				case SUCCESS:
@@ -123,7 +101,7 @@ public class IdempotentService {
 			ItemDomain item1 = q1.poll();
 			if (item1 != null) {
 				long forStarted = System.currentTimeMillis();
-				IDEMPOTENT_STATUS status = processDividend(item1);
+				STATUS status = processDividend(item1);
 				switch (status) {
 				case FAILURE:
 				case SUCCESS:
@@ -140,7 +118,7 @@ public class IdempotentService {
 			ItemDomain item2 = q2.poll();
 			if (item2 != null) {
 				long forStarted = System.currentTimeMillis();
-				IDEMPOTENT_STATUS status = processPrice(item2);
+				STATUS status = processPrice(item2);
 				switch (status) {
 				case FAILURE:
 				case SUCCESS:
@@ -157,7 +135,7 @@ public class IdempotentService {
 			ItemDomain item3 = q3.poll();
 			if (item3 != null) {
 				long forStarted = System.currentTimeMillis();
-				IDEMPOTENT_STATUS status = processReserved(item3);
+				STATUS status = processReserved(item3);
 				switch (status) {
 				case FAILURE:
 				case SUCCESS:
@@ -205,14 +183,14 @@ public class IdempotentService {
 		}
 	}
 
-	private IDEMPOTENT_STATUS processReserved(ItemDomain item) {
-		return IDEMPOTENT_STATUS.RESERVED;
+	private STATUS processReserved(ItemDomain item) {
+		return STATUS.RESERVED;
 	}
 
-	private IDEMPOTENT_STATUS processPrice(ItemDomain item) {
+	private STATUS processPrice(ItemDomain item) {
 		List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
 		if (!isRequireCrawlPrice(histories)) {
-			return IDEMPOTENT_STATUS.ALEADY_DONE_JOB;
+			return STATUS.ALEADY_DONE;
 		}
 
 		Result<ParserResult> result = seibro.price(item.getCode(), item.getIpoOpen());
@@ -225,35 +203,35 @@ public class IdempotentService {
 			dividendHistoryService.compile(histories, mapP);
 			priceService.compile(prices, false);
 			put(parserResult);
-			return IDEMPOTENT_STATUS.SUCCESS;
+			return STATUS.SUCCESS;
 		default:
 			break;
 		}
-		return IDEMPOTENT_STATUS.FAILURE;
+		return STATUS.FAILURE;
 	}
 
-	private IDEMPOTENT_STATUS processDividend(ItemDomain item) {
+	private STATUS processDividend(ItemDomain item) {
 		if (item == null) {
-			return IDEMPOTENT_STATUS.INVALID_JOB;
+			return STATUS.INVALID;
 		}
 		
 		Date ipoOpen = item.getIpoOpen();
 		if (ipoOpen == null) {
 			log.warn("{} 상장일이 없다 processDividend({})", Utility.indentMiddle(), Utility.toStringJson(item));
-			return IDEMPOTENT_STATUS.INVALID_JOB;
+			return STATUS.INVALID;
 		}
 
 		Date today = new Date();
 		Date ipoClose = item.getIpoClose();
 		if (ipoClose != null && ipoClose.before(today)) {
 			log.warn("{} 상장폐지 processDividend({})", Utility.indentMiddle(), Utility.toStringJson(item));
-			return IDEMPOTENT_STATUS.INVALID_JOB;
+			return STATUS.INVALID;
 		}
 
 		ZonedDateTime ipoZonedDate = ZonedDateTime.ofInstant(ipoOpen.toInstant(), Utility.ZONE_ID_KST);
 		List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
 		if (histories != null && !histories.isEmpty() && histories.get(histories.size() - 1).getBase().before(ipoOpen)) {
-			return IDEMPOTENT_STATUS.ALEADY_DONE_JOB;
+			return STATUS.ALEADY_DONE;
 		}
 
 		Result<ParserResult> result = seibro.dividend(item, Date.from(ipoZonedDate.toInstant()));
@@ -267,16 +245,16 @@ public class IdempotentService {
 					.dividend(-1)
 					.build());
 			put(parserResult);
-			return IDEMPOTENT_STATUS.SUCCESS;
+			return STATUS.SUCCESS;
 		default:
 			break;
 		}
-		return IDEMPOTENT_STATUS.FAILURE;
+		return STATUS.FAILURE;
 	}
 
-	private IDEMPOTENT_STATUS processDetailInfo(ItemDomain item) {
+	private STATUS processDetailInfo(ItemDomain item) {
 		if (item == null) {
-			return IDEMPOTENT_STATUS.INVALID_JOB;
+			return STATUS.INVALID;
 		}
 		
 		String symbol = item.getSymbol();
@@ -292,16 +270,16 @@ public class IdempotentService {
 				|| type == null || type.isBlank()
 				|| category == null || category.isBlank() || ipoOpen == null)
 			|| (ipoClose != null && ipoClose.before(today))) {
-			return IDEMPOTENT_STATUS.ALEADY_DONE_JOB;
+			return STATUS.ALEADY_DONE;
 		}
 
 		Result<ParserResult> itemResult = seibro.item(item.getCode());
 		if (itemResult.getStatus() == STATUS.SUCCESS) {
 			put(itemResult.getResult());
-			return IDEMPOTENT_STATUS.SUCCESS;
+			return STATUS.SUCCESS;
 		}
 
-		return IDEMPOTENT_STATUS.FAILURE;
+		return STATUS.FAILURE;
 	}
 
 }

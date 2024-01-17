@@ -14,14 +14,25 @@ public class Result<T> {
 	private T result;
 
 	public static enum STATUS {
-		SUCCESS
-		, NO_MORE_DATA
-		, FAIL
-			, FAIL_NO_RESULT
-			, FAIL_NO_DATA
-			, FAIL_MANY_DATA
-		, EXCEPTION
-		, NOT_SUPPORT
-	}
+		SUCCESS("성공")
+		, FAILURE("실패")
+			, FAIL_NO_RESULT("결과없음")
+			, FAIL_NO_DATA("데이터없음")
+			, FAIL_MANY_DATA("데이터여러개")
+		, EXCEPTION("예외")
+		, NOT_SUPPORT("지원안함")
+		, INVALID("무효")
+		, ALEADY_DONE("한거다")
+		, RESERVED("예약")
+		;
+		private String title;
 
+		private STATUS(String string) {
+			title = string;
+		}
+
+		public String get() {
+			return title;
+		}
+	}
 }

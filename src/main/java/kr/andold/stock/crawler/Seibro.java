@@ -239,7 +239,7 @@ public class Seibro implements Crawler {
 			if (!clickSearchIconInCompany(driver)) {
 				log.debug("{} {} dividendAsCompany({}, {}) - {}", Utility.indentEnd(), "FAILURE SEARH", item, start, Utility.toStringPastTimeReadable(started));
 				close(driver);
-				return Result.<ParserResult>builder().status(STATUS.FAIL).build();
+				return Result.<ParserResult>builder().status(STATUS.FAILURE).build();
 			}
 
 			// 시작 표시
@@ -656,7 +656,7 @@ public class Seibro implements Crawler {
 			if (!clickSearchIconInCompany(driver)) {
 				log.debug("{} {} dividendCompany({}) - {}", Utility.indentEnd(), "FAILURE SEARH", start, Utility.toStringPastTimeReadable(started));
 				driver.quit();
-				return Result.<ParserResult>builder().status(STATUS.FAIL).build();
+				return Result.<ParserResult>builder().status(STATUS.FAILURE).build();
 			}
 
 			// 시작 표시
