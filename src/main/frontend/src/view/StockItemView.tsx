@@ -23,7 +23,7 @@ export default ((props: any) => {
 	const [columnDefs, setColumnDefs] = useState([]);
 
 	useEffect(() => {
-		const comlumDefs = store.columnDefs(["id", "symbol", "code", "etf", "type", "volumeOfListedShares", "baseMonth", "dividendCycle", "--ipoDate", "sigma", "created",], onChange);
+		const comlumDefs = store.columnDefs(["id", "symbol", "code", "etf", "type", "volumeOfListedShares", "baseMonth", "dividendCycle", "sigma", "created",], onChange);
 		setColumnDefs(comlumDefs);
 	}, []);
 	useEffect(() => {

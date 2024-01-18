@@ -33,10 +33,10 @@ public class StockParam {
 		private Integer priority;
 		private Float priceEarningsRatio;
 		private Integer volumeOfListedShares;
-		private Boolean etf;
 		private String type;
 		private String category;
-		private Date ipoDate;
+		private Date ipoOpen;
+		private Date ipoClose;
 
 		public static InnerItemParam of(ItemDomain domain) {
 			InnerItemParam param = new InnerItemParam();

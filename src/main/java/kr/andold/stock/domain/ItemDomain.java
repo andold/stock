@@ -1,7 +1,5 @@
 package kr.andold.stock.domain;
 
-import java.util.Date;
-
 import org.springframework.beans.BeanUtils;
 
 import kr.andold.stock.entity.ItemEntity;
@@ -21,18 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 @EqualsAndHashCode(callSuper = true)
 public class ItemDomain extends ItemEntity implements CommonBlockDomain<ItemDomain, ItemEntity> {
 	private String reserved;
-
-	public void setIpoDate(Date ipoDate) {
-		setIpoOpen(ipoDate);
-	}
-
-	public Date getIpoDate() {
-		return getIpoOpen();
-	}
-
-	public ItemDomain(String symbol, String code, String dividendCycle, String volumeOfListedShares, Boolean etf, String type, String category, String ipoDate) {
-		super.builder().symbol(symbol).code(code).volumeOfListedShares(Utility.parseInteger(volumeOfListedShares, null)).type(type).category(category).ipoOpen(Utility.parseDateTime(ipoDate, null)).build();
-	}
 
 	public void setSymbol(String string, String... args) {
 		StringBuffer stringBuffer = new StringBuffer("");

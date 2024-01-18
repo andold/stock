@@ -107,7 +107,7 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 	}
 
 	public CrudList<PriceDomain> crawl(ItemParam param) {
-		Result<ParserResult> parserResult = seibro.price(param.getCode(), param.getIpoDate());
+		Result<ParserResult> parserResult = seibro.price(param.getCode(), param.getIpoOpen());
 		CrudList<PriceDomain> result = put(parserResult.getResult().getPrices());
 		return result;
 	}
@@ -258,7 +258,7 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		for (String key: mapItem.keySet()) {
 			ItemDomain item = mapItem.get(key);
 			String code = item.getCode();
-			Date date = item.getIpoDate();
+			Date date = item.getIpoOpen();
 			if (code == null || date == null) {
 				continue;
 			}
@@ -305,7 +305,7 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		Map<String, ItemDomain> map = new HashMap<>();
 		for (ItemDomain item: items) {
 			String code = item.getCode();
-			Date date = item.getIpoDate();
+			Date date = item.getIpoOpen();
 			if (code == null || date == null) {
 				continue;
 			}

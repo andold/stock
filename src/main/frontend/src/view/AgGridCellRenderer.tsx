@@ -245,7 +245,7 @@ export function PriceEarningsRatioCellRenderer(param: any) {
 			<Col ref={ref} sm="8" md="9" xl="10" xxl="10">
 				<Row className="m-0 p-0">{
 					dividends.map((cx: number, index: number) => {
-						const ipoYear = param?.data?.ipoDate ? moment(param.data.ipoDate).year() : 2000;
+						const ipoYear = param?.data?.ipoOpen ? moment(param.data.ipoOpen).year() : 2000;
 						if (ipoYear > (thisYear - YEARS + index + 1)) {
 							return (
 								<Col key={index}

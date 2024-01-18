@@ -301,7 +301,7 @@ public class CrawlerService {
 			result.setStatus(itemResult.getStatus());
 		}
 	
-		Result<ParserResult> dividendResult = seibro.dividend(item.getCode(), item.getIpoDate());
+		Result<ParserResult> dividendResult = seibro.dividend(item.getCode(), item.getIpoOpen());
 		if (dividendResult.getStatus() == STATUS.SUCCESS) {
 			put(dividendResult.getResult());
 			container.addAll(dividendResult.getResult());
@@ -309,7 +309,7 @@ public class CrawlerService {
 			result.setStatus(dividendResult.getStatus());
 		}
 	
-		Result<ParserResult> priceResult = seibro.price(item.getCode(), item.getIpoDate());
+		Result<ParserResult> priceResult = seibro.price(item.getCode(), item.getIpoOpen());
 		if (priceResult.getStatus() == STATUS.SUCCESS) {
 			put(priceResult.getResult());
 			container.addAll(priceResult.getResult());
