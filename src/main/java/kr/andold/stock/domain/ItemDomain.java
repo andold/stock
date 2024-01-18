@@ -19,25 +19,19 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ItemDomain extends ItemEntity {
+public class ItemDomain extends ItemEntity implements CommonBlockDomain<ItemDomain, ItemEntity> {
 	private String reserved;
-	
+
 	public void setIpoDate(Date ipoDate) {
 		setIpoOpen(ipoDate);
 	}
+
 	public Date getIpoDate() {
 		return getIpoOpen();
 	}
 
 	public ItemDomain(String symbol, String code, String dividendCycle, String volumeOfListedShares, Boolean etf, String type, String category, String ipoDate) {
-		super.builder()
-			.symbol(symbol)
-			.code(code)
-			.volumeOfListedShares(Utility.parseInteger(volumeOfListedShares, null))
-			.type(type)
-			.category(category)
-			.ipoOpen(Utility.parseDateTime(ipoDate, null))
-			.build();
+		super.builder().symbol(symbol).code(code).volumeOfListedShares(Utility.parseInteger(volumeOfListedShares, null)).type(type).category(category).ipoOpen(Utility.parseDateTime(ipoDate, null)).build();
 	}
 
 	public void setSymbol(String string, String... args) {
@@ -123,7 +117,8 @@ public class ItemDomain extends ItemEntity {
 		return getSymbol();
 	}
 
-	public int compare(Object domain) {
+	@Override
+	public int compare(ItemDomain domain) {
 		ItemDomain you = (ItemDomain) domain;
 		int compared = Utility.compare(getCode(), you.getCode());
 		if (compared != 0) {
@@ -155,9 +150,73 @@ public class ItemDomain extends ItemEntity {
 			return compared;
 		}
 
-		compared = Utility.compare(getIpoDate(), you.getIpoDate());
+		compared = Utility.compare(getIpoOpen(), you.getIpoOpen());
 		if (compared != 0) {
 			return compared;
+		}
+
+		compared = Utility.compare(getIpoClose(), you.getIpoClose());
+		if (compared != 0) {
+			return compared;
+		}
+
+		return 0;
+	}
+
+	@Override
+	public int compareIfNotNull(ItemDomain before) {
+		int compared = Utility.compare(getCode(), before.getCode());
+		if (compared != 0) {
+			return compared;
+		}
+
+		if (getSymbol() != null) {
+			compared = Utility.compare(getSymbol(), before.getSymbol());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
+		if (getPriority() != null) {
+			compared = Utility.compare(getPriority(), before.getPriority());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
+		if (getVolumeOfListedShares() != null) {
+			compared = Utility.compare(getVolumeOfListedShares(), before.getVolumeOfListedShares());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
+		if (getType() != null) {
+			compared = Utility.compare(getType(), before.getType());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
+		if (getCategory() != null) {
+			compared = Utility.compare(getCategory(), before.getCategory());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
+		if (getIpoOpen() != null) {
+			compared = Utility.compare(getIpoOpen(), before.getIpoOpen());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
+		if (getIpoClose() != null) {
+			compared = Utility.compare(getIpoClose(), before.getIpoClose());
+			if (compared != 0) {
+				return compared;
+			}
 		}
 
 		return 0;

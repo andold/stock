@@ -72,6 +72,65 @@ public class PriceDomain extends PriceEntity implements CommonBlockDomain<PriceD
 	}
 
 	@Override
+	public int compareIfNotNull(PriceDomain before) {
+		int compared = Utility.compare(getCode(), before.getCode());
+		if (compared != 0) {
+			return compared;
+		}
+
+		if (getBase() != null) {
+			compared = Utility.compare(getBase(), before.getBase());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
+		if (getClosing() != null) {
+			compared = Utility.compare(getClosing(), before.getClosing());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
+		if (getMarket() != null) {
+			compared = Utility.compare(getMarket(), before.getMarket());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
+		if (getHigh() != null) {
+			compared = Utility.compare(getHigh(), before.getHigh());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
+		if (getLow() != null) {
+			compared = Utility.compare(getLow(), before.getLow());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
+		if (getVolume() != null) {
+			compared = Utility.compare(getVolume(), before.getVolume());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
+		if (getFlag() != null) {
+			compared = Utility.compare(getFlag(), before.getFlag());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
+		return 0;
+	}
+
+	@Override
 	public String key() {
 		return String.format("%s.%tF", getCode(), getBase());
 	}
@@ -83,12 +142,9 @@ public class PriceDomain extends PriceEntity implements CommonBlockDomain<PriceD
 	}
 
 	/*
- 	bit 0 ~ 3: reserved
-	bit 5: 32, week 주대표
-	bit 6: 64, month 월대표
-	bit 7: 128, year 연대표
-	bit 8: 256, 특정일, 배당일 등
- */
+	 * bit 0 ~ 3: reserved bit 5: 32, week 주대표 bit 6: 64, month 월대표 bit 7: 128, year
+	 * 연대표 bit 8: 256, 특정일, 배당일 등
+	 */
 	public void setFlagWeek(boolean b) {
 		int mask = 32;
 		Integer flag = getFlag() == null ? 0 : getFlag();

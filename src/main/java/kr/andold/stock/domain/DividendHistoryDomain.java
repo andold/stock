@@ -60,6 +60,50 @@ public class DividendHistoryDomain extends DividendHistoryEntity implements Comm
 	}
 
 	@Override
+	public int compareIfNotNull(DividendHistoryDomain before) {
+		int compared = Utility.compare(getCode(), before.getCode());
+		if (compared != 0) {
+			return compared;
+		}
+
+		if (getBase() != null) {
+			compared = Utility.compare(getBase(), before.getBase());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
+		if (getPay() != null) {
+			compared = Utility.compare(getPay(), before.getPay());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
+		if (getDividend() != null) {
+			compared = Utility.compare(getDividend(), before.getDividend());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
+		if (getPriceBase() != null) {
+			compared = Utility.compare(getPriceBase(), before.getPriceBase());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
+		if (getPriceClosing() != null) {
+			compared = Utility.compare(getPriceClosing(), before.getPriceClosing());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+		return 0;
+	}
+
+	@Override
 	public String key() {
 		return String.format("%s.%tF", getCode(), getBase());
 	}

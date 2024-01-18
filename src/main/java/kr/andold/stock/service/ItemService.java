@@ -19,7 +19,9 @@ import kr.andold.stock.entity.ItemEntity;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.repository.ItemRepository;
 import kr.andold.stock.service.ParserService.ParserResult;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class ItemService implements CommonBlockService<ItemParam, ItemDomain, ItemEntity> {
 	@Autowired private ItemRepository repository;
@@ -81,7 +83,7 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 
 	@Override
 	public int compare(ItemDomain after, ItemDomain before) {
-		return after.compare(before);
+		return after.compareIfNotNull(before);
 	}
 
 	@Override
@@ -98,9 +100,18 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 	@CacheEvict(value = "items")
 	@Override
 	public List<ItemDomain> create(List<ItemDomain> domains) {
+		log.info("{} create(#{})", Utility.indentStart(), Utility.size(domains));
+		long started = System.currentTimeMillis();
+
 		List<ItemEntity> entities = toEntities(domains);
-		List<ItemEntity> result = repository.saveAllAndFlush(entities);
-		return toDomains(result);
+		List<ItemEntity> created = repository.saveAllAndFlush(entities);
+		List<ItemDomain> result = toDomains(created);
+
+		for (ItemDomain item : result) {
+			log.info("{} 『{}』 create(...)", Utility.indentMiddle(), Utility.toStringJson(item));
+		}
+		log.info("{} 『#{}』 create(#{}) - {}", Utility.indentEnd(), Utility.size(result), Utility.size(domains), Utility.toStringPastTimeReadable(started));
+		return result;
 	}
 
 	@Override
