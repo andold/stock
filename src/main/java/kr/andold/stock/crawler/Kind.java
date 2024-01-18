@@ -40,55 +40,62 @@ public class Kind implements Crawler {
 			driver.waitUntilTextNotInclude(BY_COUNT, TIMEOUT, "0");
 			By BY_CURRENT_PAGE = By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='paging type-00']/a[@class='active']");
 
-			long pause = 4000;
 			String previousCode = "-";
+			long pause = 4000;
 			ParserResult result = ParserResult.builder().build().clear();
 			List<ItemDomain> items = new ArrayList<>();
 			result.setItems(items);
 			for(String cx = "0";;) {
-				long forStarted = System.currentTimeMillis();
-
+				// //*[@id="main-contents"]/section[1]/table
+				driver.switchTo().window(parent);
 				List<WebElement> trs = driver.findElements(By.xpath("//*[@id='main-contents']/section[1]/table/tbody/tr"), TIMEOUT);
 				for (WebElement tr : trs) {
+					long forStarted = System.currentTimeMillis();
+					driver.switchTo().window(parent);
 					WebElement link = tr.findElement(By.xpath("td[2]/a"));
-					String date = tr.findElement(By.xpath("td[3]")).getText();
+					WebElement dateElement = driver.findElement(tr, By.xpath("td[3]"), TIMEOUT);
+					if (dateElement == null) {
+						break;
+					}
+
+					String date = dateElement.getText();
 					link.click();
 					Set<String> handles = driver.getWindowHandles();
 					for (String child : handles) {
+
 						if (parent.equals(child)) {
 							continue;
 						}
 
 						driver.switchTo().window(child);
-						String content = driver.getText(By.xpath("/html/body/form/section/div/table[1]/tbody/tr[3]/td[2]/strong"), TIMEOUT, previousCode);
+						String content = driver.getText(By.xpath("/html/body/form/section/div/table[1]/tbody/tr[3]/td[2]/strong"), TIMEOUT * 4, previousCode);
 						if (content.strip().endsWith("상장폐지")) {
 							String code = driver.getText(By.xpath("/html/body/form/section/div/table[1]/tbody/tr[2]/td[2]"), TIMEOUT, null);
 							items.add(ItemDomain.builder().code(code).ipoClose(Utility.parseDateTime(date, null)).build());
 							previousCode = code;
 						}
-						driver.close();
-
 						if (System.currentTimeMillis() - forStarted > 1024 * 8) {
 							pause = Math.max(32, pause / 2);
 						} else {
 							pause = Math.min(1024 * 8, pause * 2);
 						}
 						Utility.sleep(Math.round(pause * Math.random()));
+
+						driver.close();
 					}
-					driver.switchTo().window(parent);
+					log.debug("{} 『{}』 basicInfoAll() - {}", Utility.indentMiddle(), cx, Utility.toStringPastTimeReadable(forStarted));
 				}
 				
 				// next
 				driver.findElement(By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='paging type-00']/a[@class='next']"), TIMEOUT).click();
 				driver.waitUntilTextNotInclude(BY_CURRENT_PAGE, TIMEOUT, cx);
 
-				String currentPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, "-1");
+				String currentPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, cx);
 				if (currentPage.equalsIgnoreCase(cx)) {
 					break;
 				}
 				cx = currentPage;
 
-				log.debug("{} 『{}』 basicInfoAll() - {}", Utility.indentMiddle(), cx, Utility.toStringPastTimeReadable(forStarted));
 			}
 			driver.quit();
 
