@@ -76,7 +76,7 @@ public class StockService {
 		return new StockParam(items, histories, prices);
 	}
 
-	public CrudList<ItemDomain> compile() {
+	public List<ItemDomain> compile() {
 		log.info("{} compile()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
@@ -92,10 +92,11 @@ public class StockService {
 
 		// 최근 배당수익률 적용
 		List<ItemDomain> perItems = compilePriceEarningsRatioByHistoriesAndPrices(histories, prices);
-		CrudList<ItemDomain> itemResult = itemService.put(perItems);
+		CrudList<ItemDomain> crudItems = itemService.differ(items, perItems);
+		List<ItemDomain> updated = itemService.update(crudItems.getUpdates());
 		
-		log.info("{} 『{}』『{}』『{}』 compile() - {}", Utility.indentEnd(), priceResult, priceResult1, itemResult, Utility.toStringPastTimeReadable(started));
-		return itemResult;
+		log.info("{} 『{}』『{}』『#{}』 compile() - {}", Utility.indentEnd(), priceResult, priceResult1, Utility.size(updated), Utility.toStringPastTimeReadable(started));
+		return updated;
 	}
 
 	private List<ItemDomain> compilePriceEarningsRatioByHistoriesAndPrices(List<DividendHistoryDomain> histories, List<PriceDomain> prices) {

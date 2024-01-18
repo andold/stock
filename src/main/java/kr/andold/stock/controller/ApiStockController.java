@@ -4,6 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,12 +64,12 @@ public class ApiStockController {
 
 	@ResponseBody
 	@GetMapping(value = "compile")
-	public CrudList<ItemDomain> compile() {
+	public List<ItemDomain> compile() {
 		log.info("{} compile()", Utility.indentStart());
 
-		CrudList<ItemDomain> result = service.compile();
+		List<ItemDomain> result = service.compile();
 
-		log.info("{} 『{}』 - compile()", Utility.indentEnd(), result);
+		log.info("{} 『#{}』 - compile()", Utility.indentEnd(), Utility.size(result));
 		return result;
 	}
 
