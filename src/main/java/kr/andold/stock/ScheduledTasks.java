@@ -2,6 +2,8 @@ package kr.andold.stock;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +14,6 @@ import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.crawler.IdempotentService;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.Result;
-import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.stock.service.PriceService;
 import kr.andold.stock.service.StockService;
@@ -56,10 +57,10 @@ public class ScheduledTasks {
 		log.info("{} scheduleTaskHourly()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		CrudList<ItemDomain> compileResult = stockService.compile();
+		List<ItemDomain> compileResult = stockService.compile();
 		int purged = priceService.purge();
 
-		log.info("{} 『{} #{}』 scheduleTaskHourly() - {}", Utility.indentEnd(), compileResult, purged, Utility.toStringPastTimeReadable(started));
+		log.info("{} 『#{} #{}』 scheduleTaskHourly() - {}", Utility.indentEnd(), Utility.size(compileResult), purged, Utility.toStringPastTimeReadable(started));
 	}
 
 	// 평일
@@ -69,9 +70,9 @@ public class ScheduledTasks {
 		long started = System.currentTimeMillis();
 
 		Result<ParserResult> crawlPriceResult = crawlerService.crawlPrice(Date.from(LocalDate.now().atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)));
-		CrudList<ItemDomain> compileResult = stockService.compile();
+		List<ItemDomain> compileResult = stockService.compile();
 
-		log.info("{} 『{}』『{}』 scheduleTaskDaily() - {}", Utility.indentEnd(), crawlPriceResult, compileResult, Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』『#{}』 scheduleTaskDaily() - {}", Utility.indentEnd(), crawlPriceResult, Utility.size(compileResult), Utility.toStringPastTimeReadable(started));
 	}
 
 	// 매주 일요일
