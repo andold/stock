@@ -23,6 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class Seibro implements Crawler {
+	private static final Date START_DATE = Date.from(LocalDate.of(2008, 1, 3).atStartOfDay(Utility.ZONE_ID_KST).toInstant());	// 2008-01-03
+
 	private static final String URL_COMPANY = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285";
 	private static final String URL_ETF = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179";
 	private static final String MARK_START_END_POINT_COMPANY = String.format("KEYWORD\t%s\t%s\tURL\t%s\n", "CrawlDividendHistoryCompanyThread", "주식(기업) 배당금 내역", URL_COMPANY);
@@ -60,6 +62,10 @@ public class Seibro implements Crawler {
 	public Result<ParserResult> dividend(ItemDomain item, Date start) {
 		log.info("{} dividend({}, {})", Utility.indentStart(), item, start);
 		long started = System.currentTimeMillis();
+
+		if (start.before(START_DATE)) {
+			start = START_DATE;
+		}
 
 		Result<ParserResult> resultCompany = dividendAsCompany(item, start);
 		if (resultCompany.getStatus().equals(STATUS.SUCCESS)) {
@@ -387,6 +393,10 @@ public class Seibro implements Crawler {
 		log.info("{} price({})", Utility.indentStart(), date);
 		long started = System.currentTimeMillis();
 
+		if (date.before(START_DATE)) {
+			date = START_DATE;
+		}
+
 		ParserResult resultContainer = new ParserResult().clear();
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(resultContainer).build();
 
@@ -607,6 +617,10 @@ public class Seibro implements Crawler {
 		log.info("{} dividend({})", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();
 
+		if (start.before(START_DATE)) {
+			start = START_DATE;
+		}
+
 		ParserResult container = new ParserResult().clear();
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(container).build();
 		Result<ParserResult> resultCompany = dividendCompany(start);
@@ -637,7 +651,7 @@ public class Seibro implements Crawler {
 			driver.navigate().to(URL_COMPANY);
 
 			// 넓게 보기 아이콘 크릭
-			driver.findElement(By.xpath("//*[@id=\"btn_wide\"]"), TIMEOUT * 4).click();
+			driver.findElement(By.xpath("//*[@id='btn_wide']"), TIMEOUT * 4).click();
 
 			// 시작일 입력
 			WebElement startElement = driver.findElement(By.id("inputCalendar1_input"), TIMEOUT);
@@ -1069,6 +1083,10 @@ public class Seibro implements Crawler {
 		if (code == null || start == null) {
 			log.warn("{} 『{}』 price({}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, code, start, Utility.toStringPastTimeReadable(started));
 			return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+		}
+
+		if (start.before(START_DATE)) {
+			start = START_DATE;
 		}
 
 		Result<ParserResult> resultCompany = priceCompany(code, start);
