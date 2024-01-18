@@ -79,7 +79,7 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 
 	@Override
 	public int compare(DividendHistoryDomain after, DividendHistoryDomain before) {
-		return after.compare(before);
+		return after.compareIfNotNull(before);
 	}
 
 	@Override

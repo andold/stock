@@ -55,7 +55,7 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 
 	@Override
 	public int compare(PriceDomain after, PriceDomain before) {
-		return after.compare(before);
+		return after.compareIfNotNull(before);
 	}
 
 	@Override
