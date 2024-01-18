@@ -1,3 +1,7 @@
 -- SEIBro 2008-01-03 주가 정보 제공 시작일
 DELETE FROM STOCK_DIVIDEND_HISTORY WHERE BASE < '2008-01-03'
 ;
+
+-- code가 어디선가 수집되었는데, 다른 정보를 가져오지 못하는 자료 삭제
+DELETE FROM STOCK_ITEM WHERE SYMBOL IS NULL AND IPO_OPEN IS NULL
+;
