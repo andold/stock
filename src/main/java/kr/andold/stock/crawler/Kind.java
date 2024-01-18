@@ -39,7 +39,9 @@ public class Kind implements Crawler {
 			By BY_COUNT = By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='info type-00']/em");
 			driver.waitUntilTextNotInclude(BY_COUNT, TIMEOUT, "0");
 			By BY_CURRENT_PAGE = By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='paging type-00']/a[@class='active']");
-			long pause = 1000;
+
+			long pause = 4000;
+			String previousCode = "-";
 			ParserResult result = ParserResult.builder().build().clear();
 			List<ItemDomain> items = new ArrayList<>();
 			result.setItems(items);
@@ -58,12 +60,20 @@ public class Kind implements Crawler {
 						}
 
 						driver.switchTo().window(child);
-						String content = driver.getText(By.xpath("/html/body/form/section/div/table[1]/tbody/tr[3]/td[2]/strong"), TIMEOUT, "-");
+						String content = driver.getText(By.xpath("/html/body/form/section/div/table[1]/tbody/tr[3]/td[2]/strong"), TIMEOUT, previousCode);
 						if (content.strip().endsWith("상장폐지")) {
 							String code = driver.getText(By.xpath("/html/body/form/section/div/table[1]/tbody/tr[2]/td[2]"), TIMEOUT, null);
 							items.add(ItemDomain.builder().code(code).ipoClose(Utility.parseDateTime(date, null)).build());
+							previousCode = code;
 						}
 						driver.close();
+
+						if (System.currentTimeMillis() - forStarted > 1024 * 8) {
+							pause = Math.max(32, pause / 2);
+						} else {
+							pause = Math.min(1024 * 8, pause * 2);
+						}
+						Utility.sleep(Math.round(pause * Math.random()));
 					}
 					driver.switchTo().window(parent);
 				}
@@ -78,13 +88,6 @@ public class Kind implements Crawler {
 				}
 				cx = currentPage;
 
-				if (System.currentTimeMillis() - forStarted > 1024 * 4) {
-					pause = Math.max(32, pause / 2);
-				} else {
-					pause = Math.min(1024 * 4, pause * 2);
-				}
-
-				Utility.sleep(Math.round(pause * Math.random()));
 				log.debug("{} 『{}』 basicInfoAll() - {}", Utility.indentMiddle(), cx, Utility.toStringPastTimeReadable(forStarted));
 			}
 			driver.quit();
