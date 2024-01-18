@@ -63,8 +63,8 @@ public class Krx implements Crawler {
 	private static final int TIMEOUT = 4000;
 
 	@Override
-	public Result<ParserResult> dividend(ItemDomain item, Date start) {
-		log.error("{} {} dividend({}, {})", Utility.indentMiddle(), STATUS.NOT_SUPPORT, item, start);
+	public Result<ParserResult> dividend(String code, Date start) {
+		log.error("{} {} dividend({}, {})", Utility.indentMiddle(), STATUS.NOT_SUPPORT, code, start);
 		return  Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
 	}
 

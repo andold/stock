@@ -147,24 +147,21 @@ public class ParserService {
 				.build());
 	}
 
-	public static void crawlDividendHistoryEtfThread(Integer date, String code, String symbol, String symbol1, String symbol2, String symbol3, String symbol4, String symbol5, String symbol6, String symbol7, String base, String pay, String dividend,
-			String price, String ratio) {
-		if (code.startsWith("KR")) {
-			code = code.substring(3, 9);
-		}
+	public static void dividend(Integer mark, String code, String base, String pay, String dividend, String priceBase, String priceClosing) {
+		log.debug("{} dividend(『{}』『{}』『{} {} {}』『{} {}』)", Utility.indentMiddle(), mark
+				, code
+				, base, pay, dividend
+				, priceBase, priceClosing
+		);
 		LIST_STOCK_DIVIDEND_HOSTORY.add(DividendHistoryDomain.builder()
 				.code(code)
 				.base(Utility.parseDateTime(base))
 				.pay(Utility.parseDateTime(pay))
 				.dividend(Utility.parseInteger(dividend, null))
+				.priceBase(Utility.parseDateTime(priceBase))
+				.priceClosing(Utility.parseInteger(priceClosing, null))
 				.build());
-	}
-
-	public static void crawlDividendHistoryCompanyThread(Integer date, String base, String pay, String code, String symbol, String dividend) {
-		DividendHistoryDomain history = new DividendHistoryDomain(code, base, pay, dividend);
-		LIST_STOCK_DIVIDEND_HOSTORY.add(history);
-		log.trace("{} crawlDividendHistoryCompanyThread(...) - {}", Utility.indentMiddle(), history);
-	}
+		}
 
 	private static void infoPrintTokens(String text) {
 		StockLexer lexer = new StockLexer(CharStreams.fromString(text));

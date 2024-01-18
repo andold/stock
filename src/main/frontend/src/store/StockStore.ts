@@ -52,9 +52,6 @@ class StockStore {
 			repository.compileGet(request, onSuccess, onError, element);
 		}
 	}
-	crawlDividendHistoryEtfMonthly(request?: any, onSuccess?: any, onError?: any, element?: any) {
-		repository.crawlDividendHistoryEtfMonthly(request, onSuccess, onError, element);
-	}
 	crawlItemEtf(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawlItemEtf(request, onSuccess, onError, element);
 	}

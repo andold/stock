@@ -246,7 +246,7 @@ public class IdempotentService {
 			return STATUS.ALEADY_DONE;
 		}
 
-		Result<ParserResult> result = seibro.dividend(item, Date.from(ipoZonedDate.toInstant()));
+		Result<ParserResult> result = seibro.dividend(item.getCode(), Date.from(ipoZonedDate.toInstant()));
 		switch (result.getStatus()) {
 		case SUCCESS:
 			ParserResult parserResult = result.getResult();

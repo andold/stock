@@ -92,7 +92,7 @@ public class Kind implements Crawler {
 
 						driver.close();
 					}
-					log.debug("{} 『{}/{}/{}』 basicInfoAll() - {}", Utility.indentMiddle(), cx, cy, symbol, Utility.toStringPastTimeReadable(forStarted));
+					log.debug("{} 『{}/{}/{} {}』 basicInfoAll() - {}", Utility.indentMiddle(), cx, cy, date, symbol, Utility.toStringPastTimeReadable(forStarted));
 				}
 				
 				// next
@@ -117,8 +117,8 @@ public class Kind implements Crawler {
 	}
 
 	@Override
-	public Result<ParserResult> dividend(ItemDomain item, Date start) {
-		log.error("{} 『{}』 dividend({}, {})", Utility.indentMiddle(), STATUS.NOT_SUPPORT, item, start);
+	public Result<ParserResult> dividend(String code, Date start) {
+		log.error("{} 『{}』 dividend({}, {})", Utility.indentMiddle(), STATUS.NOT_SUPPORT, code, start);
 		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
 	}
 

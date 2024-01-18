@@ -994,13 +994,10 @@ crawlDividendHistoryEtfThread:
 				code=WORD TAB WORD TAB word* TAB base=DATE? TAB pay=DATE TAB WORD? TAB dividend=NUMBER TAB price=NUMBER? TAB ratio=NUMBER? TAB		NEWLINE
 						//	TIGER 200커버드콜5%OTM 	 	 미래에셋자산운용 	 파생상품/구조화 	 2023/11/30 	 2023/12/04 	 이익분배 	 54 	 11,308.35 	 0.45 	 
 				{
-					ParserService.crawlDividendHistoryEtfThread(20231127
+					ParserService.dividend(20231127
 						, $code.text
-						, $symbol.text, $symbol1.text, $symbol2.text, $symbol3.text, $symbol4.text, $symbol5.text, $symbol6.text, $symbol7.text
-						, $base.text, $pay.text
-						, $dividend.text
-						, $price.text
-						, $ratio.text
+						, $base.text, $pay.text, $dividend.text
+						, null, null
 					);
 				}
 			)
@@ -1027,10 +1024,10 @@ crawlDividendHistoryCompanyThread:
 					base=DATE TAB pay=DATE? TAB DATE? TAB code=NUMBER TAB symbol=word+ TAB WORD TAB WORD TAB WORD TAB WORD TAB dividend=NUMBER TAB NUMBER? TAB NUMBER TAB NUMBER TAB NUMBER? TAB TAB NUMBER TAB NUMBER TAB		NEWLINE
 							//	2022/12/31 	 2023/04/21 	 	 000850 	 화천기공 	 유가증권시장 	 현금배당 	 국민은행 	 보통주 	 2,500 	 	 50.00 	 0.00 	 	 	 5,000 	 12 	 
 					{
-						ParserService.crawlDividendHistoryCompanyThread(20231127
-							, $base.text , $pay.text
-							, $code.text , $symbol.text
-							, $dividend.text
+						ParserService.dividend(20231127
+							, $code.text
+							, $base.text, $pay.text, $dividend.text
+							, null, null
 						);
 					}
 				)

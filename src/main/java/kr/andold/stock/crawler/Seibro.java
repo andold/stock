@@ -59,36 +59,33 @@ public class Seibro implements Crawler {
 	private Integer count = 0;
 
 	@Override
-	public Result<ParserResult> dividend(ItemDomain item, Date start) {
-		log.info("{} dividend({}, {})", Utility.indentStart(), item, start);
+	public Result<ParserResult> dividend(String code, Date start) {
+		log.info("{} dividend({}, {})", Utility.indentStart(), code, start);
 		long started = System.currentTimeMillis();
 
 		if (start.before(START_DATE)) {
 			start = START_DATE;
 		}
 
-		Result<ParserResult> resultCompany = dividendAsCompany(item, start);
+		Result<ParserResult> resultCompany = dividendAsCompany(code, start);
 		if (resultCompany.getStatus().equals(STATUS.SUCCESS)) {
-			log.info("{} 『{}』 dividend({}, {}) - {}", Utility.indentEnd(), resultCompany, item, start, Utility.toStringPastTimeReadable(started));
+			log.info("{} 『{}』 dividend({}, {}) - {}", Utility.indentEnd(), resultCompany, code, start, Utility.toStringPastTimeReadable(started));
 			return resultCompany;
 		}
 
-		Result<ParserResult> resultEtf = dividendAsEtf(item, start);
+		Result<ParserResult> resultEtf = dividendAsEtf(code, start);
 
-		log.info("{} 『{}』 dividend({}, {}) - {}", Utility.indentEnd(), resultEtf, item, start, Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』 dividend({}, {}) - {}", Utility.indentEnd(), resultEtf, code, start, Utility.toStringPastTimeReadable(started));
 		return resultEtf;
 	}
 
-	private Result<ParserResult> dividendAsEtf(ItemDomain item, Date start) {
-		log.debug("{} extractAsEtf({}, {})", Utility.indentStart(), item, start);
+	private Result<ParserResult> dividendAsEtf(String code, Date start) {
+		log.debug("{} extractAsEtf({}, {})", Utility.indentStart(), code, start);
 		long started = System.currentTimeMillis();
 
 		ChromeDriverWrapper driver = null;
 		try {
 			driver = openAsEtf(start);
-
-			String code = item.getCode();
-
 			driver.switchTo().defaultContent();
 
 			Result<ParserResult> searchItemResult = searchItemByCodeInEtf(driver, code);
@@ -97,7 +94,7 @@ public class Seibro implements Crawler {
 				break;
 			default:
 				close(driver);
-				log.debug("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), searchItemResult, item, start, Utility.toStringPastTimeReadable(started));
+				log.debug("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), searchItemResult, code, start, Utility.toStringPastTimeReadable(started));
 				return searchItemResult;
 			
 			}
@@ -124,14 +121,14 @@ public class Seibro implements Crawler {
 			ParserResult parserResult = ParserService.parse(new String(sb), false);
 			Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(parserResult).build();
 
-			log.debug("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), result, item, start, Utility.toStringPastTimeReadable(started));
+			log.debug("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), result, code, start, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 			close(driver);
 		}
 
-		log.debug("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), "EXCEPTION", item, start, Utility.toStringPastTimeReadable(started));
+		log.debug("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), "EXCEPTION", code, start, Utility.toStringPastTimeReadable(started));
 		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 	}
 
@@ -210,8 +207,8 @@ public class Seibro implements Crawler {
 		return null;
 	}
 
-	private Result<ParserResult> dividendAsCompany(ItemDomain item, Date start) {
-		log.debug("{} dividendAsCompany({}, {})", Utility.indentStart(), item, start);
+	private Result<ParserResult> dividendAsCompany(String code, Date start) {
+		log.debug("{} dividendAsCompany({}, {})", Utility.indentStart(), code, start);
 		long started = System.currentTimeMillis();
 
 		ChromeDriverWrapper driver = null;
@@ -219,12 +216,12 @@ public class Seibro implements Crawler {
 			driver = openAsCompany(start);
 			driver.switchTo().defaultContent();
 
-			Result<String> searched = searchItem(driver, item);
+			Result<String> searched = searchItem(driver, code);
 			switch (searched.getStatus()) {
 			case SUCCESS:
 				break;
 			default:
-				log.debug("{} 『{}』 dividendAsCompany({}, {}) - {}", Utility.indentEnd(), searched, item, start, Utility.toStringPastTimeReadable(started));
+				log.debug("{} 『{}』 dividendAsCompany({}, {}) - {}", Utility.indentEnd(), searched, code, start, Utility.toStringPastTimeReadable(started));
 				searched.setResult("");
 
 				close(driver);
@@ -243,7 +240,7 @@ public class Seibro implements Crawler {
 
 			// 조회 클릭
 			if (!clickSearchIconInCompany(driver)) {
-				log.debug("{} {} dividendAsCompany({}, {}) - {}", Utility.indentEnd(), "FAILURE SEARH", item, start, Utility.toStringPastTimeReadable(started));
+				log.debug("{} {} dividendAsCompany({}, {}) - {}", Utility.indentEnd(), "FAILURE SEARH", code, start, Utility.toStringPastTimeReadable(started));
 				close(driver);
 				return Result.<ParserResult>builder().status(STATUS.FAILURE).build();
 			}
@@ -280,7 +277,7 @@ public class Seibro implements Crawler {
 			sb.append(MARK_START_END_POINT_COMPANY);
 			ParserResult result = ParserService.parse(new String(sb), false);
 
-			log.debug("{} {} dividendAsCompany({}, {}) - {}", Utility.indentEnd(), result, item, start, Utility.toStringPastTimeReadable(started));
+			log.debug("{} {} dividendAsCompany({}, {}) - {}", Utility.indentEnd(), result, code, start, Utility.toStringPastTimeReadable(started));
 			close(driver);
 			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
 		} catch (Exception e) {
@@ -288,7 +285,7 @@ public class Seibro implements Crawler {
 			close(driver);
 		}
 
-		log.debug("{} {} dividendAsCompany({}, {}) - {}", Utility.indentEnd(), "EXCEPTION", item, start, Utility.toStringPastTimeReadable(started));
+		log.debug("{} {} dividendAsCompany({}, {}) - {}", Utility.indentEnd(), "EXCEPTION", code, start, Utility.toStringPastTimeReadable(started));
 		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 	}
 
@@ -336,10 +333,8 @@ public class Seibro implements Crawler {
 		}
 	}
 
-	private Result<String> searchItem(ChromeDriverWrapper driver, ItemDomain item) {
+	private Result<String> searchItem(ChromeDriverWrapper driver, String code) {
 		try {
-			String code = item.getCode();
-
 			// 종목 검색 아이콘 클릭
 			driver.waitUntilIsDisplayed(By.xpath("//div[@id='group83']"), false, TIMEOUT);
 			driver.findElement(By.id("cc_group4")).click();
@@ -358,7 +353,7 @@ public class Seibro implements Crawler {
 			driver.waitUntilTextNotInclude(By.xpath("//*[@id='P_ListCnt']"), TIMEOUT, MARK_COUNT);
 
 			// 조회결과 갯수 확인
-			By BY_PROPER_RESULT = By.xpath("//ul[@id='P_isinList']/li/a/span[contains(text(),'" + item.getCode() + "')]");
+			By BY_PROPER_RESULT = By.xpath("//ul[@id='P_isinList']/li/a/span[contains(text(),'" + code + "')]");
 			List<WebElement> result = driver.findElements(BY_PROPER_RESULT, TIMEOUT);
 			switch (result.size()) {
 			case 0:
@@ -376,7 +371,7 @@ public class Seibro implements Crawler {
 			close(driver);
 			return Result.<String>builder().status(STATUS.FAIL_MANY_DATA).build();
 		} catch (Exception e) {
-			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), item, e.getLocalizedMessage(), e);
+			log.error("{} Exception:: {} - {}", Utility.indentMiddle(), code, e.getLocalizedMessage(), e);
 		}
 		
 		return Result.<String>builder().status(STATUS.EXCEPTION).build();
