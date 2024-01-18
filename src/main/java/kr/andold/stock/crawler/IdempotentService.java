@@ -90,11 +90,14 @@ public class IdempotentService {
 				case SUCCESS:
 					precessed++;
 					Utility.sleep(PAUSE_MIN);
+					log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item0, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+					break;
+				case ALEADY_DONE:
 					break;
 				default:
+					log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item0, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 					break;
 				}
-				log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item0, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 				continue;
 			}
 			
