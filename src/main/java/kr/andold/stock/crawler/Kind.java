@@ -87,6 +87,7 @@ public class Kind implements Crawler {
 				}
 				
 				// next
+				driver.switchTo().window(parent);
 				driver.findElement(By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='paging type-00']/a[@class='next']"), TIMEOUT).click();
 				driver.waitUntilTextNotInclude(BY_CURRENT_PAGE, TIMEOUT, cx);
 
