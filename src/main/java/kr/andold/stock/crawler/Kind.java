@@ -46,12 +46,20 @@ public class Kind implements Crawler {
 			List<ItemDomain> items = new ArrayList<>();
 			result.setItems(items);
 			for(String cx = "0";;) {
-				// //*[@id="main-contents"]/section[1]/table
 				driver.switchTo().window(parent);
-				List<WebElement> trs = driver.findElements(By.xpath("//*[@id='main-contents']/section[1]/table/tbody/tr"), TIMEOUT);
-				for (WebElement tr : trs) {
+				String currentPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, cx);
+				if (currentPage.equalsIgnoreCase(cx)) {
+					break;
+				}
+				cx = currentPage;
+
+				List<WebElement> trs_ = driver.findElements(By.xpath("//*[@id='main-contents']/section[1]/table/tbody/tr"), TIMEOUT);
+				for (int cy = 0, sizey = trs_.size(); cy < sizey; cy++) {
 					long forStarted = System.currentTimeMillis();
+
 					driver.switchTo().window(parent);
+					List<WebElement> trs = driver.findElements(By.xpath("//*[@id='main-contents']/section[1]/table/tbody/tr"), TIMEOUT);
+					WebElement tr = trs.get(cy);			
 					WebElement link = tr.findElement(By.xpath("td[2]/a"));
 					WebElement dateElement = driver.findElement(tr, By.xpath("td[3]"), TIMEOUT);
 					if (dateElement == null) {
@@ -59,6 +67,7 @@ public class Kind implements Crawler {
 					}
 
 					String date = dateElement.getText();
+					String symbol = link.getText();
 					link.click();
 					Set<String> handles = driver.getWindowHandles();
 					for (String child : handles) {
@@ -83,7 +92,7 @@ public class Kind implements Crawler {
 
 						driver.close();
 					}
-					log.debug("{} 『{}』 basicInfoAll() - {}", Utility.indentMiddle(), cx, Utility.toStringPastTimeReadable(forStarted));
+					log.debug("{} 『{}/{}/{}』 basicInfoAll() - {}", Utility.indentMiddle(), cx, cy, symbol, Utility.toStringPastTimeReadable(forStarted));
 				}
 				
 				// next
@@ -91,12 +100,7 @@ public class Kind implements Crawler {
 				driver.findElement(By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='paging type-00']/a[@class='next']"), TIMEOUT).click();
 				driver.waitUntilTextNotInclude(BY_CURRENT_PAGE, TIMEOUT, cx);
 
-				String currentPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, cx);
-				if (currentPage.equalsIgnoreCase(cx)) {
-					break;
-				}
-				cx = currentPage;
-
+				log.debug("{} 『{}』 basicInfoAll() - {}", Utility.indentMiddle(), cx, Utility.toStringPastTimeReadable(started));
 			}
 			driver.quit();
 
