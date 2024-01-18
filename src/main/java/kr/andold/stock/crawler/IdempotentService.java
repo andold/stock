@@ -1,5 +1,6 @@
 package kr.andold.stock.crawler;
 
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
@@ -33,10 +34,12 @@ public class IdempotentService {
 	@Autowired private DividendHistoryService dividendHistoryService;
 	@Autowired private PriceService priceService;
 
-	private boolean isRequireCrawlPrice(List<DividendHistoryDomain> histories) {
+	private Date isRequireCrawlPrice(List<DividendHistoryDomain> histories) {
 		if (histories == null) {
-			return false;
+			return null;
 		}
+
+		Date date = null;
 		for (DividendHistoryDomain history : histories) {
 			if (history == null) {
 				continue;
@@ -49,10 +52,14 @@ public class IdempotentService {
 			}
 
 			if (history.getPriceBase() == null || history.getPriceClosing() == null) {
-				return true;
+				if (date == null) {
+					date = history.getBase();
+				} else if (date.after(history.getBase())) {
+					date = history.getBase();
+				}
 			}
 		}
-		return false;
+		return date;
 	}
 
 	private ParserResult put(ParserResult result) {
@@ -201,11 +208,13 @@ public class IdempotentService {
 
 	private STATUS processPrice(ItemDomain item) {
 		List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
-		if (!isRequireCrawlPrice(histories)) {
+		Date date = isRequireCrawlPrice(histories);
+		if (date == null) {
 			return STATUS.ALEADY_DONE;
 		}
 
-		Result<ParserResult> result = seibro.price(item.getCode(), item.getIpoOpen());
+		Date start = Date.from(LocalDate.from(date.toInstant()).minusMonths(1).atStartOfDay(Utility.ZONE_ID_KST).toInstant());
+		Result<ParserResult> result = seibro.price(item.getCode(), start);
 		switch (result.getStatus()) {
 		case SUCCESS:
 			ParserResult parserResult = result.getResult();
