@@ -1,6 +1,7 @@
 package kr.andold.stock.crawler;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
@@ -213,7 +214,7 @@ public class IdempotentService {
 			return STATUS.ALEADY_DONE;
 		}
 
-		Date start = Date.from(LocalDate.from(date.toInstant()).minusMonths(1).atStartOfDay(Utility.ZONE_ID_KST).toInstant());
+		Date start = Date.from(LocalDateTime.from(date.toInstant()).minusMonths(1).toInstant(Utility.ZONE_OFFSET_KST));
 		Result<ParserResult> result = seibro.price(item.getCode(), start);
 		switch (result.getStatus()) {
 		case SUCCESS:
