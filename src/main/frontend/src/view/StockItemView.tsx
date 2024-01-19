@@ -43,48 +43,71 @@ export default ((props: any) => {
 			const codes = items.map((x: any) => x.code);
 			priceStore.search({
 					codes: codes,
-					start: moment().subtract(14, "days").format("YYYY-MM-DD"),
-				}, (_: any, pricesAll: Price[]) => {
-				const map = priceStore.makeMap(pricesAll);
-				items.forEach((item: Item) => {
-					const prices = map.get(item.code)?.sort(priceStore.compare);
-					const currentPrice = (prices?.length > 0) ? prices[prices.length - 1].closing : 10000;
-					let max = Number.MIN_SAFE_INTEGER;
-					let min = Number.MAX_SAFE_INTEGER;
-					prices?.forEach((price: Price) => {
-						max = Math.max(max, price.closing);
-						min = Math.min(min, price.closing);
-					});
-					item.custom = {
-						...item.custom,
-						prices: prices,
-						currentPrice: currentPrice,
-						minPrice: min,
-						maxPrice: max,
-					};
-				});
+					start: moment().subtract(28, "days").format("YYYY-MM-DD"),
+				}, (_: any, prices: Price[]) => {
+				processItemPrice(items, prices);
 				dividendHistoryStore.search({
 						start: moment().subtract(10, "years").startOf("year").format("YYYY-MM-DDTHH:mm:ss.SSSZZ"),
 						codes: codes,
-					}, (_: any, historiesAll: DividendHistory[]) => {
-					const map = dividendHistoryStore.makeMap(historiesAll.filter((history: DividendHistory) => history.dividend > 0));
-	
-					items.forEach((item: Item) => {
-						const histories = map.get(item.code)?.sort(dividendHistoryStore.compare);
-						const mapHistory = dividendHistoryStore.makeMapByYearMonth(histories);
-						item.custom = {
-							...item.custom,
-							histories: histories,
-							mapHistory: mapHistory,
-						};
+					}, (_: any, histories: DividendHistory[]) => {
+					processItemDividendHistory(items, histories);
+					priceStore.search({
+							codes: codes,
+							flag: 1,
+						}, (_: any, flagedPrices: Price[]) => {
+						processItemPriceFlag(items, flagedPrices);
+						setRowData(items);
 					});
-					setRowData(items);
 				});
 			});
 		});
 		return function() { setRowData([]); };
 	}, [form]);
 
+	function processItemPrice(items: Item[], prices: Price[]) {
+		const map = priceStore.makeMap(prices);
+		items.forEach((item: Item) => {
+			const sorted = map.get(item.code)?.sort(priceStore.compare);
+			const currentPrice = (sorted?.length > 0) ? sorted[sorted.length - 1].closing : 10000;
+			let max = Number.MIN_SAFE_INTEGER;
+			let min = Number.MAX_SAFE_INTEGER;
+			sorted?.forEach((price: Price) => {
+				max = Math.max(max, price.closing);
+				min = Math.min(min, price.closing);
+			});
+			item.custom = {
+				...item.custom,
+				prices: sorted,
+				currentPrice: currentPrice,
+				minPrice: min,
+				maxPrice: max,
+			};
+		});
+	}
+	function processItemDividendHistory(items: Item[], histories: DividendHistory[]) {
+		const map = dividendHistoryStore.makeMap(histories.filter((history: DividendHistory) => history.dividend > 0));
+
+		items.forEach((item: Item) => {
+			const sorted = map.get(item.code)?.sort(dividendHistoryStore.compare);
+			const mapHistory = dividendHistoryStore.makeMapByYearMonth(sorted);
+			item.custom = {
+				...item.custom,
+				histories: sorted,
+				mapHistory: mapHistory,
+			};
+		});
+	}
+	function processItemPriceFlag(items: Item[], prices: Price[]) {
+		const map = priceStore.makeMapByFlag(prices);
+		items.forEach((item: Item) => {
+			item.custom = {
+				...item.custom,
+				weekPrices: map.get(`${item.code}.32`),
+				monthPrices: map.get(`${item.code}.64`),
+				yearPrices: map.get(`${item.code}.128`),
+			};
+		});
+	}
 	function handleOnGridReady(_: any) {
 		gridRef?.current?.columnApi?.applyColumnState({
 			state: [{ colId: 'priceEarningsRatio', sort: 'desc' }],

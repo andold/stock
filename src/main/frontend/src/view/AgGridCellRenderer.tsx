@@ -58,51 +58,77 @@ const FILL_COLOR_MONTH = [
 
 // 주가
 export function PriceRecentCellRenderer(param: any) {
+	const COUNT = 14;
 	const prices: Price[] = param.data?.custom?.prices;
 	const info = {
 		min : param.data?.custom?.minPrice + 1,
 		max : param.data?.custom?.maxPrice,
 	};
 
-	const FONT_SIZE = 10;
 	const ref = useRef(null);
 	const lineHeight = (param?.node?.rowHeight || 32) - 4;
 
 	//	툴팁
+	function chart(minmax: any, prices: Price[], maxheight: number, format?: string) {
+		return (<>
+			<Row className="m-0 p-0"> {
+				prices.map((price: Price) => (
+					<Col key={price.id} className={"px-0 bg-primary"}
+						title={moment(price.base).format("YYYY-MM-DD (dd)")}
+						style={{
+							marginRight: 1,
+							height: height(maxheight, price, minmax) + 16,
+							marginTop: maxheight - height(maxheight, price, minmax),
+							fontSize: 8,
+						 }}
+					 >
+					 	<Row className="m-0 p-0 text-center"><Col className="m-0 p-0 text-center">{moment(price.base).format(format || "YYYY-MM-DD")}</Col></Row>
+				 		<Row className="m-0 p-0 text-center"><Col className="m-0 p-0 text-center">{price.closing.toLocaleString()}</Col></Row>
+			 	</Col>
+				))
+			}</Row>
+		</>);
+	}
 	function renderTooltip(props: any) {
+		const yearPrices: Price[] = param.data?.custom?.yearPrices?.slice(0, COUNT).reverse();
+		const monthPrices: Price[] = param.data?.custom?.monthPrices?.slice(0, COUNT).reverse();
+		const weekPrices: Price[] = param.data?.custom?.weekPrices?.slice(0, COUNT).reverse();
+		const minmax = {
+			min: Number.MAX_SAFE_INTEGER,
+			max: Number.MIN_SAFE_INTEGER,
+		};
+		yearPrices.forEach((price: Price) => {
+			minmax.min = Math.min(minmax.min, price.closing);
+			minmax.max = Math.max(minmax.max, price.closing);
+		});
+		monthPrices.forEach((price: Price) => {
+			minmax.min = Math.min(minmax.min, price.closing);
+			minmax.max = Math.max(minmax.max, price.closing);
+		});
+		weekPrices.forEach((price: Price) => {
+			minmax.min = Math.min(minmax.min, price.closing);
+			minmax.max = Math.max(minmax.max, price.closing);
+		});
 		return (
 			<Tooltip className="mytooltip" {...props}>
-				<Table bordered striped size="sm" variant="dark" className="my-0 py-0" style={{ fontSize: FONT_SIZE }}>
-					<thead><tr>
-						<th>날짜</th>
-						<th>종가</th>
-						<th>시가</th>
-						<th>고가</th>
-						<th>저가</th>
-						<th>거래량</th>
-					</tr></thead><tbody>
-						{
-							prices?.map((price: Price) => (
-								<tr key={price.id}>
-									<th className="px-1">{moment(price.base).format("YYYY-MM-DD (dd)")}</th>
-									<td className="text-end px-1">{price.closing.toLocaleString()}</td>
-									<td className="text-end px-1">{price.market?.toLocaleString()}</td>
-									<td className="text-end px-1">{price.high?.toLocaleString()}</td>
-									<td className="text-end px-1">{price.low?.toLocaleString()}</td>
-									<td className="text-end px-1">{price.volume?.toLocaleString()}</td>
-								</tr>))
-						}
-					</tbody></Table>
+				<h5 className="pt-1">일단위</h5>
+				{chart(info, prices, 64, "MM-DD")}
+				<h5 className="pt-4">주단위</h5>
+				{chart(minmax, weekPrices, 64, "MM-DD")}
+				<h5 className="pt-4">월단위</h5>
+				{chart(minmax, monthPrices, 64, "YYYY-MM")}
+				<h5 className="pt-4">연단위</h5>
+				{chart(minmax, yearPrices, 64, "YYYY")}
 			</Tooltip>
 		);
 	}
-	function height(param: any, price: any, info: any): number {
-		if (isNaN(price?.closing) || isNaN(info?.min) || isNaN(info?.max) || isNaN(param?.node?.rowHeight)
-			|| (info.max == info.min) || (param.node.rowHeight == 0)) {
+	function height(maxHeight: number, price: Price, info: any): number {
+		if (isNaN(price?.closing) || isNaN(info?.min) || isNaN(info?.max) || isNaN(maxHeight)
+			|| (info.max == info.min) || (maxHeight == 0)) {
 			return 1;
 		}
 
-		return Math.max(4, Math.floor((price.closing - info.min) / (info.max - info.min) * param.node.rowHeight));
+		return Math.max(4, Math.floor((price.closing - info.min) / (info.max - info.min) * maxHeight));
 	}
 	function currentPrice(): string {
 		if (param?.value > 0) {
@@ -126,8 +152,8 @@ export function PriceRecentCellRenderer(param: any) {
 							<Col key={price.id} className={"px-0 bg-primary"}
 								style={{
 									marginRight: 1,
-									height: height(param, price, info),
-									marginTop: lineHeight - height(param, price, info),
+									height: height(param?.node?.rowHeight, price, info),
+									marginTop: lineHeight - height(param?.node?.rowHeight, price, info),
 								 }}
 							 ></Col>
 						))

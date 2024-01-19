@@ -33,6 +33,30 @@ class PriceStore {
 		});
 		return map;
 	}
+	makeMapByFlag(prices: Price[]) {
+		const map = new Map();
+		prices.forEach((price: Price) => {
+			const week: any[] = map.get(`${price.code}.${price.flag & 32}`);
+			const month: any[] = map.get(`${price.code}.${price.flag & 64}`);
+			const year: any[] = map.get(`${price.code}.${price.flag & 128}`);
+			if (!week) {
+				map.set(`${price.code}.${price.flag & 32}`, [price]);
+			} else {
+				week.push(price);
+			}
+			if (!month) {
+				map.set(`${price.code}.${price.flag & 64}`, [price]);
+			} else {
+				month.push(price);
+			}
+			if (!year) {
+				map.set(`${price.code}.${price.flag & 128}`, [price]);
+			} else {
+				year.push(price);
+			}
+		});
+		return map;
+	}
 	compare(left: Price, right: Price) {
 		return moment(left.base).diff(moment(right.base));
 	}

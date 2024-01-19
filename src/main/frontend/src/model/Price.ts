@@ -9,6 +9,7 @@ export default interface Price {
 	high: number;
 	low: number;
 	volume: number;
+	flag: number;
 	created: string;
 	updated: string;
 

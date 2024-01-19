@@ -33,6 +33,10 @@ public interface PriceRepository extends JpaRepository<PriceEntity, Integer> {
 			+ "		)	AND	("
 			+ "				:#{#param.codes}	IS NULL"
 			+ "			OR	x.code				IN	:#{#param.codes}"
+			// flag
+			+ "		)	AND	("
+			+ "				:#{#param.flag}	IS NULL"
+			+ "			OR	x.flag > 0"
 			//	updated
 			+ "		)	AND	("
 			+ "				:#{#param.updated}	IS NULL"

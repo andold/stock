@@ -8,6 +8,7 @@ import Item from "../model/Item";
 const CELL_STYLE_LEFT = { textAlign: "left", padding: 1, };
 const CELL_STYLE_RIGHT = { textAlign: "right", padding: 1, paddingRight: 4, };
 const CELL_STYLE_CENTER = { textAlign: "center", padding: 1, };
+const CELL_STYLE_CENTER_CANCEL = { ...CELL_STYLE_CENTER, textDecoration: "line-through",};
 // StockStore.ts
 class StockStore {
 	constructor() {
@@ -254,19 +255,11 @@ class StockStore {
 			width: 64,
 		}, {
 			field: "ipoOpen",
-			headerName: "상장일",
+			headerName: "상장",
 			hide: hides && hides.includes("ipoOpen"),
 			editable: false,
-			valueFormatter: (params: any) => params.value && moment(params.value).format("YYYY-MM"),
-			cellStyle: CELL_STYLE_CENTER,
-			width: 32,
-		}, {
-			field: "ipoClose",
-			headerName: "상장폐지일",
-			hide: hides && hides.includes("ipoClose"),
-			editable: false,
-			valueFormatter: (params: any) => params.value && moment(params.value).format("YYYY-MM"),
-			cellStyle: CELL_STYLE_CENTER,
+			valueFormatter: (params: any) => params.value && moment(params.data.ipoClose || params.value).format("YYYY-MM"),
+			cellStyle: (params: any) => params.data.ipoClose ? CELL_STYLE_CENTER_CANCEL : CELL_STYLE_CENTER,
 			width: 32,
 		}, {
 			field: "created",
