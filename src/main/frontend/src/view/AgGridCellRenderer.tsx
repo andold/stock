@@ -90,9 +90,9 @@ export function PriceRecentCellRenderer(param: any) {
 		</>);
 	}
 	function renderTooltip(props: any) {
-		const yearPrices: Price[] = param.data?.custom?.yearPrices?.slice(0, COUNT).reverse();
-		const monthPrices: Price[] = param.data?.custom?.monthPrices?.slice(0, COUNT).reverse();
-		const weekPrices: Price[] = param.data?.custom?.weekPrices?.slice(0, COUNT).reverse();
+		const yearPrices: Price[] = param.data?.custom?.yearPrices?.slice(0, COUNT).reverse() || [];
+		const monthPrices: Price[] = param.data?.custom?.monthPrices?.slice(0, COUNT).reverse() || [];
+		const weekPrices: Price[] = param.data?.custom?.weekPrices?.slice(0, COUNT).reverse() || [];
 		const minmax = {
 			min: Number.MAX_SAFE_INTEGER,
 			max: Number.MIN_SAFE_INTEGER,
