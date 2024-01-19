@@ -40,18 +40,7 @@ public class ScheduledTasks {
 		log.trace("{} scheduleTaskOnce() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
 	
-	// 매분마다
-	@Scheduled(cron = "15 * * * * *")
-	public void scheduleTaskMinutely() {
-		log.trace("{} scheduleTaskMinutely()", Utility.indentStart());
-		long started = System.currentTimeMillis();
-
-//		idempotentService.run();
-
-		log.trace("{} {} scheduleTaskMinutely() - {}", Utility.indentEnd(), "비동기", Utility.toStringPastTimeReadable(started));
-	}
-
-	// 매시마다
+	// 매시마다 - compile, purge
 	@Scheduled(cron = "19 10 * * * *")
 	public void scheduleTaskHourly() {
 		log.info("{} scheduleTaskHourly()", Utility.indentStart());
@@ -63,7 +52,7 @@ public class ScheduledTasks {
 		log.info("{} 『#{} #{}』 scheduleTaskHourly() - {}", Utility.indentEnd(), Utility.size(compileResult), purged, Utility.toStringPastTimeReadable(started));
 	}
 
-	// 평일
+	// 평일 - price, compile
 	@Scheduled(cron = "50 40 08 * * MON-SAT")
 	public void scheduleTaskDaily() {
 		log.info("{} scheduleTaskDaily()", Utility.indentStart());
@@ -75,25 +64,19 @@ public class ScheduledTasks {
 		log.info("{} 『{}』『#{}』 scheduleTaskDaily() - {}", Utility.indentEnd(), crawlPriceResult, Utility.size(compileResult), Utility.toStringPastTimeReadable(started));
 	}
 
-	// 매주 일요일
+	// 매주 일요일 - dividend
 	@Scheduled(cron = "02 24 23 * * SUN")
 	public void scheduleTaskWeekly() {
 		log.info("{} scheduleTaskWeekly()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
 		Result<ParserResult> resultDividendAllRecent = crawlerService.crawlDividendAllRecent();
-		Result<ParserResult> resultDividendAsssllRecent = crawlerService.crawlItemIpoClose();
+		Result<ParserResult> resultItemIpoCloseRecent = crawlerService.crawlItemIpoClose();
 
-		log.info("{} 『{}』『{}』 scheduleTaskWeekly() - {}", Utility.indentEnd(), resultDividendAllRecent, resultDividendAsssllRecent, Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』『{}』 scheduleTaskWeekly() - {}", Utility.indentEnd(), resultDividendAllRecent, resultItemIpoCloseRecent, Utility.toStringPastTimeReadable(started));
 	}
 
-	// 매월 1일
-	@Scheduled(cron = "15 30 23 1 * *")
-	public void scheduleTaskMonthly() {
-		priceService.purge();
-	}
-
-	// 매분기 첫달 첫번째 일요일
+	// 매분기 첫달 첫번째 일요일 - items
 	@Scheduled(cron = "19 17 17 1-7 1,4,7,10 SUN")
 	public void scheduleTaskQuarter() {
 		log.info("{} scheduleTaskQuarter()", Utility.indentStart());
@@ -102,11 +85,6 @@ public class ScheduledTasks {
 		Result<ParserResult> result = crawlerService.crawlItemAll();
 
 		log.info("{} {} scheduleTaskQuarter() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
-	}
-
-	// 매년 1월 7일
-	@Scheduled(cron = "15 30 3 7 1 *")
-	public void scheduleTaskYearly() {
 	}
 
 }
