@@ -205,8 +205,8 @@ seibroItemInfoEtf:
 			KEYWORD TAB code=word TAB word+		NEWLINE		//	KEYWORD 	 441680 	 TIGER 미국나스닥100커버드콜(합성)[441680] 
 			symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*					NEWLINE		//	TIGER 미국나스닥100커버드콜(합성)[441680] 
 			category=word category1=word? category2=word? category3=word? category4=word? category5=word? category6=word? category7=word*	NEWLINE		//	파생상품/구조화
-			ipo=DATE word+						NEWLINE		//	2022/09/20 (1년 3개월) 
-			volumeOfListedShares=NUMBER			NEWLINE		//	23,800,000
+			ipo=DATE word*						NEWLINE		//	2022/09/20 (1년 3개월) 
+			volumeOfListedShares=NUMBER			NEWLINE		//	23,800,000	//      2015/01/23
 			fee=word							NEWLINE		//	0.37 | NaN
 			{
 				ParserService.item(20240112
