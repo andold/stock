@@ -245,7 +245,7 @@ public class IdempotentService {
 		Date today = new Date();
 		Date ipoClose = item.getIpoClose();
 		if (ipoClose != null && ipoClose.before(today)) {
-			log.warn("{} 상장폐지 processDividend({})", Utility.indentMiddle(), Utility.toStringJson(item));
+			log.trace("{} 상장폐지 processDividend({})", Utility.indentMiddle(), Utility.toStringJson(item));
 			return STATUS.INVALID;
 		}
 
