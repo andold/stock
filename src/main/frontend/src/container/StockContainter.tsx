@@ -140,7 +140,14 @@ function Header(props: any) {
 	function handleOnClickDownload() {
 		setDisableDownload(true);
 		const yyyymmdd = moment().format("YYYYMMDD");
-		store.download({ filename: `stock-${yyyymmdd}.json`, }, () => setDisableDownload(false));
+		//store.download({ filename: `stock-${yyyymmdd}.json`, }, () => setDisableDownload(false));
+		itemStore.download(`stock-item-${yyyymmdd}.json`, () => {
+			dividendHistoryStore.download(`stock-dividend-${yyyymmdd}.json`, () => {
+				priceStore.download(`stock-price-${yyyymmdd}.json`, () => {
+					setDisableDownload(false);
+				});
+			});
+		});
 	}
 	function handleOnClickPurgePrice() {
 		setDisablePurgePrice(true);

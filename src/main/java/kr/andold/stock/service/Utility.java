@@ -37,7 +37,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -324,6 +326,7 @@ public class Utility {
 					objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 					objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 					T the = objectMapper.readValue(line, classParameter);
+					the = parseJsonLine(line, classParameter);
 					list.add(the);
 				}
 
@@ -342,6 +345,19 @@ public class Utility {
 		return list;
 	}
 
+	public static <T> T parseJsonLine(String line, Class<T> classParameter) {
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			objectMapper.setSerializationInclusion(Include.NON_NULL);
+			objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+			objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+			T t = objectMapper.readValue(line, classParameter);
+			return t;
+		} catch (JsonMappingException e) {
+		} catch (JsonProcessingException e) {
+		}
+		return null;
+	}
 	private static String scanClassPath(String filename) {
 		String javaClassPath = System.getProperty("java.class.path");
 		String[] listJavaClassPath = javaClassPath.split("[;]");

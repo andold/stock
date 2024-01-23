@@ -19,6 +19,14 @@ class PriceStore {
 	purge(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.purge(request, onSuccess, onError, element);
 	}
+	download(filename: string, onSuccess?: any, onError?: any, element?: any) {
+		repository.download(filename, onSuccess, onError, element);
+	}
+	upload(file?: any, onSuccess?: any, onError?: any, element?: any) {
+		const request = new FormData();
+		request.append("file", file);
+		repository.upload(request, onSuccess, onError, element);
+	}
 
 	makeMap(prices: Price[]) {
 		const map = new Map();

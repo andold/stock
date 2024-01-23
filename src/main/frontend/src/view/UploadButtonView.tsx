@@ -7,29 +7,33 @@ import { NativeTypes } from "react-dnd-html5-backend";
 // domain
 
 // store
-import store from "../store/StockStore";
+import itemStore from "../store/ItemStore";
+import priceStore from "../store/PriceStore";
+import dividendStore from "../store/DividendHistoryStore";
 
 //	UploadButtonView.tsx
 export default ((_: any) => {
-	const [disableUpload, setDisableUpload] = useState(false);
-
-	const types=["application/json"];
+	const [disableUpload, setDisableUpload] = useState(0);
 
 	const [{ isOver, canDrop }, drop] = useDrop(
 		() => ({
 			accept: [NativeTypes.FILE],
 			drop: (item: any) => {
-				setDisableUpload(true);
-				store.upload(item.files[0], () => setDisableUpload(false));
+				item?.files?.forEach((file: any) => {
+					if (file?.name?.includes("item")) {
+						setDisableUpload((x) => x + 1);
+						itemStore.upload(file, () => setDisableUpload((x) => x - 1));
+					} else if (file?.name?.includes("dividend")) {
+						setDisableUpload((x) => x + 1);
+						dividendStore.upload(file, () => setDisableUpload((x) => x - 1));
+					} else if (file?.name?.includes("price")) {
+						setDisableUpload((x) => x + 1);
+						priceStore.upload(file, () => setDisableUpload((x) => x - 1));
+					}
+				});
 			},
-			canDrop: (item: any) => {
-				let acceptType = false;
-				types.forEach((x: any) => acceptType = acceptType || x);
-				const possible = item.items.length === 1
-					&& item.items[0].kind === 'file'
-					&& acceptType
-					;
-				return possible
+			canDrop: (_: any) => {
+				return true;
 			},
 			collect: (monitor) => ({
 				isOver: !!monitor.isOver(),
@@ -40,15 +44,15 @@ export default ((_: any) => {
 
 	let v = "secondary";
 	if (isOver && canDrop) {
-		v = "danger";
-	} else if (isOver && !canDrop) {
 		v = "success";
+	} else if (isOver && !canDrop) {
+		v = "danger";
 	}
 
 	return (<>
-		<Button ref={drop} size="sm" variant={v} className="ms-1" disabled={disableUpload}>
-			<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableUpload} />
-			업로드 영역
+		<Button ref={drop} size="sm" variant={v} className="ms-1" disabled={disableUpload > 0}>
+			<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={disableUpload <= 0} />
+			업로드 영역({disableUpload})
 		</Button>
 	</>);
 

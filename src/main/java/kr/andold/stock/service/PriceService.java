@@ -336,4 +336,9 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		return result;
 	}
 
+	@Override
+	public PriceDomain toDomain(String line) {
+		return Utility.parseJsonLine(line, PriceDomain.class);
+	}
+
 }

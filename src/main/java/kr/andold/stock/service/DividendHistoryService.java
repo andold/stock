@@ -26,8 +26,7 @@ import kr.andold.stock.thread.CrawlDividendHistoryEtfThread;
 
 @Service
 public class DividendHistoryService implements CommonBlockService<DividendHistoryParam, DividendHistoryDomain, DividendHistoryEntity> {
-	@Autowired
-	private DividendHistoryRepository repository;
+	@Autowired private DividendHistoryRepository repository;
 	
 	@Override
 	public CrudList<DividendHistoryDomain> put(List<DividendHistoryDomain> domains) {
@@ -157,6 +156,11 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 				break;
 			}
 		}
+	}
+
+	@Override
+	public DividendHistoryDomain toDomain(String line) {
+		return Utility.parseJsonLine(line, DividendHistoryDomain.class);
 	}
 
 }

@@ -11,7 +11,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import kr.andold.stock.crawler.Seibro;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.Result;
@@ -137,6 +136,11 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 		Result<ParserResult> parserResult = seibro.item(param.getCode());
 		CrudList<ItemDomain> result = put(parserResult.getResult().getItems());
 		return result;
+	}
+
+	@Override
+	public ItemDomain toDomain(String line) {
+		return Utility.parseJsonLine(line, ItemDomain.class);
 	}
 
 }
