@@ -325,4 +325,17 @@ public class CrawlerService {
 		return kind.basicInfoAll();
 	}
 
+	public Result<ParserResult> crawlItemIpoCloseAll() {
+		log.info("{} crawlItemIpoCloseAll()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		Result<ParserResult> result = kind.itemIpoCloseAll();
+		if (result.getStatus() == STATUS.SUCCESS) {
+			put(result.getResult());
+		}
+
+		log.info("{} 『{}』 crawlItemIpoCloseAll() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
 }

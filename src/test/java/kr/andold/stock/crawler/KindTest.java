@@ -24,4 +24,11 @@ public class KindTest {
 		assertEquals(result.getStatus(), STATUS.SUCCESS);
 	}
 
+	@Test
+	public void testIpoCloseAll() {
+		Result<ParserResult> result = service.itemIpoCloseAll();
+		log.info("{}", result);
+		assertEquals(result.getStatus(), STATUS.SUCCESS);
+	}
+
 }

@@ -56,6 +56,17 @@ public class ApiCrawlerController {
 	}
 
 	@ResponseBody
+	@GetMapping(value = "item/ipo-close/all")
+	public Result<ParserResult> crawlItemIpoCloseAll() {
+		log.info("{} crawlItemIpoCloseAll()", Utility.indentStart());
+
+		Result<ParserResult> result = service.crawlItemIpoCloseAll();
+		
+		log.info("{} 『{}』 - crawlItemIpoCloseAll()", Utility.indentEnd(), result);
+		return result;
+	}
+
+	@ResponseBody
 	@GetMapping(value = "dividend/all/recent")
 	public Result<ParserResult> crawlDividendAllRecent() {
 		log.info("{} crawlDividendAllRecent()", Utility.indentStart());

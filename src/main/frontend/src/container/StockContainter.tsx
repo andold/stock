@@ -97,7 +97,7 @@ function Header(props: any) {
 	const [disableDownload, setDisableDownload] = useState(false);
 	const [disableCrawlDividendAllRecent, setDisableCrawlDividendAllRecent] = useState(false);
 	const [disableCrawlPricaAll, setDisableCrawlPriceAll] = useState(false);
-	const [disableCrawlItemAll, setDisableCrawlItemAll] = useState(false);
+	const [disableCrawlItemIpoCloseAll, setDisableCrawlItemIpoCloseAll] = useState(false);
 	const [disablePurgePrice, setDisablePurgePrice] = useState(false);
 	const [disableOnce, setDisableOnce] = useState(false);
 	
@@ -153,6 +153,10 @@ function Header(props: any) {
 		setDisablePurgePrice(true);
 		priceStore.purge(null, () => setDisablePurgePrice(false));
 	}
+	function handleOnClickCrawlItemIpoCloseAll() {
+		setDisableCrawlItemIpoCloseAll(true);
+		crawlStore.crawlItemIpoCloseAll(null, () => setDisableCrawlItemIpoCloseAll(false));
+	}
 	function handleOnClickCrawlDividendAllRecent() {
 		setDisableCrawlDividendAllRecent(true);
 		crawlStore.crawlDividendAllRecent(null, () => setDisableCrawlDividendAllRecent(false));
@@ -162,89 +166,6 @@ function Header(props: any) {
 		crawlStore.crawlPriceAll({base: moment().format("YYYY-MM-DDTHH:mm:ss.SSSZZ")}, (_: any, response: any) => {
 			setDisableCrawlPriceAll(false);
 			console.log(response);
-		});
-	}
-	function handleOnClickCrawlItemAll() {
-		setDisableCrawlItemAll(true);
-		crawlStore.crawlItemAll({}, (_: any, response: any) => {
-			setDisableCrawlItemAll(false);
-			console.log(response);
-		});
-	}
-	function handleOnCrawlItemDetailAll() {
-		// 실행상태가 아니면
-		if (!jobs.play) {
-			// 실행상태로 바꾸려 하는데, 할께 아예 없으면
-			if (jobs.queue.length == 0) {
-				const request = {
-					keyword: null,
-					start: null,
-					end: null,
-					size: 1024,
-					page: 0,
-				};
-				// 할꺼를 만들고
-				store.searchItem(request, (_: any, result: any) => {
-					const items = result?.items;
-					if (!items?.length) {
-						setJobs({
-							...jobs,
-							play: false,
-						});
-						return;
-					}
-	
-					// 실행하라고 한다
-					setJobs({
-						...jobs,
-						queue: items,
-						play: true,
-					});
-					return;
-				});
-				return;
-			}
-			setJobs({
-				...jobs,
-				play: true,
-			});
-			return;
-		}
-
-		// 실행상태인데, 할께 없으면
-		if (jobs.queue.length == 0) {
-			const request = {
-				keyword: null,
-				start: null,
-				end: null,
-				size: 1024,
-				page: 0,
-			};
-			// 할꺼를 만들고
-			store.searchItem(request, (_: any, result: any) => {
-				const items = result?.items;
-				if (!items?.length) {
-					setJobs({
-						...jobs,
-						play: false,
-					});
-					return;
-				}
-
-				// 실행하라고 한다
-				setJobs({
-					...jobs,
-					queue: items,
-				});
-				return;
-			});
-			return;
-		}
-
-		// 실행상태인데, 할것도 있다면, 중지하라 한다
-		setJobs({
-			...jobs,
-			play: false,
 		});
 	}
 	function handleOnClickCompile() {
@@ -257,15 +178,6 @@ function Header(props: any) {
 	function handleOnClickOnce() {
 		setDisableOnce(true);
 		idempotentStore.once(null, () => setDisableOnce(false));
-	}
-	function handleOnCrawlItemEtf() {
-		setSpinner(spinner + 1);
-		store.crawlItemEtf({}, (_: any) => {
-			if (spinner == 1) {	// 마지막에서만 재검색
-				onChange && onChange({});
-			}
-			setSpinner(spinner - 1);
-		});
 	}
 	function handleOnCrawlTest() {
 		setSpinner(spinner + 1);
@@ -352,8 +264,6 @@ function Header(props: any) {
 								{(spinner > 0) && <Spinner animation="grow" variant="warning" className="ms-1 align-middle" title={spinner.toLocaleString()} />}
 								{!collapsed && (<>
 									<NavDropdown title="Crawl" className="mx-1">
-										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlItemDetailAll}>Crawl Item 상세 모두 {jobs.play ? "do PAUSE" : "do PLAY"}</NavDropdown.Item>
-										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlItemEtf}>Crawl Item ETF</NavDropdown.Item>
 										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlTest}>Crawl Test</NavDropdown.Item>
 									</NavDropdown>
 									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCompile} onClick={handleOnClickCompile}>
@@ -368,9 +278,9 @@ function Header(props: any) {
 										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlDividendAllRecent} />
 										최근 배당 수집
 									</Button>
-									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCrawlItemAll} onClick={handleOnClickCrawlItemAll} hidden={true}>
-										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlItemAll} />
-										모든 주식종목 수집
+									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCrawlItemIpoCloseAll} onClick={handleOnClickCrawlItemIpoCloseAll}>
+										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlItemIpoCloseAll} />
+										상장폐지일 모두 수집
 									</Button>
 									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCrawlPricaAll} onClick={handleOnClickCrawlPriceAll}>
 										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlPricaAll} />
