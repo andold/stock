@@ -60,6 +60,10 @@ const FILL_COLOR_MONTH = [
 export function PriceRecentCellRenderer(param: any) {
 	const COUNT = 14;
 	const prices: Price[] = param.data?.custom?.prices;
+	if (!prices) {
+		return (<>No Data</>);
+	}
+
 	const info = {
 		min : param.data?.custom?.minPrice + 1,
 		max : param.data?.custom?.maxPrice,

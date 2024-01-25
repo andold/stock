@@ -206,7 +206,12 @@ public class IdempotentService {
 		return STATUS.RESERVED;
 	}
 
-	private STATUS processPrice(ItemDomain item) {
+	protected STATUS processPrice(ItemDomain item) {
+		String type = item.getType();
+		if (type != null && type.contains("기타비상장")) {
+			return STATUS.INVALID;
+		}
+		
 		List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
 		Date date = isRequireCrawlPrice(histories);
 		if (date == null) {
@@ -231,8 +236,13 @@ public class IdempotentService {
 		return STATUS.FAILURE;
 	}
 
-	private STATUS processDividend(ItemDomain item) {
+	protected STATUS processDividend(ItemDomain item) {
 		if (item == null) {
+			return STATUS.INVALID;
+		}
+
+		String type = item.getType();
+		if (type != null && type.contains("기타비상장")) {
 			return STATUS.INVALID;
 		}
 		
@@ -273,7 +283,7 @@ public class IdempotentService {
 		return STATUS.FAILURE;
 	}
 
-	private STATUS processDetailInfo(ItemDomain item) {
+	protected STATUS processDetailInfo(ItemDomain item) {
 		if (item == null) {
 			return STATUS.INVALID;
 		}
@@ -288,8 +298,9 @@ public class IdempotentService {
 
 		if (!(symbol == null || symbol.isBlank()
 				|| volumeOfListedShares == null
-				|| type == null || type.isBlank()
-				|| category == null || category.isBlank() || ipoOpen == null)
+				|| type == null || type.isBlank() || !type.contains("기타비상장")
+				|| category == null || category.isBlank()
+				|| ipoOpen == null)
 			|| (ipoClose != null && ipoClose.before(today))) {
 			return STATUS.ALEADY_DONE;
 		}

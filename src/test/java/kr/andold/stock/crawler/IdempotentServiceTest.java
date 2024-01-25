@@ -1,5 +1,7 @@
 package kr.andold.stock.crawler;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -7,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import kr.andold.stock.domain.ItemDomain;
+import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.service.Utility;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,6 +31,45 @@ public class IdempotentServiceTest {
 	public void testOnce() {
 		service.once();
 		Utility.sleep(Integer.MAX_VALUE);
+	}
+
+	@Test
+	public void testProcessDetailInfo() {
+		STATUS result = service.processDetailInfo(ItemDomain.builder()
+				.code("000000")
+				.symbol(".")
+				.type("기타비상장")
+				.category(".")
+				.volumeOfListedShares(1)
+				.ipoOpen(new Date())
+				.build());
+		assertEquals(result, STATUS.ALEADY_DONE);
+	}
+
+	@Test
+	public void testProcessDividend() {
+		STATUS result = service.processDividend(ItemDomain.builder()
+				.code("000000")
+				.symbol(".")
+				.type("기타비상장")
+				.category(".")
+				.volumeOfListedShares(1)
+				.ipoOpen(new Date())
+				.build());
+		assertEquals(result, STATUS.INVALID);
+	}
+
+	@Test
+	public void testProcessPrice() {
+		STATUS result = service.processPrice(ItemDomain.builder()
+				.code("000000")
+				.symbol(".")
+				.type("기타비상장")
+				.category(".")
+				.volumeOfListedShares(1)
+				.ipoOpen(new Date())
+				.build());
+		assertEquals(result, STATUS.INVALID);
 	}
 
 }
