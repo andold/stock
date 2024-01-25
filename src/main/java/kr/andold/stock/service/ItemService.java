@@ -10,6 +10,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import kr.andold.stock.crawler.Seibro;
 import kr.andold.stock.domain.ItemDomain;
@@ -49,6 +50,7 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 				.collect(Collectors.toList());
 	}
 
+	@Modifying
 	@CacheEvict(value = "items")
 	@Override
 	public List<ItemDomain> update(List<ItemDomain> domains) {
@@ -57,6 +59,7 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 		return toDomains(result);
 	}
 
+	@Modifying
 	@CacheEvict(value = "items")
 	public ItemDomain update(ItemDomain domain) {
 		Optional<ItemEntity> read = repository.findById(domain.getId());
@@ -90,12 +93,16 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 		return domain.key();
 	}
 
+	@Modifying
 	@CacheEvict(value = "items")
 	@Override
 	public int remove(List<ItemDomain> domains) {
-		return 0;
+		List<ItemEntity> entities = toEntities(domains);
+		repository.deleteAll(entities);
+		return Utility.size(entities);
 	}
 
+	@Modifying
 	@CacheEvict(value = "items")
 	@Override
 	public List<ItemDomain> create(List<ItemDomain> domains) {

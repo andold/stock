@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
 import kr.andold.stock.domain.DividendHistoryDomain;
@@ -33,6 +34,7 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 		return CommonBlockService.super.put(domains.stream().filter(domain -> domain.getDividend() != null).collect(Collectors.toList()));
 	}
 
+	@Modifying
 	@CacheEvict(value = "histories")
 	@Override
 	public List<DividendHistoryDomain> update(List<DividendHistoryDomain> domains) {
@@ -41,6 +43,7 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 		return toDomains(result);
 	}
 
+	@Modifying
 	@CacheEvict(value = "histories")
 	@Override
 	public int remove(List<DividendHistoryDomain> domains) {
@@ -49,6 +52,7 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 		return Utility.size(entities);
 	}
 
+	@Modifying
 	@CacheEvict(value = "histories")
 	@Override
 	public List<DividendHistoryDomain> create(List<DividendHistoryDomain> domains) {

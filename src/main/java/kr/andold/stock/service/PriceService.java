@@ -14,6 +14,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -35,6 +36,7 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 	@Autowired private PriceRepository repository;
 	@Autowired private Seibro seibro;
 
+	@Modifying
 	@CacheEvict(value = "prices")
 	@Override
 	public List<PriceDomain> update(List<PriceDomain> domains) {
@@ -93,11 +95,16 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		return domains;
 	}
 
+	@Modifying
+	@Cacheable(value= "prices")
 	@Override
 	public int remove(List<PriceDomain> domains) {
-		return 0;
+		List<PriceEntity> entities = toEntities(domains);
+		repository.deleteAll(entities);
+		return Utility.size(entities);
 	}
 
+	@Modifying
 	@CacheEvict(value = "prices")
 	@Override
 	public List<PriceDomain> create(List<PriceDomain> domains) {
@@ -332,6 +339,7 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 	}
 
 
+	@Modifying
 	@CacheEvict(value = "prices")
 	@Transactional
 	public int purge() {

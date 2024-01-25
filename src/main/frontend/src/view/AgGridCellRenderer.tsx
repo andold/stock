@@ -433,7 +433,7 @@ function dividendBarGraphRatioByCurrentPrice(mapHistory: any, start: any, curren
 				<Col key={Math.random()} className="bg-black text-center m-0 p-0" style={{width: 10, }}>
 						<Row className="bg-black mx-0 px-0" style={{
 								height: `${(max - (mapHistory.get(start.year() + cx) || 0)) * 100 / max}%`,
-						}}>
+						}} title={`${max - (mapHistory.get(start.year() + cx) || 0)} ${max} ${(max - (mapHistory.get(start.year() + cx) || 0)) * 100 / max}%`}>
 							<Col/>
 						</Row>
 						{
@@ -444,7 +444,7 @@ function dividendBarGraphRatioByCurrentPrice(mapHistory: any, start: any, curren
 										<Row className="mx-1 px-0" style={{
 												height: `${history.dividend * 100 / max}%`,
 												backgroundColor: FILL_COLOR_MONTH[11 - cy],
-										}}>
+										}} title={`${history.dividend} ${max} ${history.dividend * 100 / max}%`}>
 											<Col/>
 										</Row>
 									);
@@ -497,7 +497,7 @@ function dividendBarGraphAmount(mapHistory: any, start: any) {
 												height: `${history.dividend * 100 / max}%`,
 												backgroundColor: FILL_COLOR_MONTH[11 - cy],
 										}}>
-											<Col className="m-0 p-0">{history.dividend}</Col>
+											<Col className="m-0 p-0"></Col>
 										</Row>
 									);
 								}
