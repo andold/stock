@@ -266,16 +266,30 @@ export function PriceEarningsRatioCellRenderer(param: any) {
 	function renderTooltip(props: any) {
 		return (
 			<Tooltip className="mytooltip" {...props}>
+				<Row className="m-0 py-4">{param?.data?.symbol}</Row>
 				<Row className="m-2 mb-0 py-0">금액 (원)</Row>
 				{dividendTableAmount(mapHistory, moment(param?.data?.ipoOpen))}
+
+				<Row className="m-2 mb-0 py-0">배당 금액 (원)</Row>
+				<Row className="bg-black p-4" style={{ height: 128, fontSize: 8, opacity: 1, }}>
+					{dividendBarGraphAmount(mapHistory, moment(param?.data?.ipoOpen))}
+				</Row>
+
+				<Row className="m-2 mb-0 py-0">배당수익율 (%, 현재가 기준 {param?.data?.custom?.currentPrice?.toLocaleString()})</Row>
+				<Row className="bg-black p-4" style={{ height: 128, fontSize: 8, opacity: 1, }}>
+					{dividendBarGraphRatioByCurrentPrice(mapHistory, moment(param?.data?.ipoOpen), param?.data?.custom?.currentPrice)}
+				</Row>
+
 				<Row className="m-2 mb-0 py-0">배당수익율 (%, 당시 주가 기준)</Row>
-				{dividendBarGraphAmount(mapHistory, moment(param?.data?.ipoOpen))}
+				<Row className="bg-black p-4" style={{ height: 128, fontSize: 8, opacity: 1, }}>
+					{dividendBarGraphRatioByClosingPrice(mapHistory, moment(param?.data?.ipoOpen))}
+				</Row>
 			</Tooltip>
 		);
 	};
 
 	return (<>
-		<OverlayTrigger overlay={renderTooltip} trigger={["hover", "hover"]} placement="auto" key={Math.random()}>
+		<OverlayTrigger overlay={renderTooltip} trigger={["click"]} placement="auto" key={Math.random()}>
 			<Row className="mx-0 text-right">
 				<Col sm="4" md="3" xl="2" xxl="2" className="m-0 p-0">
 					<span>{param.value?.toFixed(2)}</span>
@@ -350,8 +364,61 @@ function dividendTableAmount(mapHistory: any, start: any) {
 			</tbody></Table>
 	);
 }
-function dividendBarGraphAmount(mapHistory: any, start: any) {
+function dividendBarGraphRatioByClosingPrice(mapHistory: any, start: any) {
 	const end = moment().add(1, "year").startOf("year");
+	if (start.isBefore(end.clone().subtract(11, "years"))) {
+		start = end.clone().subtract(11, "years");
+	}
+	let max = 0;
+	store.range(end.year() - start.year()).map((cx: number) => max = Math.max(max, mapHistory.get(start.year() + cx + 0.1) || 0));
+	if (max == 0) {
+		return (<></>);
+	}
+
+	console.log(max);
+	return (
+		<Row className="bg-black">{
+			store.range(end.year() - start.year()).map((cx: number) => (
+				<Col key={Math.random()} className="bg-black text-center m-0 p-0" style={{width: 10, }}>
+						<Row className="bg-black mx-0 px-0" style={{
+								height: `${(max - (mapHistory.get(start.year() + cx + 0.1) || 0)) * 100 / max}%`,
+						}}>
+							<Col/>
+						</Row>
+						{
+							store.range(12).map((cy: number) => {
+								const history = mapHistory.get(moment([start.year() + cx, 11 - cy]).format("YYYY-MM"));
+								if (history?.dividend && history?.priceClosing) {
+									return (
+										<Row className="mx-1 px-0" style={{
+												height: `${history.dividend / history.priceClosing * 100 * 100 / max}%`,
+												backgroundColor: FILL_COLOR_MONTH[11 - cy],
+										}}>
+											<Col/>
+										</Row>
+									);
+								}
+							})
+						}
+						<Row className="bg-secondary m-0 p-0">
+							<Col className="m-0 p-0">
+								{(mapHistory.get(start.year() + cx + 0.1) || 0).toFixed(2)}
+							</Col>
+						</Row>
+						<Row className="bg-secondary m-0 p-0">
+							<Col className="m-0 p-0">
+								{start.year() + cx}
+							</Col>
+						</Row>
+				</Col>
+			))
+			
+		}</Row>
+	);
+}
+function dividendBarGraphRatioByCurrentPrice(mapHistory: any, start: any, currentPrice?: number) {
+	const end = moment().add(1, "year").startOf("year");
+	currentPrice = currentPrice || 1;
 	if (start.isBefore(end.clone().subtract(11, "years"))) {
 		start = end.clone().subtract(11, "years");
 	}
@@ -360,15 +427,10 @@ function dividendBarGraphAmount(mapHistory: any, start: any) {
 	if (max == 0) {
 		return (<></>);
 	}
-
-	console.log(max);
 	return (
-		<Row className="py-4" style={{
-			height: 32,
-			fontSize: 8,
-		}}>{
+		<Row className="bg-black">{
 			store.range(end.year() - start.year()).map((cx: number) => (
-				<Col key={Math.random()} className="text-center m-0 p-0" style={{width: 10,}}>
+				<Col key={Math.random()} className="bg-black text-center m-0 p-0" style={{width: 10, }}>
 						<Row className="bg-black mx-0 px-0" style={{
 								height: `${(max - (mapHistory.get(start.year() + cx) || 0)) * 100 / max}%`,
 						}}>
@@ -384,6 +446,58 @@ function dividendBarGraphAmount(mapHistory: any, start: any) {
 												backgroundColor: FILL_COLOR_MONTH[11 - cy],
 										}}>
 											<Col/>
+										</Row>
+									);
+								}
+							})
+							}
+						<Row className="bg-secondary m-0 p-0">
+							<Col className="m-0 p-0">
+								{((mapHistory.get(start.year() + cx) || 0) * 100 / currentPrice).toFixed(2)}
+							</Col>
+						</Row>
+						<Row className="bg-secondary m-0 p-0">
+							<Col className="m-0 p-0">
+								{start.year() + cx}
+							</Col>
+						</Row>
+				</Col>
+			))
+			
+		}</Row>
+	);
+}
+function dividendBarGraphAmount(mapHistory: any, start: any) {
+	const end = moment().add(1, "year").startOf("year");
+	if (start.isBefore(end.clone().subtract(11, "years"))) {
+		start = end.clone().subtract(11, "years");
+	}
+	let max = 0;
+	store.range(end.year() - start.year()).map((cx: number) => max = Math.max(max, mapHistory.get(start.year() + cx) || 0));
+	if (max == 0) {
+		return (<></>);
+	}
+
+	console.log(max);
+	return (
+		<Row className="bg-black">{
+			store.range(end.year() - start.year()).map((cx: number) => (
+				<Col key={Math.random()} className="bg-black text-center m-0 p-0" style={{width: 10, }}>
+						<Row className="bg-black mx-1 px-0" style={{
+								height: `${(max - (mapHistory.get(start.year() + cx) || 0)) * 100 / max}%`,
+						}} title={`${max - (mapHistory.get(start.year() + cx) || 0)} ${max} ${(max - (mapHistory.get(start.year() + cx) || 0)) * 100 / max}%`}>
+							<Col/>
+						</Row>
+						{
+							store.range(12).map((cy: number) => {
+								const history = mapHistory.get(moment([start.year() + cx, 11 - cy]).format("YYYY-MM"));
+								if (history?.dividend > 0) {
+									return (
+										<Row className="mx-1 px-0" style={{
+												height: `${history.dividend * 100 / max}%`,
+												backgroundColor: FILL_COLOR_MONTH[11 - cy],
+										}}>
+											<Col className="m-0 p-0">{history.dividend}</Col>
 										</Row>
 									);
 								}

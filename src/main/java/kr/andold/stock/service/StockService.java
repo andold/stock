@@ -95,7 +95,10 @@ public class StockService {
 		CrudList<ItemDomain> crudItems = itemService.differ(items, perItems);
 		List<ItemDomain> updated = itemService.update(crudItems.getUpdates());
 		
-		log.info("{} 『{}』『{}』『#{}』 compile() - {}", Utility.indentEnd(), priceResult, priceResult1, Utility.size(updated), Utility.toStringPastTimeReadable(started));
+		// 중복 삭제
+		int removed = dividendHistoryService.dedup(histories);
+		
+		log.info("{} 『{}』『{}』『±#{}』『-#{}』 compile() - {}", Utility.indentEnd(), priceResult, priceResult1, Utility.size(updated), removed, Utility.toStringPastTimeReadable(started));
 		return updated;
 	}
 

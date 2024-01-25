@@ -104,11 +104,12 @@ public interface CommonBlockService<X, Y, Z> {
 	default CrudList<Y> put(List<Y> items) {
 		List<Y> before = search(null);
 		CrudList<Y> list = differ(before, items);
+		list.setRemoves(null);
 		batch(list);
 		return list;
 	}
 
-	default Integer batch(CrudList<Y> list) {
+	default int batch(CrudList<Y> list) {
 		int count = 0;
 		if (list.getCreates() != null) {
 			List<Y> created = create(list.getCreates());
@@ -177,6 +178,27 @@ public interface CommonBlockService<X, Y, Z> {
 			map.put(key(domain), domain);
 		}
 		return map;
+	}
+
+	default int dedup(List<Y> domains) {
+		CrudList<Y> result = new CrudList<Y>().clear();
+		List<Y> removes = result.getRemoves();
+		Map<String, Y> mapUpdates = new HashMap<>();
+
+		Map<String, Y> map = new HashMap<>();
+		for (Y domain : domains) {
+			String key = key(domain);
+			Y y = map.get(key);
+			if (y == null) {
+				map.put(key, domain);
+			} else {
+				Utility.copyPropertiesNotNull(domain, y);
+				removes.add(domain);
+				mapUpdates.put(key, y);
+			}
+		}
+		result.getUpdates().addAll(mapUpdates.values());
+		return batch(result);
 	}
 
 }

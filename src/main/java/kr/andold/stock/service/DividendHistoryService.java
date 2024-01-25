@@ -44,7 +44,9 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 	@CacheEvict(value = "histories")
 	@Override
 	public int remove(List<DividendHistoryDomain> domains) {
-		return 0;
+		List<DividendHistoryEntity> entities = toEntities(domains);
+		repository.deleteAll(entities);
+		return Utility.size(entities);
 	}
 
 	@CacheEvict(value = "histories")
