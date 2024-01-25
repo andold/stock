@@ -37,8 +37,14 @@ public class IdempotentServiceTest {
 	public void testProcessDetailInfo() {
 		STATUS result = service.processDetailInfo(ItemDomain.builder()
 				.code("000000")
-				.symbol(".")
 				.type("기타비상장")
+				.build());
+		assertEquals(result, STATUS.ALEADY_DONE);
+
+		result = service.processDetailInfo(ItemDomain.builder()
+				.code("000000")
+				.symbol(".")
+				.type("KOSPI")
 				.category(".")
 				.volumeOfListedShares(1)
 				.ipoOpen(new Date())

@@ -297,11 +297,14 @@ public class IdempotentService {
 		Date today = new Date();
 
 		if (!(symbol == null || symbol.isBlank()
-				|| volumeOfListedShares == null
-				|| type == null || type.isBlank() || !type.contains("기타비상장")
-				|| category == null || category.isBlank()
-				|| ipoOpen == null)
-			|| (ipoClose != null && ipoClose.before(today))) {
+					|| volumeOfListedShares == null
+					|| type == null || type.isBlank()
+					|| category == null || category.isBlank()
+					|| ipoOpen == null
+				)
+				|| (ipoClose != null && ipoClose.before(today))
+				|| (type != null && type.contains("비상장"))
+			) {
 			return STATUS.ALEADY_DONE;
 		}
 
