@@ -250,6 +250,9 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 
 	// 상장일, 배당일 대표 지정
 	public CrudList<PriceDomain> compile(List<ItemDomain> items, List<DividendHistoryDomain> histories) {
+		log.info("{} compile(#{}, #{})", Utility.indentStart(), Utility.size(items), Utility.size(histories));
+		long started = System.currentTimeMillis();
+
 		List<PriceDomain> prices = search(null);
 		Map<String, PriceDomain> mapPrice = makeMap(prices);
 
@@ -298,6 +301,7 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		}
 		
 		CrudList<PriceDomain> result = put(prices);
+		log.info("{} 『{}』 compile(#{}, #{}) - {}", Utility.indentEnd(), result, Utility.size(items), Utility.size(histories), Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
