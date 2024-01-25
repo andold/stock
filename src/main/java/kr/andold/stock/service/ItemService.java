@@ -143,4 +143,14 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 		return Utility.parseJsonLine(line, ItemDomain.class);
 	}
 
+	@Cacheable(value= "items")
+	public ItemDomain read(Integer id) {
+		Optional<ItemEntity> op = repository.findById(id);
+		if (op.isPresent()) {
+			return toDomain(op.get());
+		}
+
+		return null; 
+	}
+
 }

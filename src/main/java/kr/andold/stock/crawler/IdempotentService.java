@@ -91,7 +91,7 @@ public class IdempotentService {
 			ItemDomain item0 = q0.poll();
 			if (item0 != null) {
 				long forStarted = System.currentTimeMillis();
-				STATUS status = processDetailInfo(item0);
+				STATUS status = processDetailInfo(itemService.read(item0.getId()));
 				switch (status) {
 				case FAILURE:
 				case SUCCESS:
@@ -111,7 +111,7 @@ public class IdempotentService {
 			ItemDomain item1 = q1.poll();
 			if (item1 != null) {
 				long forStarted = System.currentTimeMillis();
-				STATUS status = processDividend(item1);
+				STATUS status = processDividend(itemService.read(item1.getId()));
 				switch (status) {
 				case FAILURE:
 				case SUCCESS:
@@ -131,7 +131,7 @@ public class IdempotentService {
 			ItemDomain item2 = q2.poll();
 			if (item2 != null) {
 				long forStarted = System.currentTimeMillis();
-				STATUS status = processPrice(item2);
+				STATUS status = processPrice(itemService.read(item2.getId()));
 				switch (status) {
 				case FAILURE:
 				case SUCCESS:
@@ -151,7 +151,7 @@ public class IdempotentService {
 			ItemDomain item3 = q3.poll();
 			if (item3 != null) {
 				long forStarted = System.currentTimeMillis();
-				STATUS status = processReserved(item3);
+				STATUS status = processReserved(itemService.read(item3.getId()));
 				switch (status) {
 				case FAILURE:
 				case SUCCESS:
