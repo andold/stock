@@ -16,6 +16,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
 import kr.andold.stock.domain.DividendHistoryDomain;
+import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.entity.DividendHistoryEntity;
 import kr.andold.stock.param.DividendHistoryParam;
@@ -167,6 +168,29 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 	@Override
 	public DividendHistoryDomain toDomain(String line) {
 		return Utility.parseJsonLine(line, DividendHistoryDomain.class);
+	}
+
+	// 유효하지 않은 것 삭제
+	public int clean(Map<String, ItemDomain> mapItem, List<DividendHistoryDomain> histories) {
+		List<DividendHistoryDomain> removes = new ArrayList<>();
+		for (DividendHistoryDomain history : histories) {
+			ItemDomain item = mapItem.get(history.getCode());
+			if (item == null) {
+				removes.add(history);
+				continue;
+			}
+
+			Date ipoOpen = item.getIpoOpen();
+			if (ipoOpen == null) {
+				continue;
+			}
+
+			if (ipoOpen.after(history.getBase())) {
+				removes.add(history);
+			}
+		}
+		remove(removes);
+		return remove(removes);
 	}
 
 }

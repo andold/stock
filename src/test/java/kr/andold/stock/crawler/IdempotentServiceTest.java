@@ -3,6 +3,7 @@ package kr.andold.stock.crawler;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import org.junit.jupiter.api.Test;
@@ -74,6 +75,19 @@ public class IdempotentServiceTest {
 				.category(".")
 				.volumeOfListedShares(1)
 				.ipoOpen(new Date())
+				.build());
+		assertEquals(result, STATUS.INVALID);
+	}
+
+	@Test
+	public void testProcessPrice264660() {
+		STATUS result = service.processPrice(ItemDomain.builder()
+				.code("264660")
+				.symbol(".")
+				.type("KOSPI")
+				.category(".")
+				.volumeOfListedShares(1)
+				.ipoOpen(Date.from(ZonedDateTime.parse("2018-01-25T00:00:00+09:00[Asia/Seoul]").toInstant()))
 				.build());
 		assertEquals(result, STATUS.INVALID);
 	}

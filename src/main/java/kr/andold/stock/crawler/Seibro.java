@@ -1,5 +1,6 @@
 package kr.andold.stock.crawler;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -379,8 +380,169 @@ public class Seibro implements Crawler {
 
 	@Override
 	public Result<ParserResult> price(ItemDomain item, List<DividendHistoryDomain> histories) {
-		log.error("{} {} price({}, #{})", Utility.indentMiddle(), STATUS.NOT_SUPPORT, item, Utility.size(histories));
-		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
+		log.info("{} price({}, #{})", Utility.indentStart(), item, Utility.size(histories));
+		long started = System.currentTimeMillis();
+
+		Result<ParserResult> resultCompany = priceCompany(item, histories);
+		if (resultCompany.getStatus().equals(STATUS.SUCCESS)) {
+			log.info("{} {} price({}, #{}) - {}", Utility.indentEnd(), resultCompany, item, Utility.size(histories), Utility.toStringPastTimeReadable(started));
+			return resultCompany;
+		}
+
+		Result<ParserResult> resultEtf = priceEtf(item, histories);
+
+		log.info("{} {} price({}, #{}) - {}", Utility.indentEnd(), resultEtf, item, Utility.size(histories), Utility.toStringPastTimeReadable(started));
+		return resultEtf;
+	}
+
+	private Result<ParserResult> priceCompany(ItemDomain item, List<DividendHistoryDomain> histories) {
+		log.debug("{} priceCompany({}, #{})", Utility.indentStart(), item, Utility.size(histories));
+		long started = System.currentTimeMillis();
+
+		List<DividendHistoryDomain> filtered = histories.stream().filter(history -> history.getDividend() > 0 && (history.getPriceBase() == null || history.getPriceClosing() == null)).toList();
+		ParserResult container = new ParserResult().clear();
+		Result<ParserResult> resultContainer = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(container).build();
+		Result<ChromeDriverWrapper> initResult = priceCompanyInitialize(item);
+		ChromeDriverWrapper driver;
+		switch (initResult.getStatus()) {
+		case SUCCESS:
+			driver = initResult.getResult();
+			break;
+		default:
+			resultContainer.setStatus(initResult.getStatus());
+			log.warn("{} 『{}』 priceCompany({}, #{}) - {}", Utility.indentEnd(), resultContainer, item, Utility.size(histories), Utility.toStringPastTimeReadable(started));
+			return resultContainer;
+			
+		}
+
+		filtered.forEach(history -> {
+			Result<ParserResult> result = priceCompany(driver, item, history);
+			switch (result.getStatus()) {
+			case SUCCESS:
+				container.addAll(result.getResult());
+				break;
+			default:
+				resultContainer.setStatus(result.getStatus());
+				break;
+			}
+		});
+		driver.quit();
+
+		log.debug("{} 『{}』 priceCompany({}, #{}) - {}", Utility.indentEnd(), resultContainer, item, Utility.size(histories), Utility.toStringPastTimeReadable(started));
+		return resultContainer;
+	}
+
+	private Result<ChromeDriverWrapper> priceCompanyInitialize(ItemDomain item) {
+		log.trace("{} priceCompanyInitialize({})", Utility.indentStart(), item);
+		long started = System.currentTimeMillis();
+
+		String code = item.getCode();
+		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		try {
+			driver.navigate().to(URL_PRICE_COMPANY_EACH);
+
+			// 넓게 보기 아이콘 크릭, 처음은 좀더 오래 기다려 준다
+			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT * 4).click();
+			
+			//	종목명 검색 링크 클릭
+			driver.findElement(By.xpath("//a[@id='sn_group4']"), TIMEOUT).click();
+
+			//	떠 있는 팝업으로 이동
+			driver.switchTo().frame(driver.findElement(By.xpath("//iframe[@id='iframe1']"), TIMEOUT));
+
+			//	코드 입력
+			WebElement inputSearchElement = driver.findElement(By.xpath("//input[@id='search_string']"), TIMEOUT);	// 입력창
+			inputSearchElement.clear();
+			inputSearchElement.sendKeys(code); // 코드 입력
+			
+			// 종목명 검색 아이콘 클릭
+			By BY_SEARCH_RESULT_COUNT = By.xpath("//span[@id='P_ListCnt']");
+			String INVALID_COUNT = "-1";
+			driver.setText(BY_SEARCH_RESULT_COUNT, INVALID_COUNT, TIMEOUT);
+			driver.findElement(By.xpath("//a[@id='P_group100']"), TIMEOUT).click(); // 종목명 검색 아이콘
+			driver.waitUntilTextNotInclude(BY_SEARCH_RESULT_COUNT, TIMEOUT, INVALID_COUNT);
+
+			//	검색 결과에서 선택
+			String count = driver.getText(BY_SEARCH_RESULT_COUNT, TIMEOUT, "0");
+			if ("0".contentEquals(count)) {
+				driver.quit();
+				Result<ChromeDriverWrapper> result = Result.<ChromeDriverWrapper>builder().status(STATUS.FAIL_NO_RESULT).build();
+				log.debug("{} 『{}』 itemCompany({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+				return result;
+			}
+			driver.findElementIncludeText(By.xpath("//ul[@id='P_isinList']/li/a/span"), TIMEOUT, code).click();
+
+			//	팝업이 닫혔다, 돌아간다
+			driver.switchTo().defaultContent();
+			Result<ChromeDriverWrapper> result = Result.<ChromeDriverWrapper>builder().status(STATUS.SUCCESS).result(driver).build();
+
+			log.trace("{} 『{}』 priceCompanyInitialize({}, #{}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
+			return result;
+		} catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+			driver.quit();
+		}
+
+		Result<ChromeDriverWrapper> result = Result.<ChromeDriverWrapper>builder().status(STATUS.EXCEPTION).build();
+		log.warn("{} 『{}』 priceCompanyInitialize({}, #{}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
+	private Result<ParserResult> priceCompany(ChromeDriverWrapper driver, ItemDomain item, DividendHistoryDomain history) {
+		log.debug("{} priceAsCompany(..., {}, {})", Utility.indentStart(), item, history);
+		long started = System.currentTimeMillis();
+
+		String code = item.getCode();
+		try {
+			// 2. 조회기간 설정
+			LocalDate date = Instant.ofEpochMilli(history.getBase().getTime()).atZone(Utility.ZONE_ID_KST).toLocalDate();
+			String endDateString = date.minusWeeks(0).format(DateTimeFormatter.BASIC_ISO_DATE);
+			String startDateString = date.minusWeeks(2).format(DateTimeFormatter.BASIC_ISO_DATE);
+
+			// 시작일 입력
+			WebElement startElement = driver.findElement(By.xpath("//input[@id='sd1_inputCalendar1_input']"), TIMEOUT);
+			startElement.clear();
+			startElement.sendKeys(startDateString);
+			startElement.sendKeys(Keys.TAB); // 시작일 입력
+			
+			// 종료일 입력
+			WebElement endElement = driver.findElement(By.xpath("//*[@id='sd1_inputCalendar2_input']"), TIMEOUT);
+			endElement.clear();
+			endElement.sendKeys(endDateString);
+			endElement.sendKeys(Keys.TAB); // 시작일 입력
+
+			// 조회 아이콘 클릭
+			By BY_TABLE_1ST_LINE = By.xpath("//table/tbody/tr[1]");
+			String previous1stLine = driver.getText(BY_TABLE_1ST_LINE, TIMEOUT, "andold");	//	이전거
+			driver.findElement(By.xpath("//a[@id='group44']"), TIMEOUT).click();
+			driver.waitUntilTextNotInclude(BY_TABLE_1ST_LINE, TIMEOUT, previous1stLine);	//	이전거
+
+			//	내용 저장
+			StringBuffer sb = new StringBuffer();
+			sb.append(MARK_START_END_POINT_PRICE_COMPANY_EACH);
+
+			// 테이블
+			WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
+			sb.append(driver.extractTextContentFromTableElement(table, String.format("%s\t", code)));
+
+			sb.append(MARK_ANDOLD_SINCE);
+			sb.append(MARK_START_END_POINT_PRICE_COMPANY_EACH);
+			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
+
+			log.debug("{} 『{}』 priceCompany({}, {}) - {}", Utility.indentEnd(), result, item, history, Utility.toStringPastTimeReadable(started));
+			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
+		} catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+			driver.switchTo().defaultContent();
+		}
+
+		log.debug("{} 『{}』 priceAsCompany(..., {}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, item, history, Utility.toStringPastTimeReadable(started));
+		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+	}
+
+	private Result<ParserResult> priceEtf(ItemDomain item, List<DividendHistoryDomain> histories) {
+		log.error("{} {} priceEtf({}, #{})", Utility.indentMiddle(), STATUS.NOT_SUPPORT, item, Utility.size(histories));
+		return  Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
 	}
 
 	@Override

@@ -84,6 +84,7 @@ public class StockService {
 		CrudList<PriceDomain> priceResult = priceService.compile();
 
 		List<ItemDomain> items = itemService.search(null);
+		Map<String, ItemDomain> mapItem = itemService.makeMap(items);
 		List<DividendHistoryDomain> histories = dividendHistoryService.search(null);
 		List<PriceDomain> prices = priceService.search(null);
 
@@ -97,6 +98,7 @@ public class StockService {
 		
 		// 중복 삭제
 		int removed = dividendHistoryService.dedup(histories);
+		removed += dividendHistoryService.clean(mapItem, histories);
 		
 		log.info("{} 『{}』『{}』『±#{}』『-#{}』 compile() - {}", Utility.indentEnd(), priceResult, priceResult1, Utility.size(updated), removed, Utility.toStringPastTimeReadable(started));
 		return updated;

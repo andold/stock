@@ -12,8 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class PriceServiceTest {
-	@Autowired
-	private PriceService service;
+	@Autowired private PriceService service;
 
 	@Test
 	public void testCrawlCompany() {
