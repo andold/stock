@@ -353,4 +353,41 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		return Utility.parseJsonLine(line, PriceDomain.class);
 	}
 
+	// null이면 이미 수집 완료되었거나, 수집이 무효하다
+	public Date dateCrawlRequired(ItemDomain item, List<DividendHistoryDomain> histories) {
+		if (item == null || histories == null || histories.isEmpty()) {
+			return null;
+		}
+
+		Date ipoOpen = item.getIpoOpen();
+		Date ipoClose = item.getIpoClose();
+		String type = item.getType();
+		Date today = new Date();
+		if (ipoOpen == null || (ipoClose != null && ipoClose.before(today)) || (type != null && type.contains("비상장"))) {
+			return null;
+		}
+
+		Date date = null;
+		for (DividendHistoryDomain history : histories) {
+			if (history == null) {
+				continue;
+			}
+
+			Integer dividend = history.getDividend();
+
+			if (dividend == null || dividend <= 0) {
+				continue;
+			}
+
+			if (history.getPriceBase() == null || history.getPriceClosing() == null) {
+				if (date == null) {
+					date = history.getBase();
+				} else if (date.after(history.getBase())) {
+					date = history.getBase();
+				}
+			}
+		}
+		return date;
+	}
+
 }

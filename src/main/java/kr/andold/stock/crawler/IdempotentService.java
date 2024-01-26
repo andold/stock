@@ -34,34 +34,6 @@ public class IdempotentService {
 	@Autowired private DividendHistoryService dividendHistoryService;
 	@Autowired private PriceService priceService;
 
-	private Date isRequireCrawlPrice(List<DividendHistoryDomain> histories) {
-		if (histories == null) {
-			return null;
-		}
-
-		Date date = null;
-		for (DividendHistoryDomain history : histories) {
-			if (history == null) {
-				continue;
-			}
-
-			Integer dividend = history.getDividend();
-
-			if (dividend == null || dividend <= 0) {
-				continue;
-			}
-
-			if (history.getPriceBase() == null || history.getPriceClosing() == null) {
-				if (date == null) {
-					date = history.getBase();
-				} else if (date.after(history.getBase())) {
-					date = history.getBase();
-				}
-			}
-		}
-		return date;
-	}
-
 	private ParserResult put(ParserResult result) {
 		log.debug("{} put({})", Utility.indentStart(), result);
 		long started = System.currentTimeMillis();
@@ -207,13 +179,8 @@ public class IdempotentService {
 	}
 
 	protected STATUS processPrice(ItemDomain item) {
-		String type = item.getType();
-		if (type != null && type.contains("기타비상장")) {
-			return STATUS.INVALID;
-		}
-		
 		List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
-		Date date = isRequireCrawlPrice(histories);
+		Date date = priceService.dateCrawlRequired(item, histories);
 		if (date == null) {
 			return STATUS.ALEADY_DONE;
 		}

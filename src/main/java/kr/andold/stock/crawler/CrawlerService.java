@@ -17,6 +17,7 @@ import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.domain.Result;
 import kr.andold.stock.domain.Result.STATUS;
+import kr.andold.stock.param.DividendHistoryParam;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.DividendHistoryService;
 import kr.andold.stock.service.ItemService;
@@ -39,11 +40,9 @@ public class CrawlerService {
 	@Autowired private Kind kind;
 	@SuppressWarnings("unused") @Autowired private Naver naver;
 
-	@Autowired
-	private ItemService stockItemService;
+	@Autowired private ItemService itemService;
 
-	@Autowired
-	private DividendHistoryService stockDividendHistoryService;
+	@Autowired private DividendHistoryService dividendHistoryService;
 
 	@Autowired
 	private PriceService stockPriceService;
@@ -93,8 +92,8 @@ public class CrawlerService {
 		log.debug("{} put({})", Utility.indentStart(), result);
 		long started = System.currentTimeMillis();
 
-		CrudList<ItemDomain> items = stockItemService.put(result.getItems());
-		CrudList<DividendHistoryDomain> histories = stockDividendHistoryService.put(result.getHistories());
+		CrudList<ItemDomain> items = itemService.put(result.getItems());
+		CrudList<DividendHistoryDomain> histories = dividendHistoryService.put(result.getHistories());
 		CrudList<PriceDomain> prices = stockPriceService.put(result.getPrices());
 		log.debug("{} put({}) - items:{}, histories:{}, prices:{}", Utility.indentMiddle(), result, items, histories, prices);
 
@@ -286,14 +285,14 @@ public class CrawlerService {
 		return result;
 	}
 
-	public Result<ParserResult> crawlItem(ItemParam item) {
-		log.info("{} crawlItem({})", Utility.indentStart(), item);
+	public Result<ParserResult> crawlItem(ItemParam itemParam) {
+		log.info("{} crawlItem({})", Utility.indentStart(), itemParam);
 		long started = System.currentTimeMillis();
 
 		ParserResult container = new ParserResult().clear();
 		Result<ParserResult> result = Result.<ParserResult>builder().result(container).build();
 
-		Result<ParserResult> itemResult = seibro.item(item.getCode());
+		Result<ParserResult> itemResult = seibro.item(itemParam.getCode());
 		if (itemResult.getStatus() == STATUS.SUCCESS) {
 			put(itemResult.getResult());
 			container.addAll(itemResult.getResult());
@@ -301,6 +300,7 @@ public class CrawlerService {
 			result.setStatus(itemResult.getStatus());
 		}
 	
+		ItemDomain item = itemService.read(itemParam.getCode());
 		Result<ParserResult> dividendResult = seibro.dividend(item.getCode(), item.getIpoOpen());
 		if (dividendResult.getStatus() == STATUS.SUCCESS) {
 			put(dividendResult.getResult());
@@ -309,15 +309,19 @@ public class CrawlerService {
 			result.setStatus(dividendResult.getStatus());
 		}
 	
-		Result<ParserResult> priceResult = seibro.price(item.getCode(), item.getIpoOpen());
-		if (priceResult.getStatus() == STATUS.SUCCESS) {
-			put(priceResult.getResult());
-			container.addAll(priceResult.getResult());
-		} else {
-			result.setStatus(priceResult.getStatus());
+		List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
+		Date dateStartCrawl = stockPriceService.dateCrawlRequired(item, histories);
+		if (dateStartCrawl != null) {
+			Result<ParserResult> priceResult = seibro.price(item.getCode(), dateStartCrawl);
+			if (priceResult.getStatus() == STATUS.SUCCESS) {
+				put(priceResult.getResult());
+				container.addAll(priceResult.getResult());
+			} else {
+				result.setStatus(priceResult.getStatus());
+			}
 		}
 
-		log.info("{} 『{}』『{}:{}:{}』 crawlItem({}) - {}", Utility.indentEnd(), result, itemResult, dividendResult, priceResult, item, Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』『{}:{}』 crawlItem({}) - {}", Utility.indentEnd(), result, itemResult, dividendResult, itemParam, Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 

@@ -160,4 +160,13 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 		return null; 
 	}
 
+	public ItemDomain read(String code) {
+		Optional<ItemEntity> op = repository.findOneByCode(code);
+		if (op.isPresent()) {
+			return toDomain(op.get());
+		}
+
+		return null; 
+	}
+
 }

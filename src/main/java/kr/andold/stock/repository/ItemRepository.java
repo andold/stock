@@ -1,6 +1,7 @@
 package kr.andold.stock.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,5 +52,7 @@ public interface ItemRepository extends JpaRepository<ItemEntity, Integer> {
 
 	@Query(value = QUERY_SEARCH_PARAM, nativeQuery = false)
 	Page<ItemEntity> search(@Param("param") ItemParam param, Pageable pageable);
+
+	Optional<ItemEntity> findOneByCode(String code);
 
 }
