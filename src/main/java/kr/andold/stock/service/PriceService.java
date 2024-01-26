@@ -354,7 +354,7 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 	}
 
 	// null이면 이미 수집 완료되었거나, 수집이 무효하다
-	public Date dateCrawlRequired(ItemDomain item, List<DividendHistoryDomain> histories) {
+	public Date dateCrawlRequireForDividend(ItemDomain item, List<DividendHistoryDomain> histories) {
 		if (item == null || histories == null || histories.isEmpty()) {
 			return null;
 		}

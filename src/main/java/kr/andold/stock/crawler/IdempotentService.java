@@ -180,7 +180,7 @@ public class IdempotentService {
 
 	protected STATUS processPrice(ItemDomain item) {
 		List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
-		Date date = priceService.dateCrawlRequired(item, histories);
+		Date date = priceService.dateCrawlRequireForDividend(item, histories);
 		if (date == null) {
 			return STATUS.ALEADY_DONE;
 		}
