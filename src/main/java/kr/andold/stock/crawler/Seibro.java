@@ -415,7 +415,10 @@ public class Seibro implements Crawler {
 			
 		}
 
-		filtered.forEach(history -> {
+		long pause = 1000;
+		for (DividendHistoryDomain history : filtered) {
+			long forStarted = System.currentTimeMillis();
+
 			Result<ParserResult> result = priceCompany(driver, item, history);
 			switch (result.getStatus()) {
 			case SUCCESS:
@@ -425,7 +428,15 @@ public class Seibro implements Crawler {
 				resultContainer.setStatus(result.getStatus());
 				break;
 			}
-		});
+
+			if (System.currentTimeMillis() - forStarted > 1024 * 8) {
+				pause = Math.max(32, pause / 2);
+			} else {
+				pause = Math.min(1024 * 8, pause * 2);
+			}
+
+			Utility.sleep(Math.round(pause * Math.random()));
+		}
 		driver.quit();
 
 		log.debug("{} 『{}』 priceCompany({}, #{}) - {}", Utility.indentEnd(), resultContainer, item, Utility.size(histories), Utility.toStringPastTimeReadable(started));
@@ -541,9 +552,188 @@ public class Seibro implements Crawler {
 	}
 
 	private Result<ParserResult> priceEtf(ItemDomain item, List<DividendHistoryDomain> histories) {
-		log.error("{} {} priceEtf({}, #{})", Utility.indentMiddle(), STATUS.NOT_SUPPORT, item, Utility.size(histories));
-		return  Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
+		log.debug("{} priceEtf({}, #{})", Utility.indentStart(), item, Utility.size(histories));
+		long started = System.currentTimeMillis();
+
+		List<DividendHistoryDomain> filtered = histories.stream().filter(history -> history.getDividend() > 0 && (history.getPriceBase() == null || history.getPriceClosing() == null)).toList();
+		ParserResult container = new ParserResult().clear();
+		Result<ParserResult> resultContainer = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(container).build();
+		Result<ChromeDriverWrapper> initResult = priceEtfInitialize(item);
+		ChromeDriverWrapper driver;
+		switch (initResult.getStatus()) {
+		case SUCCESS:
+			driver = initResult.getResult();
+			break;
+		default:
+			resultContainer.setStatus(initResult.getStatus());
+			log.warn("{} 『{}』 priceEtf({}, #{}) - {}", Utility.indentEnd(), resultContainer, item, Utility.size(histories), Utility.toStringPastTimeReadable(started));
+			return resultContainer;
+		}
+
+		long pause = 1000;
+		for (DividendHistoryDomain history : filtered) {
+			long forStarted = System.currentTimeMillis();
+			Result<ParserResult> result = priceEtf(driver, item, history);
+			switch (result.getStatus()) {
+			case SUCCESS:
+				container.addAll(result.getResult());
+				break;
+			default:
+				resultContainer.setStatus(result.getStatus());
+				log.warn("{} 『{}』 priceEtf({}, #{}) - {}", Utility.indentEnd(), resultContainer, item, Utility.size(histories), Utility.toStringPastTimeReadable(started));
+				break;
+			}
+
+			if (System.currentTimeMillis() - forStarted > 1024 * 8) {
+				pause = Math.max(32, pause / 2);
+			} else {
+				pause = Math.min(1024 * 8, pause * 2);
+			}
+
+			Utility.sleep(Math.round(pause * Math.random()));
+		}
+		driver.quit();
+
+		log.debug("{} 『{}』 priceEtf({}, #{}) - {}", Utility.indentEnd(), resultContainer, item, Utility.size(histories), Utility.toStringPastTimeReadable(started));
+		return resultContainer;
 	}
+
+	private Result<ChromeDriverWrapper> priceEtfInitialize(ItemDomain item) {
+		log.trace("{} priceEtfInitialize({})", Utility.indentStart(), item);
+		long started = System.currentTimeMillis();
+
+		String code = item.getCode();
+		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		try {
+			driver.navigate().to(URL_PRICE_ETF_EACH);
+
+			// 넓게 보기 아이콘 클릭
+			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT * 4).click();
+			
+			//	종목명 검색 링크 클릭
+			driver.findElement(By.xpath("//a[@id='sn_group4']"), TIMEOUT).click();
+
+			//	떠 있는 팝업으로 이동
+			driver.switchTo().frame(driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"), TIMEOUT));
+
+			//	코드 입력
+			WebElement inputSearchElement = driver.findElement(By.xpath("//input[@id='search_string']"), TIMEOUT);	// 입력창
+			inputSearchElement.clear();
+			inputSearchElement.sendKeys(code); // 코드 입력
+			
+			// 종목명 검색 아이콘 클릭
+			By BY_SEARCH_RESULT_COUNT = By.xpath("//span[@id='P_ListCnt']");
+			String INVALID_COUNT = "-1";
+			driver.setText(BY_SEARCH_RESULT_COUNT, INVALID_COUNT, TIMEOUT);
+			driver.findElement(By.xpath("//a[@id='group236']"), TIMEOUT).click(); // 종목명 검색 아이콘
+			driver.waitUntilTextNotInclude(BY_SEARCH_RESULT_COUNT, TIMEOUT, INVALID_COUNT);
+
+			//	검색 결과에서 선택
+			String count = driver.getText(BY_SEARCH_RESULT_COUNT, TIMEOUT, "0");
+			if ("0".contentEquals(count)) {
+				driver.quit();
+				Result<ChromeDriverWrapper> result = Result.<ChromeDriverWrapper>builder().status(STATUS.FAIL_NO_RESULT).build();
+				log.debug("{} 『{}』 priceEtfInitialize({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+				return result;
+			}
+
+			By BY_SEARCH_CODE_RESULT = By.xpath("//ul[@id='contentsList']/li/a");
+			By BY_1ST_VOLUME = By.xpath("//*[@id='grid1_cell_0_6']/nobr");
+			if ("1".contentEquals(count)) {
+				String firstVolume = driver.getText(BY_1ST_VOLUME, TIMEOUT, "-");
+				driver.clickIfExist(BY_SEARCH_CODE_RESULT);
+				driver.waitUntilTextNotInclude(BY_1ST_VOLUME, TIMEOUT, firstVolume);
+			} else {
+				List<WebElement> candidates = driver.findElements(BY_SEARCH_CODE_RESULT, TIMEOUT);
+				boolean found = false;
+				for (WebElement candidate : candidates) {
+					String href = candidate.getAttribute("href");	// javascript:SelectedValueReturn( 'KR7391680006', '흥국HK하이볼액티브증권상장지수투자신탁[주식]' ) 
+					if (href.matches(String.format(".+KR.%s.+", code))) {
+						String firstVolume = driver.getText(BY_1ST_VOLUME, TIMEOUT, "-");
+						candidate.click();
+						driver.waitUntilTextNotInclude(BY_1ST_VOLUME, TIMEOUT, firstVolume);
+						found = true;
+						break;
+					}
+				}
+
+				if (!found) {
+					Result<ChromeDriverWrapper> result = Result.<ChromeDriverWrapper>builder().status(STATUS.FAIL_NO_RESULT).build();
+					log.debug("{} 『{}』 priceEtfInitialize({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+					return result;
+				}
+			}
+
+			//	팝업이 닫혔다, 돌아간다
+			driver.switchTo().defaultContent();
+			Result<ChromeDriverWrapper> result = Result.<ChromeDriverWrapper>builder().status(STATUS.SUCCESS).result(driver).build();
+			
+			// 조회 클릭
+			driver.clickIfExist(By.xpath("//*[@id='group155']"));
+
+			log.trace("{} 『{}』 priceEtfInitialize({}, #{}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
+			return result;
+		} catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+			driver.quit();
+		}
+
+		Result<ChromeDriverWrapper> result = Result.<ChromeDriverWrapper>builder().status(STATUS.EXCEPTION).build();
+		log.warn("{} 『{}』 priceEtfInitialize({}, #{}) - {}", Utility.indentEnd(), result, item, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
+	private Result<ParserResult> priceEtf(ChromeDriverWrapper driver, ItemDomain item, DividendHistoryDomain history) {
+		log.debug("{} priceEtf(..., {}, {})", Utility.indentStart(), item, history);
+		long started = System.currentTimeMillis();
+
+		String code = item.getCode();
+		try {
+			// 2. 조회기간 설정
+			LocalDate date = Instant.ofEpochMilli(history.getBase().getTime()).atZone(Utility.ZONE_ID_KST).toLocalDate();
+			String endDateString = date.format(DateTimeFormatter.BASIC_ISO_DATE);
+			String startDateString = date.minusWeeks(2).format(DateTimeFormatter.BASIC_ISO_DATE);
+
+			// 시작일 입력
+			WebElement startElement = driver.findElement(By.xpath("//input[@id='inputCalendar1_input']"), TIMEOUT);
+			startElement.clear();
+			startElement.sendKeys(startDateString);
+			startElement.sendKeys(Keys.TAB); // 시작일 입력
+			
+			// 종료일 입력
+			WebElement endElement = driver.findElement(By.xpath("//input[@id='inputCalendar2_input']"), TIMEOUT);
+			endElement.clear();
+			endElement.sendKeys(endDateString);
+			endElement.sendKeys(Keys.TAB); // 종료일 입력
+			
+			// 일별시세 조회 클릭
+			driver.findElement(By.xpath("//*[@id='group155']"), TIMEOUT).click();
+
+			//	내용 저장
+			StringBuffer sb = new StringBuffer();
+			sb.append(MARK_START_END_POINT_PRICE_ETF_EACH);
+
+			//	테이블
+			WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
+			sb.append(driver.extractTextContentFromTableElement(table, String.format("%s\t", code)));
+
+			sb.append(MARK_ANDOLD_SINCE);
+			sb.append(MARK_START_END_POINT_PRICE_ETF_EACH);
+
+			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
+
+			log.debug("{} 『{}』 priceEtf(..., {}, {}) - {}", Utility.indentEnd(), result, item, history, Utility.toStringPastTimeReadable(started));
+			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
+		
+		} catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+			driver.switchTo().defaultContent();
+		}
+
+		log.debug("{} 『{}』 priceEtf(..., {}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, item, history, Utility.toStringPastTimeReadable(started));
+		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+	}
+	
 
 	@Override
 	public Result<ParserResult> price(Date date) {
