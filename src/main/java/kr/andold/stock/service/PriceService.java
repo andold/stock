@@ -101,6 +101,7 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 	public int remove(List<PriceDomain> domains) {
 		List<PriceEntity> entities = toEntities(domains);
 		repository.deleteAll(entities);
+		repository.flush();
 		return Utility.size(entities);
 	}
 

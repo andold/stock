@@ -50,6 +50,7 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 	public int remove(List<DividendHistoryDomain> domains) {
 		List<DividendHistoryEntity> entities = toEntities(domains);
 		repository.deleteAll(entities);
+		repository.flush();
 		return Utility.size(entities);
 	}
 

@@ -500,7 +500,7 @@ public class Seibro implements Crawler {
 	}
 
 	private Result<ParserResult> priceCompany(ChromeDriverWrapper driver, ItemDomain item, DividendHistoryDomain history) {
-		log.debug("{} priceAsCompany(..., {}, {})", Utility.indentStart(), item, history);
+		log.debug("{} priceCompany(..., {}, {})", Utility.indentStart(), item, history);
 		long started = System.currentTimeMillis();
 
 		String code = item.getCode();
@@ -547,7 +547,7 @@ public class Seibro implements Crawler {
 			driver.switchTo().defaultContent();
 		}
 
-		log.debug("{} 『{}』 priceAsCompany(..., {}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, item, history, Utility.toStringPastTimeReadable(started));
+		log.debug("{} 『{}』 priceCompany(..., {}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, item, history, Utility.toStringPastTimeReadable(started));
 		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 	}
 

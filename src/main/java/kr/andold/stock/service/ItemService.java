@@ -99,6 +99,7 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 	public int remove(List<ItemDomain> domains) {
 		List<ItemEntity> entities = toEntities(domains);
 		repository.deleteAll(entities);
+		repository.flush();
 		return Utility.size(entities);
 	}
 
