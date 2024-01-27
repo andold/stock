@@ -69,7 +69,7 @@ public interface CommonBlockService<X, Y, Z> {
 
 	void prepareCreate(Y domain);
 
-	void prepareUpdate(Y source, Y target);
+	void prepareUpdate(Y before, Y after);
 
 	String key(Y domain);
 

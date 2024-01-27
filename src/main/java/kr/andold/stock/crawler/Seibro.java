@@ -81,7 +81,7 @@ public class Seibro implements Crawler {
 	}
 
 	private Result<ParserResult> dividendAsEtf(String code, Date start) {
-		log.debug("{} extractAsEtf({}, {})", Utility.indentStart(), code, start);
+		log.debug("{} dividendAsEtf({}, {})", Utility.indentStart(), code, start);
 		long started = System.currentTimeMillis();
 
 		ChromeDriverWrapper driver = null;
@@ -95,7 +95,7 @@ public class Seibro implements Crawler {
 				break;
 			default:
 				close(driver);
-				log.debug("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), searchItemResult, code, start, Utility.toStringPastTimeReadable(started));
+				log.debug("{} 『{}』 dividendAsEtf({}, {}) - {}", Utility.indentEnd(), searchItemResult, code, start, Utility.toStringPastTimeReadable(started));
 				return searchItemResult;
 			
 			}
@@ -122,14 +122,14 @@ public class Seibro implements Crawler {
 			ParserResult parserResult = ParserService.parse(new String(sb), false);
 			Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(parserResult).build();
 
-			log.debug("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), result, code, start, Utility.toStringPastTimeReadable(started));
+			log.debug("{} 『{}』 dividendAsEtf({}, {}) - {}", Utility.indentEnd(), result, code, start, Utility.toStringPastTimeReadable(started));
 			return result;
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 			close(driver);
 		}
 
-		log.debug("{} 『{}』 extractAsEtf({}, {}) - {}", Utility.indentEnd(), "EXCEPTION", code, start, Utility.toStringPastTimeReadable(started));
+		log.debug("{} 『{}』 dividendAsEtf({}, {}) - {}", Utility.indentEnd(), "EXCEPTION", code, start, Utility.toStringPastTimeReadable(started));
 		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 	}
 
