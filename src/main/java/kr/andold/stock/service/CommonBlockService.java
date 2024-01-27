@@ -111,14 +111,20 @@ public interface CommonBlockService<X, Y, Z> {
 
 	default int batch(CrudList<Y> list) {
 		int count = 0;
-		if (list.getCreates() != null) {
+
+		List<Y> creates = list.getCreates();
+		if (creates != null && !creates.isEmpty()) {
 			List<Y> created = create(list.getCreates());
 			count += Utility.size(created);
 		}
-		if (list.getRemoves() != null) {
+
+		List<Y> remvoes = list.getRemoves();
+		if (remvoes != null && !remvoes.isEmpty()) {
 			count += remove(list.getRemoves());
 		}
-		if (list.getUpdates() != null) {
+
+		List<Y> updates = list.getUpdates();
+		if (updates != null && !updates.isEmpty()) {
 			count += Utility.size(update(list.getUpdates()));
 		}
 
