@@ -83,7 +83,7 @@ public class IdempotentServiceTest {
 	@Test
 	public void testProcessPriceByHistories() {
 		STATUS result = service.processPrice(ItemDomain.builder()
-				.code("441680")
+				.code("000640")
 				.symbol(".")
 				.type("ETF")
 				.category(".")

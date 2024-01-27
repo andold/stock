@@ -126,7 +126,9 @@ seibroPriceCompany:
 	(
 		word TAB										NEWLINE		//	175330 	 
 		NUMBER TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE		//	175330 	 일자 	 종가 	 전일비 	 시가 	 고가 	 저가 	 거래량 	 
-		(
+		((
+			NUMBER TAB TAB TAB TAB TAB TAB TAB TAB										NEWLINE		//	136490 	 	 	 	 	 	 	 	 
+		) | (
 			code=word TAB base=DATE TAB closing=NUMBER TAB NUMBER TAB market=NUMBER TAB high=NUMBER TAB low=NUMBER TAB volume=NUMBER TAB		NEWLINE
 					//	175330 	 2024/01/12 	 10,700 	 -10 	 10,720 	 10,840 	 10,630 	 232,427 	 
 			{
@@ -135,7 +137,7 @@ seibroPriceCompany:
 					, $base.text, $closing.text, $market.text, $high.text, $low.text, $volume.text
 				);
 			}
-		)+
+		))+
 		WORD TAB WORD TAB DATE										NEWLINE		//	andold 	 since 	 2023-11-27 
 	)+
 	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 SEIBro 	 주식 > 종목별상세정보 > 일자별시세 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02007V.xml&menuNo=45 
