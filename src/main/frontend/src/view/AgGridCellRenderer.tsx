@@ -433,7 +433,7 @@ function dividendTableRatioByCurrentPrice(mapHistory: any, start: any, currentPr
 								return (<td key={Math.random()}></td>);
 							})
 						}
-						<th className="text-end px-1 py-0">{(mapHistory.get(start.year() + cx) / currentPrice * 100)?.toFixed(2)}</th>
+						<th className="text-end px-1 py-0">{mapHistory.get(start.year() + cx) ? (mapHistory.get(start.year() + cx) / currentPrice * 100)?.toFixed(2) : ""}</th>
 					</tr>))
 				}
 			</tbody></Table>

@@ -181,12 +181,17 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 				continue;
 			}
 
+			Integer dividend = history.getDividend();
+			if (dividend == null || dividend == 0) {
+				removes.add(history);
+			}
+
 			Date ipoOpen = item.getIpoOpen();
 			if (ipoOpen == null) {
 				continue;
 			}
 
-			if (ipoOpen.after(history.getBase())) {
+			if (ipoOpen.after(history.getBase()) && dividend > 0) {
 				removes.add(history);
 			}
 		}
