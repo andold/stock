@@ -70,7 +70,7 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 
 	@Override
 	public void prepareUpdate(PriceDomain before, PriceDomain after) {
-		Utility.copyPropertiesNotNull(after, before);
+		Utility.copyPropertiesNotNull(after, before, "id");
 		before.setUpdated(new Date());		
 	}
 

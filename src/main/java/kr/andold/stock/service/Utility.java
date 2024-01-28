@@ -702,6 +702,94 @@ public class Utility {
 		return string.length();
 	}
 
+	public static boolean copyPropertiesNotNull(Object source, Object target, String... withouts) {
+		if (source == null || target == null) {
+			return false;
+		}
+
+		Method[] sourceMethods = source.getClass().getMethods();
+		Method[] targetMethods = target.getClass().getMethods();
+		if (sourceMethods == null || targetMethods == null) {
+			return false;
+		}
+
+		Map<String, Method> mapTargetSetter = new HashMap<String, Method>();
+		Map<String, Method> mapTargetGetter = new HashMap<String, Method>();
+		for (Method targetMethod : targetMethods) {
+			if (targetMethod == null) {
+				continue;
+			}
+
+			String name = targetMethod.getName();
+			if (name == null) {
+				continue;
+			}
+
+			if (name.startsWith("set") && targetMethod.getParameterCount() == 1) {
+				mapTargetSetter.put(name.substring(3), targetMethod);
+				continue;
+			}
+
+			if (name.startsWith("get") && targetMethod.getParameterCount() == 0) {
+				mapTargetGetter.put(name.substring(3), targetMethod);
+				continue;
+			}
+
+		}
+
+		boolean dirty = false;
+		for (Method getter : sourceMethods) {
+			if (getter == null || getter.getParameterCount() > 0) {
+				continue;
+			}
+
+			String name = getter.getName();
+			if (name == null || !name.startsWith("get")) {
+				continue;
+			}
+
+			String key = name.substring(3);
+			boolean containWithout = false;
+			for (String without : withouts) {
+				if (key.equalsIgnoreCase(without)) {
+					containWithout = true;
+					break;
+				}
+			}
+			if (containWithout) {
+				continue;
+			}
+
+			Method targetSetter = mapTargetSetter.get(key);
+			Method targetGetter = mapTargetGetter.get(key);
+			if (targetSetter == null || targetGetter == null) {
+				continue;
+			}
+
+			try {
+				Object sourceValue = getter.invoke(source);
+				if (sourceValue == null) {
+					//	value is null
+					continue;
+				}
+
+				Object targetValue = targetGetter.invoke(target);
+				if (Utility.compare(sourceValue, targetValue) == 0) {
+					//	value is equal
+					continue;
+				}
+
+				//	value is not null and not equal
+
+				targetSetter.invoke(target, sourceValue);
+				dirty = true;
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return dirty;
+	}
 	public static boolean copyPropertiesNotNull(Object source, Object target) {
 		if (source == null || target == null) {
 			return false;

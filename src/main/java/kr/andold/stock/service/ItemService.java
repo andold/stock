@@ -123,7 +123,7 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 
 	@Override
 	public void prepareUpdate(ItemDomain before, ItemDomain after) {
-		Utility.copyPropertiesNotNull(after, before);
+		Utility.copyPropertiesNotNull(after, before, "id");
 		before.setUpdated(new Date());		
 		if (before.getPriority() == null) {
 			before.setPriority(8);
