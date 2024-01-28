@@ -101,6 +101,7 @@ public class ApiPriceController {
 	        byte[] data = new byte[64 * 1024];
 	        while ((numberOfBytesToWrite = inputStream.read(data, 0, data.length)) != -1) {
 	            outputStream.write(data, 0, numberOfBytesToWrite);
+	            outputStream.flush();
 	        }
 
 	        inputStream.close();

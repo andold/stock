@@ -171,19 +171,29 @@ export function PriceRecentCellRenderer(param: any) {
 // 종목이름 타입 코드
 export function SymbolTypeCode(param: any) {
 	const data: Item = param.data;
+	
+	function typeToVariant(type: string): string {
+		if (!type) {
+			return "warning";
+		}
+		switch (type) {
+			case "ETF":
+				return "outline-primary";
+			case "KOSPI":
+				return "outline-success";
+			case "KOSDAQ":
+				return "outline-info";
+			case "KONEX":
+				return "outline-light";
+		}
+		return "outline-warning";
+	}
 
 	return (<>
 		<Row className="mx-0 px-0">
-			<Col className={`ms-1 px-0 text-start text-truncate${data.ipoClose ? " text-decoration-line-through" : ""}`}>{data.symbol}</Col>
+			<Col className={`ms-1 px-0 text-start text-truncate${data.ipoClose ? " text-decoration-line-through text-warning" : ""}`}>{data.symbol}</Col>
 			<Col xs="auto" className="ms-1 px-0 text-end">
-				{
-					"ETF" == data.type
-						? (<><Button variant="outline-success" className="py-0 px-1" style={{ fontSize: 8 }}>ETF</Button></>)
-						: data.type == "KOSPI"
-							? (<><Button variant="outline-light" className="py-0 px-1" style={{ fontSize: 8 }}>KOSPI</Button></>)
-							: !data.type ? ""
-								: (<><Button variant="outline-danger" className="py-0 px-1" style={{ fontSize: 8 }}>{data.type}</Button></>)
-				}
+				<Button variant={typeToVariant(data.type)} className="py-0 px-1" style={{ fontSize: 8 }}>{data.type}</Button>
 				<span className="ms-1" style={{ fontSize: 8 }}>{data.code}</span>
 			</Col>
 		</Row>
