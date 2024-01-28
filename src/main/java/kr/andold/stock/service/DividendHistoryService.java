@@ -96,7 +96,7 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 
 	@Override
 	public void prepareUpdate(DividendHistoryDomain before, DividendHistoryDomain after) {
-		Utility.copyPropertiesNotNull(after, before, "id");
+		Utility.copyPropertiesNotNull(after, before, "id", "updated", "created");
 		before.setUpdated(new Date());		
 	}
 

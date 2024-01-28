@@ -198,7 +198,7 @@ public interface CommonBlockService<X, Y, Z> {
 			if (y == null) {
 				map.put(key, domain);
 			} else {
-				Utility.copyPropertiesNotNull(domain, y, "id");
+				Utility.copyPropertiesNotNull(domain, y, "id", "updated", "created");
 				removes.add(domain);
 				mapUpdates.put(key, y);
 			}
