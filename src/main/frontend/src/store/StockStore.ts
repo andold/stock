@@ -2,7 +2,7 @@ import { makeAutoObservable } from "mobx";
 import moment from "moment";
 
 import repository from "../repository/StockRepository";
-import { PriceEarningsRatioCellRenderer, PriorityCellRenderer, RecentDividendAgGridCellRenderer, OperateColumn, SymbolTypeCode as SymbolEtfTypeCode, PriceRecentCellRenderer } from "../view/AgGridCellRenderer";
+import { PriceEarningsRatioCellRenderer, PriorityCellRenderer, OperateColumn, SymbolTypeCode as SymbolEtfTypeCode, PriceRecentCellRenderer } from "../view/AgGridCellRenderer";
 import Item from "../model/Item";
 
 const CELL_STYLE_LEFT = { textAlign: "left", padding: 1, };
@@ -232,13 +232,6 @@ class StockStore {
 			valueGetter: (params: any) => params.data.custom.dividend?.currentPrice?.toLocaleString(),
 			cellRenderer: PriceRecentCellRenderer,
 			cellStyle: CELL_STYLE_RIGHT,
-			width: 64,
-		}, {
-			field: "dividend",
-			headerName: "최근 배당",
-			hide: hides && hides.includes("dividend"),
-			cellRenderer: RecentDividendAgGridCellRenderer,
-			cellStyle: CELL_STYLE_LEFT,
 			width: 64,
 		}, {
 			field: "volumeOfListedShares",
