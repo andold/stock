@@ -195,7 +195,6 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 				removes.add(history);
 			}
 		}
-		remove(removes);
 		return remove(removes);
 	}
 

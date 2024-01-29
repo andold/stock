@@ -98,10 +98,11 @@ public class StockService {
 		
 		// 중복 삭제
 		int removed = itemService.dedup(items);
-		removed = dividendHistoryService.dedup(histories);
-		removed = priceService.dedup(prices);
+		removed += dividendHistoryService.dedup(histories);
+		removed += priceService.dedup(prices);
 
 		removed += dividendHistoryService.clean(mapItem, histories);
+		removed += priceService.clean(mapItem, prices);
 		
 		log.info("{} 『{}』『{}』『±#{}』『-#{}』 compile() - {}", Utility.indentEnd(), priceResult, priceResult1, Utility.size(updated), removed, Utility.toStringPastTimeReadable(started));
 		return updated;

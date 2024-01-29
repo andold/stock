@@ -391,4 +391,30 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		return date;
 	}
 
+	// 상장폐지일 이후의 주가시세는 지운다
+	public int clean(Map<String, ItemDomain> mapItem, List<PriceDomain> prices) {
+		List<PriceDomain> removes = new ArrayList<>();
+		if (mapItem == null || prices == null) {
+			return 0;
+		}
+
+		for (PriceDomain price: prices) {
+			ItemDomain item = mapItem.get(price.getCode());
+			if (item == null) {
+				continue;
+			}
+			
+			Date ipoClose = item.getIpoClose();
+			if (ipoClose == null) {
+				continue;
+			}
+			
+			Date base = price.getBase();			
+			if (base.after(ipoClose)) {
+				removes.add(price);
+			}
+		}
+		return remove(removes);
+	}
+
 }
