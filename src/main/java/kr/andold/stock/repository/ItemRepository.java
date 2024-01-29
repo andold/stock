@@ -44,7 +44,7 @@ public interface ItemRepository extends JpaRepository<ItemEntity, Integer> {
 			+ "			OR	x.priority						<	8"
 			//	flexable
 			+ "		)"
-			+ "	ORDER BY	x.priority ASC, x.priceEarningsRatio DESC, x.symbol ASC, x.code ASC"
+			+ "	ORDER BY	x.priority ASC, x.priceEarningsRatio DESC NULLS LAST, x.symbol ASC, x.code ASC"
 			;
 
 	@Query(value = QUERY_SEARCH_PARAM, nativeQuery = false)
