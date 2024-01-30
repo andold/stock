@@ -88,22 +88,20 @@ public class ApiPriceController {
 			writer.println(Utility.toStringJson(price));
 		}
 		writer.close();
+		log.info("{} #{}/#{} - download() - {}", Utility.indentMiddle(), Utility.size(prices), file.length(), Utility.toStringPastTimeReadable(started));
 		
 		final HttpHeaders httpHeaders = new HttpHeaders();
 	    final InputStream inputStream = new FileInputStream(file);
 	    httpHeaders.set(HttpHeaders.LAST_MODIFIED, String.valueOf(file.lastModified()));
 	    httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
 	    httpHeaders.set(HttpHeaders.CONTENT_LENGTH, String.valueOf(file.length()));
-
 	    StreamingResponseBody responseBody = outputStream -> {
-
 	        int numberOfBytesToWrite;
-	        byte[] data = new byte[64 * 1024];
+	        byte[] data = new byte[1024 * 1024];
 	        while ((numberOfBytesToWrite = inputStream.read(data, 0, data.length)) != -1) {
 	            outputStream.write(data, 0, numberOfBytesToWrite);
 	            outputStream.flush();
 	        }
-
 	        inputStream.close();
 	    };
 
