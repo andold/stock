@@ -276,7 +276,7 @@ public class CrawlerService {
 		log.info("{} crawlDividendAllRecent()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		Result<ParserResult> result = seibro.dividend(Date.from(ZonedDateTime.now().minusMonths(1).toInstant()));
+		Result<ParserResult> result = seibro.dividend(Date.from(ZonedDateTime.now().minusMonths(6).toInstant()));
 		if (result.getStatus() == STATUS.SUCCESS) {
 			put(result.getResult());
 		}
