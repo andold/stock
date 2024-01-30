@@ -1,6 +1,6 @@
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Col, OverlayTrigger, Row, Spinner, Table, Tooltip } from "react-bootstrap";
+import { Button, CloseButton, Col, Overlay, OverlayTrigger, Popover, Row, Spinner, Stack, Table, Tooltip } from "react-bootstrap";
 
 // model
 import Price from "../model/Price";
@@ -65,8 +65,8 @@ export function PriceRecentCellRenderer(param: any) {
 	}
 
 	const info = {
-		min : param.data?.custom?.minPrice + 1,
-		max : param.data?.custom?.maxPrice,
+		min: param.data?.custom?.minPrice + 1,
+		max: param.data?.custom?.maxPrice,
 	};
 
 	const ref = useRef(null);
@@ -84,11 +84,11 @@ export function PriceRecentCellRenderer(param: any) {
 							height: height(maxheight, price, minmax) + 16,
 							marginTop: maxheight - height(maxheight, price, minmax),
 							fontSize: 8,
-						 }}
-					 >
-					 	<Row className="m-0 p-0 text-center"><Col className="m-0 p-0 text-center">{moment(price.base).format(format || "YYYY-MM-DD")}</Col></Row>
-				 		<Row className="m-0 p-0 text-center"><Col className="m-0 p-0 text-center">{price.closing.toLocaleString()}</Col></Row>
-			 	</Col>
+						}}
+					>
+						<Row className="m-0 p-0 text-center"><Col className="m-0 p-0 text-center">{moment(price.base).format(format || "YYYY-MM-DD")}</Col></Row>
+						<Row className="m-0 p-0 text-center"><Col className="m-0 p-0 text-center">{price.closing.toLocaleString()}</Col></Row>
+					</Col>
 				))
 			}</Row>
 		</>);
@@ -158,8 +158,8 @@ export function PriceRecentCellRenderer(param: any) {
 									marginRight: 1,
 									height: height(param?.node?.rowHeight, price, info),
 									marginTop: lineHeight - height(param?.node?.rowHeight, price, info),
-								 }}
-							 ></Col>
+								}}
+							></Col>
 						))
 					}</Row>
 				</Col>
@@ -171,7 +171,7 @@ export function PriceRecentCellRenderer(param: any) {
 // 종목이름 타입 코드
 export function SymbolTypeCode(param: any) {
 	const data: Item = param.data;
-	
+
 	function typeToVariant(type: string): string {
 		if (!type) {
 			return "warning";
@@ -249,59 +249,59 @@ export function PriorityCellRenderer(param: any) {
 	</>);
 }
 
-function PriceEarningsRatioTooltip(param: any, mapHistory: any) {
-	const [height, setHeight] = useState(param?.node?.rowHeight);
-
-	let years = Math.min(11, moment().year() - moment(param?.data?.ipoOpen).year() + 1);
-
-	return (
-		<Tooltip className="mytooltip border bg-black m-0 p-1">
-			<Row className="m-0 py-1">{param?.data?.symbol}</Row>
-			<table className="m-0 p-0" style={{ fontSize: 10 }}><tbody>
-				<tr className="py-0 text-start"><th colSpan={2}>배당 금액 (원)</th></tr>
-				<tr className="mb-4 py-0">
-					<td>{DividendTableAmount(mapHistory, moment(param?.data?.ipoOpen), setHeight)}</td>
-					<td className="m-0 p-0 align-top" style={{ width: 8 * years, }}>{dividendBarGraphAmount(mapHistory, moment(param?.data?.ipoOpen), height)}</td>
-				</tr>
-
-				<tr><th className="pt-2 text-start" colSpan={2}>배당수익율 (%, 현재가 기준 {param?.data?.custom?.currentPrice?.toLocaleString()})</th></tr>
-				<tr className="mb-4">
-					<td>{dividendTableRatioByCurrentPrice(mapHistory, moment(param?.data?.ipoOpen), param?.data?.custom?.currentPrice)}</td>
-					<td className="m-0 p-0 align-top">{dividendBarGraphRatioByCurrentPrice(mapHistory, moment(param?.data?.ipoOpen), param?.data?.custom?.currentPrice, height)}</td>
-				</tr>
-
-				<tr><th className="pt-2 text-start" colSpan={2}>배당수익율 (%, 당시 주가 기준)</th></tr>
-				<tr className="mb-4">
-					<td>{dividendTableRatioByClosingPrice(mapHistory, moment(param?.data?.ipoOpen))}</td>
-					<td className="m-0 p-0 align-top">{dividendBarGraphRatioByClosingPrice(mapHistory, moment(param?.data?.ipoOpen), param?.data?.custom?.currentPrice, height)}</td>
-				</tr>
-			</tbody></table>
-		</Tooltip>
-	);
-}
-
 // 최근 배당수익률
 export function PriceEarningsRatioCellRenderer(param: any) {
+	const [show, setShow] = useState(false);
+	const [height, setHeight] = useState(param?.node?.rowHeight);
+	const target = useRef(null);
+
 	const mapHistory = param?.data?.custom?.mapHistory;
 	const lineHeight = param?.node?.rowHeight - 4;
 	if (!mapHistory || !lineHeight) {
 		return (<></>);
 	}
 
+	const years = Math.min(11, moment().year() - moment(param?.data?.ipoOpen).year() + 1);
+
 	return (<>
-		<OverlayTrigger overlay={PriceEarningsRatioTooltip(param, mapHistory)} trigger={["click", "hover", ]} placement="auto">
-			<Row className="mx-0 text-right">
-				<Col sm="4" md="3" xl="2" xxl="2" className="m-0 p-0">
-					<span>{param.value == null ? "-" : param.value.toFixed(2)}</span>
-				</Col>
-				<Col>{dividendBarGraphAmount(mapHistory, moment(param?.data?.ipoOpen), lineHeight)}</Col>
-			</Row>
-		</OverlayTrigger>
+		<Row ref={target} className="mx-0 text-right" onClick={() => setShow(!show)}>
+			<Col sm="4" md="3" xl="2" xxl="2" className="m-0 p-0">
+				<span>{param.value == null ? "-" : param.value.toFixed(2)}</span>
+			</Col>
+			<Col>{dividendBarGraphAmount(mapHistory, moment(param?.data?.ipoOpen), lineHeight)}</Col>
+		</Row>
+		<Overlay target={target.current} show={show} placement="auto">
+			<Popover className="border bg-black" style={{ maxWidth: 1024, }} onClick={() => setShow(!show)}>
+				<Popover.Header><Stack direction="horizontal">
+					<h6 className="flex-grow-1 mb-0">{param?.data?.symbol}</h6>
+					<CloseButton onClick={() => setShow(!show)} />
+				</Stack></Popover.Header>
+				<Popover.Body><table className="text-white" style={{ fontSize: 10 }}><tbody>
+					<tr className="py-0 text-start"><th colSpan={2}>배당 금액 (원)</th></tr>
+					<tr className="mb-4 py-0">
+						<td>{DividendTableAmount(mapHistory, moment(param?.data?.ipoOpen), setHeight)}</td>
+						<td className="m-0 p-0 align-top" style={{ width: 8 * years, }}>{dividendBarGraphAmount(mapHistory, moment(param?.data?.ipoOpen), height)}</td>
+					</tr>
+
+					<tr><th className="pt-2 text-start" colSpan={2}>배당수익율 (%, 현재가 기준 {param?.data?.custom?.currentPrice?.toLocaleString()})</th></tr>
+					<tr className="mb-4">
+						<td>{dividendTableRatioByCurrentPrice(mapHistory, moment(param?.data?.ipoOpen), param?.data?.custom?.currentPrice)}</td>
+						<td className="m-0 p-0 align-top">{dividendBarGraphRatioByCurrentPrice(mapHistory, moment(param?.data?.ipoOpen), param?.data?.custom?.currentPrice, height)}</td>
+					</tr>
+
+					<tr><th className="pt-2 text-start" colSpan={2}>배당수익율 (%, 당시 주가 기준)</th></tr>
+					<tr className="mb-4">
+						<td>{dividendTableRatioByClosingPrice(mapHistory, moment(param?.data?.ipoOpen))}</td>
+						<td className="m-0 p-0 align-top">{dividendBarGraphRatioByClosingPrice(mapHistory, moment(param?.data?.ipoOpen), param?.data?.custom?.currentPrice, height)}</td>
+					</tr>
+				</tbody></table></Popover.Body>
+			</Popover >
+		</Overlay>
 	</>);
 };
 
 function DividendTableAmount(mapHistory: any, start: any, setHeight?: any) {
-	if (!mapHistory|| !start) {
+	if (!mapHistory || !start) {
 		return (<></>);
 	}
 
@@ -437,9 +437,9 @@ function dividendBarGraphRatioByClosingPrice(mapHistory: any, start: any, curren
 						<OverlayTrigger overlay={<Tooltip>{start.year() + cx}년: {(mapHistory.get(start.year() + cx + 0.1) || 0).toFixed(2)}%</Tooltip>}>
 							<Col className="m-0 p-0" style={{ verticalAlign: "top", height: height, }}>
 								<Row className="mx-1 px-0" style={{
-										height: (max - (mapHistory.get(start.year() + cx + 0.1) || 0)) / max * height,
+									height: (max - (mapHistory.get(start.year() + cx + 0.1) || 0)) / max * height,
 								}}>
-									<Col className="m-0 p-0"/>
+									<Col className="m-0 p-0" />
 								</Row>
 								{
 									store.range(12).map((cy: number) => {
@@ -448,12 +448,12 @@ function dividendBarGraphRatioByClosingPrice(mapHistory: any, start: any, curren
 											return (
 												<OverlayTrigger key={cy} overlay={<Tooltip>{moment([start.year() + cx, 11 - cy]).format("YYYY-MM")}: {((history.dividend / history.priceClosing * 100) || 0).toFixed(2)}%</Tooltip>}>
 													<Row className="px-0" style={{
-															marginLeft: 1,
-															marginRight: 1,
-															height: history.dividend / history.priceClosing * 100 / max * height,
-															backgroundColor: FILL_COLOR_MONTH[11 - cy],
+														marginLeft: 1,
+														marginRight: 1,
+														height: history.dividend / history.priceClosing * 100 / max * height,
+														backgroundColor: FILL_COLOR_MONTH[11 - cy],
 													}}>
-														<Col className="m-0 p-0"/>
+														<Col className="m-0 p-0" />
 													</Row>
 												</OverlayTrigger>
 											);
@@ -489,9 +489,9 @@ function dividendBarGraphRatioByCurrentPrice(mapHistory: any, start: any, curren
 						<OverlayTrigger overlay={<Tooltip>{start.year() + cx}년: {((mapHistory.get(start.year() + cx) || 0) * 100 / currentPrice).toFixed(2)}%</Tooltip>}>
 							<Col className="m-0 p-0" style={{ verticalAlign: "top", }}>
 								<Row className="mx-0 p-0" style={{
-										height: (max - ((mapHistory.get(start.year() + cx) / currentPrice) || 0) * 100) / max * height,
+									height: (max - ((mapHistory.get(start.year() + cx) / currentPrice) || 0) * 100) / max * height,
 								}}>
-									<Col className="m-0 p-0"/>
+									<Col className="m-0 p-0" />
 								</Row>
 								{
 									store.range(12).map((cy: number) => {
@@ -500,12 +500,12 @@ function dividendBarGraphRatioByCurrentPrice(mapHistory: any, start: any, curren
 											return (
 												<OverlayTrigger key={cy} overlay={<Tooltip>{moment([start.year() + cx, 11 - cy]).format("YYYY-MM")}: {((history.dividend / currentPrice * 100) || 0).toFixed(2)}%</Tooltip>}>
 													<Row className="px-0" style={{
-															marginLeft: 1,
-															marginRight: 1,
-															height: (history.dividend / currentPrice) * 100 / max * height,
-															backgroundColor: FILL_COLOR_MONTH[11 - cy],
+														marginLeft: 1,
+														marginRight: 1,
+														height: (history.dividend / currentPrice) * 100 / max * height,
+														backgroundColor: FILL_COLOR_MONTH[11 - cy],
 													}}>
-														<Col className="m-0 p-0"/>
+														<Col className="m-0 p-0" />
 													</Row>
 												</OverlayTrigger>
 											);
@@ -517,7 +517,7 @@ function dividendBarGraphRatioByCurrentPrice(mapHistory: any, start: any, curren
 					</Row>
 				</Col>
 			))
-			
+
 		}</Row>
 	);
 }
@@ -546,9 +546,9 @@ function dividendBarGraphAmount(mapHistory: any, start: any, lineHeight: number)
 						<OverlayTrigger overlay={<Tooltip>{start.year() + cx}년: {(mapHistory.get(start.year() + cx) || 0).toLocaleString()}원</Tooltip>}>
 							<Col className="m-0 p-0" style={{ verticalAlign: "top", height: lineHeight, }}>
 								<Row className="mx-1 px-0" style={{
-										height: (max - (mapHistory.get(start.year() + cx) || 0)) / max * lineHeight,
+									height: (max - (mapHistory.get(start.year() + cx) || 0)) / max * lineHeight,
 								}}>
-									<Col className="m-0 p-0"/>
+									<Col className="m-0 p-0" />
 								</Row>
 								{
 									store.range(12).map((cy: number) => {
@@ -557,12 +557,12 @@ function dividendBarGraphAmount(mapHistory: any, start: any, lineHeight: number)
 											return (
 												<OverlayTrigger key={cy} overlay={<Tooltip>{moment([start.year() + cx, 11 - cy]).format("YYYY-MM")}: {((history.dividend) || 0).toLocaleString()}원</Tooltip>}>
 													<Row className="px-0" style={{
-															marginLeft: 1,
-															marginRight: 1,
-															height: history.dividend / max * lineHeight,
-															backgroundColor: FILL_COLOR_MONTH[11 - cy],
+														marginLeft: 1,
+														marginRight: 1,
+														height: history.dividend / max * lineHeight,
+														backgroundColor: FILL_COLOR_MONTH[11 - cy],
 													}}>
-														<Col className="m-0 p-0"/>
+														<Col className="m-0 p-0" />
 													</Row>
 												</OverlayTrigger>
 											);
@@ -574,7 +574,7 @@ function dividendBarGraphAmount(mapHistory: any, start: any, lineHeight: number)
 					</Row>
 				</Col>
 			))
-			
+
 		}</Row>
 	);
 }
@@ -602,7 +602,7 @@ export function OperateColumn(props: any) {
 	const style = {
 		fontSize: 9,
 	};
-	const className="py-0 text-white";
+	const className = "py-0 text-white";
 	return (<>
 		{spinner
 			? (<Spinner animation="grow" variant="warning" size="sm" className="ms-0 me-1 align-middle" />)
