@@ -282,67 +282,19 @@ function PriceEarningsRatioTooltip(param: any, mapHistory: any) {
 
 // 최근 배당수익률
 export function PriceEarningsRatioCellRenderer(param: any) {
-	const YEARS = 7;
 	const mapHistory = param?.data?.custom?.mapHistory;
-	if (!mapHistory) {
-		return (<></>);
-	}
-	
-	const thisYear = moment().year();
-	const dividends = [];
-	store.range(YEARS).forEach((cx: number) => dividends.push(mapHistory.get(thisYear - YEARS + cx + 1) || 0));
-	const max = dividends.reduce((prev: number, curr: number) => Math.max(prev, curr), 0);
-	const lineHeight = param.node.rowHeight - 4;
-	
-	function height(limit: number, max: number, value: number): number {
-		if (isNaN(limit) || isNaN(max) || isNaN(value) || value == 0) {
-			return 1;
-		}
-
-		return Math.max(4, Math.floor(limit * value / max));
-	}
-
-	if (max <= 0) {
+	const lineHeight = param?.node?.rowHeight - 4;
+	if (!mapHistory || !lineHeight) {
 		return (<></>);
 	}
 
 	return (<>
-		<OverlayTrigger overlay={PriceEarningsRatioTooltip(param, mapHistory)} trigger={["click", ]} placement="auto">
+		<OverlayTrigger overlay={PriceEarningsRatioTooltip(param, mapHistory)} trigger={["click", "hover", ]} placement="auto">
 			<Row className="mx-0 text-right">
 				<Col sm="4" md="3" xl="2" xxl="2" className="m-0 p-0">
-					<span>{param.value?.toFixed(2)}</span>
+					<span>{param.value == null ? "-" : param.value.toFixed(2)}</span>
 				</Col>
 				<Col>{dividendBarGraphAmount(mapHistory, moment(param?.data?.ipoOpen), lineHeight)}</Col>
-				<Col sm="8" md="9" xl="10" xxl="10" className="d-none">
-					<Row className="m-0 p-0">{
-						dividends.map((cx: number, index: number) => {
-							const ipoYear = param?.data?.ipoOpen ? moment(param.data.ipoOpen).year() : 2000;
-							if (ipoYear > (thisYear - YEARS + index + 1)) {
-								return (
-									<Col key={index}
-										className="px-0 bg-black"
-										style={{
-											marginLeft: 0,
-											height: lineHeight,
-											marginTop: 0,
-										}}
-									></Col>
-								);
-							}
-							return (
-								<Col key={index}
-									className={`px-0 ${index == YEARS - 1 ? "bg-danger" : cx > 0 ? "bg-primary" : "bg-black"}`}
-									style={{
-										marginLeft: 2,
-										height: height(lineHeight, max, cx),
-										marginTop: lineHeight - height(lineHeight, max, cx),
-									}}
-								></Col>
-								
-							);
-						})
-					}</Row>
-				</Col>
 			</Row>
 		</OverlayTrigger>
 	</>);
