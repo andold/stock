@@ -208,7 +208,7 @@ public class Seibro implements Crawler {
 		return null;
 	}
 
-	private Result<ParserResult> dividendAsCompany(String code, Date start) {
+	protected Result<ParserResult> dividendAsCompany(String code, Date start) {
 		log.debug("{} dividendAsCompany({}, {})", Utility.indentStart(), code, start);
 		long started = System.currentTimeMillis();
 
@@ -354,7 +354,7 @@ public class Seibro implements Crawler {
 			driver.waitUntilTextNotInclude(By.xpath("//*[@id='P_ListCnt']"), TIMEOUT, MARK_COUNT);
 
 			// 조회결과 갯수 확인
-			By BY_PROPER_RESULT = By.xpath("//ul[@id='P_isinList']/li/a/span[contains(text(),'" + code + "')]");
+			By BY_PROPER_RESULT = By.xpath("//ul[@id='P_isinList']/li/a/span[text()='" + code + "']");
 			List<WebElement> result = driver.findElements(BY_PROPER_RESULT, TIMEOUT);
 			switch (result.size()) {
 			case 0:

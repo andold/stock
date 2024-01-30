@@ -103,4 +103,11 @@ public class SeibroTest {
 		assertEquals(result.getStatus(), STATUS.SUCCESS);
 	}
 
+	@Test
+	public void testDividendAsCompany() {
+		Result<ParserResult> result = service.dividendAsCompany("003310", Date.from(ZonedDateTime.of(2013, 6, 30, 0, 0, 0, 0, Utility.ZONE_ID_KST).toInstant()));
+		log.info("{}", result);
+		assertEquals(result.getStatus(), STATUS.SUCCESS);
+	}
+
 }
