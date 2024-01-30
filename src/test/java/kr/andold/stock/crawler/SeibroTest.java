@@ -83,11 +83,18 @@ public class SeibroTest {
 	}
 
 	@Test
-		public void testPriceCurrentCompanyBoolean() {
-			Result<ParserResult> result = service.priceCurrentCompany(true);
-			log.info("{}", result);
-			assertEquals(result.getStatus(), STATUS.SUCCESS);
-		}
+	public void testPriceCurrentCompanyBooleanKospi() {
+		Result<ParserResult> result = service.priceCurrentCompany(true);
+		log.info("{}", result);
+		assertEquals(result.getStatus(), STATUS.SUCCESS);
+	}
+
+	@Test
+	public void testPriceCurrentCompanyBooleanKosdaq() {
+		Result<ParserResult> result = service.priceCurrentCompany(false);
+		log.info("{}", result);
+		assertEquals(result.getStatus(), STATUS.SUCCESS);
+	}
 
 	@Test
 	public void testPriceCurrentEtf() {

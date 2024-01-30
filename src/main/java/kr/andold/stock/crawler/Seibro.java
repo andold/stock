@@ -786,7 +786,7 @@ public class Seibro implements Crawler {
 
 			// 시장종류: 유가증권시장 (default)
 			if (!kospi) {
-				driver.findElement(By.xpath("//*[@id='CHECKBOX_MART_TYPE_input_2']"), TIMEOUT).click();
+				driver.findElement(By.xpath("//*[@id='CHECKBOX_MART_TYPE']/li/label[text()='코스닥시장']"), TIMEOUT).click();
 			}
 			// 주식종류: 전체
 			driver.findElement(By.xpath("//*[@id='CHECKBOX_SECN_TYPE_input_0']"), TIMEOUT).click();
