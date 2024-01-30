@@ -147,7 +147,7 @@ public class IdempotentService {
 				q3.addAll(items);
 				pause = PAUSE_MIN;
 				precessed = 0;
-				log.info("{} DO_ALL 『#{}:#{}』 #{} - once() - {}", Utility.indentEnd(), cx, precessed, Utility.size(items), Utility.toStringPastTimeReadable(started));
+				log.info("{} DO_ALL 『#{}:#{}』 #{} - once() - {}", Utility.indentMiddle(), cx, precessed, Utility.size(items), Utility.toStringPastTimeReadable(started));
 				continue;
 			}
 			
@@ -158,7 +158,7 @@ public class IdempotentService {
 				q2.addAll(items);
 				q3.addAll(items);
 				pause = PAUSE_MAX;
-				log.info("{} NO_JOB_FINAL 『#{}:#{}』 #{} - once() - {}", Utility.indentEnd(), cx, precessed, Utility.size(items), Utility.toStringPastTimeReadable(started));
+				log.info("{} NO_JOB_FINAL 『#{}:#{}』 #{} - once() - {}", Utility.indentMiddle(), cx, precessed, Utility.size(items), Utility.toStringPastTimeReadable(started));
 				continue;
 			}
 
@@ -184,8 +184,6 @@ public class IdempotentService {
 			return STATUS.ALEADY_DONE;
 		}
 
-//		Date start = Date.from(LocalDate.ofInstant(date.toInstant(), Utility.ZONE_ID_KST).minusMonths(1).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST));
-//		Result<ParserResult> result = seibro.price(item.getCode(), start);
 		Result<ParserResult> result = seibro.price(item, histories);
 		switch (result.getStatus()) {
 		case SUCCESS:
