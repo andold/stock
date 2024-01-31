@@ -1275,17 +1275,22 @@ public class Seibro implements Crawler {
 				driver.findElement(BY_SEARCH_CODE_RESULT, TIMEOUT).click();
 			} else {
 				List<WebElement> candidates = driver.findElements(BY_SEARCH_CODE_RESULT, TIMEOUT);
+				boolean found = false;
 				for (WebElement candidate : candidates) {
 					String href = candidate.getAttribute("href");	// javascript:SelectedValueReturn( 'KR7391680006', '흥국HK하이볼액티브증권상장지수투자신탁[주식]' ) 
 					if (href.matches(String.format(".+KR.%s.+", code))) {
 						candidate.click();
+						found = true;
 						break;
 					}
 				}
-				driver.quit();
-				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
-				log.debug("{} 『{}』 itemCompany({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
-				return result;
+				
+				if (!found) {
+					driver.quit();
+					Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
+					log.debug("{} 『{}』 itemCompany({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+					return result;
+				}
 			}
 
 			//	팝업이 닫혔다, 돌아간다
