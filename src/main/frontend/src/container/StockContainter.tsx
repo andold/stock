@@ -1,6 +1,6 @@
 import moment from "moment";
-import React, { useEffect, useRef, useState } from "react";
-import { Button, ButtonGroup, Col, Container, Form, InputGroup, NavDropdown, Navbar, Offcanvas, Spinner, ToggleButton } from "react-bootstrap";
+import React, { useRef, useState } from "react";
+import { Button, Col, Container, Form, InputGroup, NavDropdown, Navbar, Offcanvas, Spinner, } from "react-bootstrap";
 
 // domain
 import { StockForm } from "../model/StockModel";
@@ -11,7 +11,6 @@ import itemStore from "../store/ItemStore";
 import dividendHistoryStore from "../store/DividendHistoryStore";
 import priceStore from "../store/PriceStore";
 import crawlStore from "../store/CrawlStore";
-import idempotentStore from "../store/IdempotentStore";
 
 
 // view
@@ -99,48 +98,13 @@ function Header(props: any) {
 	const [disableCrawlPricaAll, setDisableCrawlPriceAll] = useState(false);
 	const [disableCrawlItemIpoCloseAll, setDisableCrawlItemIpoCloseAll] = useState(false);
 	const [disablePurgePrice, setDisablePurgePrice] = useState(false);
-	const [disableOnce, setDisableOnce] = useState(false);
 	
-	const [jobs, setJobs] = useState({
-		play: false,
-		queue: [],
-	});
-
-	useEffect(() => {
-		if (!jobs.play || jobs.queue.length == 0 || spinner > 0) {
-			return;
-		}
-
-		const first = jobs.queue[0];
-		const param = {
-			...first,
-			start: moment([2010, 1, 1]).toDate(),
-		};
-		setSpinner(1);
-		console.log("상세 수집한다 {}", first)
-		itemStore.crawl(param, (_: any) => {
-			dividendHistoryStore.crawl(param, (_: any) => {
-				priceStore.crawl(param, (_: any) => {
-					store.compile(param, (_: any) => {
-						setSpinner(0);
-						setJobs({
-							...jobs,
-							queue: jobs.queue.slice(1),
-						});
-						return;
-					});
-				});
-			});
-		});
-	}, [jobs]);
-
 	function handleOnKeyDownKeyword(event: any) {
 		(event.key === "Enter") && onChange && onChange({ keyword: event.target.value, });
 	}
 	function handleOnClickDownload() {
 		setDisableDownload(true);
 		const yyyymmdd = moment().format("YYYYMMDD");
-		//store.download({ filename: `stock-${yyyymmdd}.json`, }, () => setDisableDownload(false));
 		itemStore.download(`stock-item-${yyyymmdd}.json`, () => {
 			dividendHistoryStore.download(`stock-dividend-${yyyymmdd}.json`, () => {
 				priceStore.download(`stock-price-${yyyymmdd}.json`, () => {
@@ -174,10 +138,6 @@ function Header(props: any) {
 			setDisableCompile(false);
 			onChange && onChange({});
 		});
-	}
-	function handleOnClickOnce() {
-		setDisableOnce(true);
-		idempotentStore.once(null, () => setDisableOnce(false));
 	}
 	function handleOnCrawlTest() {
 		setSpinner(spinner + 1);
@@ -285,10 +245,6 @@ function Header(props: any) {
 									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCrawlPricaAll} onClick={handleOnClickCrawlPriceAll}>
 										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlPricaAll} />
 										오늘 기준 주가 수집
-									</Button>
-									<Button size="sm" variant="danger" className="ms-1" disabled={disableOnce} onClick={handleOnClickOnce}>
-										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableOnce} />
-										테스트(once)
 									</Button>
 								</>)}
 									<Button size="sm" variant="secondary" className="ms-1" disabled={disableDownload} onClick={handleOnClickDownload} title={form.mode.toString()}>

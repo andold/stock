@@ -237,15 +237,12 @@ public class CrawlerService {
 		}
 	
 		List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
-		Date dateStartCrawl = stockPriceService.dateCrawlRequireForDividend(item, histories);
-		if (dateStartCrawl != null) {
-			Result<ParserResult> priceResult = seibro.price(item.getCode(), dateStartCrawl);
-			if (priceResult.getStatus() == STATUS.SUCCESS) {
-				put(priceResult.getResult());
-				container.addAll(priceResult.getResult());
-			} else {
-				result.setStatus(priceResult.getStatus());
-			}
+		Result<ParserResult> priceResult = seibro.price(item, histories);
+		if (priceResult.getStatus() == STATUS.SUCCESS) {
+			put(priceResult.getResult());
+			container.addAll(priceResult.getResult());
+		} else {
+			result.setStatus(priceResult.getStatus());
 		}
 
 		log.info("{} 『{}』『{}:{}』 crawlItem({}) - {}", Utility.indentEnd(), result, itemResult, dividendResult, itemParam, Utility.toStringPastTimeReadable(started));
