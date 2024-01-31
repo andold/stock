@@ -13,14 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class CrawlerServiceTest {
-	@Autowired
-	private CrawlerService service;
-
-	@Test
-	public void testCrawlItemEtf() {
-		ParserResult result = service.crawlItemEtf();
-		log.info("{}", result);
-	}
+	@Autowired private CrawlerService service;
 
 	@Test
 	public void testCrawlPrice() {

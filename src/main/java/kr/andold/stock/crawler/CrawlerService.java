@@ -1,6 +1,5 @@
 package kr.andold.stock.crawler;
 
-import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
@@ -21,7 +20,6 @@ import kr.andold.stock.param.DividendHistoryParam;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.DividendHistoryService;
 import kr.andold.stock.service.ItemService;
-import kr.andold.stock.service.ParserService;
 import kr.andold.stock.service.PriceService;
 import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.CommonBlockService.CrudList;
@@ -33,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class CrawlerService {
 	public static final String MARK_ANDOLD_SINCE = "\n andold \t since \t 2023-11-27 \n";
-	private static final int TIMEOUT = 4000;
 
 	@Autowired private Krx krx;
 	@Autowired private Seibro seibro;
@@ -98,76 +95,6 @@ public class CrawlerService {
 		log.debug("{} put({}) - items:{}, histories:{}, prices:{}", Utility.indentMiddle(), result, items, histories, prices);
 
 		log.debug("{} put({}) - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
-	}
-
-	// KSD증권정보포털(SEIBro) > ETF > 종목발행현황
-	public ParserResult crawlItemEtf() {
-		log.info("{} crawlItemEtf()", Utility.indentStart());
-		long started = System.currentTimeMillis();
-
-		String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06025V.xml&menuNo=174";
-		String MARK_START_END_POINT = String.format( "KEYWORD\t%s\t%s\tURL\t%s\n", "crawlItemEtf", "ETF 종목 발행현황", URL);
-
-		StringBuffer sb = new StringBuffer();
-		sb.append(MARK_START_END_POINT);
-		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
-		try {
-			driver.navigate().to(URL);
-
-			// 넓게보기 클릭
-			driver.findElement(By.xpath("//a[@id='btn_wide']"), TIMEOUT * 4).click();
-
-			// 조회 클릭
-			By byMarkSearchDone = By.xpath(String.format("//table[@id='grid1_body_table']/tbody/tr[%d]/td[7]", driver.findElements(By.xpath("//table[@id='grid1_body_table']/tbody/tr"), TIMEOUT).size() - 1));
-			String previousAmount = driver.getText(byMarkSearchDone, TIMEOUT, "andold");	//	이전거 마지막 거래량(3개월평균)
-			driver.waitUntilIsDisplayed(By.xpath("//div[@id='group115']"), false, TIMEOUT);
-			driver.findElement(By.xpath("//a[@id='group133']"), TIMEOUT).click();
-
-			//	이전거 지워져야지
-			driver.waitUntilTextNotInclude(byMarkSearchDone, TIMEOUT, previousAmount);
-
-			// 페이지 처리
-			String XPATH_CURRENT_PAGE = "//div[@id='pageList1']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']";
-			String currentPage = driver.getText(By.xpath(XPATH_CURRENT_PAGE), TIMEOUT, "andold");	//	현재 페이지 번호
-			
-			for (int cx = 0, sizex = 128 / 32; cx < sizex; cx++) {
-				// 숨겨진 코드 보이기		/html/body/div[1]/div[1]/div[2]/div[2]/div[5]/div[1]/div/table/tbody/tr[1]/td[3]/nobr
-				driver.manage().timeouts().implicitlyWait(Duration.ofMillis(TIMEOUT));
-				driver.executeScript("$(\"td[col_id='SHOTN_ISIN']\").css(\"overflow\", \"visible\")");
-				driver.executeScript("$(\"td[col_id='SHOTN_ISIN'] nobr\").css(\"overflow\", \"visible\")");
-				driver.waitUntilIsDisplayed(byMarkSearchDone, true, TIMEOUT);
-
-				//	테이블
-				WebElement table = driver.findElement(By.xpath("//table[@id='grid1_body_table']"), TIMEOUT);
-				sb.append(driver.extractTextContentFromTableElement(table, "ETF\t"));
-				sb.append(MARK_ANDOLD_SINCE);
-
-				// 다음 페이지 클릭
-				byMarkSearchDone = By.xpath(String.format("//table[@id='grid1_body_table']/tbody/tr[%d]/td[7]", driver.findElements(By.xpath("//table[@id='grid1_body_table']/tbody/tr"), TIMEOUT).size() - 1));
-				previousAmount = driver.getText(byMarkSearchDone, TIMEOUT, "andold");	//	이전거 마지막 거래량(3개월평균)
-				driver.clickIfExist(By.xpath("//li[@id='pageList1_next_btn']/a"));
-				driver.waitUntilTextNotInclude(byMarkSearchDone, TIMEOUT, previousAmount);
-
-				String nextPage = driver.getText(By.xpath(XPATH_CURRENT_PAGE), TIMEOUT, currentPage);
-				if (currentPage.equalsIgnoreCase(nextPage)) {
-					break;
-				}
-				
-				log.info("{} 페이지:{} crawlItemEtf.extract() - {}", Utility.indentMiddle(), currentPage, Utility.toStringPastTimeReadable(started));
-				currentPage = nextPage;
-			}
-		} catch (Exception e) {
-			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
-		}
-		driver.quit();
-
-		sb.append(MARK_START_END_POINT);
-		String text = new String(sb);
-		ParserResult result = ParserService.parse(text, false);
-		put(result);
-
-		log.info("{} {} crawlItemEtf() - {}", Utility.indentMiddle(), result, Utility.toStringPastTimeReadable(started));
-		return result;
 	}
 
 	public static ChromeDriverWrapper defaultChromeDriver() {
