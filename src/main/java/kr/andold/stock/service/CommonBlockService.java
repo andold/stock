@@ -101,9 +101,13 @@ public interface CommonBlockService<X, Y, Z> {
 		return null;
 	}
 
-	default CrudList<Y> put(List<Y> items) {
-		List<Y> before = search(null);
-		CrudList<Y> list = differ(before, items);
+	default CrudList<Y> put(List<Y> afters) {
+		if (afters == null || afters.isEmpty()) {
+			return new CrudList<Y>().clear();
+		}
+
+		List<Y> befores = search(null);
+		CrudList<Y> list = differ(befores, afters);
 		list.setRemoves(null);
 		batch(list);
 		return list;
