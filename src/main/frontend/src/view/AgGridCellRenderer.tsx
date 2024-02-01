@@ -72,24 +72,60 @@ export function PriceRecentCellRenderer(param: any) {
 	const ref = useRef(null);
 	const lineHeight = (param?.node?.rowHeight || 32) - 4;
 
+	function isSame(left: string, right: string, unit: string): boolean {
+		if (left === right) {
+			return true;
+		}
+		
+		if (!left || !right || !unit) {
+			return false;
+		}
+
+		switch (unit) {
+			case "":
+			case "week":
+				return (moment(left).week() == moment(right).week() && moment(left).month() == moment(right).month() && moment(left).year() == moment(right).year());
+			case "month":
+				return (moment(left).month() == moment(right).month() && moment(left).year() == moment(right).year());
+			case "year":
+				return (moment(left).year() == moment(right).year());
+			case "true":
+				return true;
+			case "false":
+				return false;
+			default:
+				break;
+		}
+
+		return false;
+	}
 	//	툴팁
-	function chart(minmax: any, prices: Price[], maxheight: number, format?: string) {
+	function chart(minmax: any, prices: Price[], maxheight: number, format?: string, divider?: string) {
+		if (!minmax || !prices || !maxheight) {
+			return (<>No Data</>);
+		}
+
+		let previous = prices[0].base;
 		return (<>
 			<Row className="m-0 p-0"> {
-				prices.map((price: Price) => (
-					<Col key={price.id} className={"px-0 bg-primary"}
-						title={moment(price.base).format("YYYY-MM-DD (dd)")}
-						style={{
-							marginRight: 1,
-							height: height(maxheight, price, minmax) + 16,
-							marginTop: maxheight - height(maxheight, price, minmax),
-							fontSize: 8,
-						}}
-					>
-						<Row className="m-0 p-0 text-center"><Col className="m-0 p-0 text-center">{moment(price.base).format(format || "YYYY-MM-DD")}</Col></Row>
-						<Row className="m-0 p-0 text-center"><Col className="m-0 p-0 text-center">{price.closing.toLocaleString()}</Col></Row>
-					</Col>
-				))
+				prices.map((price: Price) => {
+					let className = isSame(previous, price.base, divider) ? "px-0 bg-primary" : "px-0 bg-primary border-start";
+					previous = price.base;
+					return (
+						<Col key={price.id} className={className}
+							title={moment(price.base).format("YYYY-MM-DD (dd)")}
+							style={{
+								marginRight: 1,
+								height: height(maxheight, price, minmax) + 16,
+								marginTop: maxheight - height(maxheight, price, minmax),
+								fontSize: 8,
+							}}
+						>
+							<Row className="m-0 p-0 text-center"><Col className="m-0 p-0 text-center">{moment(price.base).format(format || "YYYY-MM-DD")}</Col></Row>
+							<Row className="m-0 p-0 text-center"><Col className="m-0 p-0 text-center">{price.closing.toLocaleString()}</Col></Row>
+						</Col>
+					);
+				})
 			}</Row>
 		</>);
 	}
@@ -116,13 +152,13 @@ export function PriceRecentCellRenderer(param: any) {
 		return (
 			<Tooltip className="mytooltip" {...props}>
 				<h5 className="pt-1">일단위</h5>
-				{chart(info, prices, 64, "MM-DD")}
+				{chart(info, prices, 64, "MM-DD", "week")}
 				<h5 className="pt-4">주단위</h5>
-				{chart(minmax, weekPrices, 64, "MM-DD")}
+				{chart(minmax, weekPrices, 64, "MM-DD", "month")}
 				<h5 className="pt-4">월단위</h5>
-				{chart(minmax, monthPrices, 64, "YYYY-MM")}
+				{chart(minmax, monthPrices, 64, "YYYY-MM", "year")}
 				<h5 className="pt-4">연단위</h5>
-				{chart(minmax, yearPrices, 64, "YYYY")}
+				{chart(minmax, yearPrices, 64, "YYYY", "true")}
 			</Tooltip>
 		);
 	}
@@ -146,21 +182,27 @@ export function PriceRecentCellRenderer(param: any) {
 		const price = prices[prices.length - 1];
 		return price.closing.toLocaleString();
 	}
+
+	let previous = prices[0].base;
 	return (<>
 		<OverlayTrigger overlay={renderTooltip} trigger={["hover", "hover"]} placement="auto">
 			<Row className="mx-0 text-right h-100">
 				<Col sm="5" md="4" xl="3" xxl="3" className="m-0 p-0 text-right">{currentPrice()}</Col>
 				<Col ref={ref} className="ms-2 p-0">
 					<Row className="m-0 p-0"> {
-						prices?.map((price: Price) => (
-							<Col key={price.id} className={"px-0 bg-primary"}
-								style={{
-									marginRight: 1,
-									height: height(param?.node?.rowHeight, price, info),
-									marginTop: lineHeight - height(param?.node?.rowHeight, price, info),
-								}}
-							></Col>
-						))
+						prices?.map((price: Price) => {
+							let className = isSame(previous, price.base, "week") ? "px-0 bg-primary" : "px-0 bg-primary border-start";
+							previous = price.base;
+							return (
+								<Col key={price.id} className={className}
+									style={{
+										marginRight: 1,
+										height: height(param?.node?.rowHeight, price, info),
+										marginTop: lineHeight - height(param?.node?.rowHeight, price, info),
+									}}
+								></Col>
+							);
+						})
 					}</Row>
 				</Col>
 			</Row>
