@@ -1410,6 +1410,7 @@ public class Seibro implements Crawler {
 			sb.append(String.format("%s\n", driver.findElement(By.xpath("//span[@id='SETUP_DT']"), TIMEOUT).getText()));	// 설정일
 			sb.append(String.format("%s\n", driver.getText(By.xpath("//*[@id='grid1_cell_0_3']/nobr"), TIMEOUT, "-1")));	// 총발행주식수
 			sb.append(String.format("%s\n", driver.findElement(By.xpath("//dd[@id='TOT_RECM_RATE']"), TIMEOUT).getText()));	// 보수(%)
+			driver.quit();
 
 			sb.append(MARK_ANDOLD_SINCE);
 			sb.append(MARK_START_END_POINT_ETF_EACH_SUMMARY_INFO);
