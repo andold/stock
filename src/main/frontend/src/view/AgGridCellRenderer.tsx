@@ -84,9 +84,9 @@ export function PriceRecentCellRenderer(param: any) {
 		switch (unit) {
 			case "":
 			case "week":
-				return (moment(left).week() == moment(right).week() && moment(left).month() == moment(right).month() && moment(left).year() == moment(right).year());
+				return moment(left).day(0).startOf("day").isSame(moment(right).day(0).startOf("day"));
 			case "month":
-				return (moment(left).month() == moment(right).month() && moment(left).year() == moment(right).year());
+				return moment(left).startOf("month").isSame(moment(right).startOf("month"));
 			case "year":
 				return (moment(left).year() == moment(right).year());
 			case "true":
