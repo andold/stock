@@ -179,7 +179,7 @@ seibroItemInfoCompany:
 			KEYWORD TAB fics=STRING								NEWLINE		//	KEYWORD 	 "금융 > 은행 > 상업은행" 
 			KEYWORD TAB volumeOfListedShares=NUMBER WORD		NEWLINE		//	KEYWORD 	 196,982,894 주 
 			KEYWORD TAB ipoOpen=DATE							NEWLINE		//	KEYWORD 	 2013/07/18 
-			KEYWORD TAB ipoClose=DATE							NEWLINE		//	KEYWORD 	 2013/07/18 
+			KEYWORD TAB ipoClose=DATE?							NEWLINE		//	KEYWORD 	 2013/07/18 
 			{
 				ParserService.item(20240112
 					, $code.text
