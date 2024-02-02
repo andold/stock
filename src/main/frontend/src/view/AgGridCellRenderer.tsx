@@ -101,7 +101,7 @@ export function PriceRecentCellRenderer(param: any) {
 	}
 	//	툴팁
 	function chart(minmax: any, prices: Price[], maxheight: number, format?: string, divider?: string) {
-		if (!minmax || !prices || !maxheight) {
+		if (!minmax || !prices || !prices.length || !maxheight) {
 			return (<>No Data</>);
 		}
 
