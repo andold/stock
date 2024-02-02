@@ -22,13 +22,14 @@ public interface ItemRepository extends JpaRepository<ItemEntity, Integer> {
 			+ "		WHERE	("
 			+ "				:#{#param.keyword}	IS NULL"
 			+ "			OR	:#{#param.keyword}	=	''"
-			+ "			OR	x.symbol	LIKE	CONCAT('%', :#{#param.keyword}, '%')"
-			+ "			OR	x.code		LIKE	CONCAT('%', :#{#param.keyword}, '%')"
-			+ "			OR	x.category	LIKE	CONCAT('%', :#{#param.keyword}, '%')"
+			+ "			OR	LOWER(x.symbol)		LIKE	CONCAT('%', LOWER(:#{#param.keyword}), '%')"
+			+ "			OR	LOWER(x.code)		LIKE	CONCAT('%', LOWER(:#{#param.keyword}), '%')"
+			+ "			OR	LOWER(x.type)		LIKE	CONCAT('%', LOWER(:#{#param.keyword}), '%')"
+			+ "			OR	LOWER(x.category)	LIKE	CONCAT('%', LOWER(:#{#param.keyword}), '%')"
 			//	type
 			+ "		)	AND	("
 			+ "				:#{#param.type}	IS NULL"
-			+ "			OR	x.type		=	:#{#param.type}"
+			+ "			OR	LOWER(x.type)	=	LOWER(:#{#param.keyword})"
 			//	ipoOpen
 			+ "		)	AND	("
 			+ "				:#{#param.ipoOpen}	IS NULL"
