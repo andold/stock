@@ -173,7 +173,7 @@ seibroItemInfoCompany:
 	KEYWORD TAB WORD TAB WORD WORD WORD WORD WORD TAB WORD		NEWLINE		//	KEYWORD 	 SEIBro 	 주식 > 종목별상세정보 > 종목종합내역 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02006V.xml&menuNo=44 
 	(
 		(
-			KEYWORD TAB code=NUMBER TAB type=WORD TAB
+			KEYWORD TAB code=word TAB type=WORD TAB
 						symbol=word symbol1=word? symbol2=word? symbol3=word? symbol4=word? symbol5=word? symbol6=word? symbol7=word*	NEWLINE		//	KEYWORD 	 175330 	 유가증권 	 JB금융지주(175330) 
 			KEYWORD TAB category=STRING							NEWLINE		//	KEYWORD 	 "금융업" 
 			KEYWORD TAB fics=STRING								NEWLINE		//	KEYWORD 	 "금융 > 은행 > 상업은행" 

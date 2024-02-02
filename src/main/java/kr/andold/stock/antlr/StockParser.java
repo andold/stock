@@ -1995,7 +1995,7 @@ public class StockParser extends Parser {
 	}
 
 	public static class SeibroItemInfoCompanyContext extends ParserRuleContext {
-		public Token code;
+		public WordContext code;
 		public Token type;
 		public WordContext symbol;
 		public WordContext symbol1;
@@ -2030,10 +2030,6 @@ public class StockParser extends Parser {
 		public TerminalNode DATE(int i) {
 			return getToken(StockParser.DATE, i);
 		}
-		public List<TerminalNode> NUMBER() { return getTokens(StockParser.NUMBER); }
-		public TerminalNode NUMBER(int i) {
-			return getToken(StockParser.NUMBER, i);
-		}
 		public List<WordContext> word() {
 			return getRuleContexts(WordContext.class);
 		}
@@ -2043,6 +2039,10 @@ public class StockParser extends Parser {
 		public List<TerminalNode> STRING() { return getTokens(StockParser.STRING); }
 		public TerminalNode STRING(int i) {
 			return getToken(StockParser.STRING, i);
+		}
+		public List<TerminalNode> NUMBER() { return getTokens(StockParser.NUMBER); }
+		public TerminalNode NUMBER(int i) {
+			return getToken(StockParser.NUMBER, i);
 		}
 		public SeibroItemInfoCompanyContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -2109,7 +2109,7 @@ public class StockParser extends Parser {
 					setState(635);
 					match(TAB);
 					setState(636);
-					((SeibroItemInfoCompanyContext)_localctx).code = match(NUMBER);
+					((SeibroItemInfoCompanyContext)_localctx).code = word();
 					setState(637);
 					match(TAB);
 					setState(638);
@@ -2238,7 +2238,7 @@ public class StockParser extends Parser {
 					match(NEWLINE);
 
 									ParserService.item(20240112
-										, (((SeibroItemInfoCompanyContext)_localctx).code!=null?((SeibroItemInfoCompanyContext)_localctx).code.getText():null)
+										, (((SeibroItemInfoCompanyContext)_localctx).code!=null?_input.getText(((SeibroItemInfoCompanyContext)_localctx).code.start,((SeibroItemInfoCompanyContext)_localctx).code.stop):null)
 										, (((SeibroItemInfoCompanyContext)_localctx).symbol!=null?_input.getText(((SeibroItemInfoCompanyContext)_localctx).symbol.start,((SeibroItemInfoCompanyContext)_localctx).symbol.stop):null), (((SeibroItemInfoCompanyContext)_localctx).symbol1!=null?_input.getText(((SeibroItemInfoCompanyContext)_localctx).symbol1.start,((SeibroItemInfoCompanyContext)_localctx).symbol1.stop):null), (((SeibroItemInfoCompanyContext)_localctx).symbol2!=null?_input.getText(((SeibroItemInfoCompanyContext)_localctx).symbol2.start,((SeibroItemInfoCompanyContext)_localctx).symbol2.stop):null), (((SeibroItemInfoCompanyContext)_localctx).symbol3!=null?_input.getText(((SeibroItemInfoCompanyContext)_localctx).symbol3.start,((SeibroItemInfoCompanyContext)_localctx).symbol3.stop):null), (((SeibroItemInfoCompanyContext)_localctx).symbol4!=null?_input.getText(((SeibroItemInfoCompanyContext)_localctx).symbol4.start,((SeibroItemInfoCompanyContext)_localctx).symbol4.stop):null), (((SeibroItemInfoCompanyContext)_localctx).symbol5!=null?_input.getText(((SeibroItemInfoCompanyContext)_localctx).symbol5.start,((SeibroItemInfoCompanyContext)_localctx).symbol5.stop):null), (((SeibroItemInfoCompanyContext)_localctx).symbol6!=null?_input.getText(((SeibroItemInfoCompanyContext)_localctx).symbol6.start,((SeibroItemInfoCompanyContext)_localctx).symbol6.stop):null), (((SeibroItemInfoCompanyContext)_localctx).symbol7!=null?_input.getText(((SeibroItemInfoCompanyContext)_localctx).symbol7.start,((SeibroItemInfoCompanyContext)_localctx).symbol7.stop):null)
 										, (((SeibroItemInfoCompanyContext)_localctx).category!=null?((SeibroItemInfoCompanyContext)_localctx).category.getText():null), (((SeibroItemInfoCompanyContext)_localctx).fics!=null?((SeibroItemInfoCompanyContext)_localctx).fics.getText():null), null, null, null, null, null, null
 										, (((SeibroItemInfoCompanyContext)_localctx).type!=null?((SeibroItemInfoCompanyContext)_localctx).type.getText():null)
@@ -13571,7 +13571,7 @@ public class StockParser extends Parser {
 		"\n\u0000\u0000\u0275\u0276\u0005\n\u0000\u0000\u0276\u0277\u0005\n\u0000"+
 		"\u0000\u0277\u0278\u0005\u0003\u0000\u0000\u0278\u0279\u0005\n\u0000\u0000"+
 		"\u0279\u02b8\u0005\u0004\u0000\u0000\u027a\u027b\u0005\u0005\u0000\u0000"+
-		"\u027b\u027c\u0005\u0003\u0000\u0000\u027c\u027d\u0005\b\u0000\u0000\u027d"+
+		"\u027b\u027c\u0005\u0003\u0000\u0000\u027c\u027d\u00032\u0019\u0000\u027d"+
 		"\u027e\u0005\u0003\u0000\u0000\u027e\u027f\u0005\n\u0000\u0000\u027f\u0280"+
 		"\u0005\u0003\u0000\u0000\u0280\u0282\u00032\u0019\u0000\u0281\u0283\u0003"+
 		"2\u0019\u0000\u0282\u0281\u0001\u0000\u0000\u0000\u0282\u0283\u0001\u0000"+
