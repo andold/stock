@@ -65,7 +65,7 @@ public class ScheduledTasks {
 	}
 
 	// 매주 일요일 - dividend
-	@Scheduled(cron = "02 24 23 * * SUN")
+	@Scheduled(cron = "02 24 3 * * SUN")
 	public void scheduleTaskWeekly() {
 		log.info("{} scheduleTaskWeekly()", Utility.indentStart());
 		long started = System.currentTimeMillis();
@@ -76,6 +76,7 @@ public class ScheduledTasks {
 		log.info("{} 『{}』『{}』 scheduleTaskWeekly() - {}", Utility.indentEnd(), resultDividendAllRecent, resultItemIpoCloseRecent, Utility.toStringPastTimeReadable(started));
 	}
 
+	/*
 	// 매분기 첫달 첫번째 일요일 - items
 	@Scheduled(cron = "19 17 17 1-7 1,4,7,10 SUN")
 	public void scheduleTaskQuarter() {
@@ -86,5 +87,6 @@ public class ScheduledTasks {
 
 		log.info("{} {} scheduleTaskQuarter() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 	}
+	*/
 
 }
