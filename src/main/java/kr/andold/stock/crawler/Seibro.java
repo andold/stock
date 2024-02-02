@@ -935,14 +935,14 @@ public class Seibro implements Crawler {
 				}
 				Utility.sleep(Math.round(pause * Math.random()));
 
-				log.debug("{} 『{}』 priceCurrentCompany({}, {}) - {}", Utility.indentMiddle(), pageNumber, date, base, Utility.toStringPastTimeReadable(forStarted));
+				log.debug("{} 『{} {}』 priceCurrentEtf({}) - {}", Utility.indentMiddle(), pageNumber, base, date, Utility.toStringPastTimeReadable(forStarted));
 			}
 			driver.quit();
 
 			sb.append(MARK_START_END_POINT_PRICE_ETF_CURRENT);
 			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
 
-			log.debug("{} 『{}』 priceCurrentCompany({}, {}) - {}", Utility.indentEnd(), result, date, base, Utility.toStringPastTimeReadable(started));
+			log.debug("{} 『{} {}』 priceCurrentEtf({}) - {}", Utility.indentMiddle(), result, base, date, Utility.toStringPastTimeReadable(started));
 			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
