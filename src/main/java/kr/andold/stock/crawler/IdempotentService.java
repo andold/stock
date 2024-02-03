@@ -226,7 +226,7 @@ public class IdempotentService {
 
 		ZonedDateTime ipoZonedDate = ZonedDateTime.ofInstant(ipoOpen.toInstant(), Utility.ZONE_ID_KST);
 		List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
-		if (histories != null && !histories.isEmpty() && histories.get(histories.size() - 1).getBase().before(ipoOpen)) {
+		if (histories != null && !histories.isEmpty() && !ipoOpen.before(histories.get(histories.size() - 1).getBase())) {
 			return STATUS.ALEADY_DONE;
 		}
 
