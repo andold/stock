@@ -1301,7 +1301,7 @@ public class Seibro implements Crawler {
 			log.debug("{} 『{}』 itemCompany({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
 			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
 		} catch (Exception e) {
-			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage());
 			driver.quit();
 		}
 
