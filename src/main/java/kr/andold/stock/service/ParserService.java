@@ -93,6 +93,7 @@ public class ParserService {
 		if (code.startsWith("KR")) {
 			code = code.substring(3, 9);
 		}
+
 		ItemDomain item = ItemDomain.builder()
 				.code(code)
 				.build();
@@ -153,6 +154,10 @@ public class ParserService {
 				, base, pay, dividend
 				, priceBase, priceClosing
 		);
+		if (code.startsWith("KR")) {
+			code = code.substring(3, 9);
+		}
+
 		LIST_STOCK_DIVIDEND_HOSTORY.add(DividendHistoryDomain.builder()
 				.code(code)
 				.base(Utility.parseDateTime(base))
