@@ -268,7 +268,7 @@ public class IdempotentService {
 					|| ipoOpen == null
 				)
 				|| (ipoClose != null && ipoClose.before(today))
-				|| (type != null && type.contains("비상장"))
+				|| (type != null && (type.contains("비상장") || type.contains("코넥스")))
 			) {
 			return STATUS.ALEADY_DONE;
 		}
