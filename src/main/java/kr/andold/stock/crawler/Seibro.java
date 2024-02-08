@@ -1293,8 +1293,18 @@ public class Seibro implements Crawler {
 			sb.append(MARK_START_END_POINT_COMPANY_EACH_SUMMARY_INFO);
 
 			sb.append(String.format("KEYWORD\t%s\t%s\t%s\n", code, driver.getText(By.xpath("//p[@id='btn_item']"), TIMEOUT, "모름"), driver.getText(By.xpath("//h3[@id='h3_tit_01']"), TIMEOUT, "종목명")));	// 종목명
-			sb.append(String.format("KEYWORD\t\"%s\"\n", driver.findElement(By.xpath("//dd[@id='item_add_info_left_01_dd']"), TIMEOUT).getText()));	// 표준산업분류
-			sb.append(String.format("KEYWORD\t\"%s\"\n", driver.findElement(By.xpath("//dd[@id='FICS']"), TIMEOUT).getText()));	// FICS
+			String category = driver.findElement(By.xpath("//dd[@id='item_add_info_left_01_dd']"), TIMEOUT).getText();
+			if (category.isBlank()) {
+				sb.append(String.format("KEYWORD\t\"%s\"\n", "미분류"));	// 표준산업분류
+			} else {
+				sb.append(String.format("KEYWORD\t\"%s\"\n", category));	// 표준산업분류
+			}
+			String fics = driver.findElement(By.xpath("//dd[@id='FICS']"), TIMEOUT).getText();
+			if (fics.isBlank()) {
+				sb.append(String.format("KEYWORD\t\"%s\"\n", "미분류"));	// FICS
+			} else {
+				sb.append(String.format("KEYWORD\t\"%s\"\n", fics));	// FICS
+			}
 			sb.append(String.format("KEYWORD\t%s\n", driver.findElement(By.xpath("//dd[@id='ISSU_SCHD_STKQTY']"), TIMEOUT).getText()));	//	// 발행주식총수
 			sb.append(String.format("KEYWORD\t%s\n", driver.findElement(By.xpath("//dd[@id='APLI_DT']"), TIMEOUT).getText()));	// 상장일
 			sb.append(String.format("KEYWORD\t%s\n", driver.findElement(By.xpath("//dd[@id='DLIST_DT']"), TIMEOUT).getText()));	// 상장폐지일
