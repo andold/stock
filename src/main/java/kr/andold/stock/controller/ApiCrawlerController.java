@@ -70,6 +70,18 @@ public class ApiCrawlerController {
 	}
 
 	@ResponseBody
+	@GetMapping(value = "item/ipo-close/recent")
+	public Result<ParserResult> crawlItemIpoCloseRecent(@RequestBody PriceParam param) {
+		log.info("{} crawlItemIpoCloseRecent({})", Utility.indentStart(), param);
+
+		Date start = param == null ? new Date() : param.getStart();
+		Result<ParserResult> result = service.crawlItemIpoCloseRecent(start);
+		
+		log.info("{} 『{}』 - crawlItemIpoCloseRecent()", Utility.indentEnd(), result);
+		return result;
+	}
+
+	@ResponseBody
 	@GetMapping(value = "dividend/all/recent")
 	public Result<ParserResult> crawlDividendAllRecent() {
 		log.info("{} crawlDividendAllRecent()", Utility.indentStart());

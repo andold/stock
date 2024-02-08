@@ -21,7 +21,11 @@ class CrawlStore {
 		repository.crawlDividendAllRecent(request, onSuccess, onError, element);
 	}
 	crawlItemIpoCloseAll(request?: any, onSuccess?: any, onError?: any, element?: any) {
+		console.warn("deprecated");
 		repository.crawlItemIpoCloseAll(request, onSuccess, onError, element);
+	}
+	crawlItemIpoCloseRecent(request?: any, onSuccess?: any, onError?: any, element?: any) {
+		repository.crawlItemIpoCloseRecent(request, onSuccess, onError, element);
 	}
 	test(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.test(request, onSuccess, onError, element);

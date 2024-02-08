@@ -123,6 +123,7 @@ public class Kind implements Crawler {
 	}
 
 	// KIND > 투자유의사항 > 기타사항 > 상장폐지현황
+	@Deprecated
 	@Override
 	public Result<ParserResult> basicInfoAll() {
 		log.debug("{} basicInfoAll()", Utility.indentStart());

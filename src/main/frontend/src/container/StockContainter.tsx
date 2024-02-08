@@ -119,7 +119,7 @@ function Header(props: any) {
 	}
 	function handleOnClickCrawlItemIpoCloseAll() {
 		setDisableCrawlItemIpoCloseAll(true);
-		crawlStore.crawlItemIpoCloseAll(null, () => setDisableCrawlItemIpoCloseAll(false));
+		crawlStore.crawlItemIpoCloseRecent(null, () => setDisableCrawlItemIpoCloseAll(false));
 	}
 	function handleOnClickCrawlDividendAllRecent() {
 		setDisableCrawlDividendAllRecent(true);
