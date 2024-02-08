@@ -60,6 +60,12 @@ public class Seibro implements Crawler {
 	private Integer count = 0;
 
 	@Override
+	public Result<ParserResult> item(Date start) {
+		log.error("{} 『{}』 item({})", Utility.indentMiddle(), STATUS.NOT_SUPPORT, start);
+		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
+	}
+
+	@Override
 	public Result<ParserResult> dividend(String code, Date start) {
 		log.info("{} dividend({}, {})", Utility.indentStart(), code, start);
 		long started = System.currentTimeMillis();

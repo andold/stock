@@ -66,4 +66,10 @@ public class CrawlerSample implements Crawler {
 		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
 	}
 
+	@Override
+	public Result<ParserResult> item(Date start) {
+		log.error("{} 『{}』 item({})", Utility.indentMiddle(), STATUS.NOT_SUPPORT, start);
+		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
+	}
+
 }

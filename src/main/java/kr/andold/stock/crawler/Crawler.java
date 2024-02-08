@@ -10,6 +10,7 @@ import kr.andold.stock.service.ParserService.ParserResult;
 
 public interface Crawler {
 	public Result<ParserResult> basicInfoAll();
+	public Result<ParserResult> item(Date start);
 	public Result<ParserResult> item(String code);
 
 	public Result<ParserResult> dividend(Date start);

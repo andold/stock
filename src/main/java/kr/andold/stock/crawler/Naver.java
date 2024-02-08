@@ -29,6 +29,12 @@ public class Naver implements Crawler {
 	private static final String MARK_START_END_POINT_PRICE_ETF_CURRENT = String.format("KEYWORD\t%s\t%s\t%s\n", "Naver", "주식 > 종목전체검색 > 주식종목전체검색", URL_PRICE_ETF_CURRENT);
 
 	@Override
+	public Result<ParserResult> item(Date start) {
+		log.error("{} 『{}』 item({})", Utility.indentMiddle(), STATUS.NOT_SUPPORT, start);
+		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
+	}
+
+	@Override
 	public Result<ParserResult> basicInfoAll() {
 		log.error("{} {} basicInfoAll()", Utility.indentMiddle(), STATUS.NOT_SUPPORT);
 		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();

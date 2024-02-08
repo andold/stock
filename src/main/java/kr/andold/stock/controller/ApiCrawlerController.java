@@ -1,5 +1,8 @@
 package kr.andold.stock.controller;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -82,7 +85,7 @@ public class ApiCrawlerController {
 	public Result<ParserResult> testt() {
 		log.info("{} test()", Utility.indentStart());
 
-		Result<ParserResult> result = service.crawlItemIpoClose();
+		Result<ParserResult> result = service.crawlItemIpoCloseRecent(Date.from(LocalDate.now().minusMonths(1).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)));
 		
 		log.info("{} 『{}』 - test()", Utility.indentEnd(), result);
 		return result;

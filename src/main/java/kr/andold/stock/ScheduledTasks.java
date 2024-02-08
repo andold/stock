@@ -71,12 +71,11 @@ public class ScheduledTasks {
 		long started = System.currentTimeMillis();
 
 		Result<ParserResult> resultDividendAllRecent = crawlerService.crawlDividendAllRecent();
-		Result<ParserResult> resultItemIpoCloseRecent = crawlerService.crawlItemIpoClose();
+		Result<ParserResult> resultItemIpoCloseRecent = crawlerService.crawlItemIpoCloseRecent(Date.from(LocalDate.now().minusMonths(1).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)));
 
 		log.info("{} 『{}』『{}』 scheduleTaskWeekly() - {}", Utility.indentEnd(), resultDividendAllRecent, resultItemIpoCloseRecent, Utility.toStringPastTimeReadable(started));
 	}
 
-	/*
 	// 매분기 첫달 첫번째 일요일 - items
 	@Scheduled(cron = "19 17 17 1-7 1,4,7,10 SUN")
 	public void scheduleTaskQuarter() {
@@ -87,6 +86,5 @@ public class ScheduledTasks {
 
 		log.info("{} {} scheduleTaskQuarter() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 	}
-	*/
 
 }

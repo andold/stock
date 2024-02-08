@@ -249,8 +249,8 @@ public class CrawlerService {
 		return result;
 	}
 
-	public Result<ParserResult> crawlItemIpoClose() {
-		return kind.basicInfoAll();
+	public Result<ParserResult> crawlItemIpoCloseRecent(Date start) {
+		return kind.item(start);
 	}
 
 	public Result<ParserResult> crawlItemIpoCloseAll() {
