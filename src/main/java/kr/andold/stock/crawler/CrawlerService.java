@@ -1,5 +1,6 @@
 package kr.andold.stock.crawler;
 
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
@@ -250,6 +251,9 @@ public class CrawlerService {
 	}
 
 	public Result<ParserResult> crawlItemIpoCloseRecent(Date start) {
+		if (start == null) {
+			start = Date.from(LocalDate.now().minusMonths(1).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST));
+		}
 		return kind.item(start);
 	}
 
