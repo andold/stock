@@ -207,7 +207,7 @@ public class IdempotentService {
 		}
 
 		String type = item.getType();
-		if (type != null && type.contains("기타비상장")) {
+		if (type != null && (type.contains("기타비상장") || type.contains("코넥스"))) {
 			return STATUS.INVALID;
 		}
 		

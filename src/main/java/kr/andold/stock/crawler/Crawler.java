@@ -17,7 +17,6 @@ public interface Crawler {
 
 	public Result<ParserResult> price(Date date);
 	public Result<ParserResult> price(String code, Date start);
-	
-	@Deprecated
+
 	public Result<ParserResult> price(ItemDomain item, List<DividendHistoryDomain> histories);
 }
