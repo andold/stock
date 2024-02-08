@@ -178,6 +178,15 @@ public class IdempotentService {
 	}
 
 	protected STATUS processPrice(ItemDomain item) {
+		if (item == null) {
+			return STATUS.INVALID;
+		}
+
+		String type = item.getType();
+		if (type != null && (type.contains("기타비상장") || type.contains("코넥스"))) {
+			return STATUS.INVALID;
+		}
+
 		List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
 		Date date = priceService.dateCrawlRequireForDividend(item, histories);
 		if (date == null) {
