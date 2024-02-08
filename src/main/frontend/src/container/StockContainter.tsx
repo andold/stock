@@ -240,7 +240,7 @@ function Header(props: any) {
 									</Button>
 									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCrawlItemIpoCloseAll} onClick={handleOnClickCrawlItemIpoCloseAll}>
 										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlItemIpoCloseAll} />
-										상장폐지일 모두 수집
+										상장폐지일 수집
 									</Button>
 									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCrawlPricaAll} onClick={handleOnClickCrawlPriceAll}>
 										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlPricaAll} />
