@@ -59,7 +59,7 @@ public class IdempotentService {
 
 		for (int cx = 0;; cx++) {
 
-			ItemDomain item0 = q0.poll();
+			ItemDomain item0 = q0.poll();	// 상세정보
 			if (item0 != null) {
 				long forStarted = System.currentTimeMillis();
 				STATUS status = processDetailInfo(itemService.read(item0.getId()));
@@ -79,7 +79,7 @@ public class IdempotentService {
 				continue;
 			}
 			
-			ItemDomain item1 = q1.poll();
+			ItemDomain item1 = q1.poll();	// 배당정보
 			if (item1 != null) {
 				long forStarted = System.currentTimeMillis();
 				STATUS status = processDividend(itemService.read(item1.getId()));
@@ -93,13 +93,13 @@ public class IdempotentService {
 				case ALEADY_DONE:
 					break;
 				default:
-					log.debug("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item1, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+					log.trace("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item1, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 					break;
 				}
 				continue;
 			}
 			
-			ItemDomain item2 = q2.poll();
+			ItemDomain item2 = q2.poll();	// 주가정보
 			if (item2 != null) {
 				long forStarted = System.currentTimeMillis();
 				STATUS status = processPrice(itemService.read(item2.getId()));
@@ -113,13 +113,13 @@ public class IdempotentService {
 				case ALEADY_DONE:
 					break;
 				default:
-					log.debug("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item2, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+					log.trace("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item2, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 					break;
 				}
 				continue;
 			}
 			
-			ItemDomain item3 = q3.poll();
+			ItemDomain item3 = q3.poll();	// reserved
 			if (item3 != null) {
 				long forStarted = System.currentTimeMillis();
 				STATUS status = processReserved(itemService.read(item3.getId()));
@@ -133,7 +133,7 @@ public class IdempotentService {
 				case ALEADY_DONE:
 					break;
 				default:
-					log.debug("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item3, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+					log.trace("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item3, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 					break;
 				}
 				continue;

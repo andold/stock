@@ -62,10 +62,6 @@
 		</encoder>
 	</appender>
 
-	<logger name="kr.andold.stock.controller" additivity="false" level="info">
-		<appender-ref ref="stock" />
-		<appender-ref ref="error" />
-	</logger>
 	<logger name="kr.andold.stock.crawler.ChromeDriverWrapper" additivity="false" level="warn">
 		<appender-ref ref="general" />
 		<appender-ref ref="error" />
@@ -76,19 +72,6 @@
 	</logger>
 	<logger name="kr.andold.stock.repository" additivity="false" level="info">
 		<appender-ref ref="repository" />
-		<appender-ref ref="error" />
-	</logger>
-	<logger name="kr.andold.stock.service" additivity="false" level="info">
-		<appender-ref ref="stock" />
-		<appender-ref ref="error" />
-	</logger>
-	<logger name="kr.andold.stock.thread" additivity="false" level="info">
-		<appender-ref ref="stock" />
-		<appender-ref ref="error" />
-	</logger>
-
-	<logger name="kr.andold.stock" additivity="false" level="info">
-		<appender-ref ref="stock" />
 		<appender-ref ref="error" />
 	</logger>
 
