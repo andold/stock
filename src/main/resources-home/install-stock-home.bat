@@ -14,7 +14,7 @@ PUSHD %CURRENT_PATH%
 CD  %SOURCE_PATH%
 git stash
 git clean -f
-git  pull https://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@github.com/andold/stock.git
+git pull ssh://git@ssh.github.com:443/andold/stock.git
 git  log --pretty=format:"%%h - %%an, %%ai:%%ar : %%s" -8
 
 DEL /Q %SOURCE_PATH%\src\main\java\kr\andold\stock\antlr\*
