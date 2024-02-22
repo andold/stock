@@ -1044,7 +1044,7 @@ public class Seibro implements Crawler {
 				previous1stLine = driver.getText(BY_TABLE_1ST_LINE, TIMEOUT, MARK_ANDOLD_SINCE);
 
 				String nextPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, currentPage);
-				if (currentPage.equalsIgnoreCase(nextPage) || CrawlerService.getDebug()) {
+				if (currentPage.equalsIgnoreCase(nextPage) || (CrawlerService.getDebug() && currentPage.equalsIgnoreCase("3"))) {
 					break;
 				}
 
@@ -1119,7 +1119,7 @@ public class Seibro implements Crawler {
 				previous1stLine = driver.getText(BY_TABLE_1ST_LINE, TIMEOUT, MARK_ANDOLD_SINCE);
 
 				String nextPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, currentPage);
-				if (currentPage.equalsIgnoreCase(nextPage) || CrawlerService.getDebug()) {
+				if (currentPage.equalsIgnoreCase(nextPage) || (CrawlerService.getDebug() && currentPage.equalsIgnoreCase("3"))) {
 					break;
 				}
 

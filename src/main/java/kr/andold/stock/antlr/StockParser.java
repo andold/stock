@@ -11943,7 +11943,7 @@ public class StockParser extends Parser {
 	public static class CrawlDividendHistoryCompanyThreadContext extends ParserRuleContext {
 		public Token base;
 		public Token pay;
-		public Token code;
+		public WordContext code;
 		public WordContext symbol;
 		public Token dividend;
 		public List<TerminalNode> KEYWORD() { return getTokens(StockParser.KEYWORD); }
@@ -12215,7 +12215,7 @@ public class StockParser extends Parser {
 								setState(4308);
 								match(TAB);
 								setState(4309);
-								((CrawlDividendHistoryCompanyThreadContext)_localctx).code = match(NUMBER);
+								((CrawlDividendHistoryCompanyThreadContext)_localctx).code = word();
 								setState(4310);
 								match(TAB);
 								setState(4312); 
@@ -12300,7 +12300,7 @@ public class StockParser extends Parser {
 								match(NEWLINE);
 
 														ParserService.dividend(20231127
-															, (((CrawlDividendHistoryCompanyThreadContext)_localctx).code!=null?((CrawlDividendHistoryCompanyThreadContext)_localctx).code.getText():null)
+															, (((CrawlDividendHistoryCompanyThreadContext)_localctx).code!=null?_input.getText(((CrawlDividendHistoryCompanyThreadContext)_localctx).code.start,((CrawlDividendHistoryCompanyThreadContext)_localctx).code.stop):null)
 															, (((CrawlDividendHistoryCompanyThreadContext)_localctx).base!=null?((CrawlDividendHistoryCompanyThreadContext)_localctx).base.getText():null), (((CrawlDividendHistoryCompanyThreadContext)_localctx).pay!=null?((CrawlDividendHistoryCompanyThreadContext)_localctx).pay.getText():null), (((CrawlDividendHistoryCompanyThreadContext)_localctx).dividend!=null?((CrawlDividendHistoryCompanyThreadContext)_localctx).dividend.getText():null)
 															, null, null
 														);
@@ -15464,7 +15464,7 @@ public class StockParser extends Parser {
 		"\u0000\u0000\u10cf\u10d0\u0001\u0000\u0000\u0000\u10d0\u10d2\u0005\u0003"+
 		"\u0000\u0000\u10d1\u10d3\u0005\u0006\u0000\u0000\u10d2\u10d1\u0001\u0000"+
 		"\u0000\u0000\u10d2\u10d3\u0001\u0000\u0000\u0000\u10d3\u10d4\u0001\u0000"+
-		"\u0000\u0000\u10d4\u10d5\u0005\u0003\u0000\u0000\u10d5\u10d6\u0005\b\u0000"+
+		"\u0000\u0000\u10d4\u10d5\u0005\u0003\u0000\u0000\u10d5\u10d6\u00032\u0019"+
 		"\u0000\u10d6\u10d8\u0005\u0003\u0000\u0000\u10d7\u10d9\u00032\u0019\u0000"+
 		"\u10d8\u10d7\u0001\u0000\u0000\u0000\u10d9\u10da\u0001\u0000\u0000\u0000"+
 		"\u10da\u10d8\u0001\u0000\u0000\u0000\u10da\u10db\u0001\u0000\u0000\u0000"+
