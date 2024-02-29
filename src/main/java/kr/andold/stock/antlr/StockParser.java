@@ -1432,13 +1432,13 @@ public class StockParser extends Parser {
 		public WordContext word(int i) {
 			return getRuleContext(WordContext.class,i);
 		}
-		public List<TerminalNode> NUMBER() { return getTokens(StockParser.NUMBER); }
-		public TerminalNode NUMBER(int i) {
-			return getToken(StockParser.NUMBER, i);
-		}
 		public List<TerminalNode> DATE() { return getTokens(StockParser.DATE); }
 		public TerminalNode DATE(int i) {
 			return getToken(StockParser.DATE, i);
+		}
+		public List<TerminalNode> NUMBER() { return getTokens(StockParser.NUMBER); }
+		public TerminalNode NUMBER(int i) {
+			return getToken(StockParser.NUMBER, i);
 		}
 		public SeibroPriceCompanyContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1505,7 +1505,7 @@ public class StockParser extends Parser {
 					setState(448);
 					match(NEWLINE);
 					setState(449);
-					match(NUMBER);
+					word();
 					setState(450);
 					match(TAB);
 					setState(451);
@@ -13488,7 +13488,7 @@ public class StockParser extends Parser {
 		"\u0000\u01ba\u01bb\u0005\n\u0000\u0000\u01bb\u01bc\u0005\u0003\u0000\u0000"+
 		"\u01bc\u01bd\u0005\n\u0000\u0000\u01bd\u01fa\u0005\u0004\u0000\u0000\u01be"+
 		"\u01bf\u00032\u0019\u0000\u01bf\u01c0\u0005\u0003\u0000\u0000\u01c0\u01c1"+
-		"\u0005\u0004\u0000\u0000\u01c1\u01c2\u0005\b\u0000\u0000\u01c2\u01c3\u0005"+
+		"\u0005\u0004\u0000\u0000\u01c1\u01c2\u00032\u0019\u0000\u01c2\u01c3\u0005"+
 		"\u0003\u0000\u0000\u01c3\u01c4\u0005\n\u0000\u0000\u01c4\u01c5\u0005\u0003"+
 		"\u0000\u0000\u01c5\u01c6\u0005\n\u0000\u0000\u01c6\u01c7\u0005\u0003\u0000"+
 		"\u0000\u01c7\u01c8\u0005\n\u0000\u0000\u01c8\u01c9\u0005\u0003\u0000\u0000"+
