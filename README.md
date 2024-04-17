@@ -24,4 +24,4 @@
 - (시작 ~ 2024-03 현재) Seibro: https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285
 - (시작 ~ 2024-03 현재) Seibro: https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179
 - (2024-03 현재 사용하지 않음) KRX: http://data.krx.co.kr/
-- (2024-03 현재 사용하지 않음) 네이버: "https://finance.naver.com/sise/etf.naver
+- (2024-03 현재 사용하지 않음) 네이버: https://finance.naver.com/sise/etf.naver

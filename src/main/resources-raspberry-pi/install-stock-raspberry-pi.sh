@@ -91,7 +91,6 @@ java -jar $FILE_NAME_ANTLR_JAR -encoding UTF8 -package $PACKAGE_ANTLR4 -visitor 
 cd	$SOURCE_DIR
 #
 git clean -f
-bash gradlew clean -Pprofile=raspberry-pi -x test
 #
 # react npm install
 cd	$SOURCE_DIR/src/main/frontend
