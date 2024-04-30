@@ -121,6 +121,11 @@ public class ItemDomain extends ItemEntity implements CommonBlockDomain<ItemDoma
 			return compared;
 		}
 
+		compared = Utility.compare(getPriceEarningsRatio(), you.getPriceEarningsRatio());
+		if (compared != 0) {
+			return compared;
+		}
+
 		compared = Utility.compare(getVolumeOfListedShares(), you.getVolumeOfListedShares());
 		if (compared != 0) {
 			return compared;
@@ -165,6 +170,13 @@ public class ItemDomain extends ItemEntity implements CommonBlockDomain<ItemDoma
 
 		if (getPriority() != null) {
 			compared = Utility.compare(getPriority(), before.getPriority());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
+		if (getPriceEarningsRatio() != null) {
+			compared = Utility.compare(getPriceEarningsRatio(), before.getPriceEarningsRatio());
 			if (compared != 0) {
 				return compared;
 			}

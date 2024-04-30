@@ -107,7 +107,8 @@ public class CrawlerService {
 		options.addArguments("--verbose");
 		if (debug) {
 			options.addArguments("--window-size=2560,1080");
-			options.addArguments("--window-position=-2560,0");
+//			options.addArguments("--window-position=-2560,0");
+			options.addArguments("--window-position=0,0");
 			options.addArguments("--start-fullscreen");
 		} else {
 			options.addArguments("--window-size=3840,4320");
