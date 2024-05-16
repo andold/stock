@@ -1,5 +1,6 @@
 package kr.andold.stock.controller;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -82,10 +83,11 @@ public class ApiPriceController {
 		File file = File.createTempFile("stock-price-", "-.json.tmp");
 		file.deleteOnExit();
 		FileWriter fw = new FileWriter(file);
-		PrintWriter writer = new PrintWriter(fw);
+		BufferedWriter writer = new BufferedWriter(fw);
 		List<PriceDomain> prices = service.search(null);
 		for (PriceDomain price : prices) {
-			writer.println(Utility.toStringJson(price));
+			writer.write(Utility.toStringJson(price));
+			writer.write("\n");
 		}
 		writer.close();
 		log.info("{} #{}/#{} - download() - {}", Utility.indentMiddle(), Utility.size(prices), file.length(), Utility.toStringPastTimeReadable(started));
@@ -97,7 +99,7 @@ public class ApiPriceController {
 	    httpHeaders.set(HttpHeaders.CONTENT_LENGTH, String.valueOf(file.length()));
 	    StreamingResponseBody responseBody = outputStream -> {
 	        int numberOfBytesToWrite;
-	        byte[] data = new byte[1024 * 1024];
+	        byte[] data = new byte[8 * 1024 * 1024];
 	        while ((numberOfBytesToWrite = inputStream.read(data, 0, data.length)) != -1) {
 	            outputStream.write(data, 0, numberOfBytesToWrite);
 	            outputStream.flush();
