@@ -19,6 +19,7 @@ git  log --pretty=format:"%%h - %%an, %%ai:%%ar : %%s" -8
 
 DEL /Q %SOURCE_PATH%\src\main\java\kr\andold\stock\antlr\*
 java -jar %SOURCE_PATH%\src\main\resources\bin\antlr-4.10.1-complete.jar -encoding UTF8 -package kr.andold.stock.antlr -visitor -o %SOURCE_PATH%\src\main\java\kr\andold\stock\antlr %SOURCE_PATH%\src\main\resources\grammar\Stock.g4
+java -jar %SOURCE_PATH%\src\main\resources\bin\antlr-4.10.1-complete.jar -encoding UTF8 -package kr.andold.stock.antlr -visitor -o %SOURCE_PATH%\src\main\java\kr\andold\stock\antlr %SOURCE_PATH%\src\main\resources\grammar\Seibro.g4
 
 ECHO "clean"
 CALL gradle clean -Pprofile=home -x test
