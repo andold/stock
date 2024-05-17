@@ -374,11 +374,11 @@ public class ChromeDriverWrapper extends ChromeDriver {
 	private String extractTextFromTrElement(WebElement tr, String prefix) {
 		StringBuffer sb = new StringBuffer(prefix);
 		tr.findElements(By.tagName("th")).forEach(th -> {
-			sb.append(th.getText());
+			sb.append(th.getText().replaceAll("[\n\t]+", " "));
 			sb.append("\t");
 		});
 		tr.findElements(By.tagName("td")).forEach(td -> {
-			sb.append(td.getText());
+			sb.append(td.getText().replaceAll("[\n\t]+", " "));
 			sb.append("\t");
 		});
 		sb.append("\n");

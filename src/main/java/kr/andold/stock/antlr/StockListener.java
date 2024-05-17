@@ -256,16 +256,6 @@ public interface StockListener extends ParseTreeListener {
 	 */
 	void exitCrawlDividendHistoryEtfThread(StockParser.CrawlDividendHistoryEtfThreadContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link StockParser#crawlDividendHistoryCompanyThread}.
-	 * @param ctx the parse tree
-	 */
-	void enterCrawlDividendHistoryCompanyThread(StockParser.CrawlDividendHistoryCompanyThreadContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link StockParser#crawlDividendHistoryCompanyThread}.
-	 * @param ctx the parse tree
-	 */
-	void exitCrawlDividendHistoryCompanyThread(StockParser.CrawlDividendHistoryCompanyThreadContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link StockParser#word}.
 	 * @param ctx the parse tree
 	 */

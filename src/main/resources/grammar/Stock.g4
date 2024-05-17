@@ -16,8 +16,7 @@ import kr.andold.stock.service.ParserService;
 }
 
 stockDocument
-:	crawlDividendHistoryCompanyThread	// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당내역전체겁색 > 조회
-|	crawlDividendHistoryEtfThread	// KSD증권정보포털(SEIBro) > ETF > ???
+:	crawlDividendHistoryEtfThread	// KSD증권정보포털(SEIBro) > ETF > ???
 |	crawlItemDividendTopCompany		// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당순위
 |	crawlItemEtf					// KSD증권정보포털(SEIBro) > ETF > 종목발행현황
 |	crawlItemDetailCompanyThread	// KSD증권정보포털(SEIBro) > 주식 > 종목별상세정보 > 종목종합내역 (KSD증권정보포털(SEIBro) > 기업 > 기업기본정보와 동일)
@@ -1007,35 +1006,4 @@ crawlDividendHistoryEtfThread:
 		WORD TAB WORD TAB DATE											NEWLINE		//	andold 	 since 	 2023-11-27 
 	)+
 	KEYWORD TAB WORD WORD WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 ETF 배당금 내역 	 KSD 증권정보포털 SEIBro 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179 
-;
-
-
-// KSD증권정보포털(SEIBro) > 주식 > 배당정보 > 배당내역전체겁색 > 조회
-crawlDividendHistoryCompanyThread:
-	KEYWORD TAB WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 CrawlDividendHistoryCompanyThread 	 주식(기업) 배당금 내역 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285 
-	(
-		(
-			WORD TAB WORD								NEWLINE		//	배정기준일 	 현금배당 
-			WORD TAB WORD								NEWLINE		//	지급일 	 주식 
-			WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB		NEWLINE		//	유통(교부)일 	 종목코드 	 종목명 	 시장구분 	 배당구분 	 명의개서대리인 	 주식종류 	 주당배당금 	 주당배당률(일반) 	 주당배당률(차등) 	 액면가 	 결산월 	 
-			WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB WORD TAB															NEWLINE		//	일반 	 차등 	 현금 	 주식 	 현금 	 주식 
-			(
-				(
-					TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB TAB											NEWLINE		//		 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 
-				) | (
-					base=DATE TAB pay=DATE? TAB DATE? TAB code=word TAB symbol=word+ TAB WORD TAB WORD TAB WORD TAB WORD TAB dividend=NUMBER TAB NUMBER? TAB NUMBER TAB NUMBER TAB NUMBER? TAB TAB NUMBER TAB NUMBER TAB		NEWLINE
-							//	2022/12/31 	 2023/04/21 	 	 000850 	 화천기공 	 유가증권시장 	 현금배당 	 국민은행 	 보통주 	 2,500 	 	 50.00 	 0.00 	 	 	 5,000 	 12 	 
-					{
-						ParserService.dividend(20231127
-							, $code.text
-							, $base.text, $pay.text, $dividend.text
-							, null, null
-						);
-					}
-				)
-			)+
-		)+
-		WORD TAB WORD TAB DATE						NEWLINE		//	andold 	 since 	 2023-11-27 
-	)+
-	KEYWORD TAB WORD TAB WORD WORD WORD TAB WORD TAB WORD		NEWLINE		//	KEYWORD 	 CrawlDividendHistoryCompanyThread 	 주식(기업) 배당금 내역 	 URL 	 https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285 
 ;

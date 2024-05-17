@@ -25,7 +25,9 @@ import kr.andold.stock.repository.DividendHistoryRepository;
 import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.stock.thread.CrawlDividendHistoryCompanyThread;
 import kr.andold.stock.thread.CrawlDividendHistoryEtfThread;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class DividendHistoryService implements CommonBlockService<DividendHistoryParam, DividendHistoryDomain, DividendHistoryEntity> {
 	@Autowired private DividendHistoryRepository repository;
@@ -140,6 +142,10 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 					map.put(key, devidend);
 				} else {
 					map.put(key, prev + devidend);
+				}
+				
+				if (code.startsWith("441680")) {
+					log.warn("{} {} {} {}", key, prev, devidend, history.getBase());
 				}
 			}
 		}

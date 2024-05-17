@@ -9,6 +9,8 @@ import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.Vocabulary;
 
+import kr.andold.stock.antlr.SeibroLexer;
+import kr.andold.stock.antlr.SeibroParser;
 import kr.andold.stock.antlr.StockLexer;
 import kr.andold.stock.antlr.StockParser;
 import kr.andold.stock.domain.DividendHistoryDomain;
@@ -252,8 +254,56 @@ public class ParserService {
 			log.debug("{} parse(『\n{}\n』)", Utility.indentMiddle(), Utility.ellipsis(text, 1024, 1024));
 		}
 
+		if (result.isEmpty()) {
+			result = parseBySeibro(text, debug);
+		}
+
 		log.debug("{} {} parse(『{}』, 『{}』) - {}", Utility.indentEnd(), result, Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));
 		return result;
+	}
+
+	protected static ParserResult parseBySeibro(String text, boolean debug) {
+		log.debug("{} parseBySeibro(『{}』, {}』)", Utility.indentStart(), Utility.ellipsisEscape(text, 16), debug);
+		long started = System.currentTimeMillis();
+
+		LIST_STOCK_ITEM.clear();
+		LIST_STOCK_DIVIDEND_HOSTORY.clear();
+		LIST_STOCK_PRICE.clear();
+
+		if (text == null || text.isBlank()) {
+			log.debug("{} PARAMETER parseBySeibro(『{}』, 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));
+			return ParserResult.builder().items(new ArrayList<>()).histories(new ArrayList<>()).prices(new ArrayList<>()).build();
+		}
+
+		SeibroLexer lexer = new SeibroLexer(CharStreams.fromString(text));
+
+		// Get a list of matched tokens
+		CommonTokenStream tokens = new CommonTokenStream(lexer);
+
+		// Pass the tokens to the parser
+		SeibroParser parser = new SeibroParser(tokens);
+
+		parser.setTrace(false);
+		parser.stockDocument();
+
+		ParserResult result = ParserResult.builder().items(new ArrayList<>(LIST_STOCK_ITEM)).histories(new ArrayList<>(LIST_STOCK_DIVIDEND_HOSTORY)).prices(new ArrayList<>(LIST_STOCK_PRICE))
+				.build();
+
+		if (debug || result.isEmpty()) {
+			log.info("{} parseBySeibro(『\n{}\n』)", Utility.indentMiddle(), text);
+			infoPrintTokensBySeibro(text);
+		} else {
+			log.debug("{} parseBySeibro(『\n{}\n』)", Utility.indentMiddle(), Utility.ellipsis(text, 1024, 1024));
+		}
+
+		log.debug("{} {} parseBySeibro(『{}』, 『{}』) - {}", Utility.indentEnd(), result, Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
+	private static void infoPrintTokensBySeibro(String text) {
+		SeibroLexer lexer = new SeibroLexer(CharStreams.fromString(text));
+		String tokensFromText = tokens(lexer, "NEWLINE");
+		log.info("{} infoPrintTokensBySeibro::tokensFromText = 『\n{}\n』", Utility.indentMiddle(), tokensFromText);
 	}
 
 }
