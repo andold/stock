@@ -26,16 +26,6 @@ public interface SeibroListener extends ParseTreeListener {
 	 */
 	void exitStockDocument(SeibroParser.StockDocumentContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SeibroParser#seibroPriceCurrentEtf}.
-	 * @param ctx the parse tree
-	 */
-	void enterSeibroPriceCurrentEtf(SeibroParser.SeibroPriceCurrentEtfContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SeibroParser#seibroPriceCurrentEtf}.
-	 * @param ctx the parse tree
-	 */
-	void exitSeibroPriceCurrentEtf(SeibroParser.SeibroPriceCurrentEtfContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link SeibroParser#naverPriceCurrentEtf}.
 	 * @param ctx the parse tree
 	 */
@@ -66,16 +56,6 @@ public interface SeibroListener extends ParseTreeListener {
 	 */
 	void exitSeibroPriceCompany(SeibroParser.SeibroPriceCompanyContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SeibroParser#seibroPriceEtf}.
-	 * @param ctx the parse tree
-	 */
-	void enterSeibroPriceEtf(SeibroParser.SeibroPriceEtfContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SeibroParser#seibroPriceEtf}.
-	 * @param ctx the parse tree
-	 */
-	void exitSeibroPriceEtf(SeibroParser.SeibroPriceEtfContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link SeibroParser#seibroItemInfoCompany}.
 	 * @param ctx the parse tree
 	 */
@@ -85,36 +65,6 @@ public interface SeibroListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSeibroItemInfoCompany(SeibroParser.SeibroItemInfoCompanyContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SeibroParser#seibroItemInfoEtf}.
-	 * @param ctx the parse tree
-	 */
-	void enterSeibroItemInfoEtf(SeibroParser.SeibroItemInfoEtfContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SeibroParser#seibroItemInfoEtf}.
-	 * @param ctx the parse tree
-	 */
-	void exitSeibroItemInfoEtf(SeibroParser.SeibroItemInfoEtfContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SeibroParser#crawlItemEtf}.
-	 * @param ctx the parse tree
-	 */
-	void enterCrawlItemEtf(SeibroParser.CrawlItemEtfContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SeibroParser#crawlItemEtf}.
-	 * @param ctx the parse tree
-	 */
-	void exitCrawlItemEtf(SeibroParser.CrawlItemEtfContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SeibroParser#crawlPriceEtf}.
-	 * @param ctx the parse tree
-	 */
-	void enterCrawlPriceEtf(SeibroParser.CrawlPriceEtfContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SeibroParser#crawlPriceEtf}.
-	 * @param ctx the parse tree
-	 */
-	void exitCrawlPriceEtf(SeibroParser.CrawlPriceEtfContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SeibroParser#crawlPriceCompany}.
 	 * @param ctx the parse tree
@@ -145,26 +95,6 @@ public interface SeibroListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCrawlItemDividendTopCompany(SeibroParser.CrawlItemDividendTopCompanyContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SeibroParser#crawlEtfDetailThread}.
-	 * @param ctx the parse tree
-	 */
-	void enterCrawlEtfDetailThread(SeibroParser.CrawlEtfDetailThreadContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SeibroParser#crawlEtfDetailThread}.
-	 * @param ctx the parse tree
-	 */
-	void exitCrawlEtfDetailThread(SeibroParser.CrawlEtfDetailThreadContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SeibroParser#crawlDividendHistoryEtfThread}.
-	 * @param ctx the parse tree
-	 */
-	void enterCrawlDividendHistoryEtfThread(SeibroParser.CrawlDividendHistoryEtfThreadContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SeibroParser#crawlDividendHistoryEtfThread}.
-	 * @param ctx the parse tree
-	 */
-	void exitCrawlDividendHistoryEtfThread(SeibroParser.CrawlDividendHistoryEtfThreadContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SeibroParser#crawlDividendHistoryCompanyThread}.
 	 * @param ctx the parse tree

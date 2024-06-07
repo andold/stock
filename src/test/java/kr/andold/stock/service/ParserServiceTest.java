@@ -58,10 +58,10 @@ public class ParserServiceTest {
 	public void testItem() {
 		String symbol = "TIGER 미국나스닥100커버드콜(합성)[441680]";
 		log.info(symbol);
-		log.info(symbol.split("[\\(\\[][0-9]+")[0].strip());
+		log.info(symbol.split("[\\(\\[][0-9]+[\\)\\]]")[0].strip());
 		symbol = "TIGER 미국나스닥100커버드콜(441680)[]";
 		log.info(symbol);
-		log.info(symbol.split("[\\(\\[][0-9]+")[0].strip());
+		log.info(symbol.split("[\\(\\[][0-9]+[\\)\\]]")[0].strip());
 	}
 
 }

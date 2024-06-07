@@ -9,6 +9,8 @@ import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.Vocabulary;
 
+import kr.andold.stock.antlr.SeibroEtfLexer;
+import kr.andold.stock.antlr.SeibroEtfParser;
 import kr.andold.stock.antlr.SeibroLexer;
 import kr.andold.stock.antlr.SeibroParser;
 import kr.andold.stock.antlr.StockLexer;
@@ -100,7 +102,7 @@ public class ParserService {
 				.code(code)
 				.build();
 		item.setSymbol(symbol, symbol1, symbol2, symbol3, symbol4, symbol5, symbol6, symbol7);
-		item.setSymbol(item.getSymbol().split("[\\(\\[][0-9]+")[0].strip());
+		item.setSymbol(item.getSymbol().split("[\\(\\[][0-9]+[\\)\\]]")[0].strip());
 		item.setCategory(category, category1, category2, category3, category4, category5, category6, category7);
 		if ("유가증권".equalsIgnoreCase(type)) {
 			item.setType("KOSPI");
@@ -296,7 +298,48 @@ public class ParserService {
 			log.debug("{} parseBySeibro(『\n{}\n』)", Utility.indentMiddle(), Utility.ellipsis(text, 1024, 1024));
 		}
 
+		if (result.isEmpty()) {
+			result = parseBySeibroEtf(text, debug);
+		}
+
 		log.debug("{} {} parseBySeibro(『{}』, 『{}』) - {}", Utility.indentEnd(), result, Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+	protected static ParserResult parseBySeibroEtf(String text, boolean debug) {
+		log.debug("{} parseBySeibroEtf(『{}』, {}』)", Utility.indentStart(), Utility.ellipsisEscape(text, 16), debug);
+		long started = System.currentTimeMillis();
+
+		LIST_STOCK_ITEM.clear();
+		LIST_STOCK_DIVIDEND_HOSTORY.clear();
+		LIST_STOCK_PRICE.clear();
+
+		if (text == null || text.isBlank()) {
+			log.debug("{} PARAMETER parseBySeibroEtf(『{}』, 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));
+			return ParserResult.builder().items(new ArrayList<>()).histories(new ArrayList<>()).prices(new ArrayList<>()).build();
+		}
+
+		SeibroEtfLexer lexer = new SeibroEtfLexer(CharStreams.fromString(text));
+
+		// Get a list of matched tokens
+		CommonTokenStream tokens = new CommonTokenStream(lexer);
+
+		// Pass the tokens to the parser
+		SeibroEtfParser parser = new SeibroEtfParser(tokens);
+
+		parser.setTrace(false);
+		parser.seibroEtfDocument();
+
+		ParserResult result = ParserResult.builder().items(new ArrayList<>(LIST_STOCK_ITEM)).histories(new ArrayList<>(LIST_STOCK_DIVIDEND_HOSTORY)).prices(new ArrayList<>(LIST_STOCK_PRICE))
+				.build();
+
+		if (debug || result.isEmpty()) {
+			log.info("{} parseBySeibroEtf(『\n{}\n』)", Utility.indentMiddle(), text);
+			infoPrintTokensBySeibroEtf(text);
+		} else {
+			log.debug("{} parseBySeibroEtf(『\n{}\n』)", Utility.indentMiddle(), Utility.ellipsis(text, 1024, 1024));
+		}
+
+		log.debug("{} {} parseBySeibroEtf(『{}』, 『{}』) - {}", Utility.indentEnd(), result, Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
@@ -304,6 +347,11 @@ public class ParserService {
 		SeibroLexer lexer = new SeibroLexer(CharStreams.fromString(text));
 		String tokensFromText = tokens(lexer, "NEWLINE");
 		log.info("{} infoPrintTokensBySeibro::tokensFromText = 『\n{}\n』", Utility.indentMiddle(), tokensFromText);
+	}
+	private static void infoPrintTokensBySeibroEtf(String text) {
+		SeibroEtfLexer lexer = new SeibroEtfLexer(CharStreams.fromString(text));
+		String tokensFromText = tokens(lexer, "NEWLINE");
+		log.info("{} infoPrintTokensBySeibroEtf::tokensFromText = 『\n{}\n』", Utility.indentMiddle(), tokensFromText);
 	}
 
 }

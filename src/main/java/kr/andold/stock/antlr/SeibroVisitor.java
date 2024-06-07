@@ -25,12 +25,6 @@ public interface SeibroVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStockDocument(SeibroParser.StockDocumentContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SeibroParser#seibroPriceCurrentEtf}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSeibroPriceCurrentEtf(SeibroParser.SeibroPriceCurrentEtfContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link SeibroParser#naverPriceCurrentEtf}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -49,35 +43,11 @@ public interface SeibroVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSeibroPriceCompany(SeibroParser.SeibroPriceCompanyContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SeibroParser#seibroPriceEtf}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSeibroPriceEtf(SeibroParser.SeibroPriceEtfContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link SeibroParser#seibroItemInfoCompany}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitSeibroItemInfoCompany(SeibroParser.SeibroItemInfoCompanyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SeibroParser#seibroItemInfoEtf}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSeibroItemInfoEtf(SeibroParser.SeibroItemInfoEtfContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SeibroParser#crawlItemEtf}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCrawlItemEtf(SeibroParser.CrawlItemEtfContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SeibroParser#crawlPriceEtf}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCrawlPriceEtf(SeibroParser.CrawlPriceEtfContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SeibroParser#crawlPriceCompany}.
 	 * @param ctx the parse tree
@@ -96,18 +66,6 @@ public interface SeibroVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCrawlItemDividendTopCompany(SeibroParser.CrawlItemDividendTopCompanyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SeibroParser#crawlEtfDetailThread}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCrawlEtfDetailThread(SeibroParser.CrawlEtfDetailThreadContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SeibroParser#crawlDividendHistoryEtfThread}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCrawlDividendHistoryEtfThread(SeibroParser.CrawlDividendHistoryEtfThreadContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SeibroParser#crawlDividendHistoryCompanyThread}.
 	 * @param ctx the parse tree

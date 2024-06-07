@@ -25,48 +25,6 @@ public interface StockVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStockDocument(StockParser.StockDocumentContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link StockParser#seibroPriceCurrentEtf}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSeibroPriceCurrentEtf(StockParser.SeibroPriceCurrentEtfContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link StockParser#naverPriceCurrentEtf}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNaverPriceCurrentEtf(StockParser.NaverPriceCurrentEtfContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link StockParser#seibroPriceCurrentCompany}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSeibroPriceCurrentCompany(StockParser.SeibroPriceCurrentCompanyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link StockParser#seibroPriceCompany}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSeibroPriceCompany(StockParser.SeibroPriceCompanyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link StockParser#seibroPriceEtf}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSeibroPriceEtf(StockParser.SeibroPriceEtfContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link StockParser#seibroItemInfoCompany}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSeibroItemInfoCompany(StockParser.SeibroItemInfoCompanyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link StockParser#seibroItemInfoEtf}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSeibroItemInfoEtf(StockParser.SeibroItemInfoEtfContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link StockParser#krxPriceCompany}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -120,48 +78,6 @@ public interface StockVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCrawlPriceKrx(StockParser.CrawlPriceKrxContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link StockParser#crawlItemEtf}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCrawlItemEtf(StockParser.CrawlItemEtfContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link StockParser#crawlPriceEtf}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCrawlPriceEtf(StockParser.CrawlPriceEtfContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link StockParser#crawlPriceCompany}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCrawlPriceCompany(StockParser.CrawlPriceCompanyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link StockParser#crawlItemDetailCompanyThread}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCrawlItemDetailCompanyThread(StockParser.CrawlItemDetailCompanyThreadContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link StockParser#crawlItemDividendTopCompany}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCrawlItemDividendTopCompany(StockParser.CrawlItemDividendTopCompanyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link StockParser#crawlEtfDetailThread}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCrawlEtfDetailThread(StockParser.CrawlEtfDetailThreadContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link StockParser#crawlDividendHistoryEtfThread}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCrawlDividendHistoryEtfThread(StockParser.CrawlDividendHistoryEtfThreadContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link StockParser#word}.
 	 * @param ctx the parse tree

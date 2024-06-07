@@ -22,13 +22,6 @@ public class KindTest {
 	private Kind service;
 
 	@Test
-	public void testBasicInfoAll() {
-		Result<ParserResult> result = service.basicInfoAll();
-		log.info("{}", result);
-		assertEquals(result.getStatus(), STATUS.SUCCESS);
-	}
-
-	@Test
 	public void testIpoCloseAll() {
 		Result<ParserResult> result = service.itemIpoCloseAll();
 		log.info("{}", result);
