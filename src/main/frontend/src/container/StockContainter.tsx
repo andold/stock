@@ -31,6 +31,7 @@ export default ((props: any) => {
 
 		filterDividendPayoutRatio: false,
 
+		priority: null,	//	우선순위
 		start: null,
 		end: null,
 		keyword: null,
@@ -199,7 +200,18 @@ function Header(props: any) {
 								>{store.range(6).map(x => (<option key={x} value={(x + 3) * 8}>{(x + 3) * 8}</option>))}</Form.Select>
 							</InputGroup>
 						</Col>
-						<Col xs="auto" className="px-1 me-auto">
+						<Col xs="auto" className="mx-1">
+							<InputGroup size="sm">
+								<Form.Select className="border-secondary bg-dark text-white" value={form.priority} title="우선순위"
+									onChange={(event: any) => onChange && onChange({ priority: Number(event.target.value), })}
+									>
+										<option key={"우선순위"} value={null}>우선순위</option>
+										<option disabled>---------</option>
+										{store.range(4).map(x => (<option key={x} value={x}>{x}</option>))}
+									</Form.Select>
+							</InputGroup>
+						</Col>
+						<Col xs="auto" className="px-1">
 							<Form.Control size="sm" type="search" className="bg-dark text-white" defaultValue={form.keyword}
 								ref={refSearhKeyword}
 								onKeyDown={handleOnKeyDownKeyword}

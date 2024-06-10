@@ -28,7 +28,7 @@ CALL gradle clean -Pprofile=home -x test
 ECHO "react npm install"
 CD %SOURCE_PATH%\src\main\frontend
 CALL npm install
-CALL npm audit fix
+CALL npm audit fix --force
 
 ECHO "build"
 CD %SOURCE_PATH%

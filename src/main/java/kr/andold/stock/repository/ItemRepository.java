@@ -26,6 +26,10 @@ public interface ItemRepository extends JpaRepository<ItemEntity, Integer> {
 			+ "			OR	LOWER(x.code)		LIKE	CONCAT('%', LOWER(:#{#param.keyword}), '%')"
 			+ "			OR	LOWER(x.type)		LIKE	CONCAT('%', LOWER(:#{#param.keyword}), '%')"
 			+ "			OR	LOWER(x.category)	LIKE	CONCAT('%', LOWER(:#{#param.keyword}), '%')"
+			// priority
+			+ "		)	AND	("
+			+ "				:#{#param.priority}	IS NULL"
+			+ "			OR	(x.priority >= (:#{#param.priority} * 4)	AND	(x.priority < (:#{#param.priority} + 1) * 4))"
 			//	type
 			+ "		)	AND	("
 			+ "				:#{#param.type}	IS NULL"

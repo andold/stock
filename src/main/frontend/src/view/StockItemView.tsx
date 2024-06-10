@@ -28,6 +28,7 @@ export default ((props: any) => {
 	}, []);
 	useEffect(() => {
 		const request = {
+			priority: form.priority,	//	우선순위
 			keyword: form.keyword,
 			start: null,
 			end: null,

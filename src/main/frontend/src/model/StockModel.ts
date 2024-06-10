@@ -23,6 +23,7 @@ export interface StockForm {
 
 	filterDividendPayoutRatio: boolean;
 
+	priority: number;	//	우선순위
 	keyword: string;
 	start: moment.Moment;
 	end: moment.Moment;
