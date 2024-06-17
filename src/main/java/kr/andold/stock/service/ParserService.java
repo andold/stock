@@ -9,6 +9,8 @@ import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.Vocabulary;
 
+import kr.andold.stock.antlr.KrxEtfLexer;
+import kr.andold.stock.antlr.KrxEtfParser;
 import kr.andold.stock.antlr.SeibroEtfLexer;
 import kr.andold.stock.antlr.SeibroEtfParser;
 import kr.andold.stock.antlr.SeibroLexer;
@@ -257,6 +259,9 @@ public class ParserService {
 		}
 
 		if (result.isEmpty()) {
+			result = parseByKrxEtf(text, debug);
+		}
+		if (result.isEmpty()) {
 			result = parseBySeibro(text, debug);
 		}
 
@@ -264,6 +269,47 @@ public class ParserService {
 		return result;
 	}
 
+	protected static ParserResult parseByKrxEtf(String text, boolean debug) {
+		log.debug("{} parseByKrxEtf(『{}』, {}』)", Utility.indentStart(), Utility.ellipsisEscape(text, 16), debug);
+		long started = System.currentTimeMillis();
+
+		LIST_STOCK_ITEM.clear();
+		LIST_STOCK_DIVIDEND_HOSTORY.clear();
+		LIST_STOCK_PRICE.clear();
+
+		if (text == null || text.isBlank()) {
+			log.debug("{} PARAMETER parseByKrxEtf(『{}』, 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));
+			return ParserResult.builder().items(new ArrayList<>()).histories(new ArrayList<>()).prices(new ArrayList<>()).build();
+		}
+
+		KrxEtfLexer lexer = new KrxEtfLexer(CharStreams.fromString(text));
+
+		// Get a list of matched tokens
+		CommonTokenStream tokens = new CommonTokenStream(lexer);
+
+		// Pass the tokens to the parser
+		KrxEtfParser parser = new KrxEtfParser(tokens);
+
+		parser.setTrace(false);
+		parser.krxEtfDocument();
+
+		ParserResult result = ParserResult.builder().items(new ArrayList<>(LIST_STOCK_ITEM)).histories(new ArrayList<>(LIST_STOCK_DIVIDEND_HOSTORY)).prices(new ArrayList<>(LIST_STOCK_PRICE))
+				.build();
+
+		if (debug || result.isEmpty()) {
+			log.info("{} parseByKrxEtf(『\n{}\n』)", Utility.indentMiddle(), text);
+			infoPrintTokensBySeibro(text);
+		} else {
+			log.debug("{} parseByKrxEtf(『\n{}\n』)", Utility.indentMiddle(), Utility.ellipsis(text, 1024, 1024));
+		}
+
+		if (result.isEmpty()) {
+			result = parseBySeibroEtf(text, debug);
+		}
+
+		log.debug("{} {} parseByKrxEtf(『{}』, 『{}』) - {}", Utility.indentEnd(), result, Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
 	protected static ParserResult parseBySeibro(String text, boolean debug) {
 		log.debug("{} parseBySeibro(『{}』, {}』)", Utility.indentStart(), Utility.ellipsisEscape(text, 16), debug);
 		long started = System.currentTimeMillis();

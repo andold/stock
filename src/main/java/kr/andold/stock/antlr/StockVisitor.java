@@ -31,29 +31,11 @@ public interface StockVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitKrxPriceCompany(StockParser.KrxPriceCompanyContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link StockParser#krxPriceEtf}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitKrxPriceEtf(StockParser.KrxPriceEtfContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link StockParser#krxItemInfoCompany}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitKrxItemInfoCompany(StockParser.KrxItemInfoCompanyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link StockParser#krxItemInfoEtf}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitKrxItemInfoEtf(StockParser.KrxItemInfoEtfContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link StockParser#krxBasicInfoEtf}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitKrxBasicInfoEtf(StockParser.KrxBasicInfoEtfContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link StockParser#krxBasicInfoCompany}.
 	 * @param ctx the parse tree
@@ -61,23 +43,11 @@ public interface StockVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitKrxBasicInfoCompany(StockParser.KrxBasicInfoCompanyContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link StockParser#etfAllPrice}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitEtfAllPrice(StockParser.EtfAllPriceContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link StockParser#companyAllPrice}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitCompanyAllPrice(StockParser.CompanyAllPriceContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link StockParser#crawlPriceKrx}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCrawlPriceKrx(StockParser.CrawlPriceKrxContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link StockParser#word}.
 	 * @param ctx the parse tree

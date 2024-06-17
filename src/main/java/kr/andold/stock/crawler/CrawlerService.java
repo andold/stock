@@ -113,6 +113,8 @@ public class CrawlerService {
 		} else {
 			options.addArguments("--window-size=3840,4320");
 			options.addArguments("--headless");
+			options.addArguments("--no-sandbox");
+			options.addArguments("--disable-dev-shm-usage");
 		}
 		ChromeDriverWrapper driver = new ChromeDriverWrapper(options);
 		return driver;

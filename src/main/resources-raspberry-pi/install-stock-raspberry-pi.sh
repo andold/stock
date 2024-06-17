@@ -85,6 +85,7 @@ PACKAGE_ANTLR4=kr.andold.stock.antlr
 PATH_ANTLR4=$SOURCE_DIR/src/main/java/kr/andold/stock/antlr
 rm -f $PATH_ANTLR4/*
 java -jar $FILE_NAME_ANTLR_JAR -encoding UTF8 -package $PACKAGE_ANTLR4 -visitor -o $PATH_ANTLR4 $SOURCE_DIR/src/main/resources/grammar/Stock.g4
+java -jar $FILE_NAME_ANTLR_JAR -encoding UTF8 -package $PACKAGE_ANTLR4 -visitor -o $PATH_ANTLR4 $SOURCE_DIR/src/main/resources/grammar/KrxEtf.g4
 java -jar $FILE_NAME_ANTLR_JAR -encoding UTF8 -package $PACKAGE_ANTLR4 -visitor -o $PATH_ANTLR4 $SOURCE_DIR/src/main/resources/grammar/Seibro.g4
 java -jar $FILE_NAME_ANTLR_JAR -encoding UTF8 -package $PACKAGE_ANTLR4 -visitor -o $PATH_ANTLR4 $SOURCE_DIR/src/main/resources/grammar/SeibroEtf.g4
 # 
