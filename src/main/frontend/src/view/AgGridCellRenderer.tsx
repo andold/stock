@@ -441,13 +441,13 @@ function dividendTableRatioByCurrentPrice(mapHistory: any, start: any, currentPr
 								const history = mapHistory.get(moment([start.year() + cx, cy]).format("YYYY-MM"));
 								if (history?.dividend > 0) {
 									return (
-										<td key={Math.random()} className="text-end px-1 py-0">{(history?.dividend / currentPrice * 100)?.toFixed(2)}</td>
+										<td key={Math.random()} className="text-end px-1 py-0">{(history?.dividend / (currentPrice || 10000) * 100)?.toFixed(2)}</td>
 									);
 								}
 								return (<td key={Math.random()}></td>);
 							})
 						}
-						<th className="text-end px-1 py-0">{mapHistory.get(start.year() + cx) ? (mapHistory.get(start.year() + cx) / currentPrice * 100)?.toFixed(2) : ""}</th>
+						<th className="text-end px-1 py-0">{mapHistory.get(start.year() + cx) ? (mapHistory.get(start.year() + cx) / (currentPrice || 10000) * 100)?.toFixed(2) : ""}</th>
 					</tr>))
 				}
 			</tbody></Table>

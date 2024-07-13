@@ -110,12 +110,12 @@ export default ((props: any) => {
 		});
 	}
 	function handleOnGridReady(_: any) {
-		gridRef?.current?.columnApi?.applyColumnState({
+		gridRef?.current?.api?.applyColumnState({
 			state: [{ colId: 'priceEarningsRatio', sort: 'desc' }],
 			defaultState: { sort: null },
 		});
 		gridRef?.current?.api?.sizeColumnsToFit();
-		gridRef?.current?.api?.setDomLayout("autoHeight");
+		//gridRef?.current?.api?.setDomLayout("autoHeight");
 	}
 
 	return (<>
