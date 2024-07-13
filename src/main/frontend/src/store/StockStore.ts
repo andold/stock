@@ -70,7 +70,7 @@ class StockStore {
 
 	//	utils
 	range(size: number): number[] {
-		const result = [];
+		const result: number[] = [];
 		for (let cx = 0; cx < size; cx++) {
 			result.push(cx);
 		}

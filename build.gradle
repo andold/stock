@@ -88,7 +88,7 @@ if (project.hasProperty("profile")) {
 	sourceSets {
 		main {
 			resources {
-				srcDirs = ["src/main/resources", "src/test/resources", "src/test/resources-home"]
+				srcDirs = ["src/main/resources", "src/test/resources", "src/test/resources-local"]
 			}
 		}
 	}
@@ -108,8 +108,8 @@ compileJava.dependsOn copyWebApp
 */
 
 node {
-	version = "19.1.0"
-	npmVersion = "9.1.2"
+	version = "20.15.1"
+	npmVersion = "10.7.0"
 	download = true
 	nodeProjectDir = file("$webappDir")
 }

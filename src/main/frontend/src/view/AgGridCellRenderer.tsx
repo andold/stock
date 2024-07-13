@@ -72,7 +72,7 @@ export function PriceRecentCellRenderer(param: any) {
 	const ref = useRef(null);
 	const lineHeight = (param?.node?.rowHeight || 32) - 4;
 
-	function isSame(left: string, right: string, unit: string): boolean {
+	function isSame(left: string, right: string, unit?: string): boolean {
 		if (left === right) {
 			return true;
 		}
@@ -214,7 +214,7 @@ export function PriceRecentCellRenderer(param: any) {
 export function SymbolTypeCode(param: any) {
 	const data: Item = param.data;
 
-	function typeToVariant(type: string): string {
+	function typeToVariant(type?: string): string {
 		if (!type) {
 			return "warning";
 		}

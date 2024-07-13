@@ -205,7 +205,7 @@ function Header(props: any) {
 								<Form.Select className="border-secondary bg-dark text-white" value={form.priority} title="우선순위"
 									onChange={(event: any) => onChange && onChange({ priority: Number(event.target.value), })}
 									>
-										<option key={"우선순위"} value={null}>우선순위</option>
+										<option key={"우선순위"} value={undefined}>우선순위</option>
 										<option disabled>---------</option>
 										{store.range(4).map(x => (<option key={x} value={x}>{x}</option>))}
 									</Form.Select>

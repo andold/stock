@@ -1,0 +1,117 @@
+<!DOCTYPE configuration>
+<configuration debug="false" scan="true" scanPeriod="30 seconds">
+	<property name="LOG_PATH" value="/home/andold/logs/stock" />
+	<statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
+		</encoder>
+	</appender>
+	<appender name="general" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${LOG_PATH}/general.log</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>${LOG_PATH}/general.log.%i</fileNamePattern>
+			<maxIndex>9</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>4MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] %-64.64logger{64} :%4line %msg%n</Pattern>
+		</encoder>
+	</appender>
+	<appender name="stock" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${LOG_PATH}/stock.log</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>${LOG_PATH}/stock.log.%i</fileNamePattern>
+			<maxIndex>9</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>4MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
+		</encoder>
+	</appender>
+	<appender name="parser" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${LOG_PATH}/parser.log</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>${LOG_PATH}/parser.log.%i</fileNamePattern>
+			<maxIndex>9</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>4MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
+		</encoder>
+	</appender>
+	<appender name="error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>ERROR</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+		<File>${LOG_PATH}/error.log</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>${LOG_PATH}/error.log.%i</fileNamePattern>
+			<maxIndex>9</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>4MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
+		</encoder>
+	</appender>
+
+	<logger name="kr.andold.stock.crawler.ChromeDriverWrapper" additivity="false" level="warn">
+		<appender-ref ref="general" />
+		<appender-ref ref="error" />
+	</logger>
+	<logger name="kr.andold.stock.crawler" additivity="false" level="debug">
+		<appender-ref ref="stock" />
+		<appender-ref ref="error" />
+	</logger>
+	<logger name="kr.andold.stock.thread" additivity="false" value="debug">
+		<appender-ref ref="stock" />
+		<appender-ref ref="error" />
+	</logger>
+	<logger name="kr.andold.stock.service.ParserService" additivity="false" value="debug">
+		<appender-ref ref="parser" />
+		<appender-ref ref="error" />
+	</logger>
+	<logger name="kr.andold.stock.service" additivity="false" value="info">
+		<appender-ref ref="stock" />
+		<appender-ref ref="error" />
+	</logger>
+	<logger name="kr.andold.stock.controller" additivity="false" value="info">
+		<appender-ref ref="stock" />
+		<appender-ref ref="error" />
+	</logger>
+	<logger name="kr.andold.stock" additivity="false" value="info">
+		<appender-ref ref="stock" />
+		<appender-ref ref="error" />
+	</logger>
+
+	<logger name="org.springframework" additivity="false" value="warn">
+		<appender-ref ref="general" />
+		<appender-ref ref="error" />
+	</logger>
+	<logger name="com.zaxxer" additivity="false" value="warn">
+		<appender-ref ref="general" />
+		<appender-ref ref="error" />
+	</logger>
+	<logger name="org.hibernate" additivity="false" value="warn">
+		<appender-ref ref="general" />
+		<appender-ref ref="error" />
+	</logger>
+
+	<root value="warn">
+		<appender-ref ref="stock" />
+		<appender-ref ref="general" />
+		<appender-ref ref="error" />
+	</root>
+
+</configuration>

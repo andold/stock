@@ -43,7 +43,7 @@ class StockRepository {
 			link.setAttribute("download", request.filename);
 			document.body.appendChild(link);
 			link.click();
-			link.parentNode.removeChild(link);
+			link.parentNode!.removeChild(link);
 			onSuccess && onSuccess(request, response.data, element);
 		})
 			.catch(error => onError && onError(request, error, element));

@@ -1,8 +1,5 @@
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "ag-grid-community/dist/styles/ag-grid.css";
-import "ag-grid-community/dist/styles/ag-theme-balham.css";
-import "ag-grid-community/dist/styles/ag-theme-balham-dark.css";
 
 import React, { useEffect, } from "react";
 import { DndProvider } from "react-dnd";

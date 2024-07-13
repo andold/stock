@@ -27,7 +27,7 @@ class ItemRepository {
 			link.setAttribute("download", filename);
 			document.body.appendChild(link);
 			link.click();
-			link.parentNode.removeChild(link);
+			link.parentNode!.removeChild(link);
 			onSuccess && onSuccess(filename, response.data, element);
 		})
 			.catch(error => onError && onError(filename, error, element));
