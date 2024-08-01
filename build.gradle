@@ -108,8 +108,8 @@ compileJava.dependsOn copyWebApp
 */
 
 node {
-	version = "20.15.1"
-	npmVersion = "10.7.0"
+	version = "19.1.0"
+	npmVersion = "9.1.2"
 	download = true
 	nodeProjectDir = file("$webappDir")
 }

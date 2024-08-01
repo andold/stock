@@ -1,5 +1,7 @@
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS required by the Data Grid
+import "ag-grid-community/styles/ag-theme-balham.css"; // Optional Theme applied to the Data Grid
 
 import React, { useEffect, } from "react";
 import { DndProvider } from "react-dnd";
@@ -19,7 +21,6 @@ export default function App() {
 	useEffect(() => {
 		moment.tz.setDefault("Asia/Seoul");
 		moment.locale("ko");
-		// when test, set default test menu
 	}, []);
 
 	return (

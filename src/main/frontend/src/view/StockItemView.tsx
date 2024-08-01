@@ -18,7 +18,7 @@ export default ((props: any) => {
 	const form = props.form as StockForm;
 	const { onChange} = props;
 
-	const gridRef = useRef<AgGridReact>();
+	const gridRef = useRef<AgGridReact>(null);
 	const [rowData, setRowData] = useState<Item[]>([]);
 	const [columnDefs, setColumnDefs] = useState([]);
 
@@ -110,12 +110,12 @@ export default ((props: any) => {
 		});
 	}
 	function handleOnGridReady(_: any) {
-		gridRef?.current?.api?.applyColumnState({
+		gridRef.current!.api.applyColumnState({
 			state: [{ colId: 'priceEarningsRatio', sort: 'desc' }],
 			defaultState: { sort: null },
 		});
-		gridRef?.current?.api?.sizeColumnsToFit();
-		//gridRef?.current?.api?.setDomLayout("autoHeight");
+		gridRef.current!.api.sizeColumnsToFit();
+		gridRef.current!.api.setGridOption("domLayout", "autoHeight");
 	}
 
 	return (<>
