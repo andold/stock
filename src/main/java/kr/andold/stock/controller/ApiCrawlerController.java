@@ -74,7 +74,7 @@ public class ApiCrawlerController {
 	public Result<ParserResult> crawlItemIpoCloseRecent(@RequestBody(required = false) PriceParam param) {
 		log.info("{} crawlItemIpoCloseRecent({})", Utility.indentStart(), param);
 
-		Date start = param == null ? Date.from(LocalDate.now().minusMonths(1).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)) : param.getStart();
+		Date start = param == null ? Date.from(LocalDate.now().minusMonths(12).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)) : param.getStart();
 		Result<ParserResult> result = service.crawlItemIpoCloseRecent(start);
 
 		log.info("{} 『{}』 - crawlItemIpoCloseRecent()", Utility.indentEnd(), result);
