@@ -19,6 +19,7 @@
 			<maxFileSize>4MB</maxFileSize>
 		</triggeringPolicy>
 		<encoder>
+			<charset>UTF-8</charset>
 			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] %-64.64logger{64} :%4line %msg%n</Pattern>
 		</encoder>
 	</appender>
@@ -32,6 +33,7 @@
 			<maxFileSize>4MB</maxFileSize>
 		</triggeringPolicy>
 		<encoder>
+			<charset>UTF-8</charset>
 			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
 		</encoder>
 	</appender>
@@ -45,6 +47,7 @@
 			<maxFileSize>4MB</maxFileSize>
 		</triggeringPolicy>
 		<encoder>
+			<charset>UTF-8</charset>
 			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
 		</encoder>
 	</appender>
@@ -63,6 +66,7 @@
 			<maxFileSize>4MB</maxFileSize>
 		</triggeringPolicy>
 		<encoder>
+			<charset>UTF-8</charset>
 			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
 		</encoder>
 	</appender>

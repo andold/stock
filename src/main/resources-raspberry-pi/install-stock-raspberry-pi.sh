@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 #
 THIS_SCRIPT_FILE_NAME=install-stock-raspberry-pi.sh
