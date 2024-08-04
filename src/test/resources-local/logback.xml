@@ -1,6 +1,6 @@
 <!DOCTYPE configuration>
 <configuration debug="true" scan="true" scanPeriod="30 seconds">
-	<property name="LOG_PATH" value="/home/andold/logs/test-stock" />
+	<property name="LOG_PATH" value="${LOG_PATH:-/home/andold/logs/test-stock}" />
 	<statusListener class="ch.qos.logback.core.status.NopStatusListener" />
 
 	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
@@ -76,30 +76,9 @@
 		<appender-ref ref="general" />
 		<appender-ref ref="error" />
 	</logger>
-	<logger name="kr.andold.stock.service.ParserService" additivity="false" value="debug">
-		<appender-ref ref="console" />
-		<appender-ref ref="parser" />
-		<appender-ref ref="error" />
-	</logger>
-	<logger name="kr.andold.stock" additivity="false" value="info">
+	<logger name="kr.andold.stock" additivity="false" value="debug">
 		<appender-ref ref="console" />
 		<appender-ref ref="stock" />
-		<appender-ref ref="error" />
-	</logger>
-
-	<logger name="org.springframework" additivity="false" value="warn">
-		<appender-ref ref="console" />
-		<appender-ref ref="general" />
-		<appender-ref ref="error" />
-	</logger>
-	<logger name="com.zaxxer" additivity="false" value="warn">
-		<appender-ref ref="console" />
-		<appender-ref ref="general" />
-		<appender-ref ref="error" />
-	</logger>
-	<logger name="org.hibernate" additivity="false" value="warn">
-		<appender-ref ref="console" />
-		<appender-ref ref="general" />
 		<appender-ref ref="error" />
 	</logger>
 

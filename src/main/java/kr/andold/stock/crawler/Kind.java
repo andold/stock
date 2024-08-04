@@ -1,5 +1,6 @@
 package kr.andold.stock.crawler;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,10 +36,34 @@ public class Kind implements Crawler {
 		try {
 			driver.navigate().to(URL_COMPANY_EACH_SUMMARY_INFO);
 			String parent = driver.getWindowHandle();
+			
+			//	footer	/html/body/footer
+			By BY_FOOTER = By.xpath("/html/body/footer");
+			driver.presenceOfElementLocated(BY_FOOTER, Duration.ofMinutes(1));
+			log.info("{} item({}) - 『{}』", Utility.indentMiddle(), start, Utility.ellipsisEscape(driver.getText(BY_FOOTER), 32, 32));
+			
+			//	기간 시작일	//*[@id="fromDate"]
+			By BY_FROM_DATE = By.xpath("//*[@id='fromDate']");
+			driver.presenceOfElementLocated(BY_FROM_DATE);
+			driver.findElement(BY_FROM_DATE).clear();
+			driver.findElement(BY_FROM_DATE).sendKeys(String.format("%1$tY%1$tm%1$td", start));
+			log.info("{} item({}) - 『{}』", Utility.indentMiddle(), start, driver.getText(BY_FROM_DATE));
+			
+			//	건수	//*[@id="main-contents"]/section[2]/div[2]	//*[@id="currentPageSize"]
+			By BY_CURRENT_PAGE_SIZE = By.xpath("//*[@id='main-contents']/section[2]//*[@id='currentPageSize']");
+			new Select(driver.findElement(BY_CURRENT_PAGE_SIZE)).selectByVisibleText("100건");
+			log.info("{} item({}) - 『{}』", Utility.indentMiddle(), start, Utility.ellipsisEscape(driver.getText(BY_CURRENT_PAGE_SIZE), 32, 32));
+			
+			//	검색	//*[@id="searchForm"]/section/div/div[3]/a[1]
+			By BY_SEARCH = By.xpath("//*[@id='searchForm']/section/div/div[3]/a[@title='검색']");
+			driver.elementToBeClickable(BY_SEARCH);
+			driver.findElement(BY_SEARCH).click();
+			log.info("{} item({}) - 『{}』", Utility.indentMiddle(), start, driver.getText(BY_SEARCH));
 
 			By BY_COUNT = By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='info type-00']/em");
 			driver.waitUntilTextNotInclude(BY_COUNT, TIMEOUT, "0");
 			By BY_CURRENT_PAGE = By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='paging type-00']/a[@class='active']");
+			log.info("{} item({}) - 『{}』『{}』", Utility.indentMiddle(), start, driver.getText(BY_COUNT), driver.getText(BY_CURRENT_PAGE));
 
 			String previousCode = "-";
 			long pause = 4000;
@@ -49,6 +74,7 @@ public class Kind implements Crawler {
 			for(String cx = "0";;) {
 				driver.switchTo().window(parent);
 				String currentPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, cx);
+				log.info("{} item({}) - 『{}』", Utility.indentMiddle(), start, currentPage);
 				if (currentPage.equalsIgnoreCase(cx) || start.after(currentDate)) {
 					break;
 				}
@@ -66,6 +92,7 @@ public class Kind implements Crawler {
 					if (dateElement == null) {
 						break;
 					}
+					log.info("{} item({}) - 『{}』", Utility.indentMiddle(), start, dateElement.getText());
 
 					String date = dateElement.getText();
 					currentDate = Utility.parseDateTime(date, null);
@@ -74,6 +101,7 @@ public class Kind implements Crawler {
 					}
 
 					String symbol = link.getText();
+					log.info("{} item({}) - 『{}』", Utility.indentMiddle(), start, symbol);
 					link.click();
 					Set<String> handles = driver.getWindowHandles();
 					for (String child : handles) {
@@ -86,6 +114,7 @@ public class Kind implements Crawler {
 						String content = driver.getText(By.xpath("/html/body/form/section/div/table[1]/tbody/tr[3]/td[2]/strong"), TIMEOUT * 4, previousCode);
 						if (content.strip().endsWith("상장폐지")) {
 							String code = driver.getText(By.xpath("/html/body/form/section/div/table[1]/tbody/tr[2]/td[2]"), TIMEOUT, null);
+							log.info("{} item({}) - 『{}』", Utility.indentMiddle(), start, Utility.ellipsisEscape(code, 32, 32));
 							items.add(ItemDomain.builder().code(code).ipoClose(Utility.parseDateTime(date, null)).build());
 							previousCode = code;
 						}

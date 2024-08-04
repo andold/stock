@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.openqa.selenium.By;
+import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,12 @@ public class CrawlerService {
 	public void setWebdriverPath(String value) {
 		log.info("{} INIT::CrawlerService.setWebdriverPath({})", Utility.indentMiddle(), value);
 		webdriverPath = value;
+	}
+
+	private static String userDataDir;
+	@Value("${data.user.data.dir:C:/tmp}")
+	public void setUserDataDir(String value) {
+		userDataDir = value;
 	}
 
 	@Getter private static Boolean debug = false;
@@ -105,11 +112,17 @@ public class CrawlerService {
 		options.addArguments("--incognito");
 		options.addArguments("--enable-gpu");
 		options.addArguments("--verbose");
+		options.addArguments(String.format("--user-data-dir=%s", userDataDir));
+		options.addArguments("--disable-infobars");
+		options.addArguments("--disable-extensions");
+		options.addArguments("--no-sandbox");
+		options.addArguments("--disable-application-cache");
+		options.addArguments("--disable-gpu");
+		options.addArguments("--disable-dev-shm-usage");
+		options.setPageLoadStrategy(PageLoadStrategy.NONE);
 		if (debug) {
-			options.addArguments("--window-size=2560,1080");
-//			options.addArguments("--window-position=-2560,0");
-			options.addArguments("--window-position=0,0");
-			options.addArguments("--start-fullscreen");
+			options.addArguments(String.format("--window-size=%d,%d", 1920 * 1, 1090 * 1 - 128));
+			options.addArguments("--window-position=1920,0");
 		} else {
 			options.addArguments("--window-size=3840,4320");
 			options.addArguments("--headless");

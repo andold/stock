@@ -1,31 +1,39 @@
 package kr.andold.stock.crawler;
 
+import java.time.Duration;
 import java.util.List;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.UnhandledAlertException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import kr.andold.stock.service.Utility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ChromeDriverWrapper extends ChromeDriver {
-
 	private static final int PAUSE = 100;
+	private WebDriverWait wait;
 
 	public ChromeDriverWrapper(ChromeOptions options) {
 		super(options);
+		wait = new WebDriverWait(this, Duration.ofSeconds(8));
 	}
 
 	public WebElement findElement(By xpath, int milli) throws Exception {
 		log.info("{} findElement(..., {})", Utility.indentStart(), milli);
 		long started = System.currentTimeMillis();
+		long end = started + milli;
 
 		Exception previous = null;
-		while (milli > 0) {
+		while (System.currentTimeMillis() < end) {
 			try {
 				WebElement e = super.findElement(xpath);
 
@@ -35,7 +43,6 @@ public class ChromeDriverWrapper extends ChromeDriver {
 				previous = e;
 			}
 			Utility.sleep(PAUSE);
-			milli -= PAUSE;
 		}
 
 		log.info("{} {} findElement(..., {}) - {}", Utility.indentEnd(), "FAILURE", milli, Utility.toStringPastTimeReadable(started));
@@ -191,7 +198,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 					if (text.indexOf(string) >= 0 && attribute.indexOf(clazz) >= 0) {
 						return e;
 					}
-					
+
 					Utility.sleep(PAUSE);
 					milli -= PAUSE;
 				}
@@ -214,7 +221,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 						e.click();
 						return true;
 					}
-					
+
 					Utility.sleep(PAUSE);
 					timeout -= PAUSE;
 				}
@@ -248,7 +255,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 				return;
 			}
 
-			JavascriptExecutor jsExecutor = (JavascriptExecutor) this;
+			JavascriptExecutor jsExecutor = (JavascriptExecutor)this;
 			es.forEach(e -> jsExecutor.executeScript("arguments[0].parentNode.removeChild(arguments[0])", e));
 		} catch (Exception e) {
 		}
@@ -261,7 +268,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 				return;
 			}
 
-			JavascriptExecutor jsExecutor = (JavascriptExecutor) this;
+			JavascriptExecutor jsExecutor = (JavascriptExecutor)this;
 			jsExecutor.executeScript("arguments[0].innerHTML = \"" + text + "\"", e);
 		} catch (Exception e) {
 		}
@@ -274,7 +281,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 				List<WebElement> es = super.findElements(xpath);
 				String text = toString(es);
 				if (!mark.contentEquals(text)) {
-					return  es;
+					return es;
 				}
 			} catch (Exception e) {
 				previous = e;
@@ -326,6 +333,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 	public String extractTextContentFromTrElement(WebElement tr) {
 		return extractTextContentFromTrElement(tr, "");
 	}
+
 	private static String extractTextContentFromTrElement(WebElement tr, String prefix) {
 		StringBuffer sb = new StringBuffer(prefix);
 		tr.findElements(By.tagName("th")).forEach(th -> {
@@ -343,6 +351,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 	public String extractTextContentFromTableElement(WebElement e) {
 		return extractTextContentFromTableElement(e, "");
 	}
+
 	public String extractTextContentFromTableElement(WebElement e, String prefix) {
 		log.info("{} extractTextFromTableElement(..., 『{}』)", Utility.indentStart(), Utility.ellipsisEscape(prefix, 16));
 		long started = System.currentTimeMillis();
@@ -385,9 +394,28 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		return new String(sb);
 	}
 
+	public String getText(By by) {
+		try {
+			WebElement element = super.findElement(by);
+			return element.getText();
+		} catch (Exception e) {
+		}
+		return "NaN";
+	}
+
+	public String getText(By by, String defaultValue) {
+		try {
+			WebElement element = super.findElement(by);
+			return element.getText();
+		} catch (Exception e) {
+		}
+		return defaultValue;
+	}
+
 	public String getText(By xpath, int milli, String defaultValue) {
+		long end = System.currentTimeMillis() + milli;
 		List<WebElement> elements = null;
-		while (milli > 0) {
+		do {
 			try {
 				elements = super.findElements(xpath);
 				if (!elements.isEmpty()) {
@@ -396,8 +424,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 			} catch (Exception e) {
 			}
 			Utility.sleep(PAUSE);
-			milli -= PAUSE;
-		}
+		} while (System.currentTimeMillis() < end);
 		return defaultValue;
 	}
 
@@ -417,7 +444,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 	public String getTextFromTableElement(WebElement table, String prefix) {
 		String lines = table.getText();
 		StringBuffer sb = new StringBuffer();
-		for (String line: lines.split("\r?\n")) {
+		for (String line : lines.split("\r?\n")) {
 			sb.append(prefix);
 			sb.append(line);
 			sb.append("\n");
@@ -488,7 +515,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 
 	public String getText(List<WebElement> result) {
 		StringBuffer sb = new StringBuffer();
-		for (WebElement e: result) {
+		for (WebElement e : result) {
 			sb.append(e.getText());
 		}
 		return sb.toString();
@@ -497,7 +524,7 @@ public class ChromeDriverWrapper extends ChromeDriver {
 	public String getAttribute(WebElement e, String attributeName, String prefix) {
 		String lines = e.getAttribute(attributeName);
 		StringBuffer sb = new StringBuffer();
-		for (String line: lines.split("\r?\n")) {
+		for (String line : lines.split("\r?\n")) {
 			sb.append(prefix);
 			sb.append(line);
 			sb.append("\n");
@@ -525,6 +552,205 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		}
 
 		return null;
+	}
+
+	public boolean visibilityOf(WebElement element) {
+		try {
+			wait.until(ExpectedConditions.visibilityOf(element));
+			return true;
+		} catch (Exception e) {
+			log.warn("Exception:: {}", e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
+	public boolean visibilityOfElementLocated(By by) {
+		try {
+			wait.until(ExpectedConditions.visibilityOfElementLocated(by));
+			return true;
+		} catch (Exception e) {
+			log.warn("Exception:: {}", e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
+	public boolean elementToBeClickable(By by) {
+		try {
+			wait.until(ExpectedConditions.elementToBeClickable(by));
+			return true;
+		} catch (Exception e) {
+			log.warn("Exception:: {}", e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
+	public boolean invisibilityOfElementLocated(By by) {
+		try {
+			wait.until(ExpectedConditions.invisibilityOfElementLocated(by));
+			return true;
+		} catch (Exception e) {
+			log.warn("Exception:: {}", e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
+	public boolean invisibilityOfElementLocated(By by, Duration duration) {
+		try {
+			WebDriverWait wait = new WebDriverWait(this, duration);
+			wait.until(ExpectedConditions.invisibilityOfElementLocated(by));
+			return true;
+		} catch (Exception e) {
+			log.warn("Exception:: {}", e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
+	public boolean frameToBeAvailableAndSwitchToIt(String frame, Duration duration) {
+		try {
+			WebDriverWait wait = new WebDriverWait(this, duration);
+			wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(frame));
+			return true;
+		} catch (Exception e) {
+			log.warn("Exception:: {}", e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
+	public boolean visibilityOfElementLocated(By by, Duration duration) {
+		for (;;) {
+			try {
+				WebDriverWait wait = new WebDriverWait(this, duration);
+				wait.until(ExpectedConditions.visibilityOfElementLocated(by));
+				return true;
+			} catch (UnhandledAlertException e) {
+			} catch (Exception e) {
+				log.warn("Exception:: {}", e.getLocalizedMessage(), e);
+				break;
+			}
+		}
+		return false;
+	}
+
+	public boolean frameToBeAvailableAndSwitchToIt(String frame) {
+		try {
+			wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(frame));
+			return true;
+		} catch (Exception e) {
+			log.warn("Exception:: {}", e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
+	public boolean elementToBeClickable(By by, Duration duration) {
+		try {
+			WebDriverWait wait = new WebDriverWait(this, duration);
+			wait.until(ExpectedConditions.elementToBeClickable(by));
+			return true;
+		} catch (Exception e) {
+			log.warn("Exception:: {}", e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
+	public boolean presenceOfElementLocated(By by) {
+		try {
+			wait.until(ExpectedConditions.presenceOfElementLocated(by));
+			return true;
+		} catch (Exception e) {
+			log.warn("Exception:: {}", e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
+	public boolean presenceOfElementLocated(By by, Duration duration) {
+		try {
+			WebDriverWait wait = new WebDriverWait(this, duration);
+			wait.until(ExpectedConditions.presenceOfElementLocated(by));
+			return true;
+		} catch (Exception e) {
+			log.warn("Exception:: {}", e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
+	public void notPresenceOfAllElementsLocatedBy(By by, int milli) {
+		long end = System.currentTimeMillis() + milli;
+		do {
+			try {
+				wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(by));
+				wait(PAUSE);
+			} catch (Exception e) {
+			}
+		} while (System.currentTimeMillis() < end);
+	}
+
+	public boolean mouseHover(By by) {
+		try {
+			WebElement ele = findElement(by);
+			Actions action = new Actions(this);
+			action.moveToElement(ele).perform();
+			return true;
+		} catch (Exception e) {
+			log.warn("Exception:: {}", e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
+	public boolean mouseClick(By by) {
+		try {
+			WebElement ele = findElement(by);
+			Actions actions = new Actions(this);
+			actions.moveToElement(ele).perform();
+			actions.click().build().perform();
+			return true;
+		} catch (Exception e) {
+			log.warn("Exception:: {}", e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
+	public boolean scrollTo(By by) {
+		try {
+			WebElement element = findElement(by);
+			((JavascriptExecutor)this).executeScript("arguments[0].scrollIntoView(true);", element);
+			Actions actions = new Actions(this);
+			actions.moveToElement(element);
+			actions.perform();
+			return true;
+		} catch (Exception e) {
+			log.warn("Exception:: {}", e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
+	public boolean numberOfElementsToBeMoreThan(By by, int i) {
+		try {
+			wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(by, i));
+			return true;
+		} catch (Exception e) {
+			log.warn("Exception:: {}", e.getLocalizedMessage(), e);
+		}
+		return false;
+	}
+
+	public void refresh() {
+		Window window = manage().window();
+		Dimension size = window.getSize();
+		window.setSize(new Dimension(size.getWidth() / 2, size.getHeight() / 2));
+		window.setSize(size);
+		
+		String url = this.getCurrentUrl();
+		this.get(url);
+		this.visibilityOfElementLocated(By.tagName("body"));
+	}
+
+	public boolean isDisplayed(By by) {
+		try {
+			WebElement element = findElement(by);
+			return element.isDisplayed();
+		} catch (Exception e) {
+		}
+		return false;
 	}
 
 }

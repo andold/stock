@@ -71,7 +71,7 @@ public class ScheduledTasks {
 		long started = System.currentTimeMillis();
 
 		Result<ParserResult> resultDividendAllRecent = crawlerService.crawlDividendAllRecent();
-		Result<ParserResult> resultItemIpoCloseRecent = crawlerService.crawlItemIpoCloseRecent(Date.from(LocalDate.now().minusMonths(1).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)));
+		Result<ParserResult> resultItemIpoCloseRecent = crawlerService.crawlItemIpoCloseRecent(Date.from(LocalDate.now().minusMonths(12).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)));
 
 		log.info("{} 『{}』『{}』 scheduleTaskWeekly() - {}", Utility.indentEnd(), resultDividendAllRecent, resultItemIpoCloseRecent, Utility.toStringPastTimeReadable(started));
 	}

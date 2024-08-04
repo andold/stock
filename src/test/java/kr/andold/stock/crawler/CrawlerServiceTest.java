@@ -22,6 +22,11 @@ public class CrawlerServiceTest {
 	}
 
 	@Test
+	public void test() {
+		log.info("{}", String.format("%.0f", 123.465));
+	}
+
+	@Test
 	public void testCrawlDividendAllRecent() {
 		Result<ParserResult> result = service.crawlDividendAllRecent();
 		log.info("{}", result);
