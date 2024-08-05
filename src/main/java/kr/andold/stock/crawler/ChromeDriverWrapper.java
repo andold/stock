@@ -403,6 +403,15 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		return "NaN";
 	}
 
+	public String getText(WebElement element, By by) {
+		try {
+			WebElement result = element.findElement(by);
+			return result.getText();
+		} catch (Exception e) {
+		}
+		return "NaN";
+	}
+
 	public String getText(By by, String defaultValue) {
 		try {
 			WebElement element = super.findElement(by);
@@ -748,6 +757,15 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		try {
 			WebElement element = findElement(by);
 			return element.isDisplayed();
+		} catch (Exception e) {
+		}
+		return false;
+	}
+
+	public boolean isDisplayed(WebElement element, By by) {
+		try {
+			WebElement result = element.findElement(by);
+			return result.isDisplayed();
 		} catch (Exception e) {
 		}
 		return false;

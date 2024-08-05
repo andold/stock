@@ -3,7 +3,9 @@ package kr.andold.stock.crawler;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.openqa.selenium.By;
@@ -26,10 +28,17 @@ public class Kind implements Crawler {
 
 	// KIND > 투자유의사항 > 기타사항 > 상장폐지현황
 	private static final String URL_COMPANY_EACH_SUMMARY_INFO = "https://kind.krx.co.kr/investwarn/delcompany.do?method=searchDelCompanyMain";
+	//	KIND > 공시 > 상세검색
+	private static final String URL_SEARCH_DETAIL = "https://kind.krx.co.kr/disclosure/details.do?method=searchDetailsMain";
 
 	@Override
 	public Result<ParserResult> item(Date start) {
-		log.info("{} item({})", Utility.indentStart(), start);
+		return itemBySearchDetail(start);
+	}
+
+	// KIND > 투자유의사항 > 기타사항 > 상장폐지현황
+	protected Result<ParserResult> itemByIpoCloseStatus(Date start) {
+		log.info("{} itemByIpoCloseStatus({})", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();
 
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
@@ -40,30 +49,30 @@ public class Kind implements Crawler {
 			//	footer	/html/body/footer
 			By BY_FOOTER = By.xpath("/html/body/footer");
 			driver.presenceOfElementLocated(BY_FOOTER, Duration.ofMinutes(1));
-			log.info("{} item({}) - 『{}』", Utility.indentMiddle(), start, Utility.ellipsisEscape(driver.getText(BY_FOOTER), 32, 32));
+			log.info("{} itemByIpoCloseStatus({}) - 『{}』", Utility.indentMiddle(), start, Utility.ellipsisEscape(driver.getText(BY_FOOTER), 32, 32));
 			
 			//	기간 시작일	//*[@id="fromDate"]
 			By BY_FROM_DATE = By.xpath("//*[@id='fromDate']");
 			driver.presenceOfElementLocated(BY_FROM_DATE);
 			driver.findElement(BY_FROM_DATE).clear();
 			driver.findElement(BY_FROM_DATE).sendKeys(String.format("%1$tY%1$tm%1$td", start));
-			log.info("{} item({}) - 『{}』", Utility.indentMiddle(), start, driver.getText(BY_FROM_DATE));
+			log.info("{} itemByIpoCloseStatus({}) - 『{}』", Utility.indentMiddle(), start, driver.getText(BY_FROM_DATE));
 			
 			//	건수	//*[@id="main-contents"]/section[2]/div[2]	//*[@id="currentPageSize"]
 			By BY_CURRENT_PAGE_SIZE = By.xpath("//*[@id='main-contents']/section[2]//*[@id='currentPageSize']");
 			new Select(driver.findElement(BY_CURRENT_PAGE_SIZE)).selectByVisibleText("100건");
-			log.info("{} item({}) - 『{}』", Utility.indentMiddle(), start, Utility.ellipsisEscape(driver.getText(BY_CURRENT_PAGE_SIZE), 32, 32));
+			log.info("{} itemByIpoCloseStatus({}) - 『{}』", Utility.indentMiddle(), start, Utility.ellipsisEscape(driver.getText(BY_CURRENT_PAGE_SIZE), 32, 32));
 			
 			//	검색	//*[@id="searchForm"]/section/div/div[3]/a[1]
 			By BY_SEARCH = By.xpath("//*[@id='searchForm']/section/div/div[3]/a[@title='검색']");
 			driver.elementToBeClickable(BY_SEARCH);
 			driver.findElement(BY_SEARCH).click();
-			log.info("{} item({}) - 『{}』", Utility.indentMiddle(), start, driver.getText(BY_SEARCH));
+			log.info("{} itemByIpoCloseStatus({}) - 『{}』", Utility.indentMiddle(), start, driver.getText(BY_SEARCH));
 
 			By BY_COUNT = By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='info type-00']/em");
 			driver.waitUntilTextNotInclude(BY_COUNT, TIMEOUT, "0");
 			By BY_CURRENT_PAGE = By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='paging type-00']/a[@class='active']");
-			log.info("{} item({}) - 『{}』『{}』", Utility.indentMiddle(), start, driver.getText(BY_COUNT), driver.getText(BY_CURRENT_PAGE));
+			log.info("{} itemByIpoCloseStatus({}) - 『{}』『{}』", Utility.indentMiddle(), start, driver.getText(BY_COUNT), driver.getText(BY_CURRENT_PAGE));
 
 			String previousCode = "-";
 			long pause = 4000;
@@ -74,7 +83,7 @@ public class Kind implements Crawler {
 			for(String cx = "0";;) {
 				driver.switchTo().window(parent);
 				String currentPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, cx);
-				log.info("{} item({}) - 『{}』", Utility.indentMiddle(), start, currentPage);
+				log.info("{} itemByIpoCloseStatus({}) - 『{}』", Utility.indentMiddle(), start, currentPage);
 				if (currentPage.equalsIgnoreCase(cx) || start.after(currentDate)) {
 					break;
 				}
@@ -92,7 +101,7 @@ public class Kind implements Crawler {
 					if (dateElement == null) {
 						break;
 					}
-					log.info("{} item({}) - 『{}』", Utility.indentMiddle(), start, dateElement.getText());
+					log.info("{} itemByIpoCloseStatus({}) - 『{}』", Utility.indentMiddle(), start, dateElement.getText());
 
 					String date = dateElement.getText();
 					currentDate = Utility.parseDateTime(date, null);
@@ -101,7 +110,7 @@ public class Kind implements Crawler {
 					}
 
 					String symbol = link.getText();
-					log.info("{} item({}) - 『{}』", Utility.indentMiddle(), start, symbol);
+					log.info("{} itemByIpoCloseStatus({}) - 『{}』", Utility.indentMiddle(), start, symbol);
 					link.click();
 					Set<String> handles = driver.getWindowHandles();
 					for (String child : handles) {
@@ -114,7 +123,7 @@ public class Kind implements Crawler {
 						String content = driver.getText(By.xpath("/html/body/form/section/div/table[1]/tbody/tr[3]/td[2]/strong"), TIMEOUT * 4, previousCode);
 						if (content.strip().endsWith("상장폐지")) {
 							String code = driver.getText(By.xpath("/html/body/form/section/div/table[1]/tbody/tr[2]/td[2]"), TIMEOUT, null);
-							log.info("{} item({}) - 『{}』", Utility.indentMiddle(), start, Utility.ellipsisEscape(code, 32, 32));
+							log.info("{} itemByIpoCloseStatus({}) - 『{}』", Utility.indentMiddle(), start, Utility.ellipsisEscape(code, 32, 32));
 							items.add(ItemDomain.builder().code(code).ipoClose(Utility.parseDateTime(date, null)).build());
 							previousCode = code;
 						}
@@ -122,6 +131,169 @@ public class Kind implements Crawler {
 							pause = Math.max(32, pause / 2);
 						} else {
 							pause = Math.min(1024 * 8, pause * 2);
+						}
+						Utility.sleep(Math.round(pause * Math.random()));
+
+						driver.close();
+					}
+					log.debug("{} 『{}/{}/{} {}』 itemByIpoCloseStatus({}) - {}", Utility.indentMiddle(), cx, cy, date, symbol, start, Utility.toStringPastTimeReadable(forStarted));
+				}
+				
+				// next
+				driver.switchTo().window(parent);
+				driver.findElement(By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='paging type-00']/a[@class='next']"), TIMEOUT).click();
+				driver.waitUntilTextNotInclude(BY_CURRENT_PAGE, TIMEOUT, cx);
+
+				log.debug("{} 『{}』 itemByIpoCloseStatus({}) - {}", Utility.indentMiddle(), cx, start, Utility.toStringPastTimeReadable(started));
+			}
+			driver.quit();
+
+			log.debug("{} 『{}』 itemByIpoCloseStatus({}) - {}", Utility.indentEnd(), result, start, Utility.toStringPastTimeReadable(started));
+			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
+		} catch (Exception e) {
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
+			driver.quit();
+		}
+
+		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+		log.warn("{} 『{}』 itemByIpoCloseStatus({}) - {}", Utility.indentEnd(), result, start, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
+	//	상세검색:: 홈 > 공시 > 상세검색	https://kind.krx.co.kr/disclosure/details.do?method=searchDetailsMain
+	private Result<ParserResult> itemBySearchDetail(Date start) {
+		log.info("{} itemBySearchDetail({})", Utility.indentStart(), start);
+		long started = System.currentTimeMillis();
+
+		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		try {
+			driver.navigate().to(URL_SEARCH_DETAIL);
+			String parent = driver.getWindowHandle();
+			
+			//	footer	/html/body/footer
+			By BY_FOOTER = By.xpath("/html/body/footer");
+			driver.presenceOfElementLocated(BY_FOOTER, Duration.ofMinutes(1));
+			log.info("{} itemBySearchDetail({}) - 『{}』", Utility.indentMiddle(), start, Utility.ellipsisEscape(driver.getText(BY_FOOTER), 32, 32));
+
+			//	기간 시작일	//*[@id="fromDate"]
+			By BY_FROM_DATE = By.xpath("//*[@id='fromDate']");
+			driver.presenceOfElementLocated(BY_FROM_DATE);
+			driver.findElement(BY_FROM_DATE).clear();
+			driver.findElement(BY_FROM_DATE).sendKeys(String.format("%1$tY%1$tm%1$td", start));
+			log.info("{} itemBySearchDetail({}) - 『{}』", Utility.indentMiddle(), start, driver.getText(BY_FROM_DATE));
+
+			//	보고서명	//*[@id="reportNmTemp"]
+			By BY_REPOTER_NAME = By.xpath("//*[@id='reportNmTemp']");
+			driver.presenceOfElementLocated(BY_REPOTER_NAME);
+			driver.findElement(BY_REPOTER_NAME).clear();
+			driver.findElement(BY_REPOTER_NAME).sendKeys("상장폐지");
+			log.info("{} itemBySearchDetail({}) - 『{}』", Utility.indentMiddle(), start, driver.getText(BY_REPOTER_NAME));
+
+			//	건수	//*[@id="main-contents"]/section[2]/div[2]	//*[@id="currentPageSize"]
+			By BY_CURRENT_PAGE_SIZE = By.xpath("//*[@id='main-contents']/section[2]//*[@id='currentPageSize']");
+			new Select(driver.findElement(BY_CURRENT_PAGE_SIZE)).selectByVisibleText("100건");
+			log.info("{} itemBySearchDetail({}) - 『{}』", Utility.indentMiddle(), start, Utility.ellipsisEscape(driver.getText(BY_CURRENT_PAGE_SIZE), 32, 32));
+
+			//	전체 n건	//*[@id="main-contents"]/section[2]/div[2]/em
+			By BY_COUNT = By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='info type-00']/em");
+			String count = driver.getText(BY_COUNT);
+			//	검색	//*[@id="searchForm"]/section/div/div[3]/a[1]
+			By BY_SEARCH = By.xpath("//*[@id='searchForm']/section/div/div[3]/a[@title='검색']");
+			driver.elementToBeClickable(BY_SEARCH);
+			driver.findElement(BY_SEARCH).click();
+			log.info("{} itemBySearchDetail({}) - 『{}』", Utility.indentMiddle(), start, driver.getText(BY_SEARCH));
+
+			//	자료를 조회 중입니다.	//*[@id="ui-id-1"]
+//			By BY_SEARCH_PROGRESS = By.xpath("//*[@id='ui-id-1']");
+			By BY_SEARCH_PROGRESS = By.xpath("//div[@aria-labelledby='ui-id-1']");
+			driver.visibilityOfElementLocated(BY_SEARCH_PROGRESS);
+			driver.invisibilityOfElementLocated(BY_SEARCH_PROGRESS, Duration.ofMinutes(1));
+
+			driver.waitUntilTextNotInclude(BY_COUNT, TIMEOUT, count);
+			log.info("{} itemBySearchDetail({}) - 『{} vs {}』", Utility.indentMiddle(), start, count, driver.getText(BY_SEARCH));
+
+			//	현재 페이지	//*[@id="main-contents"]/section[2]/div[1]/a[3]
+			By BY_CURRENT_PAGE = By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='paging type-00']/a[@class='active']");
+			log.info("{} itemBySearchDetail({}) - 『{}』『{}』", Utility.indentMiddle(), start, driver.getText(BY_COUNT), driver.getText(BY_CURRENT_PAGE));
+
+			Map<String, String> mapAlready = new HashMap<>();
+			long pause = 4000;
+			ParserResult result = ParserResult.builder().build().clear();
+			List<ItemDomain> items = new ArrayList<>();
+			result.setItems(items);
+			Date currentDate = new Date();
+			for(String cx = "0";;) {
+				driver.switchTo().window(parent);
+				String currentPage = driver.getText(BY_CURRENT_PAGE);
+				log.info("{} itemBySearchDetail({}) - 『{} vs {}』", Utility.indentMiddle(), start, cx, currentPage);
+				if (currentPage.equalsIgnoreCase(cx) || start.after(currentDate)) {
+					break;
+				}
+				cx = currentPage;
+
+				//	라인	//*[@id="main-contents"]/section[1]/table/tbody/tr[1]
+				By BY_TRS = By.xpath("//*[@id='main-contents']/section[1]/table/tbody/tr");
+				List<WebElement> trs_ = driver.findElements(BY_TRS);
+				for (int cy = 0, sizey = trs_.size(); cy < sizey; cy++) {
+					long forStarted = System.currentTimeMillis();
+
+					driver.switchTo().window(parent);
+					List<WebElement> trs = driver.findElements(BY_TRS);
+					WebElement tr = trs.get(cy);
+					
+					//	상장폐지 아이콘	//*[@id="main-contents"]/section[1]/table/tbody/tr[40]/td[3]/img[2]
+					By BY_IPO_CLOSE_ICON = By.xpath("td[3]/img[@alt='상장폐지']");
+					if (!driver.isDisplayed(tr, BY_IPO_CLOSE_ICON)) {
+						log.info("{} itemBySearchDetail({}) - 『{}』『{}/{}』『{}』", Utility.indentMiddle(), start, cx, cy, sizey, driver.getText(tr, BY_IPO_CLOSE_ICON));
+						continue;
+					}
+
+					//	날짜
+					By BY_DATE = By.xpath("td[2]");
+					WebElement dateElement = tr.findElement(BY_DATE);
+					if (dateElement == null) {
+						log.info("{} itemBySearchDetail({}) - 『{}』『{}/{}』『{}』", Utility.indentMiddle(), start, cx, cy, sizey, driver.getText(tr, BY_DATE));
+						break;
+					}
+
+					String date = dateElement.getText();
+					currentDate = Utility.parseDateTime(date, null);
+					if (start.after(currentDate)) {
+						log.info("{} itemBySearchDetail({}) - 『{}』『{}/{}』『{} vs {}』 {}", Utility.indentMiddle(), start, cx, cy, sizey, start, currentDate, date);
+						break;
+					}
+
+					//	링크
+					By BY_LINK = By.xpath("td[3]/a");
+					WebElement link = tr.findElement(BY_LINK);
+					String symbol = link.getText();
+					if (mapAlready.get(symbol) != null) {
+						// 이미 처리한 내용
+						log.info("{} itemBySearchDetail({}) - 『이미 처리한 내용』『{}』『{}/{}』『{}』", Utility.indentMiddle(), start, cx, cy, sizey, symbol);
+						continue;
+					}
+					link.click();
+					Set<String> handles = driver.getWindowHandles();
+					for (String child : handles) {
+						if (parent.equals(child)) {
+							continue;
+						}
+
+						driver.switchTo().window(child);
+						//	시장구분
+						By BY_CLASS_MARKET = By.xpath("/html/body/form/section/div/table[1]/tbody/tr[3]/td[2]/strong");
+						driver.visibilityOfElementLocated(BY_CLASS_MARKET, Duration.ofMinutes(1));
+						String content = driver.getText(BY_CLASS_MARKET);
+
+						if (content.strip().endsWith("상장폐지")) {
+							//	코드
+							By BY_CODE = By.xpath("/html/body/form/section/div/table[1]/tbody/tr[2]/td[2]");
+							driver.visibilityOfElementLocated(BY_CODE);
+							String code = driver.getText(BY_CODE);
+							log.info("{} itemBySearchDetail({}) - 『{}』『{}/{}』『{} {} {}』", Utility.indentMiddle(), start, cx, cy, sizey, symbol, code, date);
+
+							items.add(ItemDomain.builder().code(code).ipoClose(Utility.parseDateTime(date, null)).build());
+							mapAlready.put(symbol, code);
 						}
 						Utility.sleep(Math.round(pause * Math.random()));
 
@@ -135,11 +307,11 @@ public class Kind implements Crawler {
 				driver.findElement(By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='paging type-00']/a[@class='next']"), TIMEOUT).click();
 				driver.waitUntilTextNotInclude(BY_CURRENT_PAGE, TIMEOUT, cx);
 
-				log.debug("{} 『{}』 item({}) - {}", Utility.indentMiddle(), cx, start, Utility.toStringPastTimeReadable(started));
+				log.info("{} 『{}』 item({}) - {}", Utility.indentMiddle(), cx, start, Utility.toStringPastTimeReadable(started));
 			}
 			driver.quit();
 
-			log.debug("{} 『{}』 item({}) - {}", Utility.indentEnd(), result, start, Utility.toStringPastTimeReadable(started));
+			log.info("{} 『{}』 item({}) - {}", Utility.indentEnd(), result, start, Utility.toStringPastTimeReadable(started));
 			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
