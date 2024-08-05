@@ -270,7 +270,13 @@ public class CrawlerService {
 		if (start == null) {
 			start = Date.from(LocalDate.now().minusMonths(1).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST));
 		}
-		return kind.item(start);
+
+		Result<ParserResult> result = kind.item(start);
+		if (result.getStatus() == STATUS.SUCCESS) {
+			put(result.getResult());
+		}
+
+		return result;
 	}
 
 	public Result<ParserResult> crawlItemIpoCloseAll() {
