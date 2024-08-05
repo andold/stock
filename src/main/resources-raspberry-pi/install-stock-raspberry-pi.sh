@@ -76,8 +76,8 @@ git config --global core.quotepath false
 #
 cd	$SOURCE_DIR
 git stash
-git pull ssh://git@ssh.github.com:443/andold/stock.git
-git		log --pretty=format:"%h - %an, %ai:%ar : %s" -8
+git pull
+git log --pretty=format:"%h - %an, %ai:%ar : %s" -8
 #
 #
 FILE_NAME_ANTLR_JAR=$SOURCE_DIR/src/main/resources/bin/antlr-4.10.1-complete.jar
