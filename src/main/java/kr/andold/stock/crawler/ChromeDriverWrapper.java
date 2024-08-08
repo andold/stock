@@ -261,17 +261,38 @@ public class ChromeDriverWrapper extends ChromeDriver {
 		}
 	}
 
-	public void setText(By by, String text, int timeout) {
+	public boolean setText(By by, String text, int timeout) {
 		try {
 			WebElement e = findElement(by, timeout);
 			if (e == null) {
-				return;
+				return false;
 			}
 
 			JavascriptExecutor jsExecutor = (JavascriptExecutor)this;
 			jsExecutor.executeScript("arguments[0].innerHTML = \"" + text + "\"", e);
+
+			return true;
 		} catch (Exception e) {
 		}
+
+		return false;
+	}
+
+	public boolean setInputValue(By by, String value) {
+		try {
+			WebElement e = findElement(by);
+			if (e == null) {
+				return false;
+			}
+
+			JavascriptExecutor jsExecutor = (JavascriptExecutor)this;
+			jsExecutor.executeScript("arguments[0].value = \"" + value + "\"", e);
+
+			return true;
+		} catch (Exception e) {
+		}
+
+		return false;
 	}
 
 	public List<WebElement> findElements(By xpath, String mark, int milli) throws Exception {
