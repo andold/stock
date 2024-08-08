@@ -21,6 +21,16 @@ export default ((props: any) => {
 	const gridRef = useRef<AgGridReact>(null);
 	const [rowData, setRowData] = useState<Item[]>([]);
 	const [columnDefs, setColumnDefs] = useState([]);
+	const autoSizeStrategy = {
+		type: 'fitGridWidth',
+		defaultMinWidth: 128,
+		columnLimits: [
+			{
+				colId: 'priceEarningsRatio',
+				minWidth: 128
+			}
+		]
+	};
 
 	useEffect(() => {
 		const comlumDefs = store.columnDefs(["id", "symbol", "code", "etf", "type", "volumeOfListedShares", "baseMonth", "dividendCycle", "sigma", "created",], onChange);
@@ -109,12 +119,13 @@ export default ((props: any) => {
 			};
 		});
 	}
-	function handleOnGridReady(_: any) {
+	function handleOnGridReady(param: any) {
+		console.log(param);
+		
 		gridRef.current!.api.applyColumnState({
 			state: [{ colId: 'priceEarningsRatio', sort: 'desc' }],
 			defaultState: { sort: null },
 		});
-		gridRef.current!.api.sizeColumnsToFit();
 		gridRef.current!.api.setGridOption("domLayout", "autoHeight");
 	}
 
@@ -133,6 +144,7 @@ export default ((props: any) => {
 			rowHeight={form?.rowHeight}
 			rowDragManaged={true}
 			onGridReady={handleOnGridReady}
+			onFirstDataRendered={(params: any) => params.api.sizeColumnsToFit() }
 		/>
 	</>);
 });
