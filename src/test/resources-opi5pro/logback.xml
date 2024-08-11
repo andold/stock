@@ -1,12 +1,12 @@
 <!DOCTYPE configuration>
-<configuration debug="false" scan="true" scanPeriod="30 seconds">
-	<property name="LOG_PATH" value="${LOG_PATH:-/home/andold/logs/stock}" />
+<configuration debug="true" scan="true" scanPeriod="30 seconds">
+	<property name="LOG_PATH" value="${LOG_PATH:-/home/andold/logs/test-stock}" />
 	<statusListener class="ch.qos.logback.core.status.NopStatusListener" />
 
 	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<charset>UTF-8</charset>
-			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
+			<Pattern>%d{HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
 		</encoder>
 	</appender>
 	<appender name="general" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -34,7 +34,7 @@
 		</triggeringPolicy>
 		<encoder>
 			<charset>UTF-8</charset>
-			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
+			<Pattern>RL %d{HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
 		</encoder>
 	</appender>
 	<appender name="parser" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -72,48 +72,18 @@
 	</appender>
 
 	<logger name="kr.andold.stock.crawler.ChromeDriverWrapper" additivity="false" level="warn">
+		<appender-ref ref="console" />
 		<appender-ref ref="general" />
 		<appender-ref ref="error" />
 	</logger>
-	<logger name="kr.andold.stock.crawler" additivity="false" level="debug">
+	<logger name="kr.andold.stock" additivity="false" value="debug">
+		<appender-ref ref="console" />
 		<appender-ref ref="stock" />
-		<appender-ref ref="error" />
-	</logger>
-	<logger name="kr.andold.stock.thread" additivity="false" value="debug">
-		<appender-ref ref="stock" />
-		<appender-ref ref="error" />
-	</logger>
-	<logger name="kr.andold.stock.service.ParserService" additivity="false" value="debug">
-		<appender-ref ref="parser" />
-		<appender-ref ref="error" />
-	</logger>
-	<logger name="kr.andold.stock.service" additivity="false" value="info">
-		<appender-ref ref="stock" />
-		<appender-ref ref="error" />
-	</logger>
-	<logger name="kr.andold.stock.controller" additivity="false" value="info">
-		<appender-ref ref="stock" />
-		<appender-ref ref="error" />
-	</logger>
-	<logger name="kr.andold.stock" additivity="false" value="info">
-		<appender-ref ref="stock" />
-		<appender-ref ref="error" />
-	</logger>
-
-	<logger name="org.springframework" additivity="false" value="warn">
-		<appender-ref ref="general" />
-		<appender-ref ref="error" />
-	</logger>
-	<logger name="com.zaxxer" additivity="false" value="warn">
-		<appender-ref ref="general" />
-		<appender-ref ref="error" />
-	</logger>
-	<logger name="org.hibernate" additivity="false" value="warn">
-		<appender-ref ref="general" />
 		<appender-ref ref="error" />
 	</logger>
 
 	<root value="warn">
+		<appender-ref ref="console" />
 		<appender-ref ref="stock" />
 		<appender-ref ref="general" />
 		<appender-ref ref="error" />

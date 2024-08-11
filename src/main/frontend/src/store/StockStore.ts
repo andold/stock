@@ -184,6 +184,7 @@ class StockStore {
 			cellRenderer: SymbolEtfTypeCode,
 			cellStyle: CELL_STYLE_LEFT,
 			width: 96,
+			flex: 5,
 		}, {
 			field: "symbol",
 			headerName: "종목이름",
@@ -191,7 +192,6 @@ class StockStore {
 			valueFormatter: (params: any) => `${params.value} ${params.data.code}`,
 			cellStyle: CELL_STYLE_LEFT,
 			width: 96,
-			flex: 3,
 		}, {
 			field: "code",
 			headerName: "종목코드",
@@ -205,6 +205,7 @@ class StockStore {
 			cellRenderer: PriorityCellRenderer,
 			cellStyle: CELL_STYLE_RIGHT,
 			width: 8,
+			flex: 1,
 		}, {
 			field: "priceEarningsRatio",
 			headerName: "최근 배당수익률(%)",
@@ -222,6 +223,7 @@ class StockStore {
 				color: this.colorPriceEarningsRatio(params.value),
 			}),
 			width: 64,
+			flex: 4,
 		}, {
 			field: "currentPrice",
 			headerName: "현재가",
@@ -230,6 +232,7 @@ class StockStore {
 			cellRenderer: PriceRecentCellRenderer,
 			cellStyle: CELL_STYLE_RIGHT,
 			width: 64,
+			flex: 4,
 		}, {
 			field: "volumeOfListedShares",
 			headerName: "상장주식수",
@@ -243,6 +246,7 @@ class StockStore {
 			hide: hides && hides.includes("category"),
 			cellStyle: CELL_STYLE_LEFT,
 			width: 64,
+			flex: 2,
 		}, {
 			field: "ipoOpen",
 			headerName: "상장",
@@ -251,6 +255,7 @@ class StockStore {
 			valueFormatter: (params: any) => params.value && moment(params.data.ipoClose || params.value).format("YYYY-MM"),
 			cellStyle: (params: any) => params.data.ipoClose ? CELL_STYLE_CENTER_CANCEL : CELL_STYLE_CENTER,
 			width: 32,
+			flex: 1,
 		}, {
 			field: "created",
 			hide: hides && hides.includes("created"),
@@ -275,6 +280,7 @@ class StockStore {
 			},
 			cellStyle: CELL_STYLE_LEFT,
 			width: 48,
+			flex: 2,
 		}];
 	}
 

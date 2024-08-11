@@ -16,27 +16,18 @@ import Item from "../model/Item";
 //	StockItemView.tsx
 export default ((props: any) => {
 	const form = props.form as StockForm;
-	const { onChange} = props;
+	const { onChange } = props;
 
 	const gridRef = useRef<AgGridReact>(null);
 	const [rowData, setRowData] = useState<Item[]>([]);
 	const [columnDefs, setColumnDefs] = useState([]);
-	const autoSizeStrategy = {
-		type: 'fitGridWidth',
-		defaultMinWidth: 128,
-		columnLimits: [
-			{
-				colId: 'priceEarningsRatio',
-				minWidth: 128
-			}
-		]
-	};
 
 	useEffect(() => {
 		const comlumDefs = store.columnDefs(["id", "symbol", "code", "etf", "type", "volumeOfListedShares", "baseMonth", "dividendCycle", "sigma", "created",], onChange);
 		setColumnDefs(comlumDefs);
 	}, []);
 	useEffect(() => {
+		setRowData([]);
 		const request = {
 			priority: form.priority,	//	우선순위
 			keyword: form.keyword,
@@ -127,6 +118,11 @@ export default ((props: any) => {
 			defaultState: { sort: null },
 		});
 		gridRef.current!.api.setGridOption("domLayout", "autoHeight");
+		gridRef.current!.api.sizeColumnsToFit();
+	}
+	function handleOnFirstDataRendered(param: any) {
+//		param.api.setGridOption("domLayout", "autoHeight");
+//		param.api.sizeColumnsToFit();
 	}
 
 	return (<>
@@ -144,7 +140,7 @@ export default ((props: any) => {
 			rowHeight={form?.rowHeight}
 			rowDragManaged={true}
 			onGridReady={handleOnGridReady}
-			onFirstDataRendered={(params: any) => params.api.sizeColumnsToFit() }
+			onFirstDataRendered={handleOnFirstDataRendered}
 		/>
 	</>);
 });
