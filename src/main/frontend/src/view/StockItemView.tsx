@@ -110,19 +110,13 @@ export default ((props: any) => {
 			};
 		});
 	}
-	function handleOnGridReady(param: any) {
-		console.log(param);
-		
+	function handleOnGridReady() {
 		gridRef.current!.api.applyColumnState({
 			state: [{ colId: 'priceEarningsRatio', sort: 'desc' }],
 			defaultState: { sort: null },
 		});
 		gridRef.current!.api.setGridOption("domLayout", "autoHeight");
 		gridRef.current!.api.sizeColumnsToFit();
-	}
-	function handleOnFirstDataRendered(param: any) {
-//		param.api.setGridOption("domLayout", "autoHeight");
-//		param.api.sizeColumnsToFit();
 	}
 
 	return (<>
@@ -140,7 +134,6 @@ export default ((props: any) => {
 			rowHeight={form?.rowHeight}
 			rowDragManaged={true}
 			onGridReady={handleOnGridReady}
-			onFirstDataRendered={handleOnFirstDataRendered}
 		/>
 	</>);
 });
