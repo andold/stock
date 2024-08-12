@@ -114,7 +114,7 @@ class StockStore {
 		return start.isBefore(endx) && end.isAfter(startx);
 	}
 	isInDayEvent(day: moment.Moment, event: any): boolean {
-		for (let period of event?.periods) {
+		for (let period of event!.periods) {
 			const start = moment(period.start);
 			const end = moment(period.end);
 			if (this.isInDay(day, start, end)) {
@@ -125,23 +125,23 @@ class StockStore {
 		return false;
 	}
 	priceEarningsRatio(dividend: any, histories: any[]): number {
-		if (dividend?.currentPrice > 0) {
-			if (dividend?.dividend > 0) {
-				return Math.round(dividend?.dividend / dividend?.currentPrice * 10000) / 100;
+		if (dividend!.currentPrice > 0) {
+			if (dividend!.dividend > 0) {
+				return Math.round(dividend!.dividend / dividend!.currentPrice * 10000) / 100;
 			}
 			
 			const lastYear = moment().year() - 1;
 			let sum = 0;
-			histories?.forEach((history: any) => {
+			histories!.forEach((history: any) => {
 				const date = moment(history.base);
 				if (date.year() == lastYear) {
 					sum += history.dividend;
 				}
 			});
 
-			return Math.round(sum / dividend?.currentPrice * 10000) / 100;
-		} else if (dividend?.priceEarningsRatio > 0) {
-			return dividend?.priceEarningsRatio;
+			return Math.round(sum / dividend!.currentPrice * 10000) / 100;
+		} else if (dividend!.priceEarningsRatio > 0) {
+			return dividend!.priceEarningsRatio;
 		}
 
 		return 0;
@@ -228,7 +228,7 @@ class StockStore {
 			field: "currentPrice",
 			headerName: "현재가",
 			hide: hides && hides.includes("currentPrice"),
-			valueGetter: (params: any) => params.data.custom.dividend?.currentPrice?.toLocaleString(),
+			valueGetter: (params: any) => params.data.custom.dividend!.currentPrice!.toLocaleString(),
 			cellRenderer: PriceRecentCellRenderer,
 			cellStyle: CELL_STYLE_RIGHT,
 			width: 64,
@@ -237,7 +237,7 @@ class StockStore {
 			field: "volumeOfListedShares",
 			headerName: "상장주식수",
 			hide: hides && hides.includes("volumeOfListedShares"),
-			valueFormatter: (params: any) => params.value?.toLocaleString(),
+			valueFormatter: (params: any) => params.value!.toLocaleString(),
 			cellStyle: CELL_STYLE_RIGHT,
 			width: 32,
 		}, {

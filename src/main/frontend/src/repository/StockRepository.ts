@@ -81,7 +81,7 @@ class StockRepository {
 
 	// stock item section
 	async searchItem(request: any, onSuccess?: any, onError?: any, element?: any) {
-		return axios.post(`./api/item/search?page=${request?.page}&size=${request?.size}`, request)
+		return axios.post(`./api/item/search?page=${request!.page}&size=${request!.size}`, request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}

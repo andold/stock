@@ -59,18 +59,18 @@ const FILL_COLOR_MONTH = [
 // 주가
 export function PriceRecentCellRenderer(param: any) {
 	const COUNT = 14;
-	const prices: Price[] = param.data?.custom?.prices;
+	const prices: Price[] = param.data!.custom!.prices;
 	if (!prices) {
 		return (<>No Data</>);
 	}
 
 	const info = {
-		min: param.data?.custom?.minPrice + 1,
-		max: param.data?.custom?.maxPrice,
+		min: param.data!.custom!.minPrice + 1,
+		max: param.data!.custom!.maxPrice,
 	};
 
 	const ref = useRef(null);
-	const lineHeight = (param?.node?.rowHeight || 32) - 4;
+	const lineHeight = (param!.node!.rowHeight || 32) - 4;
 
 	function isSame(left: string, right: string, unit?: string): boolean {
 		if (left === right) {
@@ -130,9 +130,9 @@ export function PriceRecentCellRenderer(param: any) {
 		</>);
 	}
 	function renderTooltip(props: any) {
-		const yearPrices: Price[] = param.data?.custom?.yearPrices?.slice(0, COUNT).reverse() || [];
-		const monthPrices: Price[] = param.data?.custom?.monthPrices?.slice(0, COUNT).reverse() || [];
-		const weekPrices: Price[] = param.data?.custom?.weekPrices?.slice(0, COUNT).reverse() || [];
+		const yearPrices: Price[] = param.data!.custom!.yearPrices!.slice(0, COUNT).reverse() || [];
+		const monthPrices: Price[] = param.data!.custom!.monthPrices!.slice(0, COUNT).reverse() || [];
+		const weekPrices: Price[] = param.data!.custom!.weekPrices!.slice(0, COUNT).reverse() || [];
 		const minmax = {
 			min: Number.MAX_SAFE_INTEGER,
 			max: Number.MIN_SAFE_INTEGER,
@@ -163,7 +163,7 @@ export function PriceRecentCellRenderer(param: any) {
 		);
 	}
 	function height(maxHeight: number, price: Price, info: any): number {
-		if (isNaN(price?.closing) || isNaN(info?.min) || isNaN(info?.max) || isNaN(maxHeight)
+		if (isNaN(price!.closing) || isNaN(info!.min) || isNaN(info!.max) || isNaN(maxHeight)
 			|| (info.max == info.min) || (maxHeight == 0)) {
 			return 1;
 		}
@@ -171,8 +171,8 @@ export function PriceRecentCellRenderer(param: any) {
 		return Math.max(4, Math.floor((price.closing - info.min) / (info.max - info.min) * maxHeight));
 	}
 	function currentPrice(): string {
-		if (param?.value > 0) {
-			return param?.value;
+		if (param!.value > 0) {
+			return param!.value;
 		}
 
 		if (!prices || prices.length == 0) {
@@ -190,15 +190,15 @@ export function PriceRecentCellRenderer(param: any) {
 				<Col sm="5" md="4" xl="3" xxl="3" className="m-0 p-0 text-right">{currentPrice()}</Col>
 				<Col ref={ref} className="ms-2 p-0">
 					<Row className="m-0 p-0"> {
-						prices?.map((price: Price) => {
+						prices!.map((price: Price) => {
 							let className = isSame(previous, price.base, "week") ? "px-0 bg-primary" : "px-0 bg-primary border-start";
 							previous = price.base;
 							return (
 								<Col key={price.id} className={className}
 									style={{
 										marginRight: 1,
-										height: height(param?.node?.rowHeight, price, info),
-										marginTop: lineHeight - height(param?.node?.rowHeight, price, info),
+										height: height(param!.node!.rowHeight, price, info),
+										marginTop: lineHeight - height(param!.node!.rowHeight, price, info),
 									}}
 								></Col>
 							);
@@ -294,47 +294,47 @@ export function PriorityCellRenderer(param: any) {
 // 최근 배당수익률
 export function PriceEarningsRatioCellRenderer(param: any) {
 	const [show, setShow] = useState(false);
-	const [height, setHeight] = useState(param?.node?.rowHeight);
+	const [height, setHeight] = useState(param!.node!.rowHeight);
 	const target = useRef(null);
 
-	const mapHistory = param?.data?.custom?.mapHistory;
-	const lineHeight = param?.node?.rowHeight - 4;
+	const mapHistory = param!.data!.custom!.mapHistory;
+	const lineHeight = param!.node!.rowHeight - 4;
 	if (!mapHistory || !lineHeight) {
 		return (<></>);
 	}
 
-	const years = Math.min(11, moment().year() - moment(param?.data?.ipoOpen).year() + 1);
+	const years = Math.min(11, moment().year() - moment(param!.data!.ipoOpen).year() + 1);
 
 	return (<>
 		<Row ref={target} className="mx-0 text-right" onClick={() => setShow(!show)}>
 			<Col sm="4" md="3" xl="2" xxl="2" className="m-0 p-0">
 				<span>{param.value == null ? "-" : param.value.toFixed(2)}</span>
 			</Col>
-			<Col>{dividendBarGraphAmount(mapHistory, moment(param?.data?.ipoOpen), lineHeight)}</Col>
+			<Col>{dividendBarGraphAmount(mapHistory, moment(param!.data!.ipoOpen), lineHeight)}</Col>
 		</Row>
 		<Overlay target={target.current} show={show} placement="auto">
 			<Popover className="border bg-black" style={{ maxWidth: 1024, }} onClick={() => setShow(!show)}>
 				<Popover.Header><Stack direction="horizontal">
-					<h6 className="flex-grow-1 mb-0">{param?.data?.symbol}</h6>
+					<h6 className="flex-grow-1 mb-0">{param!.data!.symbol}</h6>
 					<CloseButton onClick={() => setShow(!show)} />
 				</Stack></Popover.Header>
 				<Popover.Body><table className="text-white" style={{ fontSize: 10 }}><tbody>
 					<tr className="py-0 text-start"><th colSpan={2}>배당 금액 (원)</th></tr>
 					<tr className="mb-4 py-0">
-						<td>{DividendTableAmount(mapHistory, moment(param?.data?.ipoOpen), setHeight)}</td>
-						<td className="m-0 p-0 align-top" style={{ width: 8 * years, }}>{dividendBarGraphAmount(mapHistory, moment(param?.data?.ipoOpen), height)}</td>
+						<td>{DividendTableAmount(mapHistory, moment(param!.data!.ipoOpen), setHeight)}</td>
+						<td className="m-0 p-0 align-top" style={{ width: 8 * years, }}>{dividendBarGraphAmount(mapHistory, moment(param!.data!.ipoOpen), height)}</td>
 					</tr>
 
-					<tr><th className="pt-2 text-start" colSpan={2}>배당수익율 (%, 현재가 기준 {param?.data?.custom?.currentPrice?.toLocaleString()})</th></tr>
+					<tr><th className="pt-2 text-start" colSpan={2}>배당수익율 (%, 현재가 기준 {param!.data!.custom!.currentPrice!.toLocaleString()})</th></tr>
 					<tr className="mb-4">
-						<td>{dividendTableRatioByCurrentPrice(mapHistory, moment(param?.data?.ipoOpen), param?.data?.custom?.currentPrice)}</td>
-						<td className="m-0 p-0 align-top">{dividendBarGraphRatioByCurrentPrice(mapHistory, moment(param?.data?.ipoOpen), param?.data?.custom?.currentPrice, height)}</td>
+						<td>{dividendTableRatioByCurrentPrice(mapHistory, moment(param!.data!.ipoOpen), param!.data!.custom!.currentPrice)}</td>
+						<td className="m-0 p-0 align-top">{dividendBarGraphRatioByCurrentPrice(mapHistory, moment(param!.data!.ipoOpen), param!.data!.custom!.currentPrice, height)}</td>
 					</tr>
 
 					<tr><th className="pt-2 text-start" colSpan={2}>배당수익율 (%, 당시 주가 기준)</th></tr>
 					<tr className="mb-4">
-						<td>{dividendTableRatioByClosingPrice(mapHistory, moment(param?.data?.ipoOpen))}</td>
-						<td className="m-0 p-0 align-top">{dividendBarGraphRatioByClosingPrice(mapHistory, moment(param?.data?.ipoOpen), param?.data?.custom?.currentPrice, height)}</td>
+						<td>{dividendTableRatioByClosingPrice(mapHistory, moment(param!.data!.ipoOpen))}</td>
+						<td className="m-0 p-0 align-top">{dividendBarGraphRatioByClosingPrice(mapHistory, moment(param!.data!.ipoOpen), param!.data!.custom!.currentPrice, height)}</td>
 					</tr>
 				</tbody></table></Popover.Body>
 			</Popover >
@@ -353,7 +353,7 @@ function DividendTableAmount(mapHistory: any, start: any, setHeight?: any) {
 	}
 
 	return (
-		<Table ref={el => { setHeight && el?.clientHeight && setHeight(el.clientHeight); }} bordered striped size="sm" variant="dark" className="my-0 py-0" style={{ fontSize: 10 }}>
+		<Table ref={el => { setHeight && el!.clientHeight && setHeight(el!.clientHeight); }} bordered striped size="sm" variant="dark" className="my-0 py-0" style={{ fontSize: 10 }}>
 			<thead><tr className="my-0 py-0">
 				<th>연도</th>
 				{
@@ -369,9 +369,9 @@ function DividendTableAmount(mapHistory: any, start: any, setHeight?: any) {
 						{
 							store.range(12).map((cy: number) => {
 								const history = mapHistory.get(moment([start.year() + cx, cy]).format("YYYY-MM"));
-								if (history?.dividend > 0) {
+								if (history!.dividend > 0) {
 									return (
-										<td key={cy} className="text-end px-1 py-0">{history?.dividend?.toLocaleString()}</td>
+										<td key={cy} className="text-end px-1 py-0">{history!.dividend!.toLocaleString()}</td>
 									);
 								}
 								return (<td key={cy}></td>);
@@ -403,12 +403,12 @@ function dividendTableRatioByClosingPrice(mapHistory: any, start: any) {
 						<th className="px-1 py-0">{start.year() + cx}</th>{
 							store.range(12).map((cy: number) => {
 								const history: DividendHistory = mapHistory.get(moment([start.year() + cx, cy]).format("YYYY-MM"));
-								if (!history?.dividend || !history?.priceClosing) {
+								if (!history!.dividend || !history!.priceClosing) {
 									return (<td key={Math.random()}></td>);
 								}
 
 								return (
-									<td key={cy} className="text-end px-1 py-0">{(history?.dividend / history?.priceClosing * 100)?.toFixed(2)}</td>
+									<td key={cy} className="text-end px-1 py-0">{(history!.dividend / history!.priceClosing * 100)?.toFixed(2)}</td>
 								);
 							})
 						}<th className="text-end px-1 py-0">{mapHistory.get(start.year() + cx + 0.1)?.toFixed(2)}</th>
@@ -439,9 +439,9 @@ function dividendTableRatioByCurrentPrice(mapHistory: any, start: any, currentPr
 						{
 							store.range(12).map((cy: number) => {
 								const history = mapHistory.get(moment([start.year() + cx, cy]).format("YYYY-MM"));
-								if (history?.dividend > 0) {
+								if (history!.dividend > 0) {
 									return (
-										<td key={Math.random()} className="text-end px-1 py-0">{(history?.dividend / (currentPrice || 10000) * 100)?.toFixed(2)}</td>
+										<td key={Math.random()} className="text-end px-1 py-0">{(history!.dividend / (currentPrice || 10000) * 100)?.toFixed(2)}</td>
 									);
 								}
 								return (<td key={Math.random()}></td>);
@@ -486,7 +486,7 @@ function dividendBarGraphRatioByClosingPrice(mapHistory: any, start: any, curren
 								{
 									store.range(12).map((cy: number) => {
 										const history = mapHistory.get(moment([start.year() + cx, 11 - cy]).format("YYYY-MM"));
-										if (history?.dividend && history?.priceClosing) {
+										if (history!.dividend && history!.priceClosing) {
 											return (
 												<OverlayTrigger key={cy} overlay={<Tooltip>{moment([start.year() + cx, 11 - cy]).format("YYYY-MM")}: {((history.dividend / history.priceClosing * 100) || 0).toFixed(2)}%</Tooltip>}>
 													<Row className="px-0" style={{
@@ -538,7 +538,7 @@ function dividendBarGraphRatioByCurrentPrice(mapHistory: any, start: any, curren
 								{
 									store.range(12).map((cy: number) => {
 										const history = mapHistory.get(moment([start.year() + cx, 11 - cy]).format("YYYY-MM"));
-										if (history?.dividend > 0) {
+										if (history!.dividend > 0) {
 											return (
 												<OverlayTrigger key={cy} overlay={<Tooltip>{moment([start.year() + cx, 11 - cy]).format("YYYY-MM")}: {((history.dividend / currentPrice * 100) || 0).toFixed(2)}%</Tooltip>}>
 													<Row className="px-0" style={{
@@ -595,7 +595,7 @@ function dividendBarGraphAmount(mapHistory: any, start: any, lineHeight: number)
 								{
 									store.range(12).map((cy: number) => {
 										const history = mapHistory.get(moment([start.year() + cx, 11 - cy]).format("YYYY-MM"));
-										if (history?.dividend > 0) {
+										if (history!.dividend > 0) {
 											return (
 												<OverlayTrigger key={cy} overlay={<Tooltip>{moment([start.year() + cx, 11 - cy]).format("YYYY-MM")}: {((history.dividend) || 0).toLocaleString()}원</Tooltip>}>
 													<Row className="px-0" style={{

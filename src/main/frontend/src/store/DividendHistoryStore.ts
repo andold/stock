@@ -40,7 +40,7 @@ class DividendHistoryStore {
 	}
 	makeMapByYearMonth(histories: DividendHistory[]) {
 		const map = new Map();
-		histories?.forEach((history: DividendHistory) => {
+		histories!.forEach((history: DividendHistory) => {
 			const mdate = moment(history.base);
 			const year = mdate.year();
 

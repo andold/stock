@@ -37,7 +37,7 @@ export default ((props: any) => {
 			page: form.page,
 		};
 		store.searchItem(request, (_: any, result: any) => {
-			const items = result?.items;
+			const items = result!.items;
 			if (!items) {
 				return;
 			}
@@ -70,10 +70,10 @@ export default ((props: any) => {
 		const map = priceStore.makeMap(prices);
 		items.forEach((item: Item) => {
 			const sorted = map.get(item.code)?.sort(priceStore.compare);
-			const currentPrice = (sorted?.length > 0) ? sorted[sorted.length - 1].closing : 10000;
+			const currentPrice = (sorted!.length > 0) ? sorted[sorted.length - 1].closing : 10000;
 			let max = Number.MIN_SAFE_INTEGER;
 			let min = Number.MAX_SAFE_INTEGER;
-			sorted?.forEach((price: Price) => {
+			sorted!.forEach((price: Price) => {
 				max = Math.max(max, price.closing);
 				min = Math.min(min, price.closing);
 			});
@@ -131,7 +131,7 @@ export default ((props: any) => {
 				resizable: true,
 				suppressMenu: true,
 			}}
-			rowHeight={form?.rowHeight}
+			rowHeight={form!.rowHeight}
 			rowDragManaged={true}
 			onGridReady={handleOnGridReady}
 		/>
