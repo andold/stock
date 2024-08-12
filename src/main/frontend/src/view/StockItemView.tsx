@@ -69,7 +69,7 @@ export default ((props: any) => {
 	function processItemPrice(items: Item[], prices: Price[]) {
 		const map = priceStore.makeMap(prices);
 		items.forEach((item: Item) => {
-			const sorted = map.get(item.code)?.sort(priceStore.compare);
+			const sorted = map.get(item.code)!.sort(priceStore.compare);
 			const currentPrice = (sorted!.length > 0) ? sorted[sorted.length - 1].closing : 10000;
 			let max = Number.MIN_SAFE_INTEGER;
 			let min = Number.MAX_SAFE_INTEGER;
@@ -90,7 +90,7 @@ export default ((props: any) => {
 		const map = dividendHistoryStore.makeMap(histories.filter((history: DividendHistory) => history.dividend > 0));
 
 		items.forEach((item: Item) => {
-			const sorted = map.get(item.code)?.sort(dividendHistoryStore.compare);
+			const sorted = map.get(item.code)!.sort(dividendHistoryStore.compare);
 			const mapHistory = dividendHistoryStore.makeMapByYearMonth(sorted);
 			item.custom = {
 				...item.custom,
