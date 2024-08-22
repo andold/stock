@@ -13,7 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.Result.STATUS;
-import kr.andold.stock.service.Utility;
+import kr.andold.stock.dummy.Utility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

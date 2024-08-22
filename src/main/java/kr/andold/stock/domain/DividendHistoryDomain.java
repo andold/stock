@@ -4,8 +4,8 @@ import java.util.Date;
 
 import org.springframework.beans.BeanUtils;
 
+import kr.andold.stock.dummy.Utility;
 import kr.andold.stock.entity.DividendHistoryEntity;
-import kr.andold.stock.service.Utility;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;

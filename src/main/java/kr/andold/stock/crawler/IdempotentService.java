@@ -18,7 +18,7 @@ import kr.andold.stock.param.DividendHistoryParam;
 import kr.andold.stock.service.DividendHistoryService;
 import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.PriceService;
-import kr.andold.stock.service.Utility;
+import kr.andold.utils.Utility;
 import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;

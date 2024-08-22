@@ -5,7 +5,7 @@ import java.util.List;
 
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.PriceDomain;
-import kr.andold.stock.service.Utility;
+import kr.andold.stock.dummy.Utility;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

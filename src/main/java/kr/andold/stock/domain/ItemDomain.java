@@ -2,8 +2,8 @@ package kr.andold.stock.domain;
 
 import org.springframework.beans.BeanUtils;
 
+import kr.andold.stock.dummy.Utility;
 import kr.andold.stock.entity.ItemEntity;
-import kr.andold.stock.service.Utility;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

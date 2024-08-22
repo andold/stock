@@ -1,4 +1,4 @@
-package kr.andold.stock.crawler;
+package kr.andold.stock.dummy;
 
 import java.time.Duration;
 import java.util.List;
@@ -14,9 +14,9 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import kr.andold.stock.service.Utility;
 import lombok.extern.slf4j.Slf4j;
 
+@Deprecated
 @Slf4j
 public class ChromeDriverWrapper extends ChromeDriver {
 	private static final int PAUSE = 100;

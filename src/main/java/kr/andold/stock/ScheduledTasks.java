@@ -10,14 +10,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import jakarta.annotation.PostConstruct;
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.crawler.IdempotentService;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.Result;
+import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.stock.service.PriceService;
+import kr.andold.stock.service.StockCompileJobService;
 import kr.andold.stock.service.StockService;
-import kr.andold.stock.service.Utility;
+import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -29,6 +32,14 @@ public class ScheduledTasks {
 	@Autowired private IdempotentService idempotentService;
 	@Autowired private StockService stockService;
 	@Autowired private PriceService priceService;
+	@Autowired private JobService jobService;
+
+	@Autowired private StockCompileJobService stockCompileJobService;
+	private static JobService staticJobService;
+	@PostConstruct
+	public void postConstruct() {
+		staticJobService = jobService;
+	}
 
 	@Scheduled(initialDelay = 1000 * 30, fixedDelay = Long.MAX_VALUE)
 	public void scheduleTaskOnce() {
@@ -36,6 +47,7 @@ public class ScheduledTasks {
 		long started = System.currentTimeMillis();
 
 		idempotentService.once();
+		staticJobService.run();
 
 		log.trace("{} scheduleTaskOnce() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
@@ -46,10 +58,13 @@ public class ScheduledTasks {
 		log.info("{} scheduleTaskHourly()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		List<ItemDomain> compileResult = stockService.compile();
-		int purged = priceService.purge();
+//		List<ItemDomain> compileResult = stockService.compile();
+//		int purged = priceService.purge();
+//		log.info("{} 『#{} #{}』 scheduleTaskHourly() - {}", Utility.indentMiddle(), Utility.size(compileResult), purged, Utility.toStringPastTimeReadable(started));
+		
+		JobService.getQueue1().push(stockCompileJobService);
 
-		log.info("{} 『#{} #{}』 scheduleTaskHourly() - {}", Utility.indentEnd(), Utility.size(compileResult), purged, Utility.toStringPastTimeReadable(started));
+		log.info("{} scheduleTaskHourly() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
 
 	// 평일 - price, compile

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import kr.andold.stock.domain.ItemDomain;
+import kr.andold.stock.dummy.Utility;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.CommonBlockService.CrudList;
 import lombok.extern.slf4j.Slf4j;

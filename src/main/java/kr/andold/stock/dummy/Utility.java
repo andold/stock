@@ -1,4 +1,4 @@
-package kr.andold.stock.service;
+package kr.andold.stock.dummy;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -45,6 +45,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import lombok.extern.slf4j.Slf4j;
 
+@Deprecated
 @Slf4j
 public class Utility {
 	public static final String BLANK = "";

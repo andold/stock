@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.Result;
+import kr.andold.stock.dummy.Utility;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.PriceParam;
-import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
 

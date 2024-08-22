@@ -5,7 +5,7 @@ buildscript {
 		}
 	}
 	dependencies {
-		classpath "org.springframework.boot:spring-boot-gradle-plugin:3.2.0"
+		classpath "org.springframework.boot:spring-boot-gradle-plugin:3.0.1"
 	}
 }
 
@@ -17,8 +17,7 @@ plugins {
 }
 
 ext {
-	springBootVersion = "3.3.1"
-	lombokVersion = "1.18.34"
+	lombokVersion = "1.18.24"
 }
 
 apply plugin: "org.springframework.boot"
@@ -29,15 +28,28 @@ war.enabled = true
 group = "kr.andold.stock"
 version = "0.0.1-SNAPSHOT"
 
+//	compatible gradle 7.5
+sourceCompatibility = 18
+targetCompatibility = 18
+
 repositories {
 	mavenCentral()
+	maven {
+		url = uri("https://maven.pkg.github.com/andold/utils")
+		credentials {
+			username = mavenUser
+			password = mavenPassword
+		}
+	}
 }
 
 dependencies {
+	implementation("kr.andold:utils:0.0.2-SNAPSHOT")
+
 	implementation("org.jsoup:jsoup:1.15.3")
 	implementation("com.h2database:h2:2.1.212")
 	implementation("org.hibernate:hibernate-jpamodelgen:6.1.7.Final")
-	implementation("org.springframework.boot:spring-boot:${springBootVersion}")
+	implementation("org.springframework.boot:spring-boot:3.2.5")
 	implementation("org.springframework.boot:spring-boot-starter-jdbc")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -108,9 +120,6 @@ task copyWebApp(type: Copy) {
 	from "$webappDir/build"
 	into "$projectDir/src/main/resources/static"
 }
-/*
-compileJava.dependsOn copyWebApp
-*/
 
 node {
 	version = "19.1.0"

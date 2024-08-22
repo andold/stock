@@ -18,10 +18,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletResponse;
 import kr.andold.stock.domain.DividendHistoryDomain;
+import kr.andold.stock.dummy.Utility;
 import kr.andold.stock.param.DividendHistoryParam;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.DividendHistoryService;
-import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
