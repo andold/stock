@@ -9,8 +9,8 @@ import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.Result;
 import kr.andold.stock.domain.Result.STATUS;
-import kr.andold.stock.dummy.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
+import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

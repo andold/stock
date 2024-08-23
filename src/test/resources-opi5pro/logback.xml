@@ -34,7 +34,7 @@
 		</triggeringPolicy>
 		<encoder>
 			<charset>UTF-8</charset>
-			<Pattern>RL %d{HH:mm:ss} [%-5level] %-32.32logger{32} :%4line %msg%n</Pattern>
+			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] %-64.64logger{64} :%4line %msg%n</Pattern>
 		</encoder>
 	</appender>
 	<appender name="parser" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -71,7 +71,12 @@
 		</encoder>
 	</appender>
 
-	<logger name="kr.andold.stock.crawler.ChromeDriverWrapper" additivity="false" level="warn">
+	<logger name="kr.andold.stock.dummy" additivity="false" level="warn">
+		<appender-ref ref="console" />
+		<appender-ref ref="general" />
+		<appender-ref ref="error" />
+	</logger>
+	<logger name="kr.andold.stock.service.ParserService" additivity="false" level="warn">
 		<appender-ref ref="console" />
 		<appender-ref ref="general" />
 		<appender-ref ref="error" />
@@ -79,6 +84,15 @@
 	<logger name="kr.andold.stock" additivity="false" value="debug">
 		<appender-ref ref="console" />
 		<appender-ref ref="stock" />
+		<appender-ref ref="error" />
+	</logger>
+
+	<logger name="kr.andold.utils" additivity="false" value="warn">
+		<appender-ref ref="general" />
+		<appender-ref ref="error" />
+	</logger>
+	<logger name="org.openqa" additivity="false" value="warn">
+		<appender-ref ref="general" />
 		<appender-ref ref="error" />
 	</logger>
 

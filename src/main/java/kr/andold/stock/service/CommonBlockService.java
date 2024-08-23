@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import kr.andold.stock.dummy.Utility;
+import kr.andold.utils.Utility;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

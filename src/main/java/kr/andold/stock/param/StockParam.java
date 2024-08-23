@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
-import kr.andold.stock.dummy.Utility;
+import kr.andold.utils.Utility;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

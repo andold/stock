@@ -5,12 +5,14 @@ import org.springframework.beans.BeanUtils;
 import kr.andold.stock.entity.PriceEntity;
 import kr.andold.utils.Utility;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @NoArgsConstructor
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class PriceDomain extends PriceEntity implements CommonBlockDomain<PriceDomain, PriceEntity> {
 	@Override
 	public String toString() {

@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
-import kr.andold.stock.dummy.Utility;
 import kr.andold.stock.entity.DividendHistoryEntity;
 import kr.andold.stock.param.DividendHistoryParam;
 import kr.andold.stock.param.ItemParam;
@@ -26,6 +25,7 @@ import kr.andold.stock.repository.DividendHistoryRepository;
 import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.stock.thread.CrawlDividendHistoryCompanyThread;
 import kr.andold.stock.thread.CrawlDividendHistoryEtfThread;
+import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

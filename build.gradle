@@ -44,7 +44,7 @@ repositories {
 }
 
 dependencies {
-	implementation("kr.andold:utils:0.0.3")
+	implementation("kr.andold:utils:0.0.4-SNAPSHOT")
 
 	implementation("org.jsoup:jsoup:1.15.3")
 	implementation("com.h2database:h2:2.1.212")
