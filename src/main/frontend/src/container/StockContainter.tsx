@@ -72,7 +72,6 @@ export default ((props: any) => {
 		});
 	}
 
-	console.log(props);
 	return (<>
 		<Header
 			form={form}
@@ -131,7 +130,6 @@ function Header(props: any) {
 		setDisableCrawlPriceAll(true);
 		crawlStore.crawlPriceAll({base: moment().format("YYYY-MM-DDTHH:mm:ss.SSSZZ")}, (_: any, response: any) => {
 			setDisableCrawlPriceAll(false);
-			console.log(response);
 		});
 	}
 	function handleOnClickCompile() {

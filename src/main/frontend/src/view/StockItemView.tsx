@@ -37,7 +37,6 @@ export default ((props: any) => {
 			page: form.page,
 		};
 		store.searchItem(request, (_: any, result: any) => {
-			console.log(result);
 			const items = result!.items;
 			if (!items) {
 				return;
@@ -48,24 +47,16 @@ export default ((props: any) => {
 					codes: codes,
 					start: moment().subtract(28, "days").format("YYYY-MM-DD"),
 				}, (_: any, prices: Price[]) => {
-				console.log(prices);
-
 				processItemPrice(items, prices);
 				dividendHistoryStore.search({
 					start: moment().subtract(10, "years").startOf("year").format("YYYY-MM-DDTHH:mm:ss.SSSZZ"),
 					codes: codes,
 				}, (_: any, histories: DividendHistory[]) => {
-					console.log(histories);
-
 					processItemDividendHistory(items, histories);
-
-					console.log(histories);
 					priceStore.search({
 							codes: codes,
 							flag: 1,
 					}, (_: any, flagedPrices: Price[]) => {
-						console.log(flagedPrices);
-
 						processItemPriceFlag(items, flagedPrices);
 						setRowData(items);
 					}, (param1: any, param2: any) => {
@@ -100,17 +91,14 @@ export default ((props: any) => {
 		});
 	}
 	function processItemDividendHistory(items: Item[], histories: DividendHistory[]) {
-		console.log(items, histories);
 		const map = dividendHistoryStore.makeMap(histories.filter((history: DividendHistory) => history.dividend > 0));
-
-		console.log(items, histories);
 		items.forEach((item: Item) => {
 			if (!item) {
 				console.log("null or undefined - item");
 				return;
 			}
 
-			const dividends = map.get(item.code);
+			const dividends = map.get(item.code) || [];
 			if (!dividends) {
 				console.log("null or undefined - dividends");
 				return;
@@ -124,7 +112,6 @@ export default ((props: any) => {
 				mapHistory: mapHistory,
 			};
 		});
-		console.log(items, histories);
 	}
 	function processItemPriceFlag(items: Item[], prices: Price[]) {
 		const map = priceStore.makeMapByFlag(prices);
@@ -146,7 +133,6 @@ export default ((props: any) => {
 		gridRef.current!.api.sizeColumnsToFit();
 	}
 
-	console.log(props, form, rowData);
 	return (<>
 		<AgGridReact
 			className="ag-theme-balham-dark"

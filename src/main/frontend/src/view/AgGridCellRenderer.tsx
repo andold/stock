@@ -130,9 +130,11 @@ export function PriceRecentCellRenderer(param: any) {
 		</>);
 	}
 	function renderTooltip(props: any) {
-		const yearPrices: Price[] = param.data!.custom!.yearPrices!.slice(0, COUNT).reverse() || [];
-		const monthPrices: Price[] = param.data!.custom!.monthPrices!.slice(0, COUNT).reverse() || [];
-		const weekPrices: Price[] = param.data!.custom!.weekPrices!.slice(0, COUNT).reverse() || [];
+		const custom = param || param.data || param.data.custom;
+
+		const yearPrices: Price[] = custom ? custom.yearPrices ? custom.yearPrices.slice(0, COUNT).reverse() : [] : [];
+		const monthPrices: Price[] = custom ? custom.monthPrices ? custom.monthPrices.slice(0, COUNT).reverse() : [] : [];
+		const weekPrices: Price[] = custom ? custom.weekPrices ? custom.weekPrices.slice(0, COUNT).reverse() : [] : [];
 		const minmax = {
 			min: Number.MAX_SAFE_INTEGER,
 			max: Number.MIN_SAFE_INTEGER,
@@ -353,7 +355,7 @@ function DividendTableAmount(mapHistory: any, start: any, setHeight?: any) {
 	}
 
 	return (
-		<Table ref={el => { setHeight && el!.clientHeight && setHeight(el!.clientHeight); }} bordered striped size="sm" variant="dark" className="my-0 py-0" style={{ fontSize: 10 }}>
+		<Table ref={el => { setHeight && el && el.clientHeight && setHeight(el.clientHeight); }} bordered striped size="sm" variant="dark" className="my-0 py-0" style={{ fontSize: 10 }}>
 			<thead><tr className="my-0 py-0">
 				<th>연도</th>
 				{
