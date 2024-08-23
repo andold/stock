@@ -19,23 +19,22 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
-import kr.andold.stock.dummy.Utility;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.StockParam;
 import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.StockService;
+import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
 @RequestMapping("api")
 public class ApiStockController {
-	@Autowired private HttpServletResponse httpServletResponse;
 	@Autowired private StockService service;
 
 	@ResponseBody
 	@GetMapping(value = {"download"})
-	public String download() throws UnsupportedEncodingException {
+	public String download(HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
 		log.info("{} download()", Utility.indentStart());
 
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -50,7 +49,7 @@ public class ApiStockController {
 	}
 
 	@PostMapping(value = "upload")
-	public boolean upload(@RequestParam("file") MultipartFile file) {
+	public boolean upload(@RequestParam MultipartFile file) {
 		log.info("{} upload(『{}』)", Utility.indentStart(), Utility.toStringJson(file, 64));
 
 		boolean result = service.upload(file);

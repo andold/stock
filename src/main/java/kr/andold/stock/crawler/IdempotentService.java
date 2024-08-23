@@ -53,6 +53,7 @@ public class IdempotentService {
 	ConcurrentLinkedDeque<ItemDomain> q3 = new ConcurrentLinkedDeque<>();	// reserved
 	@Async
 	public void once() {
+		log.info("{} once() ----------------------------------------------------------------------------", Utility.indentStart());
 		long started = System.currentTimeMillis();
 		long pause = PAUSE_MAX;
 		int precessed = 0;
@@ -67,13 +68,13 @@ public class IdempotentService {
 				case FAILURE:
 				case SUCCESS:
 					precessed++;
-					Utility.sleep(PAUSE_MIN);
-					log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item0, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+					sleep(PAUSE_MIN);
+					log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, size(q0), size(q1), size(q2), size(q3), status, item0, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 					break;
 				case ALEADY_DONE:
 					break;
 				default:
-					log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item0, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+					log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, size(q0), size(q1), size(q2), size(q3), status, item0, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 					break;
 				}
 				continue;
@@ -87,13 +88,13 @@ public class IdempotentService {
 				case FAILURE:
 				case SUCCESS:
 					precessed++;
-					Utility.sleep(PAUSE_MIN);
-					log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item1, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+					sleep(PAUSE_MIN);
+					log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, size(q0), size(q1), size(q2), size(q3), status, item1, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 					break;
 				case ALEADY_DONE:
 					break;
 				default:
-					log.trace("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item1, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+					log.trace("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, size(q0), size(q1), size(q2), size(q3), status, item1, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 					break;
 				}
 				continue;
@@ -107,13 +108,13 @@ public class IdempotentService {
 				case FAILURE:
 				case SUCCESS:
 					precessed++;
-					Utility.sleep(PAUSE_MIN);
-					log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item2, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+					sleep(PAUSE_MIN);
+					log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, size(q0), size(q1), size(q2), size(q3), status, item2, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 					break;
 				case ALEADY_DONE:
 					break;
 				default:
-					log.trace("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item2, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+					log.trace("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, size(q0), size(q1), size(q2), size(q3), status, item2, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 					break;
 				}
 				continue;
@@ -127,13 +128,13 @@ public class IdempotentService {
 				case FAILURE:
 				case SUCCESS:
 					precessed++;
-					Utility.sleep(PAUSE_MIN);
-					log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item3, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+					sleep(PAUSE_MIN);
+					log.info("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, size(q0), size(q1), size(q2), size(q3), status, item3, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 					break;
 				case ALEADY_DONE:
 					break;
 				default:
-					log.trace("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), status, item3, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
+					log.trace("{} 『#{}:#{}』『#{}:#{}:#{}:#{}』 『{} {}』 once() - {}/{}", Utility.indentMiddle(), cx, precessed, size(q0), size(q1), size(q2), size(q3), status, item3, Utility.toStringPastTimeReadable(forStarted), Utility.toStringPastTimeReadable(started));
 					break;
 				}
 				continue;
@@ -168,8 +169,8 @@ public class IdempotentService {
 			q2.addAll(items);
 			q3.addAll(items);
 			pause = Math.min(PAUSE_MAX, pause * 2);
-			Utility.sleep(pause);
-			log.info("{} NO_JOB 『#{}:#{}』『#{}:#{}:#{}:#{}』 once() - {}", Utility.indentMiddle(), cx, precessed, Utility.size(q0), Utility.size(q1), Utility.size(q2), Utility.size(q3), Utility.toStringPastTimeReadable(started));
+			sleep(pause);
+			log.info("{} NO_JOB 『#{}:#{}』『#{}:#{}:#{}:#{}』 once() - {}", Utility.indentMiddle(), cx, precessed, size(q0), size(q1), size(q2), size(q3), Utility.toStringPastTimeReadable(started));
 		}
 	}
 
@@ -289,6 +290,16 @@ public class IdempotentService {
 		}
 
 		return STATUS.FAILURE;
+	}
+
+	private void sleep(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+		}
+	}
+	private int size(ConcurrentLinkedDeque<?> q) {
+		return (q == null) ? -1 : q.size();
 	}
 
 }

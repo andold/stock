@@ -237,6 +237,22 @@ function Header(props: any) {
 									<NavDropdown title="Crawl" className="mx-1">
 										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlTest}>Crawl Test</NavDropdown.Item>
 									</NavDropdown>
+									<Button size="sm" variant="secondary" className="ms-1"
+											onClick={(param: any) => {
+												setSpinner(1);
+												itemStore.crawl({base: moment().format("YYYY-MM-DDTHH:mm:ss.SSSZZ")}
+												, (_: any, response: any) => {
+													setSpinner(0);
+												}, (p0: any, p1: any) => {
+													console.warn(p0, p1);
+													setSpinner(0);
+												}, (p0: any, p1: any) => {
+													console.warn(p0, p1);
+													setSpinner(0);
+												});
+									}}>
+										주식 전체, 정보 다시 읽어 오기
+									</Button>
 									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCompile} onClick={handleOnClickCompile}>
 										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCompile} />
 										Compile

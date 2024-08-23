@@ -18,19 +18,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletResponse;
 import kr.andold.stock.domain.DividendHistoryDomain;
-import kr.andold.stock.dummy.Utility;
 import kr.andold.stock.param.DividendHistoryParam;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.DividendHistoryService;
 import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.ParserService.ParserResult;
+import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
 @RequestMapping("api/dividend/history")
 public class ApiDividendHistoryController {
-	@Autowired private HttpServletResponse httpServletResponse;
 	@Autowired private DividendHistoryService service;
 
 	@PostMapping(value = {"search"})
@@ -56,7 +55,7 @@ public class ApiDividendHistoryController {
 
 	@ResponseBody
 	@GetMapping(value = {"download"})
-	public String download() throws UnsupportedEncodingException {
+	public String download(HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
 		log.info("{} download()", Utility.indentStart());
 
 		String filename = URLEncoder.encode(String.format("stock-item-%s.json", LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)), "UTF-8").replaceAll("\\+", "%20");
@@ -69,7 +68,7 @@ public class ApiDividendHistoryController {
 	}
 
 	@PostMapping(value = "upload")
-	public CrudList<DividendHistoryDomain> upload(@RequestParam("file") MultipartFile file) {
+	public CrudList<DividendHistoryDomain> upload(@RequestParam MultipartFile file) {
 		log.info("{} upload(『{}』)", Utility.indentStart(), Utility.toStringJson(file, 32));
 
 		CrudList<DividendHistoryDomain> result = service.upload(file);

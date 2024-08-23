@@ -16,16 +16,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.ContextLoader;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletResponse;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.CommonBlockService.CrudList;
-import kr.andold.stock.service.ItemDetailJobService;
 import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.JobService;
+import kr.andold.stock.service.JobService.ItemDetailJob;
 import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("api/item")
 public class ApiItemController {
-	@Autowired private HttpServletResponse httpServletResponse;
 	@Autowired private ItemService service;
 
 	@PostMapping(value = { "search" })
@@ -65,19 +63,17 @@ public class ApiItemController {
 
 //		CrudList<ItemDomain> result = service.crawl(param);
 
-		ItemDomain item = service.read(param.getCode());
-		ItemDetailJobService itemDetailJobService = (ItemDetailJobService) ContextLoader.getCurrentWebApplicationContext().getBean("itemDetailJobService");
-		itemDetailJobService.setItem(item);
-		JobService.getQueue1().push(itemDetailJobService);
+		String code = (param == null || param.getCode() == null || param.getCode().isBlank()) ? null : param.getCode();
+		JobService.getQueue3().push(ItemDetailJob.builder().code(code).build());
 		CrudList<ItemDomain> result = CrudList.<ItemDomain>builder().build();
 
-		log.info("{} {} - crawl({})", Utility.indentEnd(), result, param);
+		log.info("{} {}:{} - crawl({})", Utility.indentEnd(), result, code, param);
 		return result;
 	}
 
 	@ResponseBody
 	@GetMapping(value = {"download"})
-	public String download() throws UnsupportedEncodingException {
+	public String download(HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
 		log.info("{} download()", Utility.indentStart());
 
 		String filename = URLEncoder.encode(String.format("stock-item-%s.json", LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)), "UTF-8").replaceAll("\\+", "%20");
@@ -90,7 +86,7 @@ public class ApiItemController {
 	}
 
 	@PostMapping(value = "upload")
-	public CrudList<ItemDomain> upload(@RequestParam("file") MultipartFile file) {
+	public CrudList<ItemDomain> upload(@RequestParam MultipartFile file) {
 		log.info("{} upload(『{}』)", Utility.indentStart(), Utility.toStringJson(file, 32));
 
 		CrudList<ItemDomain> result = service.upload(file);

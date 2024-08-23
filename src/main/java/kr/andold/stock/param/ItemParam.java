@@ -7,14 +7,12 @@ import kr.andold.stock.domain.ItemDomain;
 import kr.andold.utils.Utility;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
 @Data
 public class ItemParam extends ItemDomain {
 	private String keyword;

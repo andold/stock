@@ -2,11 +2,10 @@ package kr.andold.stock.domain;
 
 import org.springframework.beans.BeanUtils;
 
-import kr.andold.stock.dummy.Utility;
 import kr.andold.stock.entity.ItemEntity;
+import kr.andold.utils.Utility;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@EqualsAndHashCode(callSuper = true)
 public class ItemDomain extends ItemEntity implements CommonBlockDomain<ItemDomain, ItemEntity> {
 	private String reserved;
 

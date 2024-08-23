@@ -4,19 +4,16 @@ import java.util.Date;
 
 import org.springframework.beans.BeanUtils;
 
-import kr.andold.stock.dummy.Utility;
 import kr.andold.stock.entity.DividendHistoryEntity;
+import kr.andold.utils.Utility;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @NoArgsConstructor
 @Data
-@EqualsAndHashCode(callSuper = true)
 public class DividendHistoryDomain extends DividendHistoryEntity implements CommonBlockDomain<DividendHistoryDomain, DividendHistoryEntity> {
-
 	@Override
 	public DividendHistoryEntity toEntity() {
 		DividendHistoryEntity entity = new DividendHistoryEntity();
