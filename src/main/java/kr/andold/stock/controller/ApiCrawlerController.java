@@ -47,7 +47,7 @@ public class ApiCrawlerController {
 //		Result<ParserResult> result = service.crawlPrice(param.getBase());
 //		log.info("{} 『{}』 - crawlPriceAll({})", Utility.indentEnd(), result, param);
 
-		JobService.getQueue3().push(PriceLatestJob.builder().build());
+		JobService.getQueue2().offer(PriceLatestJob.builder().build());
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
 
 

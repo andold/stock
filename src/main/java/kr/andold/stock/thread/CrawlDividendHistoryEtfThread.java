@@ -19,11 +19,11 @@ import org.openqa.selenium.WebElement;
 
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.ItemDomain;
-import kr.andold.stock.dummy.ChromeDriverWrapper;
-import kr.andold.stock.dummy.Utility;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.ParserService;
 import kr.andold.stock.service.ParserService.ParserResult;
+import kr.andold.utils.ChromeDriverWrapper;
+import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

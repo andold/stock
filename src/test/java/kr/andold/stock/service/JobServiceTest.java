@@ -30,7 +30,7 @@ public class JobServiceTest {
 
 	@Test
 	public void testRunInt() throws IOException {
-		JobService.getQueue1().push(StockCompileJob.builder().build());
+		JobService.getQueue1().offer(StockCompileJob.builder().build());
 		service.run();
 		for (int cx = 0; cx < 4; cx++) {
 			STATUS result = service.run(0);

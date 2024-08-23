@@ -87,6 +87,11 @@
 		<appender-ref ref="error" />
 	</logger>
 
+	<logger name="org.openqa" additivity="false" value="warn">
+		<appender-ref ref="general" />
+		<appender-ref ref="error" />
+	</logger>
+
 	<root value="warn">
 		<appender-ref ref="console" />
 		<appender-ref ref="stock" />

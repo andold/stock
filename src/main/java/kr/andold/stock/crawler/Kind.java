@@ -17,9 +17,9 @@ import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.Result;
 import kr.andold.stock.domain.Result.STATUS;
-import kr.andold.stock.dummy.ChromeDriverWrapper;
-import kr.andold.stock.dummy.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
+import kr.andold.utils.ChromeDriverWrapper;
+import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -133,7 +133,7 @@ public class Kind implements Crawler {
 						} else {
 							pause = Math.min(1024 * 8, pause * 2);
 						}
-						Utility.sleep(Math.round(pause * Math.random()));
+						Utility.sleep((int)Math.round(pause * Math.random()));
 
 						driver.close();
 					}

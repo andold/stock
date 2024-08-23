@@ -17,9 +17,12 @@ import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.param.DividendHistoryParam;
 import kr.andold.stock.service.DividendHistoryService;
 import kr.andold.stock.service.ItemService;
+import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.PriceService;
 import kr.andold.utils.Utility;
 import kr.andold.stock.service.CommonBlockService.CrudList;
+import kr.andold.stock.service.JobService.ItemDetailJob;
+import kr.andold.stock.service.JobService.ItemDividendJob;
 import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
 
@@ -142,8 +145,8 @@ public class IdempotentService {
 
 			if (precessed > 0) {
 				List<ItemDomain> items = itemService.search(null);
-				q0.addAll(items);
-				q1.addAll(items);
+//				q0.addAll(items);
+//				q1.addAll(items);
 				q2.addAll(items);
 				q3.addAll(items);
 				pause = PAUSE_MIN;
@@ -154,8 +157,8 @@ public class IdempotentService {
 			
 			if (pause >= PAUSE_MAX) {
 				List<ItemDomain> items = itemService.search(null);
-				q0.addAll(items);
-				q1.addAll(items);
+//				q0.addAll(items);
+//				q1.addAll(items);
 				q2.addAll(items);
 				q3.addAll(items);
 				pause = PAUSE_MAX;
@@ -164,8 +167,8 @@ public class IdempotentService {
 			}
 
 			List<ItemDomain> items = itemService.search(null);
-			q0.addAll(items);
-			q1.addAll(items);
+//			q0.addAll(items);
+//			q1.addAll(items);
 			q2.addAll(items);
 			q3.addAll(items);
 			pause = Math.min(PAUSE_MAX, pause * 2);
@@ -214,6 +217,9 @@ public class IdempotentService {
 	protected STATUS processDividend(ItemDomain item) {
 		if (item == null) {
 			return STATUS.INVALID;
+		} else if (System.currentTimeMillis() > 0) {
+			JobService.getQueue2().offer(ItemDividendJob.builder().code(item.getCode()).build());
+			return STATUS.SUCCESS;
 		}
 
 		String type = item.getType();
@@ -261,8 +267,12 @@ public class IdempotentService {
 	protected STATUS processDetailInfo(ItemDomain item) {
 		if (item == null) {
 			return STATUS.INVALID;
+		} else if (System.currentTimeMillis() > 0) {
+			JobService.getQueue2().offer(ItemDetailJob.builder().code(item.getCode()).build());
+			return STATUS.SUCCESS;
 		}
-		
+
+
 		String symbol = item.getSymbol();
 		Date ipoOpen = item.getIpoOpen();
 		Date ipoClose = item.getIpoClose();

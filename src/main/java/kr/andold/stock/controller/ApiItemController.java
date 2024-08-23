@@ -64,7 +64,7 @@ public class ApiItemController {
 //		CrudList<ItemDomain> result = service.crawl(param);
 
 		String code = (param == null || param.getCode() == null || param.getCode().isBlank()) ? null : param.getCode();
-		JobService.getQueue3().push(ItemDetailJob.builder().code(code).build());
+		JobService.getQueue2().offer(ItemDetailJob.builder().code(code).build());
 		CrudList<ItemDomain> result = CrudList.<ItemDomain>builder().build();
 
 		log.info("{} {}:{} - crawl({})", Utility.indentEnd(), result, code, param);
