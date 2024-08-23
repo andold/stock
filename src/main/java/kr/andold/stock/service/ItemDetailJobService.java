@@ -6,20 +6,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import kr.andold.stock.crawler.Seibro;
+import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.Job;
+import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.domain.Result;
 import kr.andold.stock.domain.Result.STATUS;
+import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.utils.Utility;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 public class ItemDetailJobService implements Job {
 	@Autowired private Seibro seibro;
+	@Autowired private ItemService itemService;
+	@Autowired private DividendHistoryService dividendHistoryService;
+	@Autowired private PriceService priceService;
 
-	private ItemDomain item;
+	@Setter private ItemDomain item;
 
 	@Override
 	public STATUS run() {
@@ -56,8 +63,20 @@ public class ItemDetailJobService implements Job {
 			return STATUS.SUCCESS;
 		}
 
-		log.debug("{} 『{}』 run() - {}", Utility.indentEnd(), STATUS.FAILURE, count, Utility.toStringPastTimeReadable(started));
+		log.debug("{} 『{}』 run() - {}", Utility.indentEnd(), STATUS.FAILURE, Utility.toStringPastTimeReadable(started));
 		return STATUS.FAILURE;
+	}
+
+	private ParserResult put(ParserResult result) {
+		log.debug("{} put({})", Utility.indentStart(), result);
+		long started = System.currentTimeMillis();
+
+		CrudList<ItemDomain> items = itemService.put(result.getItems());
+		CrudList<DividendHistoryDomain> histories = dividendHistoryService.put(result.getHistories());
+		CrudList<PriceDomain> prices = priceService.put(result.getPrices());
+
+		log.debug("{} 『items:{}, histories:{}, prices:{}』 put({}) - {}", Utility.indentEnd(), items, histories, prices, result, Utility.toStringPastTimeReadable(started));
+		return result;
 	}
 
 }

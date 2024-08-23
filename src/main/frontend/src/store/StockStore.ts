@@ -228,7 +228,9 @@ class StockStore {
 			field: "currentPrice",
 			headerName: "현재가",
 			hide: hides && hides.includes("currentPrice"),
-			valueGetter: (params: any) => params.data.custom.dividend!.currentPrice!.toLocaleString(),
+			valueGetter: (params: any) => params.data.custom.dividend
+												&& params.data.custom.dividend.currentPrice
+												&& params.data.custom.dividend.currentPrice.toLocaleString(),
 			cellRenderer: PriceRecentCellRenderer,
 			cellStyle: CELL_STYLE_RIGHT,
 			width: 64,

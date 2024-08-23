@@ -72,6 +72,7 @@ export default ((props: any) => {
 		});
 	}
 
+	console.log(props);
 	return (<>
 		<Header
 			form={form}

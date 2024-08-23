@@ -13,9 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.Result;
-import kr.andold.stock.dummy.Utility;
+import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.PriceParam;
+import kr.andold.stock.service.JobService;
+import kr.andold.stock.service.PriceLatestJobService;
+import kr.andold.utils.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("api/crawl")
 public class ApiCrawlerController {
 	@Autowired private CrawlerService service;
+	@Autowired private PriceLatestJobService priceLatestJobService;
 
 	@ResponseBody
 	@PostMapping(value = "item")
@@ -41,8 +45,13 @@ public class ApiCrawlerController {
 	public Result<ParserResult> crawlPriceAll(@RequestBody PriceParam param) {
 		log.info("{} crawlPriceAll({})", Utility.indentStart(), param);
 
-		Result<ParserResult> result = service.crawlPrice(param.getBase());
-		
+//		Result<ParserResult> result = service.crawlPrice(param.getBase());
+//		log.info("{} 『{}』 - crawlPriceAll({})", Utility.indentEnd(), result, param);
+
+		JobService.getQueue1().push(priceLatestJobService);
+		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
+
+
 		log.info("{} 『{}』 - crawlPriceAll({})", Utility.indentEnd(), result, param);
 		return result;
 	}

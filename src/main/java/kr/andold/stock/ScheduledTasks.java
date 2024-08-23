@@ -9,14 +9,18 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.web.context.ContextLoader;
 
 import jakarta.annotation.PostConstruct;
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.crawler.IdempotentService;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.Result;
+import kr.andold.stock.service.ItemDetailJobService;
+import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.ParserService.ParserResult;
+import kr.andold.stock.service.PriceLatestJobService;
 import kr.andold.stock.service.PriceService;
 import kr.andold.stock.service.StockCompileJobService;
 import kr.andold.stock.service.StockService;
@@ -32,9 +36,12 @@ public class ScheduledTasks {
 	@Autowired private IdempotentService idempotentService;
 	@Autowired private StockService stockService;
 	@Autowired private PriceService priceService;
+	@Autowired private ItemService itemService;
 	@Autowired private JobService jobService;
 
 	@Autowired private StockCompileJobService stockCompileJobService;
+	@Autowired private PriceLatestJobService priceLatestJobService;
+
 	private static JobService staticJobService;
 	@PostConstruct
 	public void postConstruct() {
@@ -73,10 +80,20 @@ public class ScheduledTasks {
 		log.info("{} scheduleTaskDaily()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		Result<ParserResult> crawlPriceResult = crawlerService.crawlPrice(Date.from(LocalDate.now().atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)));
-		List<ItemDomain> compileResult = stockService.compile();
+//		Result<ParserResult> crawlPriceResult = crawlerService.crawlPrice(Date.from(LocalDate.now().atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)));
+//		List<ItemDomain> compileResult = stockService.compile();
+//		log.info("{} 『{}』『#{}』 scheduleTaskDaily() - {}", Utility.indentEnd(), crawlPriceResult, Utility.size(compileResult), Utility.toStringPastTimeReadable(started));
 
-		log.info("{} 『{}』『#{}』 scheduleTaskDaily() - {}", Utility.indentEnd(), crawlPriceResult, Utility.size(compileResult), Utility.toStringPastTimeReadable(started));
+		JobService.getQueue1().push(priceLatestJobService);
+
+		List<ItemDomain> items = itemService.search(null);
+		for (ItemDomain item: items) {
+			ItemDetailJobService itemDetailJobService = (ItemDetailJobService) ContextLoader.getCurrentWebApplicationContext().getBean("itemDetailJobService");
+			itemDetailJobService.setItem(item);
+			JobService.getQueue1().push(itemDetailJobService);
+		}
+
+		log.info("{} scheduleTaskDaily() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
 
 	// 매주 일요일 - dividend

@@ -369,7 +369,7 @@ function DividendTableAmount(mapHistory: any, start: any, setHeight?: any) {
 						{
 							store.range(12).map((cy: number) => {
 								const history = mapHistory.get(moment([start.year() + cx, cy]).format("YYYY-MM"));
-								if (history!.dividend > 0) {
+								if (history && history.dividend > 0) {
 									return (
 										<td key={cy} className="text-end px-1 py-0">{history!.dividend!.toLocaleString()}</td>
 									);
@@ -377,7 +377,7 @@ function DividendTableAmount(mapHistory: any, start: any, setHeight?: any) {
 								return (<td key={cy}></td>);
 							})
 						}
-						<th className="text-end px-1 py-0">{mapHistory.get(start.year() + cx)!.toLocaleString()}</th>
+						<th className="text-end px-1 py-0">{mapHistory.get(start.year() + cx) && mapHistory.get(start.year() + cx).toLocaleString()}</th>
 					</tr>))
 				}
 			</tbody></Table>
@@ -403,15 +403,17 @@ function dividendTableRatioByClosingPrice(mapHistory: any, start: any) {
 						<th className="px-1 py-0">{start.year() + cx}</th>{
 							store.range(12).map((cy: number) => {
 								const history: DividendHistory = mapHistory.get(moment([start.year() + cx, cy]).format("YYYY-MM"));
-								if (!history!.dividend || !history!.priceClosing) {
+								if (!!history && (history.dividend || !history.priceClosing)) {
 									return (<td key={Math.random()}></td>);
 								}
 
 								return (
-									<td key={cy} className="text-end px-1 py-0">{(history!.dividend / history!.priceClosing * 100)!.toFixed(2)}</td>
+									<td key={cy} className="text-end px-1 py-0">
+										{history && (history.dividend / history.priceClosing * 100).toFixed(2)}
+									</td>
 								);
 							})
-						}<th className="text-end px-1 py-0">{mapHistory.get(start.year() + cx + 0.1)!.toFixed(2)}</th>
+						}<th className="text-end px-1 py-0">{mapHistory.get(start.year() + cx + 0.1) && mapHistory.get(start.year() + cx + 0.1).toFixed(2)}</th>
 					</tr>
 				))
 			}</tbody></Table>
@@ -439,7 +441,7 @@ function dividendTableRatioByCurrentPrice(mapHistory: any, start: any, currentPr
 						{
 							store.range(12).map((cy: number) => {
 								const history = mapHistory.get(moment([start.year() + cx, cy]).format("YYYY-MM"));
-								if (history!.dividend > 0) {
+								if (history && history.dividend > 0) {
 									return (
 										<td key={Math.random()} className="text-end px-1 py-0">{(history!.dividend / (currentPrice || 10000) * 100)!.toFixed(2)}</td>
 									);
@@ -486,7 +488,7 @@ function dividendBarGraphRatioByClosingPrice(mapHistory: any, start: any, curren
 								{
 									store.range(12).map((cy: number) => {
 										const history = mapHistory.get(moment([start.year() + cx, 11 - cy]).format("YYYY-MM"));
-										if (history!.dividend && history!.priceClosing) {
+										if (history && history.dividend && history.priceClosing) {
 											return (
 												<OverlayTrigger key={cy} overlay={<Tooltip>{moment([start.year() + cx, 11 - cy]).format("YYYY-MM")}: {((history.dividend / history.priceClosing * 100) || 0).toFixed(2)}%</Tooltip>}>
 													<Row className="px-0" style={{
@@ -538,7 +540,7 @@ function dividendBarGraphRatioByCurrentPrice(mapHistory: any, start: any, curren
 								{
 									store.range(12).map((cy: number) => {
 										const history = mapHistory.get(moment([start.year() + cx, 11 - cy]).format("YYYY-MM"));
-										if (history!.dividend > 0) {
+										if (history && history.dividend > 0) {
 											return (
 												<OverlayTrigger key={cy} overlay={<Tooltip>{moment([start.year() + cx, 11 - cy]).format("YYYY-MM")}: {((history.dividend / currentPrice * 100) || 0).toFixed(2)}%</Tooltip>}>
 													<Row className="px-0" style={{
@@ -595,7 +597,7 @@ function dividendBarGraphAmount(mapHistory: any, start: any, lineHeight: number)
 								{
 									store.range(12).map((cy: number) => {
 										const history = mapHistory.get(moment([start.year() + cx, 11 - cy]).format("YYYY-MM"));
-										if (history!.dividend > 0) {
+										if (history && history.dividend > 0) {
 											return (
 												<OverlayTrigger key={cy} overlay={<Tooltip>{moment([start.year() + cx, 11 - cy]).format("YYYY-MM")}: {((history.dividend) || 0).toLocaleString()}원</Tooltip>}>
 													<Row className="px-0" style={{

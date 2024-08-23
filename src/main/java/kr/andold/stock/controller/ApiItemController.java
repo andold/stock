@@ -16,14 +16,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.ContextLoader;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletResponse;
 import kr.andold.stock.domain.ItemDomain;
-import kr.andold.stock.dummy.Utility;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.CommonBlockService.CrudList;
+import kr.andold.stock.service.ItemDetailJobService;
 import kr.andold.stock.service.ItemService;
+import kr.andold.stock.service.JobService;
+import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -45,7 +48,7 @@ public class ApiItemController {
 
 	@ResponseBody
 	@PutMapping(value = { "{id}" })
-	public ItemDomain update(@PathVariable(name = "id") Integer id, @RequestBody ItemDomain domain) {
+	public ItemDomain update(@PathVariable Integer id, @RequestBody ItemDomain domain) {
 		log.info("{} update({}, {})", Utility.indentStart(), id, domain);
 
 		domain.setId(id);
@@ -60,7 +63,13 @@ public class ApiItemController {
 	public CrudList<ItemDomain> crawl(@RequestBody ItemParam param) {
 		log.info("{} crawl({})", Utility.indentStart(), param);
 
-		CrudList<ItemDomain> result = service.crawl(param);
+//		CrudList<ItemDomain> result = service.crawl(param);
+
+		ItemDomain item = service.read(param.getCode());
+		ItemDetailJobService itemDetailJobService = (ItemDetailJobService) ContextLoader.getCurrentWebApplicationContext().getBean("itemDetailJobService");
+		itemDetailJobService.setItem(item);
+		JobService.getQueue1().push(itemDetailJobService);
+		CrudList<ItemDomain> result = CrudList.<ItemDomain>builder().build();
 
 		log.info("{} {} - crawl({})", Utility.indentEnd(), result, param);
 		return result;
