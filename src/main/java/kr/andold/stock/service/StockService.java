@@ -15,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
-import kr.andold.stock.dummy.Utility;
 import kr.andold.stock.param.DividendHistoryParam;
 import kr.andold.stock.param.PriceParam;
 import kr.andold.stock.param.StockParam;
@@ -23,6 +22,7 @@ import kr.andold.stock.param.StockParam.InnerDividendHistoryParam;
 import kr.andold.stock.param.StockParam.InnerItemParam;
 import kr.andold.stock.param.StockParam.InnerPriceParam;
 import kr.andold.stock.service.CommonBlockService.CrudList;
+import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -195,7 +195,7 @@ public class StockService {
 		for (int cx = 1, sizex = prices.size(); cx < sizex; cx++) {
 			PriceDomain price = prices.get(cx);
 			//  주간 대표일자
-			if (Utility.isSameWeek(prevWeek.getBase(), price.getBase())) {
+			if (kr.andold.stock.dummy.Utility.isSameWeek(prevWeek.getBase(), price.getBase())) {
 				prevWeek.setFlagWeek(false);
 				price.setFlagWeek(true);
 				prevWeek = price;
@@ -205,7 +205,7 @@ public class StockService {
 			}
 
 			// 월간 대표일자
-			if (Utility.isSameMonth(prevMonth.getBase(), price.getBase())) {
+			if (kr.andold.stock.dummy.Utility.isSameMonth(prevMonth.getBase(), price.getBase())) {
 				prevMonth.setFlagMonth(false);
 				price.setFlagMonth(true);
 				prevMonth = price;
@@ -214,7 +214,7 @@ public class StockService {
 				prevMonth.setFlagMonth(true);
 			}
 			// 연간 대표일자
-			if (Utility.isSameYear(prevMonth.getBase(), price.getBase())) {
+			if (kr.andold.stock.dummy.Utility.isSameYear(prevMonth.getBase(), price.getBase())) {
 				prevYear.setFlagYear(false);
 				price.setFlagYear(true);
 				prevYear = price;

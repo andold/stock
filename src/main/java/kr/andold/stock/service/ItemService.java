@@ -15,11 +15,11 @@ import org.springframework.stereotype.Service;
 import kr.andold.stock.crawler.Seibro;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.Result;
-import kr.andold.stock.dummy.Utility;
 import kr.andold.stock.entity.ItemEntity;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.repository.ItemRepository;
 import kr.andold.stock.service.ParserService.ParserResult;
+import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

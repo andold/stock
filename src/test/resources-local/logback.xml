@@ -81,6 +81,10 @@
 		<appender-ref ref="general" />
 		<appender-ref ref="error" />
 	</logger>
+	<logger name="kr.andold.stock.crawler.Seibro" additivity="false" level="debug">
+		<appender-ref ref="console" />
+		<appender-ref ref="stock" />
+	</logger>
 	<logger name="kr.andold.stock" additivity="false" value="debug">
 		<appender-ref ref="console" />
 		<appender-ref ref="stock" />
@@ -89,11 +93,15 @@
 
 	<logger name="kr.andold.utils" additivity="false" value="warn">
 		<appender-ref ref="general" />
-		<appender-ref ref="error" />
 	</logger>
-	<logger name="org.openqa" additivity="false" value="warn">
+	<logger name="com" additivity="false" value="warn">
 		<appender-ref ref="general" />
-		<appender-ref ref="error" />
+	</logger>
+	<logger name="io" additivity="false" value="warn">
+		<appender-ref ref="general" />
+	</logger>
+	<logger name="org" additivity="false" value="warn">
+		<appender-ref ref="general" />
 	</logger>
 
 	<root value="warn">

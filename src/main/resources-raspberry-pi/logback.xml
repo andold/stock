@@ -71,10 +71,6 @@
 		</encoder>
 	</appender>
 
-	<logger name="kr.andold.stock.crawler.ChromeDriverWrapper" additivity="false" level="warn">
-		<appender-ref ref="general" />
-		<appender-ref ref="error" />
-	</logger>
 	<logger name="kr.andold.stock.crawler" additivity="false" level="debug">
 		<appender-ref ref="stock" />
 		<appender-ref ref="error" />
@@ -100,15 +96,19 @@
 		<appender-ref ref="error" />
 	</logger>
 
-	<logger name="org.springframework" additivity="false" value="warn">
+	<logger name="kr.andold.utils" additivity="false" value="warn">
 		<appender-ref ref="general" />
 		<appender-ref ref="error" />
 	</logger>
-	<logger name="com.zaxxer" additivity="false" value="warn">
+	<logger name="org" additivity="false" value="warn">
 		<appender-ref ref="general" />
 		<appender-ref ref="error" />
 	</logger>
-	<logger name="org.hibernate" additivity="false" value="warn">
+	<logger name="io" additivity="false" value="warn">
+		<appender-ref ref="general" />
+		<appender-ref ref="error" />
+	</logger>
+	<logger name="com" additivity="false" value="warn">
 		<appender-ref ref="general" />
 		<appender-ref ref="error" />
 	</logger>

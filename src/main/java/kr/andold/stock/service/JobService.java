@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,11 @@ public class JobService {
 	@Data
 	@Builder
 	public static class ItemDividendJob implements Job {
+		private String code;
+	}
+	@Data
+	@Builder
+	public static class ItemPriceJob implements Job {
 		private String code;
 	}
 	@Data
@@ -129,12 +135,12 @@ public class JobService {
 				STATUS result = run(cx);
 
 				int mills = startedNetworkUsage.pause(1024 * 1024 * 8 / 60); // 1분(60초)에 1 Mbytes 트래픽
-				if (size(queue0) == 0 && size(queue1) == 0 && size(queue2) == 0 && size(queue3) == 0) {
+				if (Utility.size(queue0) == 0 && Utility.size(queue1) == 0 && Utility.size(queue2) == 0 && Utility.size(queue3) == 0) {
 					mills = 60000;
 				}
 				if (!result.equals(STATUS.SUCCESS) || cx % 512 == 0) {
 					log.info("{} run() - 『{}』『{}/{}/{}/{}』『{}』『{} ms』 - {}", Utility.indentMiddle()
-							, cx, size(queue0), size(queue1), size(queue2), size(queue3)
+							, cx, Utility.size(queue0), Utility.size(queue1), Utility.size(queue2), Utility.size(queue3)
 							, result, mills, Utility.toStringPastTimeReadable(started));
 				}
 
@@ -146,8 +152,9 @@ public class JobService {
 			}
 
 			Utility.sleep(1000);
-			log.info("{} run() - 『{}』『{} {}』 - {}", Utility.indentMiddle(), cx, size(queue0), size(queue1),
-					Utility.toStringPastTimeReadable(started));
+			log.info("{} run() - 『{}』『{}/{}/{}/{}』 run() - {}", Utility.indentMiddle()
+					, cx, Utility.size(queue0), Utility.size(queue1), Utility.size(queue2), Utility.size(queue3)
+					, Utility.toStringPastTimeReadable(started));
 		}
 	}
 
@@ -159,7 +166,9 @@ public class JobService {
 			Job job = queue0.poll();
 			STATUS result = run(count, job);
 
-			log.trace("{} run({}) - 『{} {}』 - {}", Utility.indentEnd(), result, count, size(queue0), size(queue1), Utility.toStringPastTimeReadable(started));
+			log.trace("{} 『{}/{}/{}/{}』『{}』 run({}) - {}", Utility.indentEnd()
+					, Utility.size(queue0), Utility.size(queue1), Utility.size(queue2), Utility.size(queue3)
+					, result, count, Utility.toStringPastTimeReadable(started));
 			return result;
 		}
 
@@ -167,7 +176,9 @@ public class JobService {
 			Job job = queue1.poll();
 			STATUS result = run(count, job);
 
-			log.trace("{} run({}) - 『{} {}』 - {}", Utility.indentEnd(), result, count, size(queue0), size(queue1), Utility.toStringPastTimeReadable(started));
+			log.trace("{} 『{}/{}/{}/{}』『{}』 run({}) - {}", Utility.indentEnd()
+					, Utility.size(queue0), Utility.size(queue1), Utility.size(queue2), Utility.size(queue3)
+					, result, count, Utility.toStringPastTimeReadable(started));
 			return result;
 		}
 		
@@ -175,7 +186,9 @@ public class JobService {
 			Job job = queue2.poll();
 			STATUS result = run(count, job);
 
-			log.trace("{} run({}) - 『{} {}』 - {}", Utility.indentEnd(), result, count, size(queue0), size(queue1), Utility.toStringPastTimeReadable(started));
+			log.trace("{} 『{}/{}/{}/{}』『{}』 run({}) - {}", Utility.indentEnd()
+					, Utility.size(queue0), Utility.size(queue1), Utility.size(queue2), Utility.size(queue3)
+					, result, count, Utility.toStringPastTimeReadable(started));
 			return result;
 		}
 		
@@ -183,11 +196,15 @@ public class JobService {
 			Job job = queue3.poll();
 			STATUS result = run(count, job);
 
-			log.trace("{} run({}) - 『{} {}』 - {}", Utility.indentEnd(), result, count, size(queue0), size(queue1), Utility.toStringPastTimeReadable(started));
+			log.trace("{} 『{}/{}/{}/{}』『{}』 run({}) - {}", Utility.indentEnd()
+					, Utility.size(queue0), Utility.size(queue1), Utility.size(queue2), Utility.size(queue3)
+					, result, count, Utility.toStringPastTimeReadable(started));
 			return result;
 		}
 		
-		log.trace("{} 『{}』 run({}) - 『{} {}』 - {}", Utility.indentEnd(), STATUS.SUCCESS, count, size(queue0), size(queue1), Utility.toStringPastTimeReadable(started));
+		log.trace("{} 『{}/{}/{}/{}』『{}』 run({}) - {}", Utility.indentEnd()
+				, Utility.size(queue0), Utility.size(queue1), Utility.size(queue2), Utility.size(queue3)
+				, STATUS.SUCCESS, count, Utility.toStringPastTimeReadable(started));
 		return STATUS.SUCCESS;
 	}
 
@@ -200,6 +217,13 @@ public class JobService {
 			return STATUS.INVALID;
 		}
 		
+		if (job instanceof ItemPriceJob) {
+			STATUS result = itemPrice((ItemPriceJob) job);
+
+			log.trace("{} 『{}』 run({}, {}) - {}", Utility.indentEnd(), result, count, job, Utility.toStringPastTimeReadable(started));
+			return STATUS.SUCCESS;
+		}
+
 		if (job instanceof ItemDetailJob) {
 			STATUS result = itemDetail((ItemDetailJob) job);
 
@@ -244,6 +268,61 @@ public class JobService {
 
 		log.trace("{} 『{}』 run({}, {}) - {}", Utility.indentEnd(), STATUS.NOT_SUPPORT, count, job, Utility.toStringPastTimeReadable(started));
 		return STATUS.NOT_SUPPORT;
+	}
+
+	private STATUS itemPrice(ItemPriceJob job) {
+		log.trace("{} itemPrice(『{}』)", Utility.indentStart(), job);
+		long started = System.currentTimeMillis();
+
+		String code = job.getCode();
+		if (code == null || code.isBlank()) {
+			//	null is all
+			List<ItemDomain> items = itemService.search(null);
+			for (ItemDomain item: items) {
+				queue2.push(ItemPriceJob.builder().code(item.getCode()).build());
+			}
+
+			log.debug("{} 『{}:#{}』 itemPrice({}) - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.size(items), code, Utility.toStringPastTimeReadable(started));
+			return STATUS.SUCCESS;
+		}
+
+		ItemDomain item = itemService.read(code);
+		if (item == null) {
+			log.debug("{} 『NO EXIST:{}』 itemPrice({}) - {}", Utility.indentEnd(), STATUS.INVALID, code, Utility.toStringPastTimeReadable(started));
+			return STATUS.INVALID;
+		}
+
+		String type = item.getType();
+		if (type != null && (type.contains("기타비상장") || type.contains("코넥스"))) {
+			log.debug("{} 『{}:{}』 itemPrice({}) - {}", Utility.indentEnd(), STATUS.INVALID, item, code, Utility.toStringPastTimeReadable(started));
+			return STATUS.INVALID;
+		}
+		
+		List<DividendHistoryDomain> histories = dividendHistoryService.search(DividendHistoryParam.builder().code(item.getCode()).build());
+		Date date = priceService.dateCrawlRequireForDividend(item, histories);
+		if (date == null) {
+			log.trace("{} 『{}:{}』 itemPrice({}) - {}", Utility.indentEnd(), STATUS.ALEADY_DONE, item, code, Utility.toStringPastTimeReadable(started));
+			return STATUS.ALEADY_DONE;
+		}
+
+		Result<ParserResult> result = seibro.price(item, histories);
+		switch (result.getStatus()) {
+		case SUCCESS:
+			ParserResult parserResult = result.getResult();
+			parserResult.setHistories(histories);
+			List<PriceDomain> prices = parserResult.getPrices();
+			Map<String, PriceDomain> mapP = priceService.makeMap(prices);
+			dividendHistoryService.compile(histories, mapP);
+			priceService.compile(prices, false);
+			put(parserResult);
+			log.debug("{} 『{}:{}』 itemPrice({}) - 『{}』 - {}", Utility.indentEnd(), STATUS.SUCCESS, item, code, parserResult, Utility.toStringPastTimeReadable(started));
+			return STATUS.SUCCESS;
+		default:
+			break;
+		}
+
+		log.debug("{} 『{}:{}』 itemPrice({}) - {}", Utility.indentEnd(), STATUS.FAILURE, item, code, Utility.toStringPastTimeReadable(started));
+		return STATUS.FAILURE;
 	}
 
 	private STATUS itemDividend(ItemDividendJob job) {
@@ -336,13 +415,16 @@ public class JobService {
 	}
 
 	private STATUS stockCompile(StockCompileJob job) {
-		log.info("{} stockCompile()", Utility.indentStart());
+		log.info("{} stockCompile({})", Utility.indentStart(), job);
 		long started = System.currentTimeMillis();
 
 		List<ItemDomain> compileResult = stockService.compile();
 		int purged = priceService.purge();
 
-		log.info("{} 『#{} #{}』 stockCompile() - {}", Utility.indentEnd(), Utility.size(compileResult), purged, Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}/{}/{}/{}』『#{} #{}』 stockCompile({}) - {}", Utility.indentEnd()
+				, Utility.size(queue0), Utility.size(queue1), Utility.size(queue2), Utility.size(queue3)
+				, Utility.size(compileResult), purged
+				, job, Utility.toStringPastTimeReadable(started));
 		return STATUS.SUCCESS;
 	}
 
@@ -423,8 +505,5 @@ public class JobService {
 		return result;
 	}
 
-	private int size(ConcurrentLinkedDeque<?> q) {
-		return (q == null) ? -1 : q.size();
-	}
 
 }

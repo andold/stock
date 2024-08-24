@@ -12,7 +12,7 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.springframework.stereotype.Service;
 
-import kr.andold.stock.dummy.Utility;
+import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

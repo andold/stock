@@ -7,12 +7,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import kr.andold.stock.crawler.IdempotentService;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.DividendAllRecentJob;
 import kr.andold.stock.service.JobService.ItemDetailJob;
 import kr.andold.stock.service.JobService.ItemDividendJob;
 import kr.andold.stock.service.JobService.ItemIpoCloseRecentJob;
+import kr.andold.stock.service.JobService.ItemPriceJob;
 import kr.andold.stock.service.JobService.PriceLatestJob;
 import kr.andold.stock.service.JobService.StockCompileJob;
 import kr.andold.utils.Utility;
@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 @EnableScheduling
 @ConditionalOnProperty(value = "app.scheduling.enable", havingValue = "true", matchIfMissing = true)
 public class ScheduledTasks {
-	@Autowired private IdempotentService idempotentService;
 	@Autowired private JobService jobService;
 
 	@Scheduled(initialDelay = 1000 * 30, fixedDelay = Long.MAX_VALUE)
@@ -31,10 +30,9 @@ public class ScheduledTasks {
 		log.info("{} scheduleTaskOnce()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		idempotentService.once();
-
 		JobService.getQueue3().offer(ItemDetailJob.builder().code(null).build());
 		JobService.getQueue3().offer(ItemDividendJob.builder().code(null).build());
+		JobService.getQueue3().offer(ItemPriceJob.builder().code(null).build());
 		jobService.run();
 
 		log.info("{} scheduleTaskOnce() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
