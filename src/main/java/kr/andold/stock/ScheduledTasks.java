@@ -28,7 +28,7 @@ public class ScheduledTasks {
 
 	@Scheduled(initialDelay = 1000 * 30, fixedDelay = Long.MAX_VALUE)
 	public void scheduleTaskOnce() {
-		log.trace("{} scheduleTaskOnce()", Utility.indentStart());
+		log.info("{} scheduleTaskOnce()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
 		JobService.getQueue3().offer(ItemDetailJob.builder().code(null).build());
@@ -37,18 +37,18 @@ public class ScheduledTasks {
 		JobService.getQueue3().offer(BackupJob.builder().build());
 		jobService.run();
 
-		log.trace("{} scheduleTaskOnce() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
+		log.info("{} scheduleTaskOnce() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
 	
 	// 매분마다 - compile, purge
 	@Scheduled(cron = "0 * * * * *")
 	public void scheduleTaskMinutely() {
-		log.info("{} scheduleTaskMinutely()", Utility.indentStart());
+		log.debug("{} scheduleTaskMinutely()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
 		jobService.status();
 
-		log.info("{} scheduleTaskMinutely() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
+		log.debug("{} scheduleTaskMinutely() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
 
 	// 매시마다 - compile, purge

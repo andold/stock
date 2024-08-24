@@ -71,6 +71,10 @@
 		</encoder>
 	</appender>
 
+	<logger name="kr.andold.stock.ScheduledTasks" additivity="false" level="info">
+		<appender-ref ref="stock" />
+		<appender-ref ref="error" />
+	</logger>
 	<logger name="kr.andold.stock.crawler" additivity="false" level="debug">
 		<appender-ref ref="stock" />
 		<appender-ref ref="error" />
@@ -81,6 +85,10 @@
 	</logger>
 	<logger name="kr.andold.stock.service.ParserService" additivity="false" value="debug">
 		<appender-ref ref="parser" />
+		<appender-ref ref="error" />
+	</logger>
+	<logger name="kr.andold.stock.service.JobService" additivity="false" level="debug">
+		<appender-ref ref="stock" />
 		<appender-ref ref="error" />
 	</logger>
 	<logger name="kr.andold.stock.service" additivity="false" value="info">

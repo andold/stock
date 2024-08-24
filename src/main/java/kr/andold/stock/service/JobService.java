@@ -506,7 +506,7 @@ public class JobService {
 	}
 
 	private STATUS backup(BackupJob job) {
-		log.info("{} backup({})", Utility.indentStart());
+		log.info("{} backup({})", Utility.indentStart(), job);
 		long started = System.currentTimeMillis();
 
 		String dir = CrawlerService.getUserDataDir();
