@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import kr.andold.stock.service.JobService;
+import kr.andold.stock.service.JobService.BackupJob;
 import kr.andold.stock.service.JobService.DividendAllRecentJob;
 import kr.andold.stock.service.JobService.ItemDetailJob;
 import kr.andold.stock.service.JobService.ItemDividendJob;
@@ -33,6 +34,7 @@ public class ScheduledTasks {
 		JobService.getQueue3().offer(ItemDetailJob.builder().code(null).build());
 		JobService.getQueue3().offer(ItemDividendJob.builder().code(null).build());
 		JobService.getQueue3().offer(ItemPriceJob.builder().code(null).build());
+		JobService.getQueue3().offer(BackupJob.builder().build());
 		jobService.run();
 
 		log.trace("{} scheduleTaskOnce() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
@@ -68,6 +70,7 @@ public class ScheduledTasks {
 
 		JobService.getQueue2().offer(PriceLatestJob.builder().build());
 		JobService.getQueue2().offer(ItemDetailJob.builder().code(null).build());
+		JobService.getQueue3().offer(BackupJob.builder().build());
 
 		log.info("{} scheduleTaskDaily() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
@@ -82,6 +85,7 @@ public class ScheduledTasks {
 		JobService.getQueue2().offer(ItemIpoCloseRecentJob.builder()
 				.date(Date.from(LocalDate.now().minusMonths(12).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)))
 				.build());
+		JobService.getQueue3().offer(BackupJob.builder().build());
 
 		log.info("{} scheduleTaskWeekly() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}

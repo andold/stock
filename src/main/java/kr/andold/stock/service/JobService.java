@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -77,6 +78,9 @@ public class JobService {
 	@Builder
 	public static class ItemIpoCloseRecentJob implements Job {
 		private Date date;
+	}
+	@Builder
+	public static class BackupJob implements Job {
 	}
 
 	@Getter private static ConcurrentLinkedDeque<Job> queue0 = new ConcurrentLinkedDeque<>();
@@ -218,6 +222,13 @@ public class JobService {
 			return STATUS.INVALID;
 		}
 		
+		if (job instanceof BackupJob) {
+			STATUS result = backup((BackupJob) job);
+
+			log.trace("{} 『{}』 run({}, {}) - {}", Utility.indentEnd(), result, count, job, Utility.toStringPastTimeReadable(started));
+			return STATUS.SUCCESS;
+		}
+
 		if (job instanceof ItemPriceJob) {
 			STATUS result = itemPrice((ItemPriceJob) job);
 
@@ -492,6 +503,26 @@ public class JobService {
 
 		log.debug("{} 『{}:{}』 run() - 『{}』 - {}", Utility.indentEnd(), STATUS.FAILURE, itemResult, item, Utility.toStringPastTimeReadable(started));
 		return STATUS.FAILURE;
+	}
+
+	private STATUS backup(BackupJob job) {
+		log.info("{} backup({})", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		String dir = CrawlerService.getUserDataDir();
+		String prices = priceService.download();
+		kr.andold.stock.dummy.Utility.write(String.format("%s/stock-prices-%s.json", dir, LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)), prices);
+		
+		String items = itemService.download();
+		kr.andold.stock.dummy.Utility.write(String.format("%s/stock-items-%s.json", dir, LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)), items);
+
+		String dividends = dividendHistoryService.download();
+		kr.andold.stock.dummy.Utility.write(String.format("%s/stock-dividends-%s.json", dir, LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)), dividends);
+
+		STATUS result = STATUS.SUCCESS;
+
+		log.info("{} 『{}』 backup({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
+		return result;
 	}
 
 	private ParserResult put(ParserResult result) {

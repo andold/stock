@@ -127,7 +127,7 @@ public class ApiPriceController {
 
 		String response = service.download();
 
-		log.info("{} {} - downloadString()", Utility.indentEnd(), Utility.ellipsisEscape(response, 32), Utility.toStringPastTimeReadable(started));
+		log.info("{} #{} - downloadString() - {}", Utility.indentEnd(), Utility.length(response), Utility.toStringPastTimeReadable(started));
 		return response;
 	}
 

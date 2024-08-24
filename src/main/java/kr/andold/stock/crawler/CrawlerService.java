@@ -54,7 +54,7 @@ public class CrawlerService {
 		webdriverPath = value;
 	}
 
-	private static String userDataDir;
+	@Getter private static String userDataDir;
 	@Value("${data.user.data.dir:C:/tmp}")
 	public void setUserDataDir(String value) {
 		userDataDir = value;

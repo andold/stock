@@ -1,8 +1,10 @@
 package kr.andold.stock.dummy;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -63,61 +65,66 @@ public class Utility {
 	public static final double ONE_SOLAR_YEAR = 31556926.08d;
 	public static final double UNIVERSE_AGE = 13799000000.0d * ONE_SOLAR_YEAR;
 
-	private static final String LIST_DATE_FORMAT[] = {
-		"EEE, d MMM yyyy HH:mm:ss z"	//	Fri, 26 Jan 2018 06:37:57 GMT
-		, "yyyy-MM-dd'T'HH:mm:ss.SSSZ"	//	2012-04-23T04:43:40.000+0000
-		, "yyyy-MM-ddHH:mm:ss"			//	2022-03-0419:13:52
-		, "yyyy-MM-dd HH:mm:ss.SSS"
-		, "yyyy-MM-dd(E) HH:mm:ss"		//	2003-08-26(화) 10:35:28
-		, "yyyy/MM/dd HH:mm:ss[E]"		//	2021/08/16 11:00:53[월]
-		, "yyyy-MM-dd (E) HH:mm"		//	2022-03-11 (금) 18:26 
-		, "yyyy-M-d a h:m:s"			//	2009-10-19 오전 11:30:00
-		, "yy-MM-dd HH:mm:ss"
-		, "yyyy.MM.dd'T'HH:mm:ss"
-		, "yyyy.MM.dd (HH:mm:ss)"		//	2023.03.13 (14:02:18)
-		, "yyyy.MM.dd HH:mm:ss"
-		, "yyyy.MM.dd a h:mm"			//	『2023.04.05』, 『오후』, 『5:57』
-		, "yyyy년 MM월 dd일 (E) a h:m"		//	2022년 11월 13일 (일) 오후 2:54  
-		, "yyyy년 M월 d일 (E) a h:m"		//	2023년 4월 5일 (수) 오후 5:57
-		, "yyyy년 MM월 dd일(E) HH시 mm분"	//	2022년 3월 16일(수) 17시 32분
-		, "yyyy-MM-dd HH:mm"
-		, "yyyy년 MM월 dd일 HH:mm"
-		, "yyyy년MM월dd일 HH:mm"
-		, "yyyy.MM.dd HH:mm"
-		, "yyyy.MM.dd"
-		, "yyyy/MM/dd HH:mm"			//	2021/02/14 16:31
-		, "yyyy/MM/dd"					//	2021/02/14
-		, "yyyy-MM-dd"
-		, "yyyyMMdd'T'HHmmssZ"			//	20190419T134908Z
-		, "yyyyMMdd'T'HHmmss"			//	20190419T134908
-		, "yyyyMMdd"					//	20110320
-		, "yyyy년MM월분 dd일"			//  2020년6월분
-		, "yyyy년MM월dd일"
-		, "yy/MM/dd HH:mm"
-		, "yy.MM"						//	22.12
-		, "yyyy년 MM월"					//	20년 1월
+	private static final String LIST_DATE_FORMAT[] = { "EEE, d MMM yyyy HH:mm:ss z" // Fri, 26 Jan 2018 06:37:57 GMT
+			, "yyyy-MM-dd'T'HH:mm:ss.SSSZ" // 2012-04-23T04:43:40.000+0000
+			, "yyyy-MM-ddHH:mm:ss" // 2022-03-0419:13:52
+			, "yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd(E) HH:mm:ss" // 2003-08-26(화) 10:35:28
+			, "yyyy/MM/dd HH:mm:ss[E]" // 2021/08/16 11:00:53[월]
+			, "yyyy-MM-dd (E) HH:mm" // 2022-03-11 (금) 18:26
+			, "yyyy-M-d a h:m:s" // 2009-10-19 오전 11:30:00
+			, "yy-MM-dd HH:mm:ss", "yyyy.MM.dd'T'HH:mm:ss", "yyyy.MM.dd (HH:mm:ss)" // 2023.03.13 (14:02:18)
+			, "yyyy.MM.dd HH:mm:ss", "yyyy.MM.dd a h:mm" // 『2023.04.05』, 『오후』, 『5:57』
+			, "yyyy년 MM월 dd일 (E) a h:m" // 2022년 11월 13일 (일) 오후 2:54
+			, "yyyy년 M월 d일 (E) a h:m" // 2023년 4월 5일 (수) 오후 5:57
+			, "yyyy년 MM월 dd일(E) HH시 mm분" // 2022년 3월 16일(수) 17시 32분
+			, "yyyy-MM-dd HH:mm", "yyyy년 MM월 dd일 HH:mm", "yyyy년MM월dd일 HH:mm", "yyyy.MM.dd HH:mm", "yyyy.MM.dd",
+			"yyyy/MM/dd HH:mm" // 2021/02/14 16:31
+			, "yyyy/MM/dd" // 2021/02/14
+			, "yyyy-MM-dd", "yyyyMMdd'T'HHmmssZ" // 20190419T134908Z
+			, "yyyyMMdd'T'HHmmss" // 20190419T134908
+			, "yyyyMMdd" // 20110320
+			, "yyyy년MM월분 dd일" // 2020년6월분
+			, "yyyy년MM월dd일", "yy/MM/dd HH:mm", "yy.MM" // 22.12
+			, "yyyy년 MM월" // 20년 1월
 	};
 	private static final int SKIP_COUNT_LINE_LOGGING_IN_FILE_READ = 1024 * 64;
 	private static final String INDENT_DEFAULT = "  ";
-	private static final String[] ARRAY_INDENT = {"", INDENT_DEFAULT, INDENT_DEFAULT + INDENT_DEFAULT, INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT, INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT, INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT, INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT,
-		INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT, INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT, INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT,
-		INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT, INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT,
-		INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT};
-	private static final String[] ARRAY_INDENT_PREFIX = {"", "0000", "1111", "2222", "3333"};
+	private static final String[] ARRAY_INDENT = { "", INDENT_DEFAULT, INDENT_DEFAULT + INDENT_DEFAULT,
+			INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT,
+			INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT,
+			INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT,
+			INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT,
+			INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT
+					+ INDENT_DEFAULT,
+			INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT
+					+ INDENT_DEFAULT + INDENT_DEFAULT,
+			INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT
+					+ INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT,
+			INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT
+					+ INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT,
+			INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT
+					+ INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT,
+			INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT
+					+ INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT + INDENT_DEFAULT
+					+ INDENT_DEFAULT };
+	private static final String[] ARRAY_INDENT_PREFIX = { "", "0000", "1111", "2222", "3333" };
 	public static final String ARRAY_INDENT_THREAD = "▒■□▣▤▥▦▧▨▩▲△▶▷▼▽◀◁◆◇◈○◎●◐◑★☆☎☏☜☞♀♂♠♡♣♤♥♧♨♩♪♬♭";
-	//	블록요소, 도형								  ▒■□▣▤▥▦▧▨▩▱▲△▵▶▷▹▼▽▿◀◁◃◆◇◈◉◊○◌◎●◐◑◦◯
-	//	여러가지기호, 딩뱃기호						  ★☆☎☏☜☝☞☟☯♀♂♠♡♣♤♥♧♨♩♪♬♭♯✖✚✽❖❶❷❸❹❺❻❼❽❾❿➊➋➌➍➎➏➐➑➒➓
-	//	result										  ▒■□▣▤▥▦▧▨▩?▲△?▶▷?▼▽?◀◁?◆◇◈??○?◎●◐◑??★☆☎☏☜?☞??♀♂♠♡♣♤♥♧♨♩♪♬♭?????????????????????????
+	// 블록요소, 도형 ▒■□▣▤▥▦▧▨▩▱▲△▵▶▷▹▼▽▿◀◁◃◆◇◈◉◊○◌◎●◐◑◦◯
+	// 여러가지기호, 딩뱃기호 ★☆☎☏☜☝☞☟☯♀♂♠♡♣♤♥♧♨♩♪♬♭♯✖✚✽❖❶❷❸❹❺❻❼❽❾❿➊➋➌➍➎➏➐➑➒➓
+	// result
+	// ▒■□▣▤▥▦▧▨▩?▲△?▶▷?▼▽?◀◁?◆◇◈??○?◎●◐◑??★☆☎☏☜?☞??♀♂♠♡♣♤♥♧♨♩♪♬♭?????????????????????????
 
 	@SuppressWarnings("unused")
 	private static final String METHOD_LABEL = "┍┕├    「」『』【】    []‘’‛“”‟‹›";
-	
+
 	public static int size(ConcurrentLinkedDeque<?> queue) {
 		return (queue == null) ? -1 : queue.size();
 	}
+
 	public static int size(List<?> list) {
 		return (list == null) ? -1 : list.size();
 	}
+
 	public static int size(ConcurrentLinkedQueue<?> list) {
 		return (list == null) ? -1 : list.size();
 	}
@@ -127,7 +134,7 @@ public class Utility {
 	}
 
 	public static int size(MultipartFile file) {
-		return (int)((file == null) ? -1 : file.getSize());
+		return (int) ((file == null) ? -1 : file.getSize());
 	}
 
 	public static int size(Page<?> page) {
@@ -152,9 +159,9 @@ public class Utility {
 				}
 			} catch (Exception e) {
 			}
-		} //	for (int cx = 0; cx < listDateFormat.length; cx++) {
+		} // for (int cx = 0; cx < listDateFormat.length; cx++) {
 
-		//	if time-milli-seconds
+		// if time-milli-seconds
 		Long timestamp = Utility.parseLong(string, -1L);
 		if (timestamp >= 0) {
 			return new Date(timestamp);
@@ -177,9 +184,9 @@ public class Utility {
 				}
 			} catch (Exception e) {
 			}
-		} //	for (int cx = 0; cx < listDateFormat.length; cx++) {
+		} // for (int cx = 0; cx < listDateFormat.length; cx++) {
 
-		//	if time-milli-seconds
+		// if time-milli-seconds
 		Long timestamp = Utility.parseLong(string, defaultValue);
 		return new Date(timestamp);
 	}
@@ -198,9 +205,9 @@ public class Utility {
 				}
 			} catch (Exception e) {
 			}
-		} //	for (int cx = 0; cx < listDateFormat.length; cx++) {
+		} // for (int cx = 0; cx < listDateFormat.length; cx++) {
 
-		//	if time-milli-seconds
+		// if time-milli-seconds
 		Long timestamp = Utility.parseLong(string, null);
 		if (timestamp == null) {
 			return defaultDateStart;
@@ -255,30 +262,32 @@ public class Utility {
 
 		return defaultLong;
 	}
+
 	public static Long parseLong(String string) {
 		return parseLong(string, null);
 	}
 
 	public static String concat(String string, String... args) {
 		StringBuffer stringBuffer = new StringBuffer("");
-		if(string != null) {
+		if (string != null) {
 			stringBuffer.append(string.replaceAll("[　\n\"]+", "").trim());
 		}
-		
-		if(args == null || args.length == 0) {
+
+		if (args == null || args.length == 0) {
 			return new String(stringBuffer).trim();
 		}
-		
+
 		for (String arg : args) {
-			if(arg == null || arg.trim().isEmpty()) {
+			if (arg == null || arg.trim().isEmpty()) {
 				continue;
 			}
-			
+
 			stringBuffer.append(arg.replaceAll("[　]+", "").trim());
 		}
 
 		return new String(stringBuffer).trim();
 	}
+
 	public static Double parseDouble(String string, String... args) {
 		if (string == null) {
 			return 0.0;
@@ -292,6 +301,7 @@ public class Utility {
 
 		return 0.0;
 	}
+
 	public static <T> List<T> parseJsonLines(String filename, Class<T> classParameter, int max) {
 		long started = System.currentTimeMillis();
 		List<T> list = new ArrayList<T>();
@@ -316,7 +326,8 @@ public class Utility {
 				while ((line = inFile.readLine()) != null) {
 					lineNumber++;
 					if (lineNumber > max) {
-						log.info("{} {} - line number: {} - lines limit :: {}", indentMiddle(), filename, lineNumber, max);
+						log.info("{} {} - line number: {} - lines limit :: {}", indentMiddle(), filename, lineNumber,
+								max);
 						break;
 					}
 
@@ -332,14 +343,17 @@ public class Utility {
 				}
 
 				inFile.close();
-				log.info("{} found {} - #{} data - {} seconds", indentEnd(), filename, list.size(), (System.currentTimeMillis() - started) / 1000);
+				log.info("{} found {} - #{} data - {} seconds", indentEnd(), filename, list.size(),
+						(System.currentTimeMillis() - started) / 1000);
 				return list;
 			} catch (Exception e) {
 				e.printStackTrace();
-				log.error("{} Exception:: {} - parseJsonLines({}, {})", indentEnd(), e.getMessage(), filename, classParameter);
+				log.error("{} Exception:: {} - parseJsonLines({}, {})", indentEnd(), e.getMessage(), filename,
+						classParameter);
 			}
 		} catch (Exception e) {
-			log.error("{} Exception:: {} - parseJsonLines({}, {})", indentEnd(), e.getMessage(), filename, classParameter);
+			log.error("{} Exception:: {} - parseJsonLines({}, {})", indentEnd(), e.getMessage(), filename,
+					classParameter);
 			return null;
 		}
 
@@ -359,6 +373,7 @@ public class Utility {
 		}
 		return null;
 	}
+
 	private static String scanClassPath(String filename) {
 		String javaClassPath = System.getProperty("java.class.path");
 		String[] listJavaClassPath = javaClassPath.split("[;]");
@@ -379,16 +394,16 @@ public class Utility {
 
 	public static String toStringTimeReadable(long time) {
 		if (time > (MILLI_SECONDS_A_DAY * 10L)) {
-			//	10일 이상인 경우에는 일단위로
+			// 10일 이상인 경우에는 일단위로
 			return String.format("%d days", time / MILLI_SECONDS_A_DAY);
 		} else if (time > (MILLI_SECONDS_AN_HOUR * 10L)) {
-			//	10시간 이상인 경우에는 시간단위로
+			// 10시간 이상인 경우에는 시간단위로
 			return String.format("%d hours", time / MILLI_SECONDS_AN_HOUR);
 		} else if (time > (MILLI_SECONDS_A_MINUTE * 10L)) {
-			//	10분 이상인 경우에는 분단위로
+			// 10분 이상인 경우에는 분단위로
 			return String.format("%d minutes", time / MILLI_SECONDS_A_MINUTE);
 		} else if (time > (MILLI_SECONDS_A_SECOND * 10L)) {
-			//	10초 이상인 경우에는 초단위로
+			// 10초 이상인 경우에는 초단위로
 			return String.format("%d seconds", time / MILLI_SECONDS_A_SECOND);
 		}
 
@@ -429,6 +444,7 @@ public class Utility {
 			return e.getMessage();
 		}
 	}
+
 	public static String toStringJson(Object object, int max) {
 		String string = toStringJson(object);
 		return ellipsis(string, max);
@@ -438,6 +454,7 @@ public class Utility {
 		String string = toStringJson(object);
 		return ellipsis(string, left, right);
 	}
+
 	public static String toStringJsonPretty(Object object) {
 		if (object == null) {
 			return "";
@@ -453,7 +470,6 @@ public class Utility {
 			return e.getMessage();
 		}
 	}
-
 
 	public static String toStringQuery(Object object, String exclude) {
 		String string = "";
@@ -503,11 +519,11 @@ public class Utility {
 			try {
 				Object value = getter.invoke(object);
 				if (value == null) {
-					//	value is null
+					// value is null
 					continue;
 				}
 
-				//	value is not null
+				// value is not null
 				string += (key.substring(0, 1).toLowerCase() + key.substring(1) + "=" + value + "&");
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				e.printStackTrace();
@@ -516,7 +532,7 @@ public class Utility {
 
 		int length = string.length();
 		if (length > 1) {
-			//	last character & remove
+			// last character & remove
 			string = string.substring(0, length - 1);
 		}
 
@@ -531,16 +547,16 @@ public class Utility {
 		ZonedDateTime now = ZonedDateTime.now();
 
 		if (ChronoUnit.DAYS.between(zonedDateTime, now) > 10L) {
-			//	10일 이상인 경우에는 일단위로
+			// 10일 이상인 경우에는 일단위로
 			return String.format("%d days", ChronoUnit.DAYS.between(zonedDateTime, now));
 		} else if (ChronoUnit.HOURS.between(zonedDateTime, now) > 10L) {
-			//	10시간 이상인 경우에는 시간단위로
+			// 10시간 이상인 경우에는 시간단위로
 			return String.format("%d hours", ChronoUnit.HOURS.between(zonedDateTime, now));
 		} else if (ChronoUnit.MINUTES.between(zonedDateTime, now) > 10) {
-			//	10분 이상인 경우에는 분단위로
+			// 10분 이상인 경우에는 분단위로
 			return String.format("%d minutes", ChronoUnit.MINUTES.between(zonedDateTime, now));
 		} else if (ChronoUnit.SECONDS.between(zonedDateTime, now) > 10) {
-			//	10초 이상인 경우에는 초단위로
+			// 10초 이상인 경우에는 초단위로
 			return String.format("%d seconds", ChronoUnit.SECONDS.between(zonedDateTime, now));
 		}
 
@@ -560,15 +576,15 @@ public class Utility {
 		}
 
 		switch (element.tag().getName().toLowerCase()) {
-			case "td":
-			case "th":
-				string += "\t";
-				break;
-			case "tr":
-				string += "\n";
-				break;
-			default:
-				break;
+		case "td":
+		case "th":
+			string += "\t";
+			break;
+		case "tr":
+			string += "\n";
+			break;
+		default:
+			break;
 		}
 
 		return string;
@@ -644,7 +660,7 @@ public class Utility {
 		}
 
 		if (left instanceof Comparable<?> && right instanceof Comparable<?>) {
-			return ((Comparable<Comparable<?>>)left).compareTo((Comparable<?>)right);
+			return ((Comparable<Comparable<?>>) left).compareTo((Comparable<?>) right);
 		}
 
 		return 0;
@@ -770,17 +786,17 @@ public class Utility {
 			try {
 				Object sourceValue = getter.invoke(source);
 				if (sourceValue == null) {
-					//	value is null
+					// value is null
 					continue;
 				}
 
 				Object targetValue = targetGetter.invoke(target);
 				if (Utility.compare(sourceValue, targetValue) == 0) {
-					//	value is equal
+					// value is equal
 					continue;
 				}
 
-				//	value is not null and not equal
+				// value is not null and not equal
 
 				targetSetter.invoke(target, sourceValue);
 				dirty = true;
@@ -791,6 +807,7 @@ public class Utility {
 
 		return dirty;
 	}
+
 	public static boolean copyPropertiesNotNull(Object source, Object target) {
 		if (source == null || target == null) {
 			return false;
@@ -847,17 +864,17 @@ public class Utility {
 			try {
 				Object sourceValue = getter.invoke(source);
 				if (sourceValue == null) {
-					//	value is null
+					// value is null
 					continue;
 				}
 
 				Object targetValue = targetGetter.invoke(target);
 				if (Utility.compare(sourceValue, targetValue) == 0) {
-					//	value is equal
+					// value is equal
 					continue;
 				}
 
-				//	value is not null and not equal
+				// value is not null and not equal
 
 				targetSetter.invoke(target, sourceValue);
 				dirty = true;
@@ -868,6 +885,7 @@ public class Utility {
 
 		return dirty;
 	}
+
 	public static boolean copyPropertiesTargetNull(Object source, Object target) {
 		if (source == null || target == null) {
 			return false;
@@ -925,12 +943,12 @@ public class Utility {
 				Object sourceValue = getter.invoke(source);
 				Object targetValue = targetGetter.invoke(target);
 				if (targetValue != null) {
-					//	target value is not null
+					// target value is not null
 					continue;
 				}
 
 				if (Utility.compare(sourceValue, targetValue) == 0) {
-					//	value is equal
+					// value is equal
 					continue;
 				}
 
@@ -960,11 +978,13 @@ public class Utility {
 
 			String string = extractStringFromText(file);
 
-			log.info("{} 『{}』 readClassPathFile(『{}』) - {}", Utility.indentEnd(), toStringJson(string, 32, 32), filename, Utility.toStringPastTimeReadable(started));
+			log.info("{} 『{}』 readClassPathFile(『{}』) - {}", Utility.indentEnd(), toStringJson(string, 32, 32),
+					filename, Utility.toStringPastTimeReadable(started));
 			return string;
 		}
 
-		log.info("{} 『{}』 readClassPathFile(『{}』) - {}", Utility.indentEnd(), null, filename, Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』 readClassPathFile(『{}』) - {}", Utility.indentEnd(), null, filename,
+				Utility.toStringPastTimeReadable(started));
 		return null;
 	}
 
@@ -992,13 +1012,14 @@ public class Utility {
 
 		return string.substring(0, size - 3) + "...";
 	}
+
 	public static String ellipsisEscape(String string, int size) {
 		return ellipsis(escape(string), size);
 	}
+
 	public static String ellipsisEscape(String[] strings, int size) {
 		return ellipsis(escape(strings), size);
 	}
-
 
 	public static String ellipsis(String string, int left, int right) {
 		if (string == null) {
@@ -1011,6 +1032,7 @@ public class Utility {
 
 		return string.substring(0, left) + "..." + string.substring(string.length() - right);
 	}
+
 	public static String ellipsisEscape(String string, int left, int right) {
 		return ellipsis(escape(string), left, right);
 	}
@@ -1170,31 +1192,44 @@ public class Utility {
 
 		depth = max(0, depth - 2);
 		int ea = depth / ARRAY_INDENT.length % ARRAY_INDENT_PREFIX.length;
-		
+
 		long threadId = Thread.currentThread().getId();
-		return ARRAY_INDENT_THREAD.charAt((int)(threadId % ARRAY_INDENT_THREAD.length())) + ARRAY_INDENT_PREFIX[ea] + ARRAY_INDENT[depth % ARRAY_INDENT.length];
+		return ARRAY_INDENT_THREAD.charAt((int) (threadId % ARRAY_INDENT_THREAD.length())) + ARRAY_INDENT_PREFIX[ea]
+				+ ARRAY_INDENT[depth % ARRAY_INDENT.length];
 	}
-	public static String indentStart() {	return indent() + "┍";	}
-	public static String indentMiddle() {	return indent() + "┝";	}
-	public static String indentEnd() {		return indent() + "┕";	}
+
+	public static String indentStart() {
+		return indent() + "┍";
+	}
+
+	public static String indentMiddle() {
+		return indent() + "┝";
+	}
+
+	public static String indentEnd() {
+		return indent() + "┕";
+	}
 
 	public static String readFileFromText(MultipartFile multipartFile) {
 		log.debug("{} readFile({})", Utility.indentStart(), multipartFile);
 		long started = System.currentTimeMillis();
 
 		if (multipartFile == null) {
-			log.warn("{} {} readFile({}) - {}", Utility.indentEnd(), null, multipartFile, Utility.toStringPastTimeReadable(started));
+			log.warn("{} {} readFile({}) - {}", Utility.indentEnd(), null, multipartFile,
+					Utility.toStringPastTimeReadable(started));
 			return null;
 		}
 
 		try {
 			String string = Utility.extractStringFromText(multipartFile.getInputStream());
-			log.debug("{} #{} readFile({}) - {}", Utility.indentEnd(), Utility.length(string), multipartFile, Utility.toStringPastTimeReadable(started));
+			log.debug("{} #{} readFile({}) - {}", Utility.indentEnd(), Utility.length(string), multipartFile,
+					Utility.toStringPastTimeReadable(started));
 			return string;
 		} catch (IOException e) {
 		}
 
-		log.warn("{} {} readFile({}) - {}", Utility.indentEnd(), null, multipartFile, Utility.toStringPastTimeReadable(started));
+		log.warn("{} {} readFile({}) - {}", Utility.indentEnd(), null, multipartFile,
+				Utility.toStringPastTimeReadable(started));
 		return null;
 	}
 
@@ -1209,9 +1244,10 @@ public class Utility {
 		if (escaped == null) {
 			return null;
 		}
-		
+
 		return escaped.replaceAll("\n", "ⓝ").replaceAll("\t", "ⓣ");
 	}
+
 	private static String escape(String[] strings) {
 		if (strings == null) {
 			return null;
@@ -1226,11 +1262,12 @@ public class Utility {
 		}
 		return escape(sb.toString());
 	}
+
 	public static String unescape(String escaped) {
 		if (escaped == null) {
 			return null;
 		}
-		
+
 		return escaped.replaceAll("ⓝ", "\n").replaceAll("ⓣ", "\t");
 	}
 
@@ -1238,7 +1275,7 @@ public class Utility {
 		if (text == null) {
 			return null;
 		}
-		
+
 		if (text.startsWith("\"")) {
 			text = text.substring(1);
 		}
@@ -1281,23 +1318,30 @@ public class Utility {
 	}
 
 	public static boolean isSameDay(Date date1, Date date2) {
-		return isSameDay(date1.toInstant().atZone(ZoneId.systemDefault()), date2.toInstant().atZone(ZoneId.systemDefault()));
+		return isSameDay(date1.toInstant().atZone(ZoneId.systemDefault()),
+				date2.toInstant().atZone(ZoneId.systemDefault()));
 	}
+
 	public static boolean isSameDay(ZonedDateTime left, ZonedDateTime right) {
 		return left.truncatedTo(ChronoUnit.DAYS).compareTo(right.truncatedTo(ChronoUnit.DAYS)) == 0;
 	}
 
 	public static boolean isSameWeek(Date left, Date right) {
-		LocalDate startWeek = LocalDate.ofInstant(left.toInstant(), Utility.ZONE_ID_KST).with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+		LocalDate startWeek = LocalDate.ofInstant(left.toInstant(), Utility.ZONE_ID_KST)
+				.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
 		LocalDate nextStartWeek = startWeek.plusDays(7);
 		LocalDate rightLocalDate = LocalDate.ofInstant(right.toInstant(), Utility.ZONE_ID_KST);
-		return rightLocalDate.isEqual(startWeek) || (rightLocalDate.isAfter(startWeek) && rightLocalDate.isBefore(nextStartWeek));
+		return rightLocalDate.isEqual(startWeek)
+				|| (rightLocalDate.isAfter(startWeek) && rightLocalDate.isBefore(nextStartWeek));
 	}
+
 	public static boolean isSameMonth(Date left, Date right) {
 		LocalDate leftLocalDate = LocalDate.ofInstant(left.toInstant(), Utility.ZONE_ID_KST);
 		LocalDate rightLocalDate = LocalDate.ofInstant(right.toInstant(), Utility.ZONE_ID_KST);
-		return leftLocalDate.getYear() == rightLocalDate.getYear() && leftLocalDate.getMonth() == rightLocalDate.getMonth();
+		return leftLocalDate.getYear() == rightLocalDate.getYear()
+				&& leftLocalDate.getMonth() == rightLocalDate.getMonth();
 	}
+
 	public static boolean isSameYear(Date left, Date right) {
 		LocalDate leftLocalDate = LocalDate.ofInstant(left.toInstant(), Utility.ZONE_ID_KST);
 		LocalDate rightLocalDate = LocalDate.ofInstant(right.toInstant(), Utility.ZONE_ID_KST);
@@ -1314,10 +1358,26 @@ public class Utility {
 		} catch (InterruptedException e) {
 		}
 	}
+
 	public static void sleep(int ms) {
 		try {
 			Thread.sleep(ms);
 		} catch (InterruptedException e) {
+		}
+	}
+
+	public static void write(String filename, String content) {
+		try {
+			File file = new File(filename);
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			FileWriter fw = new FileWriter(file);
+			BufferedWriter writer = new BufferedWriter(fw);
+			writer.write(content);
+			writer.close();
+		} catch (IOException e) {
+			log.error("{} IOException:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 		}
 	}
 
