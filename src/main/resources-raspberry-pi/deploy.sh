@@ -92,6 +92,7 @@ git clean -f
 cd	$SOURCE_DIR/src/main/frontend
 npm install
 npm audit fix --force
+npm install react-scripts@latest --save
 #
 cd	$SOURCE_DIR
 #
