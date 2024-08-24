@@ -114,6 +114,7 @@ export default ((props: any) => {
 		});
 	}
 	function processItemPriceFlag(items: Item[], prices: Price[]) {
+		console.log(items, prices);
 		const map = priceStore.makeMapByFlag(prices);
 		items.forEach((item: Item) => {
 			item.custom = {
@@ -125,12 +126,16 @@ export default ((props: any) => {
 		});
 	}
 	function handleOnGridReady() {
-		gridRef.current!.api.applyColumnState({
+		if (!gridRef.current) {
+			return;
+		}
+		gridRef.current.api.showLoadingOverlay();
+		gridRef.current.api.applyColumnState({
 			state: [{ colId: 'priceEarningsRatio', sort: 'desc' }],
 			defaultState: { sort: null },
 		});
-		gridRef.current!.api.setGridOption("domLayout", "autoHeight");
-		gridRef.current!.api.sizeColumnsToFit();
+		gridRef.current.api.setGridOption("domLayout", "autoHeight");
+		gridRef.current.api.sizeColumnsToFit();
 	}
 
 	return (<>
@@ -145,7 +150,7 @@ export default ((props: any) => {
 				resizable: true,
 				suppressMenu: true,
 			}}
-			rowHeight={form!.rowHeight}
+			rowHeight={form.rowHeight}
 			rowDragManaged={true}
 			onGridReady={handleOnGridReady}
 		/>

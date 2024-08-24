@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import jakarta.servlet.http.HttpServletResponse;
 import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.PriceParam;
@@ -113,6 +114,21 @@ public class ApiPriceController {
 	            .contentType(MediaType.APPLICATION_OCTET_STREAM)
 	            .cacheControl(CacheControl.noCache())
 	            .body(responseBody);		
+	}
+
+	@ResponseBody
+	@GetMapping(value = {"download-no-streaming"})
+	public String downloadString(HttpServletResponse httpServletResponse) throws IOException {
+		log.info("{} downloadString()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		String filename = URLEncoder.encode(String.format("stock-price-%s.json", LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)), "UTF-8").replaceAll("\\+", "%20");
+		httpServletResponse.setHeader("Content-Disposition", "attachment; filename=" + filename);
+
+		String response = service.download();
+
+		log.info("{} {} - downloadString()", Utility.indentEnd(), Utility.ellipsisEscape(response, 32), Utility.toStringPastTimeReadable(started));
+		return response;
 	}
 
 	@PostMapping(value = "upload")

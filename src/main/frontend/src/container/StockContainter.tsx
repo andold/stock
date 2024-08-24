@@ -1,6 +1,6 @@
 import moment from "moment";
 import React, { useRef, useState } from "react";
-import { Button, Col, Container, Form, InputGroup, NavDropdown, Navbar, Offcanvas, Spinner, } from "react-bootstrap";
+import { Button, Col, Container, Dropdown, Form, InputGroup, NavDropdown, Navbar, Offcanvas, Spinner, } from "react-bootstrap";
 
 // domain
 import { StockForm } from "../model/StockModel";
@@ -43,18 +43,6 @@ export default ((props: any) => {
 			key={0}
 			form={form}
 			priceEarningsRatio={4}
-			onChange={(params: any) => setForm({ ...form, ...params, })}
-		/>,
-		<StockItemView
-			key={1}
-			form={form}
-			priceEarningsRatio={2}
-			onChange={(params: any) => setForm({ ...form, ...params, })}
-		/>,
-		<StockItemView
-			key={2}
-			form={form}
-			priceEarningsRatio={1}
 			onChange={(params: any) => setForm({ ...form, ...params, })}
 		/>,
 		<StockItemView
@@ -155,7 +143,19 @@ function Header(props: any) {
 			onChange && onChange({ mode: form.mode + 1 });
 		}
 	}
-	//
+	function handleOnClickDownloadNoStreaming(e: any) {
+		setSpinner(spinner + 1);
+		priceStore.downloadNoStreaming(`stock-prices-${moment().format("YYYYMMDD")}.json`, (_: any) => {
+			if (spinner == 1) {	// 마지막에서만 재검색
+				onChange && onChange({});
+			}
+			setSpinner(spinner - 1);
+		}, () => setSpinner(spinner - 1)
+		, () => setSpinner(spinner - 1)
+		);
+	}
+	
+	//	
 
 	// [false, 'sm', 'md', 'lg', 'xl', 'xxl']
 	const expand = "md";
@@ -233,6 +233,26 @@ function Header(props: any) {
 									)
 								}</Button>
 								{(spinner > 0) && <Spinner animation="grow" variant="warning" className="ms-1 align-middle" title={spinner.toLocaleString()} />}
+								<Dropdown>
+									<Dropdown.Toggle id="dropdown-basic">메뉴</Dropdown.Toggle>
+									<Dropdown.Menu>
+										<Dropdown.Item onClick={handleOnClickDownloadNoStreaming}>다운로드</Dropdown.Item>
+										<Dropdown.Item onClick={(param: any) => {
+											setSpinner(spinner + 1);
+											itemStore.crawl({base: moment().format("YYYY-MM-DDTHH:mm:ss.SSSZZ")}
+												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+											);
+										}}>주식 전체, 정보 다시 읽어 오기</Dropdown.Item>
+										<Dropdown.Item onClick={handleOnClickDownloadNoStreaming}>다운로드</Dropdown.Item>
+										<Dropdown.Item onClick={handleOnClickDownloadNoStreaming}>다운로드</Dropdown.Item>
+										<Dropdown.Item onClick={handleOnClickDownloadNoStreaming}>다운로드</Dropdown.Item>
+										<Dropdown.Item onClick={handleOnClickDownloadNoStreaming}>다운로드</Dropdown.Item>
+										<Dropdown.Item onClick={handleOnClickDownloadNoStreaming}>다운로드</Dropdown.Item>
+										<Dropdown.Item onClick={handleOnClickDownloadNoStreaming}>다운로드</Dropdown.Item>
+									</Dropdown.Menu>
+								</Dropdown>
 								{!collapsed && (<>
 									<NavDropdown title="Crawl" className="mx-1">
 										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlTest}>Crawl Test</NavDropdown.Item>
@@ -279,6 +299,7 @@ function Header(props: any) {
 										다운로드
 									</Button>
 								<UploadButtonView />
+
 								<Button size="sm" variant={form.mode % 2 ? "success" : "secondary"} className="ms-1" title={form.mode.toString()} onClick={(e: any) => handleOnClickMode(e)}>모드</Button>
 							</InputGroup>
 						</Col>

@@ -22,6 +22,9 @@ class PriceStore {
 	download(filename: string, onSuccess?: any, onError?: any, element?: any) {
 		repository.download(filename, onSuccess, onError, element);
 	}
+	downloadNoStreaming(filename: string, onSuccess?: any, onError?: any, element?: any) {
+		repository.downloadNoStreaming(filename, onSuccess, onError, element);
+	}
 	upload(file?: any, onSuccess?: any, onError?: any, element?: any) {
 		const request = new FormData();
 		request.append("file", file);
