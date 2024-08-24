@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -503,6 +504,33 @@ public class JobService {
 
 		log.debug("{} 『items:{}, histories:{}, prices:{}』 put({}) - {}", Utility.indentEnd(), items, histories, prices, result, Utility.toStringPastTimeReadable(started));
 		return result;
+	}
+
+	public void status() {
+		Map<String, Integer> map = new HashMap<>();
+		makeMap(map, queue0);
+		makeMap(map, queue1);
+		makeMap(map, queue2);
+		makeMap(map, queue3);
+
+		log.info("{} 『{}/{}/{}/{}』 status()", Utility.indentMiddle(), Utility.size(queue0), Utility.size(queue1), Utility.size(queue2), Utility.size(queue3));
+		for (String key: map.keySet()) {
+			log.debug("{} 『{}: {}』 status()", Utility.indentMiddle(), key, map.get(key));
+		}
+	}
+
+	private void makeMap(Map<String, Integer> map, ConcurrentLinkedDeque<Job> queue) {
+		for (Job job : queue) {
+			String key = job.getClass().getName();
+			Integer value = map.get(key);
+			if (value == null) {
+				value = 1;
+			} else {
+				value++;
+			}
+			
+			map.put(key, value);
+		}
 	}
 
 

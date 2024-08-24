@@ -76,6 +76,10 @@
 		<appender-ref ref="general" />
 		<appender-ref ref="error" />
 	</logger>
+	<logger name="kr.andold.stock.service.JobService" additivity="false" level="debug">
+		<appender-ref ref="console" />
+		<appender-ref ref="stock" />
+	</logger>
 	<logger name="kr.andold.stock.service.ParserService" additivity="false" level="warn">
 		<appender-ref ref="console" />
 		<appender-ref ref="general" />

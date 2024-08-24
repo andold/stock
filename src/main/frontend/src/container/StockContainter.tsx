@@ -79,7 +79,6 @@ function Header(props: any) {
 	const refSearhKeyword = useRef(null);
 
 	const [spinner, setSpinner] = useState<number>(0);
-	const [collapsed, setCollapsed] = useState(true);
 
 	const [disableCompile, setDisableCompile] = useState(false);
 	const [disableDownload, setDisableDownload] = useState(false);
@@ -219,19 +218,6 @@ function Header(props: any) {
 						<Col xs="auto" className="text-start me-auto" title="divider" />
 						<Col xs="auto" className="mx-0 py-0">
 							<InputGroup size="sm">
-								<Button variant="secondary" size="sm" className="ms-1 text-white" onClick={() => setCollapsed(!collapsed)}>{
-									collapsed ? (
-										<svg fill="currentColor" className="w-6 h-6 mx-2 mb-1" style={{ width: "1.0rem" }} viewBox="0 0 32 32" cursor={"pointer"} version="1.1" xmlns="http://www.w3.org/2000/svg">
-											<title>expand</title>
-											<path d="M13.816 5.989l-7.785 0.046 0.003 7.735 2.59-2.591 3.454 3.454 2.665-2.665-3.453-3.454 2.526-2.525zM12.079 17.35l-3.454 3.455-2.59-2.592-0.003 7.799 7.785-0.018-2.526-2.525 3.454-3.453-2.666-2.666zM19.922 14.633l3.453-3.454 2.59 2.591 0.004-7.735-7.785-0.046 2.526 2.525-3.454 3.454 2.666 2.665zM23.375 20.805l-3.453-3.455-2.666 2.666 3.454 3.453-2.526 2.525 7.785 0.018-0.004-7.799-2.59 2.592z"></path>
-										</svg>
-									) : (
-										<svg fill="#808080" className="w-6 h-6 mx-2 mb-1" style={{ width: "1.0rem" }} viewBox="0 0 32 32" cursor={"pointer"} version="1.1" xmlns="http://www.w3.org/2000/svg">
-											<title>collapse</title>
-											<path d="M11.493 8.757l-3.454-3.453-2.665 2.665 3.454 3.453-2.59 2.59 7.797 0.004-0.017-7.784-2.525 2.525zM23.172 11.422l3.454-3.453-2.665-2.665-3.454 3.453-2.525-2.525-0.017 7.784 7.797-0.004-2.59-2.59zM8.828 20.578l-3.454 3.453 2.665 2.665 3.454-3.453 2.526 2.525 0.017-7.784-7.797 0.004 2.589 2.59zM25.762 17.988l-7.797-0.004 0.017 7.784 2.525-2.525 3.454 3.453 2.665-2.665-3.454-3.453 2.59-2.59z"></path>
-										</svg>
-									)
-								}</Button>
 								{(spinner > 0) && <Spinner animation="grow" variant="warning" className="ms-1 align-middle" title={spinner.toLocaleString()} />}
 								<Dropdown>
 									<Dropdown.Toggle id="dropdown-basic">메뉴</Dropdown.Toggle>
@@ -245,59 +231,52 @@ function Header(props: any) {
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 											);
 										}}>주식 전체, 정보 다시 읽어 오기</Dropdown.Item>
-										<Dropdown.Item onClick={handleOnClickDownloadNoStreaming}>다운로드</Dropdown.Item>
-										<Dropdown.Item onClick={handleOnClickDownloadNoStreaming}>다운로드</Dropdown.Item>
-										<Dropdown.Item onClick={handleOnClickDownloadNoStreaming}>다운로드</Dropdown.Item>
-										<Dropdown.Item onClick={handleOnClickDownloadNoStreaming}>다운로드</Dropdown.Item>
-										<Dropdown.Item onClick={handleOnClickDownloadNoStreaming}>다운로드</Dropdown.Item>
-										<Dropdown.Item onClick={handleOnClickDownloadNoStreaming}>다운로드</Dropdown.Item>
+										<Dropdown.Item onClick={(param: any) => {
+											setSpinner(spinner + 1);
+											store.compile(null
+												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+											);
+										}}>Compile</Dropdown.Item>
+										<Dropdown.Item onClick={(param: any) => {
+											setSpinner(spinner + 1);
+											crawlStore.crawlDividendAllRecent(null
+												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+											);
+										}}>최근 배당 수집</Dropdown.Item>
+										<Dropdown.Item onClick={(param: any) => {
+											setSpinner(spinner + 1);
+											crawlStore.crawlItemIpoCloseRecent(null
+												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+											);
+										}}>상장폐지일 수집</Dropdown.Item>
+										<Dropdown.Item onClick={(param: any) => {
+											setSpinner(spinner + 1);
+											crawlStore.crawlPriceAll({base: moment().format("YYYY-MM-DDTHH:mm:ss.SSSZZ")}
+												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+											);
+										}}>오늘 기준 주가 수집</Dropdown.Item>
+										<Dropdown.Item onClick={(param: any) => {
+											setSpinner(spinner + 1);
+											priceStore.purge(null
+												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+											);
+										}}>주가 정리</Dropdown.Item>
 									</Dropdown.Menu>
 								</Dropdown>
-								{!collapsed && (<>
-									<NavDropdown title="Crawl" className="mx-1">
-										<NavDropdown.Item className="mx-1" onClick={handleOnCrawlTest}>Crawl Test</NavDropdown.Item>
-									</NavDropdown>
-									<Button size="sm" variant="secondary" className="ms-1"
-											onClick={(param: any) => {
-												setSpinner(1);
-												itemStore.crawl({base: moment().format("YYYY-MM-DDTHH:mm:ss.SSSZZ")}
-												, (_: any, response: any) => {
-													setSpinner(0);
-												}, (p0: any, p1: any) => {
-													console.warn(p0, p1);
-													setSpinner(0);
-												}, (p0: any, p1: any) => {
-													console.warn(p0, p1);
-													setSpinner(0);
-												});
-									}}>
-										주식 전체, 정보 다시 읽어 오기
-									</Button>
-									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCompile} onClick={handleOnClickCompile}>
-										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCompile} />
-										Compile
-									</Button>
-									<Button size="sm" variant="secondary" className="ms-1" disabled={disablePurgePrice} onClick={handleOnClickPurgePrice}>
-										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disablePurgePrice} />
-										주가 정리
-									</Button>
-									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCrawlDividendAllRecent} onClick={handleOnClickCrawlDividendAllRecent}>
-										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlDividendAllRecent} />
-										최근 배당 수집
-									</Button>
-									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCrawlItemIpoCloseAll} onClick={handleOnClickCrawlItemIpoCloseAll}>
-										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlItemIpoCloseAll} />
-										상장폐지일 수집
-									</Button>
-									<Button size="sm" variant="secondary" className="ms-1" disabled={disableCrawlPricaAll} onClick={handleOnClickCrawlPriceAll}>
-										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableCrawlPricaAll} />
-										오늘 기준 주가 수집
-									</Button>
-								</>)}
-									<Button size="sm" variant="secondary" className="ms-1" disabled={disableDownload} onClick={handleOnClickDownload} title={form.mode.toString()}>
-										<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableDownload} />
-										다운로드
-									</Button>
+								<Button size="sm" variant="secondary" className="ms-1" disabled={disableDownload} onClick={handleOnClickDownload} title={form.mode.toString()}>
+									<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={!disableDownload} />
+									다운로드
+								</Button>
 								<UploadButtonView />
 
 								<Button size="sm" variant={form.mode % 2 ? "success" : "secondary"} className="ms-1" title={form.mode.toString()} onClick={(e: any) => handleOnClickMode(e)}>모드</Button>
