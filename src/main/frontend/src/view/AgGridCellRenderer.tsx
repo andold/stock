@@ -59,8 +59,8 @@ const FILL_COLOR_MONTH = [
 // 주가
 export function PriceRecentCellRenderer(param: any) {
 	const COUNT = 14;
-	const prices: Price[] = param.data!.custom!.prices;
-	if (!prices) {
+	const prices: Price[] = param && param.data && param.data.custom && param.data.custom.prices;
+	if (!prices || prices.length === 0) {
 		return (<>No Data</>);
 	}
 
@@ -130,7 +130,7 @@ export function PriceRecentCellRenderer(param: any) {
 		</>);
 	}
 	function renderTooltip(props: any) {
-		const custom = param || param.data || param.data.custom;
+		const custom = param && param.data && param.data.custom;
 
 		const yearPrices: Price[] = custom ? custom.yearPrices ? custom.yearPrices.slice(0, COUNT).reverse() : [] : [];
 		const monthPrices: Price[] = custom ? custom.monthPrices ? custom.monthPrices.slice(0, COUNT).reverse() : [] : [];
@@ -173,7 +173,7 @@ export function PriceRecentCellRenderer(param: any) {
 		return Math.max(4, Math.floor((price.closing - info.min) / (info.max - info.min) * maxHeight));
 	}
 	function currentPrice(): string {
-		if (param!.value > 0) {
+		if (param && param.value > 0) {
 			return param!.value;
 		}
 
@@ -182,17 +182,21 @@ export function PriceRecentCellRenderer(param: any) {
 		}
 
 		const price = prices[prices.length - 1];
-		return price.closing.toLocaleString();
+		if (price && price.closing) {
+			return price.closing.toLocaleString();
+		}
+		
+		return "";
 	}
 
-	let previous = prices[0].base;
+	let previous = prices[0] && prices[0].base || "";
 	return (<>
 		<OverlayTrigger overlay={renderTooltip} trigger={["hover", "hover"]} placement="auto">
 			<Row className="mx-0 text-right h-100">
 				<Col sm="5" md="4" xl="3" xxl="3" className="m-0 p-0 text-right">{currentPrice()}</Col>
 				<Col ref={ref} className="ms-2 p-0">
 					<Row className="m-0 p-0"> {
-						prices!.map((price: Price) => {
+						prices && prices.map((price: Price) => {
 							let className = isSame(previous, price.base, "week") ? "px-0 bg-primary" : "px-0 bg-primary border-start";
 							previous = price.base;
 							return (

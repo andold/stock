@@ -114,7 +114,6 @@ export default ((props: any) => {
 		});
 	}
 	function processItemPriceFlag(items: Item[], prices: Price[]) {
-		console.log(items, prices);
 		const map = priceStore.makeMapByFlag(prices);
 		items.forEach((item: Item) => {
 			item.custom = {
