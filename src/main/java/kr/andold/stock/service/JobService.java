@@ -300,13 +300,13 @@ public class JobService {
 
 		ItemDomain item = itemService.read(code);
 		if (item == null) {
-			log.debug("{} 『NO EXIST:{}』 itemPrice({}) - {}", Utility.indentEnd(), STATUS.INVALID, code, Utility.toStringPastTimeReadable(started));
+			log.debug("{} 『NONE:{}』 itemPrice({}) - {}", Utility.indentEnd(), STATUS.INVALID, code, Utility.toStringPastTimeReadable(started));
 			return STATUS.INVALID;
 		}
 
 		String type = item.getType();
 		if (type != null && (type.contains("기타비상장") || type.contains("코넥스"))) {
-			log.debug("{} 『{}:{}』 itemPrice({}) - {}", Utility.indentEnd(), STATUS.INVALID, item, code, Utility.toStringPastTimeReadable(started));
+			log.debug("{} 『{}:{}』 itemPrice({}) - {}", Utility.indentEnd(), STATUS.INVALID, item.getType(), code, Utility.toStringPastTimeReadable(started));
 			return STATUS.INVALID;
 		}
 		
@@ -349,32 +349,32 @@ public class JobService {
 				queue2.push(ItemDividendJob.builder().code(item.getCode()).build());
 			}
 
-			log.debug("{} 『{}:#{}』 itemDividend() - 『{}』 - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.size(items), code, Utility.toStringPastTimeReadable(started));
+			log.debug("{} 『{}:#{}』 itemDividend({}) - 『{}』 - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.size(items), job, code, Utility.toStringPastTimeReadable(started));
 			return STATUS.SUCCESS;
 		}
 
 		ItemDomain item = itemService.read(code);
 		if (item == null) {
-			log.debug("{} 『{}』 itemDividend() - 『{}』 - {}", Utility.indentEnd(), STATUS.INVALID, code, Utility.toStringPastTimeReadable(started));
+			log.debug("{} 『{}』 itemDividend({}) - {}", Utility.indentEnd(), STATUS.INVALID, job, Utility.toStringPastTimeReadable(started));
 			return STATUS.INVALID;
 		}
 
 		String type = item.getType();
 		if (type != null && (type.contains("기타비상장") || type.contains("코넥스"))) {
-			log.debug("{} 『{}』 itemDividend() - 『{}』 - {}", Utility.indentEnd(), STATUS.INVALID, item, Utility.toStringPastTimeReadable(started));
+			log.debug("{} 『{}:{}』 itemDividend({}) - 『{}』 - {}", Utility.indentEnd(), STATUS.INVALID, type, job, item, Utility.toStringPastTimeReadable(started));
 			return STATUS.INVALID;
 		}
 		
 		Date ipoOpen = item.getIpoOpen();
 		if (ipoOpen == null) {
-			log.debug("{} 『상장일이 없다:{}』 itemDividend() - 『{}』 - {}", Utility.indentEnd(), STATUS.INVALID, item, Utility.toStringPastTimeReadable(started));
+			log.debug("{} 『상장일이 없다:{}』 itemDividend({}) - 『{}』 - {}", Utility.indentEnd(), STATUS.INVALID, job, item, Utility.toStringPastTimeReadable(started));
 			return STATUS.INVALID;
 		}
 
 		Date today = new Date();
 		Date ipoClose = item.getIpoClose();
 		if (ipoClose != null && ipoClose.before(today)) {
-			log.debug("{} 『상장폐지:{}』 itemDividend() - 『{}』 - {}", Utility.indentEnd(), STATUS.INVALID, item, Utility.toStringPastTimeReadable(started));
+			log.debug("{} 『상장폐지:{}』 itemDividend({}) - {}", Utility.indentEnd(), STATUS.INVALID, item, job, Utility.toStringPastTimeReadable(started));
 			return STATUS.INVALID;
 		}
 

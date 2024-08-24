@@ -19,14 +19,19 @@ export default ((_: any) => {
 		() => ({
 			accept: [NativeTypes.FILE],
 			drop: (item: any) => {
-				item!.files!.forEach((file: any) => {
-					if (file!.name!.includes("item")) {
+				if (!item || !item.files) {
+					console.warn("BLANK param!", item);
+					return;
+				}
+
+				item.files.forEach((file: any) => {
+					if (file.name.includes("item")) {
 						setDisableUpload((x) => x + 1);
 						itemStore.upload(file, () => setDisableUpload((x) => x - 1));
-					} else if (file!.name!.includes("dividend")) {
+					} else if (file.name.includes("dividend")) {
 						setDisableUpload((x) => x + 1);
 						dividendStore.upload(file, () => setDisableUpload((x) => x - 1));
-					} else if (file!.name!.includes("price")) {
+					} else if (file.name.includes("price")) {
 						setDisableUpload((x) => x + 1);
 						priceStore.upload(file, () => setDisableUpload((x) => x - 1));
 					}
