@@ -184,7 +184,7 @@ function Header(props: any) {
 									onClick={() => onChange && onChange({ page: form.page - 1 })}
 								>⇦</Button>
 							}
-								<Form.Select className="border-secondary bg-dark text-white pe-0" value={form.size} title="페이지 크기:: 한 화면에 나오는 데이터의 갯수"
+								<Form.Select className="border-secondary bg-dark text-white pe-0" value={form.size || ""} title="페이지 크기:: 한 화면에 나오는 데이터의 갯수"
 									onChange={(event: any) => onChange && onChange({ size: event.target.value, page: 0, })}
 								>{[8, 16, 32, 64, 128, 256, 512, 1024].map(x => (<option key={x} value={x}>{x}</option>))}</Form.Select>
 								<Button className="bg-dark px-1" variant="secondary" title={form.page}
@@ -194,14 +194,14 @@ function Header(props: any) {
 						</Col>
 						<Col xs="auto" className="mx-1">
 							<InputGroup size="sm">
-								<Form.Select className="border-secondary bg-dark text-white" value={form.rowHeight} title="한줄이 높이"
+								<Form.Select className="border-secondary bg-dark text-white" value={form.rowHeight || ""} title="한줄이 높이"
 									onChange={(event: any) => onChange && onChange({ rowHeight: event.target.value, })}
 								>{store.range(6).map(x => (<option key={x} value={(x + 3) * 8}>{(x + 3) * 8}</option>))}</Form.Select>
 							</InputGroup>
 						</Col>
 						<Col xs="auto" className="mx-1">
 							<InputGroup size="sm">
-								<Form.Select className="border-secondary bg-dark text-white" value={form.priority} title="우선순위"
+								<Form.Select className="border-secondary bg-dark text-white" value={form.priority || ""} title="우선순위"
 									onChange={(event: any) => onChange && onChange({ priority: Number(event.target.value), })}
 									>
 										<option key={"우선순위"} value={undefined}>우선순위</option>
