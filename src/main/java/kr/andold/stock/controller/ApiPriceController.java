@@ -30,9 +30,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.PriceParam;
+import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.PriceService;
 import kr.andold.utils.Utility;
 import kr.andold.stock.service.CommonBlockService.CrudList;
+import kr.andold.stock.service.JobService.DeduplicatePriceJob;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -59,6 +61,18 @@ public class ApiPriceController {
 		CrudList<PriceDomain> result = service.crawl(param);
 
 		log.info("{} {} - crawl({})", Utility.indentEnd(), result, param);
+		return result;
+	}
+
+	@ResponseBody
+	@GetMapping(value = "deduplicate")
+	public int deduplicate() {
+		log.info("{} deduplicate()", Utility.indentStart());
+
+		JobService.getQueue0().offer(DeduplicatePriceJob.builder().build());
+		int result = 0;
+
+		log.info("{} #{} deduplicate()", Utility.indentEnd(), result);
 		return result;
 	}
 

@@ -271,6 +271,14 @@ function Header(props: any) {
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 											);
 										}}>주가 정리</Dropdown.Item>
+										<Dropdown.Item onClick={(param: any) => {
+											setSpinner(spinner + 1);
+											priceStore.deduplicate(null
+												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+											);
+										}}>주가 중복 제거</Dropdown.Item>
 									</Dropdown.Menu>
 								</Dropdown>
 								<Button size="sm" variant="secondary" className="ms-1" disabled={disableDownload} onClick={handleOnClickDownload} title={form.mode.toString()}>

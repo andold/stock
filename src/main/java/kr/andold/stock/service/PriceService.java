@@ -6,6 +6,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +25,7 @@ import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.domain.Result;
+import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.entity.PriceEntity;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.PriceParam;
@@ -238,6 +241,58 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 			}
 		}
 		return count;
+	}
+
+	//	zone offset garbage
+	public STATUS deduplicate() {
+		log.info("{} deduplicate()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		List<PriceDomain> prices = search(null);
+		Map<String, List<PriceDomain>> map = makeMapByCode(prices);
+		List<PriceDomain> removes = new ArrayList<>();
+		for (List<PriceDomain> list: map.values()) {
+			if (list.size() < 2) {
+				continue;
+			}
+
+			Collections.sort(list, (a, b) -> a.getBase().compareTo(b.getBase()));
+			PriceDomain previous = list.get(0);
+			for (int cx = 1, sizex = list.size(); cx < sizex; cx++) {
+				PriceDomain price = list.get(cx);
+				if (Utility.isSameDay(previous.getBase(), price.getBase())) {
+					removes.add(price);
+				}
+				
+				previous = price;
+			}
+		}
+
+		int removed = remove(removes);
+		int dedups = dedup(prices);
+		STATUS result = STATUS.SUCCESS;
+
+		log.info("{} 『{}/{}:{}/{}』 deduplicate() - {}", Utility.indentMiddle(), result, removed, dedups, Utility.size(prices), Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
+	private Map<String, List<PriceDomain>> makeMapByCode(List<PriceDomain> prices) {
+		Map<String, List<PriceDomain>> map = new HashMap<>();
+		for (PriceDomain price: prices) {
+			String code = price.getCode();
+			if (code == null) {
+				continue;
+			}
+
+			List<PriceDomain> list = map.get(code);
+			if (list == null) {
+				list = new ArrayList<>();
+				map.put(code, list);
+			}
+			list.add(price);
+		}
+
+		return map;
 	}
 
 	private Map<String, List<PriceDomain>> makeMapByBase(List<PriceDomain> prices) {

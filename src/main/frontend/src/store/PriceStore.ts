@@ -19,6 +19,9 @@ class PriceStore {
 	purge(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.purge(request, onSuccess, onError, element);
 	}
+	deduplicate(request?: any, onSuccess?: any, onError?: any, element?: any) {
+		repository.deduplicate(request, onSuccess, onError, element);
+	}
 	download(filename: string, onSuccess?: any, onError?: any, element?: any) {
 		repository.download(filename, onSuccess, onError, element);
 	}

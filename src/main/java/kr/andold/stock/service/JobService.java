@@ -82,6 +82,9 @@ public class JobService {
 	@Builder
 	public static class BackupJob implements Job {
 	}
+	@Builder
+	public static class DeduplicatePriceJob implements Job {
+	}
 
 	@Getter private static ConcurrentLinkedDeque<Job> queue0 = new ConcurrentLinkedDeque<>();
 	@Getter private static ConcurrentLinkedDeque<Job> queue1 = new ConcurrentLinkedDeque<>();
@@ -222,10 +225,17 @@ public class JobService {
 			return STATUS.INVALID;
 		}
 		
+		if (job instanceof DeduplicatePriceJob) {
+			STATUS result = deduplicatePrice((DeduplicatePriceJob) job);
+
+			log.debug("{} 『{}』 run({}, {}) - {}", Utility.indentEnd(), result, count, job, Utility.toStringPastTimeReadable(started));
+			return STATUS.SUCCESS;
+		}
+
 		if (job instanceof BackupJob) {
 			STATUS result = backup((BackupJob) job);
 
-			log.trace("{} 『{}』 run({}, {}) - {}", Utility.indentEnd(), result, count, job, Utility.toStringPastTimeReadable(started));
+			log.debug("{} 『{}』 run({}, {}) - {}", Utility.indentEnd(), result, count, job, Utility.toStringPastTimeReadable(started));
 			return STATUS.SUCCESS;
 		}
 
@@ -503,6 +513,16 @@ public class JobService {
 
 		log.debug("{} 『{}:{}』 run() - 『{}』 - {}", Utility.indentEnd(), STATUS.FAILURE, itemResult, item, Utility.toStringPastTimeReadable(started));
 		return STATUS.FAILURE;
+	}
+
+	private STATUS deduplicatePrice(DeduplicatePriceJob job) {
+		log.info("{} deduplicatePrice({})", Utility.indentStart(), job);
+		long started = System.currentTimeMillis();
+
+		STATUS result = priceService.deduplicate();
+
+		log.info("{} 『{}』 deduplicatePrice({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
+		return result;
 	}
 
 	private STATUS backup(BackupJob job) {
