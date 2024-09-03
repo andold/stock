@@ -7,7 +7,6 @@ SOURCE_DIR=$HOME_DIR/src/github/stock
 DEPLOY_DIR=$HOME_DIR/deploy/stock
 TOMCAT_BIN_DIR=$HOME_DIR/apps/tomcat/bin
 #
-# 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
 #
 #
 function	kill_tomcat	{
