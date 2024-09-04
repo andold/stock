@@ -348,6 +348,7 @@ export function PriceEarningsRatioCellRenderer(param: any) {
 	</>);
 };
 
+// 배당 금액
 function DividendTableAmount(mapHistory: any, start: any, setHeight?: any) {
 	if (!mapHistory || !start) {
 		return (<></>);
@@ -389,6 +390,8 @@ function DividendTableAmount(mapHistory: any, start: any, setHeight?: any) {
 			</tbody></Table>
 	);
 }
+
+// 배당수익율 (%, 당시 주가 기준)
 function dividendTableRatioByClosingPrice(mapHistory: any, start: any) {
 	const end = moment().add(1, "year").startOf("year");
 	if (start.isBefore(end.clone().subtract(11, "years"))) {
@@ -408,8 +411,10 @@ function dividendTableRatioByClosingPrice(mapHistory: any, start: any) {
 					<tr key={Math.random()}>
 						<th className="px-1 py-0">{start.year() + cx}</th>{
 							store.range(12).map((cy: number) => {
-								const history: DividendHistory = mapHistory.get(moment([start.year() + cx, cy]).format("YYYY-MM"));
-								if (!!history && (history.dividend || !history.priceClosing)) {
+								const key = moment([start.year() + cx, cy]).format("YYYY-MM");
+								const history: DividendHistory = mapHistory.get(key);
+								console.log(history);
+								if (!history || !history.dividend || !history.priceClosing) {
 									return (<td key={Math.random()}></td>);
 								}
 
@@ -425,6 +430,8 @@ function dividendTableRatioByClosingPrice(mapHistory: any, start: any) {
 			}</tbody></Table>
 	);
 }
+
+// 배당수익율 (%, 현재가 기준
 function dividendTableRatioByCurrentPrice(mapHistory: any, start: any, currentPrice?: number) {
 	const end = moment().add(1, "year").startOf("year");
 	if (start.isBefore(end.clone().subtract(11, "years"))) {
@@ -446,13 +453,14 @@ function dividendTableRatioByCurrentPrice(mapHistory: any, start: any, currentPr
 						<th className="px-1 py-0">{start.year() + cx}</th>
 						{
 							store.range(12).map((cy: number) => {
-								const history = mapHistory.get(moment([start.year() + cx, cy]).format("YYYY-MM"));
+								const key = moment([start.year() + cx, cy]).format("YYYY-MM");
+								const history = mapHistory.get(key);
 								if (history && history.dividend > 0) {
 									return (
-										<td key={Math.random()} className="text-end px-1 py-0">{(history!.dividend / (currentPrice || 10000) * 100)!.toFixed(2)}</td>
+										<td key={cy} className="text-end px-1 py-0">{(history.dividend / (currentPrice || 10000) * 100).toFixed(2)}</td>
 									);
 								}
-								return (<td key={Math.random()}></td>);
+								return (<td key={cy}></td>);
 							})
 						}
 						<th className="text-end px-1 py-0">{mapHistory.get(start.year() + cx) ? (mapHistory.get(start.year() + cx) / (currentPrice || 10000) * 100)!.toFixed(2) : ""}</th>
