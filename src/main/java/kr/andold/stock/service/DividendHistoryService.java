@@ -144,10 +144,6 @@ public class DividendHistoryService implements CommonBlockService<DividendHistor
 				} else {
 					map.put(key, prev + devidend);
 				}
-				
-				if (code.startsWith("441680")) {
-					log.warn("{} {} {} {}", key, prev, devidend, history.getBase());
-				}
 			}
 		}
 
