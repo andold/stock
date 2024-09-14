@@ -4,12 +4,13 @@ import { Button, CloseButton, Col, Overlay, OverlayTrigger, Popover, Row, Spinne
 
 // model
 import Price from "../model/Price";
+import DividendHistory from "../model/DividendHistory";
+import Item from "../model/Item";
 
 // store
 import store from "../store/StockStore";
-import DividendHistory from "../model/DividendHistory";
+import priceStore from "../store/PriceStore";
 import crawlStore from "../store/CrawlStore";
-import Item from "../model/Item";
 
 const FILL_COLOR_PRIORITY = [
 	`rgb(128, 0, 0)`,
@@ -70,6 +71,31 @@ export function PriceRecentCellRenderer(param: any) {
 	};
 
 	const ref = useRef(null);
+	useEffect(() => {
+		const weekPrices = param && param.data && param.data.custom && param.data.custom.weekPrices;
+		if (weekPrices) {
+			return;
+		}
+
+		priceStore.search({
+				codes: [param.data.code],
+				flag: 1,
+		}, (_: any, flagedPrices: Price[]) => {
+			const map = priceStore.makeMapByFlag(flagedPrices);
+			param.data.custom = {
+				...param.data.custom,
+				weekPrices: map.get(`${param.data.code}.32`),
+				monthPrices: map.get(`${param.data.code}.64`),
+				yearPrices: map.get(`${param.data.code}.128`),
+			};
+		}, (param1: any, param2: any) => {
+			console.error(param1, param2);
+		}, (param1: any, param2: any) => {
+			console.error(param1, param2);
+		});
+		
+	}, []);
+
 	const lineHeight = (param!.node!.rowHeight || 32) - 4;
 
 	function isSame(left: string, right: string, unit?: string): boolean {
@@ -413,7 +439,6 @@ function dividendTableRatioByClosingPrice(mapHistory: any, start: any) {
 							store.range(12).map((cy: number) => {
 								const key = moment([start.year() + cx, cy]).format("YYYY-MM");
 								const history: DividendHistory = mapHistory.get(key);
-								console.log(history);
 								if (!history || !history.dividend || !history.priceClosing) {
 									return (<td key={Math.random()}></td>);
 								}

@@ -53,6 +53,8 @@ export default ((props: any) => {
 					codes: codes,
 				}, (_: any, histories: DividendHistory[]) => {
 					processItemDividendHistory(items, histories);
+					setRowData(items);
+					/*
 					priceStore.search({
 							codes: codes,
 							flag: 1,
@@ -64,6 +66,7 @@ export default ((props: any) => {
 					}, (param1: any, param2: any) => {
 						console.error(param1, param2);
 					});
+					*/
 				});
 			});
 		});
