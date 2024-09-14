@@ -153,6 +153,33 @@ function Header(props: any) {
 		, () => setSpinner(spinner - 1)
 		);
 	}
+	function candidatePages(total: number, current: number): number[] {
+		const set: Set<number> = new Set<number>();
+		const pages: number[] = [];
+		
+		for (let cx = 0, sizex = Math.min(4, total); cx < sizex; cx++) {
+			set.add(cx);
+			pages.push(cx);
+		}
+		for (let cx = Math.max(total - 4, 0), sizex = total; cx < sizex; cx++) {
+			set.add(cx);
+			pages.push(cx);
+		}
+		for (let cx = Math.max(current - 4, 0), sizex = Math.min(current + 4, total); cx < sizex; cx++) {
+			set.add(cx);
+			pages.push(cx);
+		}
+		for (let cx = 0, sizex = Math.log2(total); cx < sizex; cx++) {
+			set.add(Math.pow(2, cx));
+			pages.push(cx);
+		}
+
+//		return Array.from(set).sort();
+//		return new Set(pages.sort());
+		const array: number[] = [];
+		set.forEach((item: number) => array.push(Number(item)));
+		return array.sort((a: number, b: number) => a - b);
+	}
 	
 	//	
 
@@ -179,21 +206,26 @@ function Header(props: any) {
 						<Col xs="auto" className="mx-1">
 							<InputGroup size="sm">
 							{form.page > 0 &&
-								<Button className="bg-dark px-1" variant="secondary" title={form.page}
+								<Button className="bg-dark px-1" variant="secondary" title={`${form.page - 1} / ${form.totalPages}`}
 									onClick={() => onChange && onChange({ page: form.page - 1 })}
 								>⇦</Button>
 							}
-								<Form.Select className="border-secondary bg-dark text-white pe-0" value={form.size || ""} title="페이지 크기:: 한 화면에 나오는 데이터의 갯수"
-									onChange={(event: any) => onChange && onChange({ size: event.target.value, page: 0, })}
-								>{[8, 16, 32, 64, 128, 256, 512, 1024].map(x => (<option key={x} value={x}>{x}</option>))}</Form.Select>
-								<Button className="bg-dark px-1" variant="secondary" title={form.page}
+								<Form.Select className="border-secondary bg-dark text-white" value={form.page || "0"} title="페이지 직접 가기"
+									onChange={(event: any) => onChange && onChange({ page: Number(event.target.value), })}
+								>{candidatePages(form.totalPages, form.page).map(x => (<option key={Math.random()} value={x}>{x}</option>))}</Form.Select>
+							{(form.page < form.totalPages - 1) &&
+								<Button className="bg-dark px-1" variant="secondary" title={`${form.page + 1} / ${form.totalPages}`}
 									onClick={() => onChange && onChange({ page: form.page + 1, })}
 								>⇨</Button>
+							}
 							</InputGroup>
 						</Col>
 						<Col xs="auto" className="mx-1">
 							<InputGroup size="sm">
-								<Form.Select className="border-secondary bg-dark text-white" value={form.rowHeight || ""} title="한줄이 높이"
+								<Form.Select className="border-secondary bg-dark text-white  px-1" value={form.size || ""} title="페이지 크기:: 한 화면에 나오는 데이터의 갯수"
+									onChange={(event: any) => onChange && onChange({ size: Number(event.target.value), page: 0, })}
+								>{[8, 16, 32, 64, 128, 256, 512, 1024].map(x => (<option key={x} value={x}>{x}</option>))}</Form.Select>
+								<Form.Select className="border-secondary bg-dark text-white px-1" value={form.rowHeight || ""} title="한줄이 높이"
 									onChange={(event: any) => onChange && onChange({ rowHeight: event.target.value, })}
 								>{store.range(6).map(x => (<option key={x} value={(x + 3) * 8}>{(x + 3) * 8}</option>))}</Form.Select>
 							</InputGroup>

@@ -37,9 +37,13 @@ export default ((props: any) => {
 			page: form.page,
 		};
 		store.searchItem(request, (_: any, result: any) => {
-			const items = result!.items;
+			const items = result && result.items;
 			if (!items) {
 				return;
+			}
+
+			if (form.totalPages !== result.totalPages && result.totalPages > 0) {
+				onChange && onChange({...form, totalPages: result.totalPages });
 			}
 
 			const codes = items.map((x: any) => x.code);
@@ -76,11 +80,12 @@ export default ((props: any) => {
 	function processItemPrice(items: Item[], prices: Price[]) {
 		const map = priceStore.makeMap(prices);
 		items.forEach((item: Item) => {
-			const sorted = map.get(item.code)!.sort(priceStore.compare);
+			const itemPrices = map.get(item.code);
+			const sorted = (itemPrices && itemPrices.length) ? itemPrices.sort(priceStore.compare) : [];
 			const currentPrice = (sorted!.length > 0) ? sorted[sorted.length - 1].closing : 10000;
 			let max = Number.MIN_SAFE_INTEGER;
 			let min = Number.MAX_SAFE_INTEGER;
-			sorted!.forEach((price: Price) => {
+			sorted.forEach((price: Price) => {
 				max = Math.max(max, price.closing);
 				min = Math.min(min, price.closing);
 			});

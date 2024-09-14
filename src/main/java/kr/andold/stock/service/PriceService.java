@@ -85,6 +85,9 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 	@Cacheable(value= "prices")
 	@Override
 	public List<PriceDomain> search(PriceParam param) {
+		log.info("{} search({})", Utility.indentStart(), param);
+		long started = System.currentTimeMillis();
+
 		List<PriceEntity> entities;
 		if (param == null) {
 			entities = repository.findAll();
@@ -95,6 +98,8 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		for (PriceEntity entity : entities) {
 			domains.add(PriceDomain.of(entity));
 		}
+
+		log.info("{} #{} prices({}) - {}", Utility.indentEnd(), Utility.size(domains), param, Utility.toStringPastTimeReadable(started));
 		return domains;
 	}
 
