@@ -171,7 +171,7 @@ function Header(props: any) {
 		}
 
 		const array: number[] = [];
-		set.forEach((item: number) => array.push(new Number(item)));
+		set.forEach((item: number) => array.push(item));
 		return array.sort((a: number, b: number) => a - b);
 	}
 	
