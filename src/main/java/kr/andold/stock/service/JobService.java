@@ -6,7 +6,6 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -531,13 +530,13 @@ public class JobService {
 
 		String dir = CrawlerService.getUserDataDir();
 		String prices = priceService.download();
-		kr.andold.stock.dummy.Utility.write(String.format("%s/stock-prices-%s.json", dir, LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)), prices);
+		Utility.write(String.format("%s/stock-prices.json", dir), prices);
 		
 		String items = itemService.download();
-		kr.andold.stock.dummy.Utility.write(String.format("%s/stock-items-%s.json", dir, LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)), items);
+		Utility.write(String.format("%s/stock-items.json", dir), items);
 
 		String dividends = dividendHistoryService.download();
-		kr.andold.stock.dummy.Utility.write(String.format("%s/stock-dividends-%s.json", dir, LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)), dividends);
+		Utility.write(String.format("%s/stock-dividends.json", dir), dividends);
 
 		STATUS result = STATUS.SUCCESS;
 

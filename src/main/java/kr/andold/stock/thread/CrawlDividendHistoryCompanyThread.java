@@ -1,6 +1,7 @@
 package kr.andold.stock.thread;
 
 import java.lang.management.ManagementFactory;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult> {
 	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285";
 	private static final String MARK_START_END_POINT = String.format("KEYWORD\t%s\t%s\tURL\t%s\n", "CrawlDividendHistoryCompanyThread", "주식(기업) 배당금 내역", URL);
+	private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(8);
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 4;
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
@@ -97,15 +99,16 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 	private static boolean init(ChromeDriverWrapper chromeDriver, String startDateString) {
 		try {
 			chromeDriver.navigate().to(URL);
+			chromeDriver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT_DURATION);
 			
 			// 검색항목을 code로
-			new Select(chromeDriver.findElement(By.id("Com_ISIN_input_0"), TIMEOUT * 4)).selectByVisibleText("종목");
+			new Select(chromeDriver.findElement(By.id("Com_ISIN_input_0"), Duration.ofSeconds(TIMEOUT / 1000 * 4))).selectByVisibleText("종목");
 			
 			// 넓게 보기 아이콘 크릭
 			chromeDriver.findElement(By.id("btn_wide_img")).click();
 
 			// 시작일 입력
-			WebElement start = chromeDriver.findElement(By.id("inputCalendar1_input"), TIMEOUT);
+			WebElement start = chromeDriver.findElement(By.id("inputCalendar1_input"), DEFAULT_TIMEOUT_DURATION);
 			start.clear();
 			start.sendKeys(startDateString);
 			start.sendKeys(Keys.TAB); // 시작일 입력
@@ -153,7 +156,7 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 			// 페이징 처리 - 여기부터
 			String currentPage = chromeDriver.getText(BY_CURRENT_PAGE, TIMEOUT, "andold");	//	현재 페이지 번호
 			while(true) {
-				WebElement table = chromeDriver.findElement(BY_TABLE, TIMEOUT);
+				WebElement table = chromeDriver.findElement(BY_TABLE, DEFAULT_TIMEOUT_DURATION);
 				sb.append(chromeDriver.extractTextContentFromTableElement(table));
 
 				// 다음 페이지 클릭
@@ -198,10 +201,10 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 			chromeDriver.waitUntilIsDisplayed(By.xpath("//div[@id='group83']"), false, TIMEOUT);
 			chromeDriver.findElement(By.id("cc_group4")).click();
 
-			WebElement frame = chromeDriver.findElement(By.xpath("//iframe[@id='iframe2']"), TIMEOUT);
+			WebElement frame = chromeDriver.findElement(By.xpath("//iframe[@id='iframe2']"), DEFAULT_TIMEOUT_DURATION);
 
 			chromeDriver.switchTo().frame(frame);
-			WebElement codeElement = chromeDriver.findElement(By.id("search_string"), TIMEOUT);
+			WebElement codeElement = chromeDriver.findElement(By.id("search_string"), DEFAULT_TIMEOUT_DURATION);
 			codeElement.clear();
 			codeElement.sendKeys(code); // 코드 입력
 

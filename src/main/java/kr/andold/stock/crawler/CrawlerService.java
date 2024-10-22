@@ -1,5 +1,6 @@
 package kr.andold.stock.crawler;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -157,7 +158,7 @@ public class CrawlerService {
 
 					String type = item.getType();
 					if (type != null && type.equalsIgnoreCase("ETF")) {
-						driver.findElement(By.xpath("//a/span[contains(text(),'ETF분석')]"), 2000).click(); // ETF분석
+						driver.findElement(By.xpath("//a/span[contains(text(),'ETF분석')]"), Duration.ofSeconds(2)).click(); // ETF분석
 					} else if (!driver.isEmpty(By.xpath("//a/span[contains(text(),'종목분석')]"), 2000)) { // null case support
 						driver.findElement(By.xpath("//a/span[contains(text(),'종목분석')]")).click(); // 종목분석
 					} else {
@@ -165,7 +166,7 @@ public class CrawlerService {
 					}
 
 					// coinfo_cp
-					WebElement frame = driver.findElement(By.xpath("//iframe[@id='coinfo_cp']"), 2000);
+					WebElement frame = driver.findElement(By.xpath("//iframe[@id='coinfo_cp']"), Duration.ofSeconds(2));
 					driver.switchTo().frame(frame);
 					sb.append(driver.findElement(By.xpath("//*[@id='pArea']//table//dt[1]")).getText());
 					sb.append("\n");

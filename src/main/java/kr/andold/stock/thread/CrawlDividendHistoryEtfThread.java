@@ -1,6 +1,7 @@
 package kr.andold.stock.thread;
 
 import java.lang.management.ManagementFactory;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,6 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 	private static final String URL = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179";
 	private static final String MARK_END_POINT = "KEYWORD\tETF 배당금 내역\tKSD 증권정보포털 SEIBro\tURL\thttps://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179\n";
+	private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(4);
+	private static final Duration DEFAULT_QUATRO_TIMEOUT_DURATION = Duration.ofSeconds(4 * 4);
 	private static final int TIMEOUT = 4000;
 	private static final int JOB_SIZE = 4;
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
@@ -57,18 +60,19 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 		driver = CrawlerService.defaultChromeDriver();
 		try {
 			driver.navigate().to(URL);
+			driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT_DURATION);
 
 			// 조회기간 시작일
-			startDateElement = driver.findElement(By.xpath("//input[@id='sd1_inputCalendar1_input']"), TIMEOUT * 4);
+			startDateElement = driver.findElement(By.xpath("//input[@id='sd1_inputCalendar1_input']"), DEFAULT_QUATRO_TIMEOUT_DURATION);
 			startDateElement.clear();
 			startDateElement.sendKeys(startDate); // 조회기간 시작일
 			startDateElement.sendKeys(Keys.TAB); // 시작일 입력
 
 			// 검색결과창의 닫기 아이콘
-			popupCloseIconElement = driver.findElement(By.xpath("//div[@id='group164']/a[@id='anchor3']"), TIMEOUT);
+			popupCloseIconElement = driver.findElement(By.xpath("//div[@id='group164']/a[@id='anchor3']"));
 			
 			// 넓게 보기 아이콘
-			driver.findElement(By.id("btn_wide_img"), TIMEOUT).click();
+			driver.findElement(By.id("btn_wide_img")).click();
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 			driver.quit();
@@ -122,31 +126,32 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 			String code = item.getCode();
 			String symbol = item.getSymbol();
 
+			driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT_DURATION);
 			driver.switchTo().defaultContent();
 			
 			// 종목명 검색 아이콘 클릭
 			driver.waitUntilIsDisplayed(By.xpath("//div[@id='group162']"), false, TIMEOUT);
-			driver.findElement(By.xpath("//dd[@id='sn_group2']/a[@id='sn_group4']"), TIMEOUT).click();
+			driver.findElement(By.xpath("//dd[@id='sn_group2']/a[@id='sn_group4']")).click();
 			
-			WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"), TIMEOUT);
+			WebElement frame = driver.findElement(By.xpath("//iframe[@id='iframeEtfnm']"));
 			driver.switchTo().frame(frame);
 
 			// 종목명 입력
-			WebElement keywordElement = driver.findElement(By.xpath("//input[@id='search_string']"), TIMEOUT); // 종목명 검색어 입력창
+			WebElement keywordElement = driver.findElement(By.xpath("//input[@id='search_string']")); // 종목명 검색어 입력창
 			By BY_MARK_CODE_SEARCH_DONE = By.xpath("//ul[@id='contentsList']/li");
 			String textPrevious = driver.getText(BY_MARK_CODE_SEARCH_DONE, 1, "andold");
 			keywordElement.clear();
 			keywordElement.sendKeys(code);
 			
 			// 검색 아이콘 클릭
-			driver.findElement(By.xpath("//div[@id='group252']/a[@id='group236']"), TIMEOUT).click();
+			driver.findElement(By.xpath("//div[@id='group252']/a[@id='group236']")).click();
 			
 			// 이전 내용이 지워질 때까지
 			driver.waitUntilTextNotInclude(BY_MARK_CODE_SEARCH_DONE, TIMEOUT, textPrevious);
 
 			// 검색 결과에서 선택
 			String xpathSearchResult = "//ul[@id='contentsList']/li/a";
-			List<WebElement> resultSearch = driver.findElements(By.xpath(xpathSearchResult), TIMEOUT);
+			List<WebElement> resultSearch = driver.findElements(By.xpath(xpathSearchResult));
 			String oneXpathCandidate1 = String.format("//*[@id='contentsList']//a[contains(text(),'%s')]", symbol.strip());
 			String oneXpathCandidate2 = String.format("//*[@id='contentsList']//a[contains(text(),'%s')]", symbol.replaceAll("[\s]+", ""));
 			if (resultSearch.size() == 0) {
@@ -172,13 +177,13 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 			// 조회 아이콘 클릭
 			By BY_MARK_DIVIDEND_SEARCH_DONE = By.xpath("//*[@id='grid1_body_table']//td[3]");
 			textPrevious = driver.getText(BY_MARK_DIVIDEND_SEARCH_DONE, 1, "andold");
-			driver.findElement(By.xpath("//*[@id='image17']"), TIMEOUT).click();
+			driver.findElement(By.xpath("//*[@id='image17']")).click();
 
 			// 내용이 바뀔 때까지
 			driver.waitUntilTextNotInclude(BY_MARK_DIVIDEND_SEARCH_DONE, TIMEOUT, textPrevious);
 
 			// 내용 저장
-			WebElement table = driver.findElement(By.xpath("//*[@id='grid1_body_table']"), TIMEOUT);
+			WebElement table = driver.findElement(By.xpath("//*[@id='grid1_body_table']"));
 			StringBuffer sb = new StringBuffer();
 			sb.append(String.format("KEYWORD\t%s\n", item.getCode()));
 			sb.append(driver.extractTextContentFromTableElement(table));

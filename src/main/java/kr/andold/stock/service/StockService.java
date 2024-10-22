@@ -195,7 +195,7 @@ public class StockService {
 		for (int cx = 1, sizex = prices.size(); cx < sizex; cx++) {
 			PriceDomain price = prices.get(cx);
 			//  주간 대표일자
-			if (kr.andold.stock.dummy.Utility.isSameWeek(prevWeek.getBase(), price.getBase())) {
+			if (Utility.isSameWeek(prevWeek.getBase(), price.getBase())) {
 				prevWeek.setFlagWeek(false);
 				price.setFlagWeek(true);
 				prevWeek = price;
@@ -205,7 +205,7 @@ public class StockService {
 			}
 
 			// 월간 대표일자
-			if (kr.andold.stock.dummy.Utility.isSameMonth(prevMonth.getBase(), price.getBase())) {
+			if (Utility.isSameMonth(prevMonth.getBase(), price.getBase())) {
 				prevMonth.setFlagMonth(false);
 				price.setFlagMonth(true);
 				prevMonth = price;
@@ -214,7 +214,7 @@ public class StockService {
 				prevMonth.setFlagMonth(true);
 			}
 			// 연간 대표일자
-			if (kr.andold.stock.dummy.Utility.isSameYear(prevMonth.getBase(), price.getBase())) {
+			if (Utility.isSameYear(prevMonth.getBase(), price.getBase())) {
 				prevYear.setFlagYear(false);
 				price.setFlagYear(true);
 				prevYear = price;

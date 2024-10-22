@@ -153,36 +153,28 @@ function Header(props: any) {
 		, () => setSpinner(spinner - 1)
 		);
 	}
+
 	function candidatePages(total: number, current: number): number[] {
 		const set: Set<number> = new Set<number>();
-		const pages: number[] = [];
 		
 		for (let cx = 0, sizex = Math.min(4, total); cx < sizex; cx++) {
 			set.add(cx);
-			pages.push(cx);
 		}
 		for (let cx = Math.max(total - 4, 0), sizex = total; cx < sizex; cx++) {
 			set.add(cx);
-			pages.push(cx);
 		}
 		for (let cx = Math.max(current - 4, 0), sizex = Math.min(current + 4, total); cx < sizex; cx++) {
 			set.add(cx);
-			pages.push(cx);
 		}
 		for (let cx = 0, sizex = Math.log2(total); cx < sizex; cx++) {
 			set.add(Math.pow(2, cx));
-			pages.push(cx);
 		}
 
-//		return Array.from(set).sort();
-//		return new Set(pages.sort());
 		const array: number[] = [];
-		set.forEach((item: number) => array.push(Number(item)));
+		set.forEach((item: number) => array.push(new Number(item)));
 		return array.sort((a: number, b: number) => a - b);
 	}
 	
-	//	
-
 	// [false, 'sm', 'md', 'lg', 'xl', 'xxl']
 	const expand = "md";
 	return (<>
