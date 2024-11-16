@@ -23,5 +23,10 @@
     "name": "app.crawler.date.start",
     "type": "java.lang.String",
     "description": "크롤링 자료를 가져오는 시작 날짜"
+  },
+  {
+    "name": "data.user.data.dir",
+    "type": "java.lang.String",
+    "description": "A description for 'data.user.data.dir'"
   }
 ]}
