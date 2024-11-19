@@ -11,7 +11,7 @@
 @REM
 @REM copy install script file
 @REM
-COPY /Y %SOURCE_DIR%\src\main\resources-%PROFILE%\%SCRIPT_FILENAME%	%DEPLOY_DIR%
+COPY /Y %SOURCE_DIR%\src\main\resources-%PROFILE%\%INSTALL_SCRIPT_FILE_NAME% %DEPLOY_DIR%
 @REM
 @REM
 @REM antlr generate source
