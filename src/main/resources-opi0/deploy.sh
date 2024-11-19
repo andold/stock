@@ -1,10 +1,19 @@
 #!/bin/bash
 #
 #
-THIS_SCRIPT_FILE_NAME=install-stock-raspberry-pi.sh
+VERSION=0.0.2-SNAPSHOT
+PROFILE=opi0
 HOME_DIR=/home/andold
+INSTALL_SCRIPT_FILE_NAME=install-stock-$PROFILE.sh
+WAR_FILE_NAME=$SOURCE_DIR/build/libs/stock-$VERSION.war
 SOURCE_DIR=$HOME_DIR/src/github/stock
 DEPLOY_DIR=$HOME_DIR/deploy/stock
+#
+ANTLR_JAR_FILE_NAME=$SOURCE_DIR/src/main/resources/bin/antlr-4.10.1-complete.jar
+ANTLR_PACKAGE_NAME=kr.andold.stock.antlr
+ANTLR_GRAMMAR_DIR=$SOURCE_DIR/src/main/resources/grammar
+ANTLR_TARGET_DIR=$SOURCE_DIR/src/main/java/kr/andold/stock/antlr
+#
 TOMCAT_BIN_DIR=$HOME_DIR/apps/tomcat/bin
 #
 #
@@ -70,50 +79,48 @@ function	start_tomcat    {
 }
 #
 #
-cd	$SOURCE_DIR
+# copy install script file
 #
-FILE_NAME_ANTLR_JAR=$SOURCE_DIR/src/main/resources/bin/antlr-4.10.1-complete.jar
-PACKAGE_ANTLR4=kr.andold.stock.antlr
-PATH_ANTLR4=$SOURCE_DIR/src/main/java/kr/andold/stock/antlr
-rm -f $PATH_ANTLR4/*
-java -jar $FILE_NAME_ANTLR_JAR -encoding UTF8 -package $PACKAGE_ANTLR4 -visitor -o $PATH_ANTLR4 $SOURCE_DIR/src/main/resources/grammar/Stock.g4
-java -jar $FILE_NAME_ANTLR_JAR -encoding UTF8 -package $PACKAGE_ANTLR4 -visitor -o $PATH_ANTLR4 $SOURCE_DIR/src/main/resources/grammar/KrxEtf.g4
-java -jar $FILE_NAME_ANTLR_JAR -encoding UTF8 -package $PACKAGE_ANTLR4 -visitor -o $PATH_ANTLR4 $SOURCE_DIR/src/main/resources/grammar/Seibro.g4
-java -jar $FILE_NAME_ANTLR_JAR -encoding UTF8 -package $PACKAGE_ANTLR4 -visitor -o $PATH_ANTLR4 $SOURCE_DIR/src/main/resources/grammar/SeibroEtf.g4
-# 
-# build 
+cp $SOURCE_DIR/src/main/resources-$PROFILE/$INSTALL_SCRIPT_FILE_NAME $DEPLOY_DIR
+chmod a+x $DEPLOY_DIR/$INSTALL_SCRIPT_FILE_NAME
+#
+#
+# generate antlr grammar source
 #
 cd	$SOURCE_DIR
+rm -f $ANTLR_TARGET_DIR/*
+java -jar $ANTLR_JAR_FILE_NAME -encoding UTF8 -package $ANTLR_PACKAGE_NAME -visitor -o $ANTLR_TARGET_DIR $ANTLR_GRAMMAR_DIR/Stock.g4
+java -jar $ANTLR_JAR_FILE_NAME -encoding UTF8 -package $ANTLR_PACKAGE_NAME -visitor -o $ANTLR_TARGET_DIR $ANTLR_GRAMMAR_DIR/KrxEtf.g4
+java -jar $ANTLR_JAR_FILE_NAME -encoding UTF8 -package $ANTLR_PACKAGE_NAME -visitor -o $ANTLR_TARGET_DIR $ANTLR_GRAMMAR_DIR/Seibro.g4
+java -jar $ANTLR_JAR_FILE_NAME -encoding UTF8 -package $ANTLR_PACKAGE_NAME -visitor -o $ANTLR_TARGET_DIR $ANTLR_GRAMMAR_DIR/SeibroEtf.g4
 #
-git clean -f
 #
 # react npm install
+#
 cd	$SOURCE_DIR/src/main/frontend
 npm install
 npm audit fix --force
 npm install react-scripts@latest --save
+# 
+# 
+# build 
 #
-cd	$SOURCE_DIR
+cd $SOURCE_DIR
+bash gradlew build -Pprofile=$PROFILE -x test
 #
-bash gradlew build -Pprofile=raspberry-pi -x test
 #
-# deploy and restart tomcat
+# stop tomcat
 #
-stop_tomcat    $TOMCAT_BIN_DIR
+stop_tomcat $TOMCAT_BIN_DIR
 #
-echo "Remove file in $DEPLOY_DIR/doc_base"
-cd	$DEPLOY_DIR/doc_base
+#
+# Extract files from in $FILE_NAME_WAR
+#
+cd $DEPLOY_DIR/doc_base
 rm -fr *
+jar -xf $WAR_FILE_NAME
 #
 #
-FILE_NAME_WAR=$SOURCE_DIR/build/libs/stock-0.0.1-SNAPSHOT.war
-echo "Extract files from in $FILE_NAME_WAR"
-jar -xf $FILE_NAME_WAR
+# start tomcat
 #
-start_tomcat     $TOMCAT_BIN_DIR
-#
-# copy myself install script file
-#
-cd $DEPLOY_DIR
-cp $SOURCE_DIR/src/main/resources-raspberry-pi/$THIS_SCRIPT_FILE_NAME	$DEPLOY_DIR
-chmod	a+x $THIS_SCRIPT_FILE_NAME
+start_tomcat $TOMCAT_BIN_DIR
