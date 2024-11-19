@@ -26,7 +26,7 @@ apply plugin: "com.github.node-gradle.node"
 war.enabled = true
 
 group = "kr.andold.stock"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.1"
 
 //	compatible gradle 7.5
 sourceCompatibility = 18
