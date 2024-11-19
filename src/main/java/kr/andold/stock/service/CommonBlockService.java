@@ -15,6 +15,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 public interface CommonBlockService<X, Y, Z> {
 	@Builder
 	@Data
