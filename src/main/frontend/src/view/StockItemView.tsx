@@ -123,7 +123,6 @@ export default ((props: any) => {
 		if (!gridRef.current) {
 			return;
 		}
-		gridRef.current.api.showLoadingOverlay();
 		gridRef.current.api.applyColumnState({
 			state: [{ colId: 'priceEarningsRatio', sort: 'desc' }],
 			defaultState: { sort: null },
@@ -142,7 +141,7 @@ export default ((props: any) => {
 				editable: true,
 				sortable: true,
 				resizable: true,
-				suppressMenu: true,
+				suppressHeaderMenuButton: true,
 			}}
 			rowHeight={form.rowHeight}
 			rowDragManaged={true}
