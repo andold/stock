@@ -58,19 +58,6 @@ export default ((props: any) => {
 				}, (_: any, histories: DividendHistory[]) => {
 					processItemDividendHistory(items, histories);
 					setRowData(items);
-					/*
-					priceStore.search({
-							codes: codes,
-							flag: 1,
-					}, (_: any, flagedPrices: Price[]) => {
-						processItemPriceFlag(items, flagedPrices);
-						setRowData(items);
-					}, (param1: any, param2: any) => {
-						console.error(param1, param2);
-					}, (param1: any, param2: any) => {
-						console.error(param1, param2);
-					});
-					*/
 				});
 			});
 		});

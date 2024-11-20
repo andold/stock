@@ -155,12 +155,22 @@ export function PriceRecentCellRenderer(param: any) {
 			}</Row>
 		</>);
 	}
+	function getSubListLast(list: any[], count: number): any[] {
+		if (!list || !list.length) {
+			return [];
+		}
+		if (list.length < count) {
+			return list;
+		}
+
+		return list.slice(list.length - count, list.length);
+	}
 	function renderTooltip(props: any) {
 		const custom = param && param.data && param.data.custom;
 
-		const yearPrices: Price[] = custom ? custom.yearPrices ? custom.yearPrices.slice(0, COUNT).reverse() : [] : [];
-		const monthPrices: Price[] = custom ? custom.monthPrices ? custom.monthPrices.slice(0, COUNT).reverse() : [] : [];
-		const weekPrices: Price[] = custom ? custom.weekPrices ? custom.weekPrices.slice(0, COUNT).reverse() : [] : [];
+		const yearPrices: Price[] = getSubListLast(custom?.yearPrices, COUNT);
+		const monthPrices: Price[] = getSubListLast(custom?.monthPrices, COUNT);
+		const weekPrices: Price[] = getSubListLast(custom?.weekPrices, COUNT);
 		const minmax = {
 			min: Number.MAX_SAFE_INTEGER,
 			max: Number.MIN_SAFE_INTEGER,
