@@ -45,7 +45,6 @@
 
 	<root value="warn">
 		<appender-ref ref="console" />
-		<appender-ref ref="stock" />
 		<appender-ref ref="general" />
 	</root>
 
