@@ -7,16 +7,15 @@ import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.PriceDomain;
 import kr.andold.utils.Utility;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-@EqualsAndHashCode(callSuper = false)
+@Getter @Setter
 public class PriceParam extends PriceDomain {
 	private Date start;
 	private Date end;

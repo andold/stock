@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import kr.andold.stock.crawler.Seibro;
@@ -18,6 +21,7 @@ import kr.andold.stock.domain.Result;
 import kr.andold.stock.entity.ItemEntity;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.repository.ItemRepository;
+import kr.andold.stock.repository.ItemSpecification;
 import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
@@ -25,14 +29,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ItemService implements CommonBlockService<ItemParam, ItemDomain, ItemEntity> {
+	private static final Sort DEFAULT_SORT = Sort.by(Order.asc("priority"), Order.desc("priceEarningsRatio").nullsLast(), Order.asc("symbol"), Order.asc("code"));
+
 	@Autowired private ItemRepository repository;
 	@Autowired private Seibro seibro;
 
 	@Cacheable(value= "items")
-	public ItemParam search(ItemParam param, Pageable pageable) {
-		Page<ItemEntity> page = repository.search(param, pageable);
-		param.setTotalPages(page.getTotalPages());
-		param.setItems(page.get().map(entity -> ItemDomain.of(entity)).collect(Collectors.toList()));
+	public ItemParam search(ItemParam param, Pageable page) {
+		Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), DEFAULT_SORT);
+		Page<ItemEntity> result = repository.findAll(ItemSpecification.searchWith(param), pageable);
+		param.setTotalPages(result.getTotalPages());
+		param.setItems(result.get().map(entity -> ItemDomain.of(entity)).collect(Collectors.toList()));
 		return param;
 	}
 
@@ -44,7 +51,7 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 					.build();
 		}
 
-		List<ItemEntity> page = repository.search(param);
+		List<ItemEntity> page = repository.findAll(ItemSpecification.searchWith(param), DEFAULT_SORT);
 		return page
 				.stream()
 				.map(entity -> ItemDomain.of(entity))
@@ -55,9 +62,15 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 	@CacheEvict(value = "items")
 	@Override
 	public List<ItemDomain> update(List<ItemDomain> domains) {
+		log.debug("{} update(『#{}』)", Utility.indentStart(), Utility.size(domains));
+		long started = System.currentTimeMillis();
+
 		List<ItemEntity> entities = toEntities(domains);
-		List<ItemEntity> result = repository.saveAllAndFlush(entities);
-		return toDomains(result);
+		List<ItemEntity> updated = repository.saveAllAndFlush(entities);
+		List<ItemDomain> result = toDomains(updated);
+
+		log.debug("{} 『#{}』 update(『#{}』) - {}", Utility.indentEnd(), Utility.size(result), Utility.size(domains), Utility.toStringPastTimeReadable(started));
+		return result;
 	}
 
 	@Modifying

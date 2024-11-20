@@ -6,25 +6,23 @@ import java.util.List;
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.utils.Utility;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-@EqualsAndHashCode(callSuper = false)
 public class DividendHistoryParam extends DividendHistoryDomain {
-	private Date start;
-	private Date end;
-	private List<String> codes;
+	@Getter @Setter private Date start;
+	@Getter @Setter private Date end;
+	@Getter @Setter private List<String> codes;
 
-	private List<DividendHistoryDomain> creates;
-	private List<DividendHistoryDomain> duplicates;
-	private List<DividendHistoryDomain> updates;
-	private List<DividendHistoryDomain> removes;
+	@Getter @Setter private List<DividendHistoryDomain> creates;
+	@Getter @Setter private List<DividendHistoryDomain> duplicates;
+	@Getter @Setter private List<DividendHistoryDomain> updates;
+	@Getter @Setter private List<DividendHistoryDomain> removes;
 
 	@Override
 	public String toString() {

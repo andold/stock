@@ -15,8 +15,11 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.transaction.Transactional;
 import kr.andold.stock.crawler.Seibro;
@@ -29,6 +32,7 @@ import kr.andold.stock.entity.PriceEntity;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.PriceParam;
 import kr.andold.stock.repository.PriceRepository;
+import kr.andold.stock.repository.PriceSpecification;
 import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
@@ -39,13 +43,63 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 	@Autowired private PriceRepository repository;
 	@Autowired private Seibro seibro;
 
+	@Override
+	public int batch(CrudList<PriceDomain> list) {
+		log.info("{} batch(『{}』)", Utility.indentStart(), list);
+		long started = System.currentTimeMillis();
+
+		int result = CommonBlockService.super.batch(list);
+
+		log.info("{} 『{}』 batch(『{}』) - {}", Utility.indentEnd(), result, list, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
+	@Override
+	public CrudList<PriceDomain> differ(List<PriceDomain> befores, List<PriceDomain> afters) {
+		log.info("{} differ(『#{}』, 『#{}』)", Utility.indentStart(), Utility.size(befores), Utility.size(afters));
+		long started = System.currentTimeMillis();
+
+		CrudList<PriceDomain> result = CommonBlockService.super.differ(befores, afters);
+
+		log.info("{} 『{}』 differ(『#{}』, 『#{}』) - {}", Utility.indentEnd(), result, Utility.size(befores), Utility.size(afters), Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
+	@Override
+	public CrudList<PriceDomain> upload(MultipartFile file) {
+		log.info("{} upload(...)", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		CrudList<PriceDomain> result = CommonBlockService.super.upload(file);
+
+		log.info("{} 『{}』 upload(...) - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
+	@Override
+	public CrudList<PriceDomain> put(List<PriceDomain> afters) {
+		log.info("{} put(『#{}』)", Utility.indentStart(), Utility.size(afters));
+		long started = System.currentTimeMillis();
+
+		CrudList<PriceDomain> result = CommonBlockService.super.put(afters);
+
+		log.info("{} 『{}』 put(『#{}』) - {}", Utility.indentEnd(), result, Utility.size(afters), Utility.toStringPastTimeReadable(started));
+		return result;
+	}
+
 	@Modifying
 	@CacheEvict(value = "prices")
 	@Override
 	public List<PriceDomain> update(List<PriceDomain> domains) {
+		log.info("{} update(『#{}』)", Utility.indentStart(), Utility.size(domains));
+		long started = System.currentTimeMillis();
+
 		List<PriceEntity> entities = toEntities(domains);
-		List<PriceEntity> result = repository.saveAllAndFlush(entities);
-		return toDomains(result);
+		List<PriceEntity> updated = repository.saveAllAndFlush(entities);
+		List<PriceDomain> result = toDomains(updated);
+
+		log.info("{} 『#{}』 update(『#{}』) - {}", Utility.indentEnd(), Utility.size(result), Utility.size(domains), Utility.toStringPastTimeReadable(started));
+		return result;
 	}
 
 	@Override
@@ -92,7 +146,8 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		if (param == null) {
 			entities = repository.findAll();
 		} else {
-			entities = repository.search(param);
+//			entities = repository.search(param);
+			entities = repository.findAll(PriceSpecification.searchWith(param), Sort.by(Direction.ASC, "code", "base"));
 		}
 		List<PriceDomain> domains = new ArrayList<PriceDomain>();
 		for (PriceEntity entity : entities) {
@@ -117,9 +172,21 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 	@CacheEvict(value = "prices")
 	@Override
 	public List<PriceDomain> create(List<PriceDomain> domains) {
+		log.info("{} create(『#{}』)", Utility.indentStart(), Utility.size(domains));
+		long started = System.currentTimeMillis();
+
 		List<PriceEntity> entities = toEntities(domains);
-		List<PriceEntity> result = repository.saveAllAndFlush(entities);
-		return toDomains(result);
+		List<PriceDomain> container = new ArrayList<>();
+		for (int cx = 0, sizex = entities.size(), window = 1024; cx < sizex; cx += window) {
+			List<PriceEntity> subList = entities.subList(cx, Math.min(cx + window, sizex));
+			List<PriceEntity> created = repository.saveAllAndFlush(subList);
+			List<PriceDomain> result = toDomains(created);
+			container.addAll(result);
+			log.info("{} 『{}/{}』 create(『#{}』)", Utility.indentMiddle(), cx, sizex, Utility.size(domains));
+		}
+
+		log.info("{} 『#{}』 create(『#{}』) - {}", Utility.indentEnd(), Utility.size(container), Utility.size(domains), Utility.toStringPastTimeReadable(started));
+		return container;
 	}
 
 	public CrudList<PriceDomain> crawl(ItemParam param) {
