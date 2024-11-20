@@ -648,16 +648,14 @@ function dividendBarGraphAmount(mapHistory: any, start: any, lineHeight: number)
 										const history = mapHistory.get(moment([start.year() + cx, 11 - cy]).format("YYYY-MM"));
 										if (history && history.dividend > 0) {
 											return (
-												<OverlayTrigger key={cy} overlay={<Tooltip>{moment([start.year() + cx, 11 - cy]).format("YYYY-MM")}: {((history.dividend) || 0).toLocaleString()}원</Tooltip>}>
-													<Row className="px-0" style={{
-														marginLeft: 1,
-														marginRight: 1,
-														height: history.dividend / max * lineHeight,
-														backgroundColor: FILL_COLOR_MONTH[11 - cy],
-													}}>
-														<Col className="m-0 p-0" />
-													</Row>
-												</OverlayTrigger>
+												<Row className="px-0" style={{
+													marginLeft: 1,
+													marginRight: 1,
+													height: history.dividend / max * lineHeight,
+													backgroundColor: FILL_COLOR_MONTH[11 - cy],
+												}}>
+													<Col className="m-0 p-0" />
+												</Row>
 											);
 										}
 									})
