@@ -4,8 +4,8 @@ import java.lang.management.ManagementFactory;
 
 import org.junit.jupiter.api.Test;
 
-import kr.andold.stock.dummy.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
+import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

@@ -5,9 +5,9 @@ import org.springframework.beans.BeanUtils;
 import kr.andold.stock.entity.ItemEntity;
 import kr.andold.utils.Utility;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,9 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-@EqualsAndHashCode(callSuper = false)
 public class ItemDomain extends ItemEntity implements CommonBlockDomain<ItemDomain, ItemEntity> {
+	@Getter @Setter
 	private String reserved;
 
 	public void setSymbol(String string, String... args) {
