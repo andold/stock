@@ -46,7 +46,7 @@ public class ApiCrawlerController {
 	public Result<ParserResult> crawlPriceAll(@RequestBody PriceParam param) {
 		log.info("{} crawlPriceAll({})", Utility.indentStart(), param);
 
-		JobService.getQueue2().offer(PriceLatestJob.builder().build());
+		JobService.getQueue1().offer(PriceLatestJob.builder().build());
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
 
 		log.info("{} 『{}』 - crawlPriceAll({})", Utility.indentEnd(), result, param);
@@ -81,7 +81,7 @@ public class ApiCrawlerController {
 		log.info("{} crawlItemIpoCloseRecent({})", Utility.indentStart(), param);
 
 		Date start = param == null ? Date.from(LocalDate.now().minusMonths(12).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)) : param.getStart();
-		JobService.getQueue0().offer(ItemIpoCloseRecentJob.builder().date(start).build());
+		JobService.getQueue1().offer(ItemIpoCloseRecentJob.builder().date(start).build());
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
 
 		log.info("{} 『{}』 - crawlItemIpoCloseRecent()", Utility.indentEnd(), result);
@@ -93,7 +93,7 @@ public class ApiCrawlerController {
 	public Result<ParserResult> crawlDividendAllRecent() {
 		log.info("{} crawlDividendAllRecent()", Utility.indentStart());
 
-		JobService.getQueue0().offer(DividendAllRecentJob.builder().build());
+		JobService.getQueue1().offer(DividendAllRecentJob.builder().build());
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
 		
 		log.info("{} 『{}』 - crawlDividendAllRecent()", Utility.indentEnd(), result);

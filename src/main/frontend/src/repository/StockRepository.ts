@@ -63,6 +63,11 @@ class StockRepository {
 			.then(response => onSuccess && onSuccess(request, response.data, element))
 			.catch(error => onError && onError(request, error, element));
 	}
+	async backup(request: any, onSuccess?: any, onError?: any, element?: any) {
+		return axios.get("./api/backup", request)
+			.then(response => onSuccess && onSuccess(request, response.data, element))
+			.catch(error => onError && onError(request, error, element));
+	}
 	async compileGet(request: any, onSuccess?: any, onError?: any, element?: any) {
 		return axios.get("./api/compile", request)
 			.then(response => onSuccess && onSuccess(request, response.data, element))

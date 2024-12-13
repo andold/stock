@@ -22,6 +22,8 @@ import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.StockParam;
 import kr.andold.stock.service.CommonBlockService.CrudList;
+import kr.andold.stock.service.JobService;
+import kr.andold.stock.service.JobService.BackupJob;
 import kr.andold.stock.service.StockService;
 import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,17 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("api")
 public class ApiStockController {
 	@Autowired private StockService service;
+
+	@ResponseBody
+	@GetMapping(value = "backup")
+	public String backup() {
+		log.info("{} backup()", Utility.indentStart());
+
+		JobService.getQueue1().offer(BackupJob.builder().build());
+
+		log.info("{} backup()", Utility.indentEnd());
+		return Utility.BLANK;
+	}
 
 	@ResponseBody
 	@GetMapping(value = {"download"})

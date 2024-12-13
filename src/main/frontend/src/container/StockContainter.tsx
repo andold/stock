@@ -247,6 +247,7 @@ function Header(props: any) {
 									<Dropdown.Toggle id="dropdown-basic">메뉴</Dropdown.Toggle>
 									<Dropdown.Menu>
 										<Dropdown.Item onClick={handleOnClickDownloadNoStreaming}>다운로드</Dropdown.Item>
+										<Dropdown.Item onClick={(param: any) => store.backup({})}>지금 백업</Dropdown.Item>
 										<Dropdown.Item onClick={(param: any) => {
 											setSpinner(spinner + 1);
 											itemStore.crawl({base: moment().format("YYYY-MM-DDTHH:mm:ss.SSSZZ")}
