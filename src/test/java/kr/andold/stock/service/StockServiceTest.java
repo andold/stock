@@ -2,6 +2,7 @@ package kr.andold.stock.service;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,7 @@ public class StockServiceTest {
 
 	@Test
 	public void testCompile() {
-		List<ItemDomain> result = service.compile();
+		List<ItemDomain> result = service.compile(LocalDate.now().minusDays(7));
 		log.info("{}", Utility.toStringJson(result));
 		assertNotEquals(result, null);
 	}

@@ -217,14 +217,15 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 	}
 
 	// 주가, 주간/월간/연간 대표 지정
-	public CrudList<PriceDomain> compile() {
-		log.info("{} compile()", Utility.indentStart());
+	public CrudList<PriceDomain> compile(LocalDate start) {
+		log.info("{} compile(『{}』)", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();
 
-		List<PriceDomain> after = search(null);
+		PriceParam param = PriceParam.builder().start(Date.from(start.atStartOfDay(Utility.ZONE_ID_KST).toInstant())).build();
+		List<PriceDomain> after = search(param);
 		CrudList<PriceDomain> result = compile(after, true);
 
-		log.info("{} 『{}』 compile() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』 compile(『{}』) - {}", Utility.indentEnd(), result, start, Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
@@ -384,11 +385,10 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 	}
 
 	// 상장일, 배당일 대표 지정
-	public CrudList<PriceDomain> compile(List<ItemDomain> items, List<DividendHistoryDomain> histories) {
+	public CrudList<PriceDomain> compile(List<PriceDomain> prices, List<ItemDomain> items, List<DividendHistoryDomain> histories) {
 		log.info("{} compile(#{}, #{})", Utility.indentStart(), Utility.size(items), Utility.size(histories));
 		long started = System.currentTimeMillis();
 
-		List<PriceDomain> prices = search(null);
 		Map<String, PriceDomain> mapPrice = makeMap(prices);
 
 		// 상장일 대표 지정

@@ -3,6 +3,7 @@ package kr.andold.stock.service;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.io.IOException;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,10 +31,10 @@ public class JobServiceTest {
 
 	@Test
 	public void testRunInt() throws IOException {
-		JobService.getQueue1().offer(StockCompileJob.builder().build());
+		JobService.getQueue1().offer(StockCompileJob.builder().start(LocalDate.now().minusDays(7)).build());
 		service.run();
 		for (int cx = 0; cx < 4; cx++) {
-			STATUS result = service.run(0);
+			STATUS result = service.run();
 			log.info("{} 『{}』 testRunInt()", Utility.indentMiddle(), result);
 		}
 	}

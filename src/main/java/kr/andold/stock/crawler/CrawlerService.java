@@ -49,27 +49,34 @@ public class CrawlerService {
 	private PriceService stockPriceService;
 
 	private static String webdriverPath;
-	@Value("${data.webdriver.chrome.driver:C:/src/eclipse-workspace/stock/src/main/resources/bin/chromedriver.exe}")
+	@Value("${application.selenium.webdriver.chrome.driver}")
 	public void setWebdriverPath(String value) {
 		log.info("{} INIT::CrawlerService.setWebdriverPath({})", Utility.indentMiddle(), value);
 		webdriverPath = value;
 	}
 
+	@Getter private static String backupDir;
+	@Value("${application.bacukp.dir}")
+	public void setBackupDir(String value) {
+		log.info("{} INIT::CrawlerService.setBackupDir({})", Utility.indentMiddle(), value);
+		backupDir = value;
+	}
+
 	@Getter private static String userDataDir;
-	@Value("${data.user.data.dir:C:/tmp}")
+	@Value("${application.selenium.user.data.dir}")
 	public void setUserDataDir(String value) {
 		userDataDir = value;
 	}
 
 	@Getter private static Boolean debug = false;
-	@Value("${app.crawler.debug:false}")
+	@Value("${application.crawler.debug}")
 	public void setDebug(Boolean value) {
 		log.info("{} INIT::CrawlerService.setDegug({})", Utility.indentMiddle(), value);
 		debug = value;
 	}
 
 	@Getter private static String crawlerDateStart = "20231101";
-	@Value("${app.crawler.date.start:20231101}")
+	@Value("${application.crawler.date.start}")
 	public void setCrawlerDateStart(String value) {
 		log.info("{} INIT::CrawlerService.setCrawlerDateStart({})", Utility.indentMiddle(), value);
 		crawlerDateStart = value;

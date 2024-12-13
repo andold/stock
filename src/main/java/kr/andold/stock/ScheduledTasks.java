@@ -7,6 +7,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+
+import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.BackupJob;
 import kr.andold.stock.service.JobService.DeduplicatePriceJob;
@@ -23,13 +25,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @EnableScheduling
-@ConditionalOnProperty(value = "app.scheduling.enable", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(value = "application.scheduling.enable", havingValue = "true", matchIfMissing = true)
 public class ScheduledTasks {
 	@Autowired private JobService jobService;
 
 	@Scheduled(initialDelay = 1000 * 30, fixedDelay = Long.MAX_VALUE)
-	public void scheduleTaskOnce() {
-		log.info("{} scheduleTaskOnce()", Utility.indentStart());
+	public void once() {
+		log.info("{} once()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
 		JobService.getQueue3().offer(ItemDetailJob.builder().code(null).build());
@@ -37,37 +39,45 @@ public class ScheduledTasks {
 		JobService.getQueue3().offer(ItemPriceJob.builder().code(null).build());
 		JobService.getQueue3().offer(BackupJob.builder().build());
 		JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
-		jobService.run();
 
-		log.info("{} scheduleTaskOnce() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
+		log.info("{} once() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
 	
+	// 1초쉬고
+	@Scheduled(initialDelay = 1000 * 32, fixedDelay = 1000)
+	public void secondly() {
+		log.trace("{} secondly()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		STATUS result = jobService.run();
+
+		log.trace("{} 『{}』 secondly() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+	}
+
 	// 매분마다 - compile, purge
 	@Scheduled(cron = "0 * * * * *")
-	public void scheduleTaskMinutely() {
-		log.debug("{} scheduleTaskMinutely()", Utility.indentStart());
+	public void minutely() {
+		log.debug("{} minutely()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
 		jobService.status();
 
-		log.debug("{} scheduleTaskMinutely() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
+		log.debug("{} minutely() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
 
 	// 매시마다 - compile, purge
 	@Scheduled(cron = "19 10 * * * *")
-	public void scheduleTaskHourly() {
-		log.info("{} scheduleTaskHourly()", Utility.indentStart());
+	public void hourly() {
+		log.info("{} hourly()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		JobService.getQueue2().offer(StockCompileJob.builder().build());
-
-		log.info("{} scheduleTaskHourly() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
+		log.info("{} hourly() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
 
 	// 평일 - price, compile
 	@Scheduled(cron = "50 40 08 * * MON-SAT")
-	public void scheduleTaskDaily() {
-		log.info("{} scheduleTaskDaily()", Utility.indentStart());
+	public void daily() {
+		log.info("{} daily()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
 		JobService.getQueue2().offer(PriceLatestJob.builder().build());
@@ -75,13 +85,13 @@ public class ScheduledTasks {
 		JobService.getQueue3().offer(BackupJob.builder().build());
 		JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
 
-		log.info("{} scheduleTaskDaily() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
+		log.info("{} daily() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
 
 	// 매주 일요일 - dividend
 	@Scheduled(cron = "02 24 3 * * SUN")
-	public void scheduleTaskWeekly() {
-		log.info("{} scheduleTaskWeekly()", Utility.indentStart());
+	public void weekly() {
+		log.info("{} weekly()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
 		JobService.getQueue2().offer(DividendAllRecentJob.builder().build());
@@ -90,19 +100,40 @@ public class ScheduledTasks {
 				.build());
 		JobService.getQueue3().offer(BackupJob.builder().build());
 		JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
+		JobService.getQueue3().offer(StockCompileJob.builder().start(LocalDate.now().minusWeeks(2)).build());
 
-		log.info("{} scheduleTaskWeekly() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
+		log.info("{} weekly() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
+	}
+
+	// 매달
+	@Scheduled(cron = "0 12 15 1 * *")
+	public void monthly() {
+		log.info("{} monthly()", Utility.indentStart());
+
+		JobService.getQueue3().offer(StockCompileJob.builder().start(LocalDate.now().minusMonths(2)).build());
+
+		log.info("{} monthly()", Utility.indentEnd());
 	}
 
 	// 매분기 첫달 첫번째 일요일 - items
 	@Scheduled(cron = "19 17 17 1-7 1,4,7,10 SUN")
-	public void scheduleTaskQuarter() {
-		log.info("{} scheduleTaskQuarter()", Utility.indentStart());
+	public void quarterly() {
+		log.info("{} quarterly()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
 //		Result<ParserResult> result = crawlerService.crawlItemAll();
 
-		log.info("{} scheduleTaskQuarter() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
+		log.info("{} quarterly() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
+	}
+
+	// 매년
+	@Scheduled(cron = "0 12 15 13 1 *")
+	public void yearly() {
+		log.info("{} yearly()", Utility.indentStart());
+
+		JobService.getQueue3().offer(StockCompileJob.builder().start(LocalDate.now().minusYears(2)).build());
+
+		log.info("{} yearly()", Utility.indentEnd());
 	}
 
 }

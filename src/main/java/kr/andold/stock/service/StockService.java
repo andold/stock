@@ -77,20 +77,24 @@ public class StockService {
 		return new StockParam(items, histories, prices);
 	}
 
-	public List<ItemDomain> compile() {
+	public List<ItemDomain> compile(LocalDate start) {
 		log.info("{} compile()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
+		Date date = Date.from(start.atStartOfDay(Utility.ZONE_ID_KST).toInstant());
+		PriceParam priceParam = PriceParam.builder().start(date).build();
+		DividendHistoryParam dividendHistoryParam = DividendHistoryParam.builder().start(date).build();
+
 		// 주가, 주간/월간/연간 대표 지정
-		CrudList<PriceDomain> priceResult = priceService.compile();
+		CrudList<PriceDomain> priceResult = priceService.compile(start);
 
 		List<ItemDomain> items = itemService.search(null);
 		Map<String, ItemDomain> mapItem = itemService.makeMap(items);
-		List<DividendHistoryDomain> histories = dividendHistoryService.search(null);
-		List<PriceDomain> prices = priceService.search(null);
+		List<DividendHistoryDomain> histories = dividendHistoryService.search(dividendHistoryParam);
+		List<PriceDomain> prices = priceService.search(priceParam);
 
 		// 상장일, 배당일 대표 지정
-		CrudList<PriceDomain> priceResult1 = priceService.compile(items, histories);
+		CrudList<PriceDomain> priceResult1 = priceService.compile(prices, items, histories);
 
 		// 최근 배당수익률 적용
 		List<ItemDomain> perItems = compilePriceEarningsRatioByHistoriesAndPrices(histories, prices);

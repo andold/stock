@@ -60,10 +60,10 @@ public class ApiStockController {
 
 	@ResponseBody
 	@GetMapping(value = "compile")
-	public List<ItemDomain> compile() {
+	public List<ItemDomain> compile(@RequestBody ItemParam param) {
 		log.info("{} compile()", Utility.indentStart());
 
-		List<ItemDomain> result = service.compile();
+		List<ItemDomain> result = service.compile(param.getStart().toInstant().atZone(Utility.ZONE_ID_KST).toLocalDate());
 
 		log.info("{} 『#{}』 - compile()", Utility.indentEnd(), Utility.size(result));
 		return result;
