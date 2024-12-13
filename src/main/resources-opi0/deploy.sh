@@ -1,13 +1,14 @@
 #!/bin/bash
 #
 #
+PROJECT=stock
 VERSION=0.0.2-SNAPSHOT
 PROFILE=opi0
 HOME_DIR=/home/andold
-INSTALL_SCRIPT_FILE_NAME=install-stock-$PROFILE.sh
-WAR_FILE_NAME=$SOURCE_DIR/build/libs/stock-$VERSION.war
 SOURCE_DIR=$HOME_DIR/src/github/stock
 DEPLOY_DIR=$HOME_DIR/deploy/stock
+INSTALL_SCRIPT_FILE_NAME=install-$PROJECT-$PROFILE.sh
+WAR_FILE_NAME=$SOURCE_DIR/build/libs/$PROJECT-$VERSION.war
 #
 ANTLR_JAR_FILE_NAME=$SOURCE_DIR/src/main/resources/bin/antlr-4.10.1-complete.jar
 ANTLR_PACKAGE_NAME=kr.andold.stock.antlr
