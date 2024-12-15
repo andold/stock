@@ -160,7 +160,7 @@ public class ApiPriceController {
 	}
 
 	@PostMapping(value = "upload")
-	public CrudList<PriceDomain> upload(@RequestParam("file") MultipartFile file) {
+	public CrudList<PriceDomain> upload(@RequestParam MultipartFile file) {
 		log.info("{} upload(『{}』)", Utility.indentStart(), Utility.toStringJson(file, 32));
 
 		CrudList<PriceDomain> result = service.upload(file);

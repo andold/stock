@@ -784,7 +784,7 @@ public class Seibro implements Crawler {
 	}
 
 	protected Result<ParserResult> priceCurrentCompany(boolean kospi) {
-		log.debug("{} priceCurrentCompany({})", Utility.indentStart(), kospi);
+		log.info("{} priceCurrentCompany({})", Utility.indentStart(), kospi);
 		long started = System.currentTimeMillis();
 
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
@@ -866,21 +866,21 @@ public class Seibro implements Crawler {
 				}
 				sleep(Math.round(pause * Math.random()));
 
-				log.debug("{} 『{}』 priceCurrentCompany({}, {}) - {}", Utility.indentMiddle(), pageNumber, kospi, base, Utility.toStringPastTimeReadable(forStarted));
+				log.info("{} 『{}』 priceCurrentCompany({}, {}) - {}", Utility.indentMiddle(), pageNumber, kospi, base, Utility.toStringPastTimeReadable(forStarted));
 			}
 			driver.quit();
 
 			sb.append(MARK_START_END_POINT_PRICE_COMPANY_CURRENT);
 			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
 
-			log.debug("{} 『{}』 priceCurrentCompany({}, {}) - {}", Utility.indentEnd(), result, kospi, base, Utility.toStringPastTimeReadable(started));
+			log.info("{} 『{}』 priceCurrentCompany({}, {}) - {}", Utility.indentEnd(), result, kospi, base, Utility.toStringPastTimeReadable(started));
 			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
 		} catch (Exception e) {
 			driver.quit();
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 		}
 
-		log.debug("{} 『{}』 priceCurrentCompany({}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, kospi, "base", Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』 priceCurrentCompany({}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, kospi, "base", Utility.toStringPastTimeReadable(started));
 		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 	}
 
