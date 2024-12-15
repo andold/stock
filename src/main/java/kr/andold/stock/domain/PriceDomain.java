@@ -142,37 +142,22 @@ public class PriceDomain extends PriceEntity implements CommonBlockDomain<PriceD
 	 * 연대표 bit 8: 256, 특정일, 배당일 등
 	 */
 	public void setFlagWeek(boolean b) {
-		int mask = 32;
-		Integer flag = getFlag() == null ? 0 : getFlag();
-		if (b) {
-			setFlag(flag | mask);
-		} else {
-			setFlag(flag & ~mask);
-		}
+		setFlag(32, b);
 	}
 
 	public void setFlagMonth(boolean b) {
-		int mask = 64;
-		Integer flag = getFlag() == null ? 0 : getFlag();
-		if (b) {
-			setFlag(flag | mask);
-		} else {
-			setFlag(flag & ~mask);
-		}
+		setFlag(64, b);
 	}
 
 	public void setFlagYear(boolean b) {
-		int mask = 128;
-		Integer flag = getFlag() == null ? 0 : getFlag();
-		if (b) {
-			setFlag(flag | mask);
-		} else {
-			setFlag(flag & ~mask);
-		}
+		setFlag(128, b);
 	}
 
 	public void setFlagSpecial(boolean b) {
-		int mask = 256;
+		setFlag(256, b);
+	}
+
+	public void setFlag(int mask, boolean b) {
 		Integer flag = getFlag() == null ? 0 : getFlag();
 		if (b) {
 			setFlag(flag | mask);

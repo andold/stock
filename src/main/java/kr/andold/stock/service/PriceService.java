@@ -1,10 +1,9 @@
 package kr.andold.stock.service;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -233,10 +232,9 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		log.info("{} compile(#{}, {})", Utility.indentStart(), Utility.size(prices), doWrite);
 		long started = System.currentTimeMillis();
 
-		Map<String, List<PriceDomain>> map = makeMapByBase(prices);
-		int count = compileWeek(map);
-		count += compileMonth(map);
-		count += compileYear(map);
+		int count = compile(prices, ChronoUnit.WEEKS, 32);
+		count += compile(prices, ChronoUnit.MONTHS, 64);
+		count += compile(prices, ChronoUnit.YEARS, 128);
 		if (doWrite) {
 			CrudList<PriceDomain> result = put(prices);
 			log.info("{} 『{}』 compile(#{}, {}) - {}", Utility.indentEnd(), result, Utility.size(prices), doWrite, Utility.toStringPastTimeReadable(started));
@@ -247,71 +245,61 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		return CrudList.<PriceDomain>builder().build();
 	}
 
-	private int compileYear(Map<String, List<PriceDomain>> map) {
-		LocalDate startEndDate = LocalDate.now().minusYears(16);
-		int count = 0;
-		for (LocalDate cx = LocalDate.now().minusYears(1).with(TemporalAdjusters.lastDayOfYear());
-				cx.isAfter(startEndDate);
-			cx = cx.minusYears(1).with(TemporalAdjusters.lastDayOfYear())) {
-			LocalDate startEndDateOfYear = cx.minusWeeks(2);
-			for (LocalDate cy = cx.plusDays(0); cy.isAfter(startEndDateOfYear); cy = cy.minusDays(1)) {
-				List<PriceDomain> pricess = map.get(cy.format(DateTimeFormatter.BASIC_ISO_DATE));
-				if (pricess == null) {
-					continue;
-				}
-				
-				for (PriceDomain price: pricess) {
-					price.setFlagYear(true);
-					count++;
-				}
-				break;
-			}
-		}
-		return count;
-	}
+	private int compile(List<PriceDomain> prices, ChronoUnit chronoUnit, int mask) {
+		log.info("{} compile(『#{}』, 『{}』, 『{}』)", Utility.indentStart(), Utility.size(prices), chronoUnit, mask);
+		long started = System.currentTimeMillis();
 
-	private int compileMonth(Map<String, List<PriceDomain>> map) {
-		LocalDate startEndDate = LocalDate.now().minusYears(2);
-		int count = 0;
-		for (LocalDate cx = LocalDate.now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
-				cx.isAfter(startEndDate);
-			cx = cx.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth())) {
-			LocalDate startEndDateOfYear = cx.minusWeeks(2);
-			for (LocalDate cy = cx.plusDays(0); cy.isAfter(startEndDateOfYear); cy = cy.minusDays(1)) {
-				List<PriceDomain> pricess = map.get(cy.format(DateTimeFormatter.BASIC_ISO_DATE));
-				if (pricess == null) {
-					continue;
-				}
-				
-				for (PriceDomain price: pricess) {
-					price.setFlagMonth(true);
-					count++;
-				}
-				break;
+		// map by date
+		Map<LocalDate, List<PriceDomain>> mapDate = new HashMap<>();
+		for (PriceDomain price : prices) {
+			LocalDate date = price.getBase().toInstant().atZone(Utility.ZONE_ID_KST).toLocalDate();
+			List<PriceDomain> before = mapDate.get(date);
+			if (before == null) {
+				before = new ArrayList<>();
+				mapDate.put(date, before);
 			}
+			before.add(price);
 		}
-		return count;
-	}
+		log.info("{} compile(『#{}』, 『{}』, 『{}』) - DATE COUNT 『#{}』", Utility.indentMiddle(), Utility.size(prices), chronoUnit, mask, Utility.size(mapDate));
+		
+		// map by week
+		Map<Long, LocalDate> mapDelta = new HashMap<>();
+		for (LocalDate date : mapDate.keySet()) {
+			Long delta = chronoUnit.between(LocalDate.of(1945, 1, 1), date);
+			LocalDate before = mapDelta.get(delta);
+			if (before == null) {
+				mapDelta.put(delta, date);
+				continue;
+			}
 
-	private int compileWeek(Map<String, List<PriceDomain>> map) {
-		LocalDate startEndDate = LocalDate.now().minusYears(1);
-		int count = 0;
-		for (LocalDate cx = LocalDate.now().with(TemporalAdjusters.previous(DayOfWeek.FRIDAY));
-			cx.isAfter(startEndDate);
-			cx = cx.with(TemporalAdjusters.previous(DayOfWeek.FRIDAY))) {
-			for (LocalDate cy = cx.plusDays(0); cy.getDayOfWeek() != DayOfWeek.SUNDAY; cy = cy.minusDays(1)) {
-				List<PriceDomain> pricess = map.get(cy.format(DateTimeFormatter.BASIC_ISO_DATE));
-				if (pricess == null) {
-					continue;
+			// 탈락자 선정, 이전 날짜를 탈락 시킨다
+			if ((date.isBefore(before))) {
+				List<PriceDomain> pricess = mapDate.get(date);
+				for (PriceDomain price : pricess) {
+					price.setFlag(mask, false);
 				}
-				
-				for (PriceDomain price: pricess) {
-					price.setFlagWeek(true);
-					count++;
+			} else {
+				List<PriceDomain> pricess = mapDate.get(before);
+				mapDelta.put(delta, date);
+				for (PriceDomain price : pricess) {
+					price.setFlag(mask, false);
 				}
-				break;
 			}
 		}
+		log.info("{} compile(『#{}』, 『{}』, 『{}』) - DELATA COUNT 『#{}』", Utility.indentMiddle(), Utility.size(prices), chronoUnit, mask, Utility.size(mapDelta));
+		
+		// 남은자는 대표
+		for(LocalDate date: mapDelta.values()) {
+			log.info("{} compile(『#{}』, 『{}』, 『{}』) - DELATA COUNT 『#{}』『{}』", Utility.indentMiddle(), Utility.size(prices), chronoUnit, mask, Utility.size(mapDelta), date);
+			List<PriceDomain> pricess = mapDate.get(date);
+			for (PriceDomain price : pricess) {
+				price.setFlag(mask, true);
+			}
+		}
+
+		int count = Utility.size(mapDelta);
+
+		log.info("{} 『#{}』 compile(#{}』, 『{}』, 『{}』) - {}", Utility.indentEnd(), count, Utility.size(prices), chronoUnit, mask, Utility.toStringPastTimeReadable(started));
 		return count;
 	}
 
@@ -364,23 +352,6 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 			list.add(price);
 		}
 
-		return map;
-	}
-
-	private Map<String, List<PriceDomain>> makeMapByBase(List<PriceDomain> prices) {
-		Map<String, List<PriceDomain>> map = new HashMap<>();
-		for (PriceDomain price: prices) {
-			Date base = price.getBase();
-			LocalDate localDate = LocalDate.ofInstant(base.toInstant(), Utility.ZONE_ID_KST);
-			String key = localDate.format(DateTimeFormatter.BASIC_ISO_DATE);
-			List<PriceDomain> previous = map.get(key);
-			if (previous == null) {
-				previous = new ArrayList<PriceDomain>();
-				map.put(key, previous);
-			}
-			
-			previous.add(price);
-		}
 		return map;
 	}
 

@@ -77,6 +77,20 @@ public class ApiPriceController {
 	}
 
 	@ResponseBody
+	@PostMapping(value = "compile")
+	public CrudList<PriceDomain> compile(@RequestBody PriceParam param) {
+		log.info("{} compile()", Utility.indentStart());
+
+		LocalDate start = (param == null || param.getStart() == null) ?
+								LocalDate.now().minusDays(14)
+								: param.getStart().toInstant().atZone(Utility.ZONE_ID_KST).toLocalDate();
+		CrudList<PriceDomain> result = service.compile(start);
+
+		log.info("{} 『#{}』 - compile()", Utility.indentEnd(), result);
+		return result;
+	}
+
+	@ResponseBody
 	@GetMapping(value = "purge")
 	public int purge() {
 		log.info("{} purge()", Utility.indentStart());

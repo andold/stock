@@ -40,9 +40,10 @@ public class PriceServiceTest {
 
 	@Test
 	public void testCompileLocalDate() {
-		CrudList<PriceDomain> result = service.compile(LocalDate.now().minusDays(7));
+		LocalDate start = LocalDate.now().minusDays(10);
+		CrudList<PriceDomain> result = service.compile(start);
 		assertNotNull(result);
-		log.info("{}", Utility.toStringJson(result));
+		log.info("{}", result);
 	}
 
 }

@@ -304,6 +304,30 @@ function Header(props: any) {
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 											);
 										}}>주가 중복 제거</Dropdown.Item>
+										<Dropdown.Item onClick={(param: any) => {
+											setSpinner(spinner + 1);
+											priceStore.compile({start: moment().subtract(2, "weeks").format("YYYY-MM-DDTHH:mm:ss.SSSZZ")}
+												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+											);
+										}}>주가 대표일 정리(최근 2주)</Dropdown.Item>
+										<Dropdown.Item onClick={(param: any) => {
+											setSpinner(spinner + 1);
+											priceStore.compile({start: moment().subtract(2, "months").format("YYYY-MM-DDTHH:mm:ss.SSSZZ")}
+												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+											);
+										}}>주가 대표일 정리(최근 2달)</Dropdown.Item>
+										<Dropdown.Item onClick={(param: any) => {
+											setSpinner(spinner + 1);
+											priceStore.compile({start: moment().subtract(2, "years").format("YYYY-MM-DDTHH:mm:ss.SSSZZ")}
+												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
+											);
+										}}>주가 대표일 정리(최근 2년)</Dropdown.Item>
 									</Dropdown.Menu>
 								</Dropdown>
 								<Button size="sm" variant="secondary" className="ms-1" disabled={disableDownload} onClick={handleOnClickDownload} title={form.mode.toString()}>

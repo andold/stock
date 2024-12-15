@@ -16,6 +16,9 @@ class PriceStore {
 	crawl(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawl(request, onSuccess, onError, element);
 	}
+	compile(request?: any, onSuccess?: any, onError?: any, element?: any) {
+		repository.compile(request, onSuccess, onError, element);
+	}
 	purge(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.purge(request, onSuccess, onError, element);
 	}
