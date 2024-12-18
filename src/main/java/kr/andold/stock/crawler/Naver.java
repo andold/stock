@@ -1,5 +1,6 @@
 package kr.andold.stock.crawler;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -23,7 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class Naver implements Crawler {
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
-	private static final int TIMEOUT = 4000;
+	private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(4);
+	private static final Duration DEFAULT_TIMEOUT_DURATION_LONG = Duration.ofMinutes(1);
 
 	// Naver 증권 > 국내증시 > 주요시세정보 > ETF
 	private static final String URL_PRICE_ETF_CURRENT = "https://finance.naver.com/sise/etf.naver";
@@ -53,6 +55,7 @@ public class Naver implements Crawler {
 		long started = System.currentTimeMillis();
 
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT_DURATION);
 		try {
 			driver.navigate().to(URL_PRICE_ETF_CURRENT);
 
@@ -61,7 +64,7 @@ public class Naver implements Crawler {
 			StringBuffer sb = new StringBuffer();
 			sb.append(MARK_START_END_POINT_PRICE_ETF_CURRENT);
 
-			WebElement table = driver.findElement(By.xpath("//*[@id='contentarea']/div[3]/table"), TIMEOUT);
+			WebElement table = driver.findElement(By.xpath("//*[@id='contentarea']/div[3]/table"), DEFAULT_TIMEOUT_DURATION_LONG);
 			List<WebElement> trs = table.findElements(By.tagName("tr"));
 			for (WebElement tr: trs) {
 				sb.append(today);

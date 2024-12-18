@@ -1,5 +1,6 @@
 package kr.andold.stock.crawler;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -61,6 +62,8 @@ public class Krx implements Crawler {
 	private static final String MARK_START_END_POINT_ETF_EACH_SUMMARY_INFO = String.format("KEYWORD\t%s\t%s\t%s\n", "KRX", "증권상품 > ETF > 개별종목 종합정보", URL_ETF_EACH_SUMMARY_INFO);
 
 	private static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
+	private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(4);
+	private static final Duration DEFAULT_TIMEOUT_DURATION_LONG = Duration.ofMinutes(1);
 	private static final int TIMEOUT = 4000;
 
 	@Override
@@ -137,24 +140,25 @@ public class Krx implements Crawler {
 		long started = System.currentTimeMillis();
 
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT_DURATION);
 		try {
 			driver.navigate().to(URL);
 			Actions actions = new Actions(driver);
 
 			// 1. KRX 정보데이터시스템 > 기본통계 > 증권상품 > ETF > 개별종목 시세 추이
 			driver.waitUntilTextInclude(By.xpath("/html/body/div[2]/section[2]/div[2]/div[1]/section/aside/ol[1]/li[3]/ol/li[1]/a"), TIMEOUT * 4, "ETF"); // ETF
-			actions.moveToElement(driver.findElement(By.xpath("/html/body/div[2]/section[2]/div[2]/div[1]/section/aside/ol[1]/li[3]/ol/li[1]/a"), TIMEOUT)); // ETF
-			actions.moveToElement(driver.findElement(By.xpath("/html/body/div[2]/section[2]/div[2]/div[1]/section/aside/ol[1]/li[3]/ol/li[1]/div/ul/li[3]/a"), TIMEOUT)); // 개별종목 시세 추이
+			actions.moveToElement(driver.findElement(By.xpath("/html/body/div[2]/section[2]/div[2]/div[1]/section/aside/ol[1]/li[3]/ol/li[1]/a"), DEFAULT_TIMEOUT_DURATION)); // ETF
+			actions.moveToElement(driver.findElement(By.xpath("/html/body/div[2]/section[2]/div[2]/div[1]/section/aside/ol[1]/li[3]/ol/li[1]/div/ul/li[3]/a"), DEFAULT_TIMEOUT_DURATION)); // 개별종목 시세 추이
 			actions.click().build().perform();
 
 			// 종목명에 코드 검색 - 코드 입력
-			WebElement keywordElement = driver.findElement(By.xpath("//*[@id='tboxisuCd_finder_secuprodisu1_0']"), TIMEOUT);
+			WebElement keywordElement = driver.findElement(By.xpath("//*[@id='tboxisuCd_finder_secuprodisu1_0']"), DEFAULT_TIMEOUT_DURATION);
 			keywordElement.clear();
 			keywordElement.sendKeys(item.getCode());
 			keywordElement.sendKeys(Keys.TAB);
 
 			// 1. 종목명에 코드 검색 - 검색 아이콘 클릭
-			driver.findElement(By.xpath("//*[@id='btnisuCd_finder_secuprodisu1_0']"), TIMEOUT).click();
+			driver.findElement(By.xpath("//*[@id='btnisuCd_finder_secuprodisu1_0']"), DEFAULT_TIMEOUT_DURATION).click();
 
 			// 자동으로 갔다 와야하는데 ....
 			if (!driver.waitUntilExist(By.xpath("//*[@id='jsLayer_finder_secuprodisu1_1']"), true, TIMEOUT)) {
@@ -191,18 +195,18 @@ public class Krx implements Crawler {
 			String endDateString = date.format(DateTimeFormatter.BASIC_ISO_DATE);
 			String startDateString = date.minusWeeks(2).format(DateTimeFormatter.BASIC_ISO_DATE);
 
-			WebElement startDateElement = driver.findElement(By.xpath("//*[@id='strtDd']"), TIMEOUT);
+			WebElement startDateElement = driver.findElement(By.xpath("//*[@id='strtDd']"), DEFAULT_TIMEOUT_DURATION);
 			startDateElement.clear();
 			startDateElement.sendKeys(startDateString); // 조회기간 시작일
 			startDateElement.sendKeys(Keys.TAB); // 시작일 입력
 	
-			WebElement endDateElement = driver.findElement(By.xpath("//*[@id='endDd']"), TIMEOUT);
+			WebElement endDateElement = driver.findElement(By.xpath("//*[@id='endDd']"), DEFAULT_TIMEOUT_DURATION);
 			endDateElement.clear();
 			endDateElement.sendKeys(endDateString); // 조회기간 종료일
 			endDateElement.sendKeys(Keys.TAB); // 종료일 입력
 			
 			// 조회 클릭
-			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), TIMEOUT).click();
+			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), DEFAULT_TIMEOUT_DURATION).click();
 
 			// 3. 내용 저장
 			StringBuffer sb = new StringBuffer();
@@ -210,7 +214,7 @@ public class Krx implements Crawler {
 			for (String prev = ""; true;) {
 				long forStarted = System.currentTimeMillis();
 
-				WebElement table = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), TIMEOUT);
+				WebElement table = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), DEFAULT_TIMEOUT_DURATION);
 				sb.append(driver.extractTextContentFromTableElement(table, String.format("ETF\t%s\t", item.getCode())));
 				sb.append(MARK_ANDOLD_SINCE);
 
@@ -284,17 +288,18 @@ public class Krx implements Crawler {
 		long started = System.currentTimeMillis();
 
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT_DURATION);
 		try {
 			driver.navigate().to(URL_PRICE_COMPANY_EACH);
 
 			// 종목명에 코드 검색 - 코드 입력
-			WebElement keywordElement = driver.findElement(By.xpath("//*[@id='tboxisuCd_finder_stkisu0_0']"), TIMEOUT * 4);
+			WebElement keywordElement = driver.findElement(By.xpath("//*[@id='tboxisuCd_finder_stkisu0_0']"), DEFAULT_TIMEOUT_DURATION_LONG);
 			keywordElement.clear();
 			keywordElement.sendKeys(item.getCode());
 			keywordElement.sendKeys(Keys.TAB);
 
 			// 1. 종목명에 코드 검색 - 검색 아이콘 클릭
-			driver.findElement(By.xpath("//*[@id='btnisuCd_finder_stkisu0_0']"), TIMEOUT).click();
+			driver.findElement(By.xpath("//*[@id='btnisuCd_finder_stkisu0_0']"), DEFAULT_TIMEOUT_DURATION).click();
 
 			// 자동으로 갔다 와야하는데 ....
 			if (!driver.waitUntilExist(By.xpath("//div[@id='jsLayer_finder_stkisu0_0']"), true, TIMEOUT)) {
@@ -331,18 +336,18 @@ public class Krx implements Crawler {
 			String endDateString = date.minusWeeks(0).format(DateTimeFormatter.BASIC_ISO_DATE);
 			String startDateString = date.minusWeeks(2).format(DateTimeFormatter.BASIC_ISO_DATE);
 
-			WebElement startDateElement = driver.findElement(By.xpath("//*[@id='strdDd']"), TIMEOUT);
+			WebElement startDateElement = driver.findElement(By.xpath("//*[@id='strdDd']"), DEFAULT_TIMEOUT_DURATION);
 			startDateElement.clear();
 			startDateElement.sendKeys(startDateString); // 조회기간 시작일
 			startDateElement.sendKeys(Keys.TAB); // 시작일 입력
 	
-			WebElement endDateElement = driver.findElement(By.xpath("//*[@id='endDd']"), TIMEOUT);
+			WebElement endDateElement = driver.findElement(By.xpath("//*[@id='endDd']"), DEFAULT_TIMEOUT_DURATION);
 			endDateElement.clear();
 			endDateElement.sendKeys(endDateString); // 조회기간 종료일
 			endDateElement.sendKeys(Keys.TAB); // 종료일 입력
 			
 			// 조회 클릭
-			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), TIMEOUT).click();
+			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), DEFAULT_TIMEOUT_DURATION).click();
 
 			// 3. 내용 저장
 			StringBuffer sb = new StringBuffer();
@@ -350,7 +355,7 @@ public class Krx implements Crawler {
 			for (String prev = ""; true;) {
 				long forStarted = System.currentTimeMillis();
 
-				WebElement table = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), TIMEOUT);
+				WebElement table = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), DEFAULT_TIMEOUT_DURATION);
 				sb.append(driver.extractTextContentFromTableElement(table, String.format("ETF\t%s\t", item.getCode())));
 				sb.append(MARK_ANDOLD_SINCE);
 
@@ -413,11 +418,12 @@ public class Krx implements Crawler {
 		long started = System.currentTimeMillis();
 
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT_DURATION);
 		try {
 			driver.navigate().to(URL_PRICE_ETF_ALL);
 
 			// 기본 일자 수집 = 오늘
-			WebElement dateElement = driver.findElement(By.xpath("//*[@id='trdDd']"), TIMEOUT);
+			WebElement dateElement = driver.findElement(By.xpath("//*[@id='trdDd']"), DEFAULT_TIMEOUT_DURATION);
 			if (date == null) {
 				date = Utility.parseDateTime(dateElement.getAttribute("value"));
 			} else {
@@ -426,7 +432,7 @@ public class Krx implements Crawler {
 			}
 
 			// 조회 클릭
-			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), TIMEOUT).click();
+			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), DEFAULT_TIMEOUT_DURATION).click();
 
 			// 3. 내용 저장
 			StringBuffer sb = new StringBuffer();
@@ -434,7 +440,7 @@ public class Krx implements Crawler {
 			for (String prev = ""; true;) {
 				long forStarted = System.currentTimeMillis();
 
-				WebElement tableElement = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), TIMEOUT);
+				WebElement tableElement = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), DEFAULT_TIMEOUT_DURATION);
 				sb.append(driver.getAttribute(tableElement, "textContent", String.format("ETF\t%1$tY-%1$tm-%1$td\t", date)));
 				sb.append(MARK_ANDOLD_SINCE);
 
@@ -476,11 +482,12 @@ public class Krx implements Crawler {
 		long started = System.currentTimeMillis();
 
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT_DURATION);
 		try {
 			driver.navigate().to(URL_PRICE_COMPANY_ALL);
 
 			// 기본 일자 수집 = 오늘
-			WebElement dateElement = driver.findElement(By.xpath("//*[@id='trdDd']"), TIMEOUT);
+			WebElement dateElement = driver.findElement(By.xpath("//*[@id='trdDd']"), DEFAULT_TIMEOUT_DURATION);
 			if (date == null) {
 				date = Utility.parseDateTime(dateElement.getAttribute("value"));
 			} else {
@@ -489,7 +496,7 @@ public class Krx implements Crawler {
 			}
 
 			// 조회 클릭
-			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), TIMEOUT).click();
+			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), DEFAULT_TIMEOUT_DURATION).click();
 
 			// 3. 내용 저장
 			StringBuffer sb = new StringBuffer();
@@ -497,7 +504,7 @@ public class Krx implements Crawler {
 			for (String prev = ""; true;) {
 				long forStarted = System.currentTimeMillis();
 
-				WebElement tableElement = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), TIMEOUT);
+				WebElement tableElement = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), DEFAULT_TIMEOUT_DURATION);
 				sb.append(driver.getAttribute(tableElement, "textContent", String.format("COMPANY\t%1$tY-%1$tm-%1$td\t", date)));
 				sb.append(MARK_ANDOLD_SINCE);
 
@@ -565,6 +572,7 @@ public class Krx implements Crawler {
 		long started = System.currentTimeMillis();
 
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT_DURATION);
 		try {
 			driver.navigate().to(URL_COMPANY_BASIC_INFO_ALL);
 
@@ -573,7 +581,7 @@ public class Krx implements Crawler {
 			for (String prev = ""; true;) {
 				long forStarted = System.currentTimeMillis();
 
-				WebElement tableElement = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), TIMEOUT);
+				WebElement tableElement = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), DEFAULT_TIMEOUT_DURATION);
 				sb.append(driver.getAttribute(tableElement, "textContent", "KEYWORD\t"));
 				sb.append(MARK_ANDOLD_SINCE);
 
@@ -613,6 +621,7 @@ public class Krx implements Crawler {
 		long started = System.currentTimeMillis();
 
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT_DURATION);
 		try {
 			driver.navigate().to(URL_ETF_BASIC_INFO_ALL);
 
@@ -621,7 +630,7 @@ public class Krx implements Crawler {
 			for (String prev = ""; true;) {
 				long forStarted = System.currentTimeMillis();
 
-				WebElement tableElement = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), TIMEOUT);
+				WebElement tableElement = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), DEFAULT_TIMEOUT_DURATION);
 				sb.append(driver.getAttribute(tableElement, "textContent", "ETF\t"));
 				sb.append(MARK_ANDOLD_SINCE);
 
@@ -688,17 +697,18 @@ public class Krx implements Crawler {
 		}
 
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT_DURATION);
 		try {
 			driver.navigate().to(URL_COMPANY_EACH_SUMMARY_INFO);
 
 			// 종목명에 코드 검색 - 코드 입력
-			WebElement keywordElement = driver.findElement(By.xpath("//*[@id='tboxisuCd_finder_stkisu0_0']"), TIMEOUT * 4);
+			WebElement keywordElement = driver.findElement(By.xpath("//*[@id='tboxisuCd_finder_stkisu0_0']"), DEFAULT_TIMEOUT_DURATION_LONG);
 			keywordElement.clear();
 			keywordElement.sendKeys(code);
 			keywordElement.sendKeys(Keys.TAB);
 
 			// 1. 종목명에 코드 검색 - 검색 아이콘 클릭
-			driver.findElement(By.xpath("//*[@id='btnisuCd_finder_stkisu0_0']"), TIMEOUT).click();
+			driver.findElement(By.xpath("//*[@id='btnisuCd_finder_stkisu0_0']"), DEFAULT_TIMEOUT_DURATION).click();
 
 			// 자동으로 갔다 와야하는데 ....
 			if (!driver.waitUntilExist(By.xpath("//div[@id='jsLayer_finder_stkisu0_0']"), true, TIMEOUT)) {
@@ -717,7 +727,7 @@ public class Krx implements Crawler {
 			// 조회 클릭
 			By BY_STANDARD_CODE = By.xpath("//*[@id='ovrvwGenBind']/tbody/tr[2]/td[1]/text()");	// 표준코드
 			String previousStandardCode = driver.getText(BY_STANDARD_CODE, TIMEOUT, URL_COMPANY_EACH_SUMMARY_INFO);
-			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), TIMEOUT).click();
+			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), DEFAULT_TIMEOUT_DURATION).click();
 			driver.waitUntilTextNotInclude(BY_STANDARD_CODE, TIMEOUT, previousStandardCode);
 			
 			StringBuffer sb = new StringBuffer();
@@ -727,7 +737,7 @@ public class Krx implements Crawler {
 			sb.append(String.format("KEYWORD\t%s\n", driver.getText(By.xpath("//*[@id='isuInfoTitle']/text()"), TIMEOUT, "-").replaceAll("[ \\|]+", "")));
 			
 			// 정보 테이블 출력
-			WebElement tableElement = driver.findElement(By.xpath("//*[@id='ovrvwGenBind']"), TIMEOUT);
+			WebElement tableElement = driver.findElement(By.xpath("//*[@id='ovrvwGenBind']"), DEFAULT_TIMEOUT_DURATION);
 			sb.append(driver.extractTextContentFromTableElement(tableElement));
 			sb.append(MARK_ANDOLD_SINCE);
 			driver.quit();
@@ -757,17 +767,18 @@ public class Krx implements Crawler {
 		}
 
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT_DURATION);
 		try {
 			driver.navigate().to(URL_ETF_EACH_SUMMARY_INFO);
 
 			// 종목명에 코드 검색 - 코드 입력
-			WebElement keywordElement = driver.findElement(By.xpath("//*[@id='tboxisuCd_finder_secuprodisu1_0']"), TIMEOUT * 4);
+			WebElement keywordElement = driver.findElement(By.xpath("//*[@id='tboxisuCd_finder_secuprodisu1_0']"), DEFAULT_TIMEOUT_DURATION_LONG);
 			keywordElement.clear();
 			keywordElement.sendKeys(code);
 			keywordElement.sendKeys(Keys.TAB);
 
 			// 1. 종목명에 코드 검색 - 검색 아이콘 클릭
-			driver.findElement(By.xpath("//*[@id='btnisuCd_finder_secuprodisu1_0']"), TIMEOUT).click();
+			driver.findElement(By.xpath("//*[@id='btnisuCd_finder_secuprodisu1_0']"), DEFAULT_TIMEOUT_DURATION).click();
 
 			// 자동으로 갔다 와야하는데 ....
 			if (!driver.waitUntilExist(By.xpath("//*[@id='jsLayer_finder_secuprodisu1_0']"), true, TIMEOUT)) {
@@ -786,7 +797,7 @@ public class Krx implements Crawler {
 			// 조회 클릭
 			By BY_STANDARD_CODE = By.xpath("//*[@id='jsGrid_MDCSTAT047_1']/tbody/tr[3]/td[1]/text()");	// 표준코드
 			String previousStandardCode = driver.getText(BY_STANDARD_CODE, TIMEOUT, URL_ETF_EACH_SUMMARY_INFO);
-			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), TIMEOUT).click();
+			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), DEFAULT_TIMEOUT_DURATION).click();
 			driver.waitUntilTextNotInclude(BY_STANDARD_CODE, TIMEOUT, previousStandardCode);
 			
 			StringBuffer sb = new StringBuffer();
@@ -796,7 +807,7 @@ public class Krx implements Crawler {
 			sb.append(String.format("KEYWORD\t%s\n", driver.getText(By.xpath("//*[@id='jsIdxInfo']/p/label"), TIMEOUT, "-")));
 
 			// 테이블 전체 출력
-			WebElement tableElement = driver.findElement(By.xpath("//*[@id='jsGrid_MDCSTAT047_1']"), TIMEOUT);
+			WebElement tableElement = driver.findElement(By.xpath("//*[@id='jsGrid_MDCSTAT047_1']"), DEFAULT_TIMEOUT_DURATION);
 			sb.append(driver.extractTextContentFromTableElement(tableElement));
 			driver.quit();
 
@@ -849,17 +860,18 @@ public class Krx implements Crawler {
 		}
 
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT_DURATION);
 		try {
 			driver.navigate().to(URL_PRICE_COMPANY_EACH);
 
 			// 종목명에 코드 검색 - 코드 입력
-			WebElement keywordElement = driver.findElement(By.xpath("//*[@id='tboxisuCd_finder_stkisu0_0']"), TIMEOUT * 4);
+			WebElement keywordElement = driver.findElement(By.xpath("//*[@id='tboxisuCd_finder_stkisu0_0']"), DEFAULT_TIMEOUT_DURATION_LONG);
 			keywordElement.clear();
 			keywordElement.sendKeys(code);
 			keywordElement.sendKeys(Keys.TAB);
 
 			// 1. 종목명에 코드 검색 - 검색 아이콘 클릭
-			driver.findElement(By.xpath("//*[@id='btnisuCd_finder_stkisu0_0']"), TIMEOUT).click();
+			driver.findElement(By.xpath("//*[@id='btnisuCd_finder_stkisu0_0']"), DEFAULT_TIMEOUT_DURATION).click();
 
 			// 자동으로 갔다 와야하는데 ....
 			if (!driver.waitUntilExist(By.xpath("//div[@id='jsLayer_finder_stkisu0_0']"), true, TIMEOUT)) {
@@ -879,18 +891,18 @@ public class Krx implements Crawler {
 			sb.append(MARK_START_END_POINT_PRICE_COMPANY_EACH);
 
 			// 2. 조회기간 설정, 2년 기간 제한이 없다, ETF만 있다
-			WebElement startDateElement = driver.findElement(By.xpath("//*[@id='strdDd']"), TIMEOUT);
+			WebElement startDateElement = driver.findElement(By.xpath("//*[@id='strdDd']"), DEFAULT_TIMEOUT_DURATION);
 			startDateElement.clear();
 			startDateElement.sendKeys(LocalDate.ofInstant(start.toInstant(), Utility.ZONE_ID_KST).format(DateTimeFormatter.BASIC_ISO_DATE)); // 조회기간 시작일
 			startDateElement.sendKeys(Keys.TAB); // 시작일 입력
 			
 			// 조회 클릭
-			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), TIMEOUT).click();
+			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), DEFAULT_TIMEOUT_DURATION).click();
 
 			for (String prev = "";;) {
 				long forStarted = System.currentTimeMillis();
 
-				WebElement table = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), TIMEOUT);
+				WebElement table = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), DEFAULT_TIMEOUT_DURATION);
 				sb.append(driver.getAttribute(table, "textContent", String.format("%s\t", code)));
 				sb.append(MARK_ANDOLD_SINCE);
 
@@ -935,17 +947,18 @@ public class Krx implements Crawler {
 		}
 
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT_DURATION);
 		try {
 			driver.navigate().to(URL_PRICE_ETF_EACH);
 
 			// 종목명에 코드 검색 - 코드 입력
-			WebElement keywordElement = driver.findElement(By.xpath("//*[@id='tboxisuCd_finder_secuprodisu1_0']"), TIMEOUT);
+			WebElement keywordElement = driver.findElement(By.xpath("//*[@id='tboxisuCd_finder_secuprodisu1_0']"), DEFAULT_TIMEOUT_DURATION);
 			keywordElement.clear();
 			keywordElement.sendKeys(code);
 			keywordElement.sendKeys(Keys.TAB);
 
 			// 1. 종목명에 코드 검색 - 검색 아이콘 클릭
-			driver.findElement(By.xpath("//*[@id='btnisuCd_finder_secuprodisu1_0']"), TIMEOUT).click();
+			driver.findElement(By.xpath("//*[@id='btnisuCd_finder_secuprodisu1_0']"), DEFAULT_TIMEOUT_DURATION).click();
 
 			// 자동으로 갔다 와야하는데 ....
 			if (!driver.waitUntilExist(By.xpath("//*[@id='jsLayer_finder_secuprodisu1_0']"), true, TIMEOUT)) {
@@ -970,24 +983,24 @@ public class Krx implements Crawler {
 
 				String endDateString = cx.format(DateTimeFormatter.BASIC_ISO_DATE);
 				String startDateString = cx.minusYears(2).plusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
-				WebElement startDateElement = driver.findElement(By.xpath("//*[@id='strtDd']"), TIMEOUT);
+				WebElement startDateElement = driver.findElement(By.xpath("//*[@id='strtDd']"), DEFAULT_TIMEOUT_DURATION);
 
 				startDateElement.clear();
 				startDateElement.sendKeys(startDateString); // 조회기간 시작일
 				startDateElement.sendKeys(Keys.TAB); // 시작일 입력
 		
-				WebElement endDateElement = driver.findElement(By.xpath("//*[@id='endDd']"), TIMEOUT);
+				WebElement endDateElement = driver.findElement(By.xpath("//*[@id='endDd']"), DEFAULT_TIMEOUT_DURATION);
 				endDateElement.clear();
 				endDateElement.sendKeys(endDateString); // 조회기간 종료일
 				endDateElement.sendKeys(Keys.TAB); // 종료일 입력
 				
 				// 조회 클릭
-				driver.findElement(By.xpath("//*[@id='jsSearchButton']"), TIMEOUT).click();
+				driver.findElement(By.xpath("//*[@id='jsSearchButton']"), DEFAULT_TIMEOUT_DURATION).click();
 
 				for (String prev = "";;) {
 					long forStarted = System.currentTimeMillis();
 
-					WebElement table = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), TIMEOUT);
+					WebElement table = driver.findElement(By.xpath("//*[@id='jsMdiContent']/div/div[1]/div[1]/div[1]/div[2]/div/div/table"), DEFAULT_TIMEOUT_DURATION);
 					sb.append(driver.getAttribute(table, "textContent", String.format("%s\t", code)));
 					sb.append(MARK_ANDOLD_SINCE);
 

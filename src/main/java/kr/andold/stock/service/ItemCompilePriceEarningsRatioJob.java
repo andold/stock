@@ -1,6 +1,7 @@
 package kr.andold.stock.service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,6 +32,9 @@ public class ItemCompilePriceEarningsRatioJob implements Job {
 	@Autowired
 	private PriceService priceService;
 
+	private List<DividendHistoryDomain> dividends;
+	private List<PriceDomain> prices;
+
 	@Override
 	public STATUS run() {
 		log.info("{} run()", Utility.indentStart());
@@ -49,9 +53,69 @@ public class ItemCompilePriceEarningsRatioJob implements Job {
 		return STATUS.SUCCESS;
 	}
 
-	private void compileByThenPrice(Map<String, Float> map) {
-		// TODO Auto-generated method stub
+	private Map<String, Float> compileByThenPrice(Map<String, Float> mapMaxRecent) {
+		log.info("{} compileByThenPrice()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		Map<String, PriceDomain> mapThenPrice = new HashMap<>();	//	당시 주식 가격
+		for (PriceDomain price : prices) {
+			String key = String.format("%s.%tF", price.getCode(), price.getBase());
+			mapThenPrice.put(key, price);
+		}
+
+		Map<String, Float> mapYearlySummaryRatio = new HashMap<>();	//	연간 배당금 합계
+		for (DividendHistoryDomain dividend : dividends) {
+			if (dividend.getDividend() < 0) {
+				continue;
+			}
+
+			PriceDomain price = candidate(mapThenPrice, dividend.getCode(), dividend.getBase());
+			if (price == null) {
+				log.warn("{} NO-PRICE compileByThenPrice() - 『{}』", Utility.indentMiddle(), dividend);
+				continue;
+			}
+
+			Float priceEarningsRatio = dividend.getDividend().floatValue() / price.getClosing().floatValue() * 100f;
+			String key = String.format("%s.%d", dividend.getCode(), LocalDate.ofInstant(dividend.getBase().toInstant(), Utility.ZONE_ID_KST).getYear());
+			Float before = mapYearlySummaryRatio.get(key);
+			if (before == null) {
+				mapYearlySummaryRatio.put(key, priceEarningsRatio);
+				continue;
+			}
+			mapYearlySummaryRatio.put(key, priceEarningsRatio + before);
+		}
+
+		for (String key : mapYearlySummaryRatio.keySet()) {
+			String code = key.replaceAll("\\.[0-9]+", "");
+			Float priceEarningsRatio = mapYearlySummaryRatio.get(key);
+			Float before = mapMaxRecent.get(code);
+			if (before == null) {
+				mapMaxRecent.put(code, priceEarningsRatio);
+				continue;
+			}
+			
+			if (before < priceEarningsRatio) {
+				mapMaxRecent.put(code, priceEarningsRatio);
+				continue;
+			}
+		}
 		
+		log.info("{} 『#{}』 compileByThenPrice() - {}", Utility.indentEnd(), Utility.size(mapMaxRecent), Utility.toStringPastTimeReadable(started));
+		return mapMaxRecent;
+	}
+
+	private PriceDomain candidate(Map<String, PriceDomain> map, String code, Date base) {
+		for (int cx = 0, sizex = 14; cx < sizex; cx++) {
+			String key = String.format("%s.%s", code, LocalDate.ofInstant(base.toInstant(), Utility.ZONE_ID_KST).minusDays(cx).format(DateTimeFormatter.ISO_LOCAL_DATE));
+			PriceDomain price = map.get(key);
+			if (price == null) {
+				continue;
+			}
+			
+			return price;
+		}
+
+		return null;
 	}
 
 	// 현재 주식 가격을 기준으로 배당율, 최근 최대 배당
@@ -60,12 +124,12 @@ public class ItemCompilePriceEarningsRatioJob implements Job {
 		long started = System.currentTimeMillis();
 
 		Date yearsAgo = Date.from(LocalDate.of(LocalDate.now().getYear() - 3, 1, 1).atStartOfDay(Utility.ZONE_ID_KST).toInstant());
-		DividendHistoryParam dividendHistoryParam = DividendHistoryParam.builder().start(yearsAgo).build();
-		List<DividendHistoryDomain> dividends = dividendHistoryService.search(dividendHistoryParam);
 
-		Date weeksAgo = Date.from(LocalDate.now().minusWeeks(2).atStartOfDay(Utility.ZONE_ID_KST).toInstant());
-		PriceParam priceParam = PriceParam.builder().start(weeksAgo).build();
-		List<PriceDomain> prices = priceService.search(priceParam);
+		DividendHistoryParam dividendHistoryParam = DividendHistoryParam.builder().start(yearsAgo).build();
+		dividends = dividendHistoryService.search(dividendHistoryParam);
+
+		PriceParam priceParam = PriceParam.builder().start(yearsAgo).build();
+		prices = priceService.search(priceParam);
 		
 		Map<String, PriceDomain> mapCurrentPrice = new HashMap<>();	//	현재 주식 가격
 		for (PriceDomain price : prices) {
@@ -84,6 +148,10 @@ public class ItemCompilePriceEarningsRatioJob implements Job {
 
 		Map<String, Integer> mapYearlySummaryDividend = new HashMap<>();	//	연간 배당금 합계
 		for (DividendHistoryDomain dividend : dividends) {
+			if (dividend.getDividend() < 0) {
+				continue;
+			}
+
 			String key = String.format("%s.%d", dividend.getCode(), LocalDate.ofInstant(dividend.getBase().toInstant(), Utility.ZONE_ID_KST).getYear());
 			Integer before = mapYearlySummaryDividend.get(key);
 			if (before == null) {
@@ -103,7 +171,7 @@ public class ItemCompilePriceEarningsRatioJob implements Job {
 			}
 
 			Integer dividend = mapYearlySummaryDividend.get(key);
-			Float priceEarningsRatio = dividend.floatValue() / price.getClosing().floatValue() * 100;
+			Float priceEarningsRatio = dividend.floatValue() / price.getClosing().floatValue() * 100f;
 			Float before = mapMaxRecent.get(code);
 			if (before == null) {
 				mapMaxRecent.put(code, priceEarningsRatio);

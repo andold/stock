@@ -25,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class Kind implements Crawler {
+	private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(4);
+	private static final Duration DEFAULT_TIMEOUT_DURATION_LONG = Duration.ofMinutes(1);
 	private static final int TIMEOUT = 4000;
 
 	// KIND > 투자유의사항 > 기타사항 > 상장폐지현황
@@ -43,6 +45,7 @@ public class Kind implements Crawler {
 		long started = System.currentTimeMillis();
 
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT_DURATION);
 		try {
 			driver.navigate().to(URL_COMPANY_EACH_SUMMARY_INFO);
 			String parent = driver.getWindowHandle();
@@ -90,12 +93,12 @@ public class Kind implements Crawler {
 				}
 				cx = currentPage;
 
-				List<WebElement> trs_ = driver.findElements(By.xpath("//*[@id='main-contents']/section[1]/table/tbody/tr"), TIMEOUT);
+				List<WebElement> trs_ = driver.findElements(By.xpath("//*[@id='main-contents']/section[1]/table/tbody/tr"), DEFAULT_TIMEOUT_DURATION);
 				for (int cy = 0, sizey = trs_.size(); cy < sizey; cy++) {
 					long forStarted = System.currentTimeMillis();
 
 					driver.switchTo().window(parent);
-					List<WebElement> trs = driver.findElements(By.xpath("//*[@id='main-contents']/section[1]/table/tbody/tr"), TIMEOUT);
+					List<WebElement> trs = driver.findElements(By.xpath("//*[@id='main-contents']/section[1]/table/tbody/tr"), DEFAULT_TIMEOUT_DURATION);
 					WebElement tr = trs.get(cy);			
 					WebElement link = tr.findElement(By.xpath("td[2]/a"));
 					WebElement dateElement = driver.findElement(tr, By.xpath("td[3]"), TIMEOUT);
@@ -142,7 +145,7 @@ public class Kind implements Crawler {
 				
 				// next
 				driver.switchTo().window(parent);
-				driver.findElement(By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='paging type-00']/a[@class='next']"), TIMEOUT).click();
+				driver.findElement(By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='paging type-00']/a[@class='next']"), DEFAULT_TIMEOUT_DURATION).click();
 				driver.waitUntilTextNotInclude(BY_CURRENT_PAGE, TIMEOUT, cx);
 
 				log.debug("{} 『{}』 itemByIpoCloseStatus({}) - {}", Utility.indentMiddle(), cx, start, Utility.toStringPastTimeReadable(started));
@@ -336,7 +339,7 @@ public class Kind implements Crawler {
 				
 				// next
 				driver.switchTo().window(parent);
-				driver.findElement(By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='paging type-00']/a[@class='next']"), TIMEOUT).click();
+				driver.findElement(By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='paging type-00']/a[@class='next']"), DEFAULT_TIMEOUT_DURATION).click();
 				driver.waitUntilTextNotInclude(BY_CURRENT_PAGE, TIMEOUT, cx);
 
 				log.info("{} 『{}』 item({}) - {}", Utility.indentMiddle(), cx, start, Utility.toStringPastTimeReadable(started));
@@ -404,20 +407,21 @@ public class Kind implements Crawler {
 		long started = System.currentTimeMillis();
 
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
+		driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT_DURATION);
 		try {
 			driver.navigate().to(URL_COMPANY_EACH_SUMMARY_INFO);
 			String parent = driver.getWindowHandle();
 
 			// 전체 클릭
-			driver.findElement(By.xpath("//*[@id='search-btn-dates']/ul/li/a[@class='ord-07']"), TIMEOUT * 4).click();
+			driver.findElement(By.xpath("//*[@id='search-btn-dates']/ul/li/a[@class='ord-07']"), DEFAULT_TIMEOUT_DURATION_LONG).click();
 			
 			// 100건 선택, 화면 페이지를 줄이기 위해서 크게 잡는다
-			new Select(driver.findElement(By.xpath("//select[@id='currentPageSize']"), TIMEOUT * 4)).selectByVisibleText("100건");
+			new Select(driver.findElement(By.xpath("//select[@id='currentPageSize']"), DEFAULT_TIMEOUT_DURATION_LONG)).selectByVisibleText("100건");
 			
 			// 검색 클릭
 			By BY_COUNT = By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='info type-00']/em");
 			String count = driver.getText(BY_COUNT, TIMEOUT, "32");
-			driver.findElement(By.xpath("//*[@id='searchForm']/section/div/div[@class='btn-group type-bt']/a[@title='검색']"), TIMEOUT).click();
+			driver.findElement(By.xpath("//*[@id='searchForm']/section/div/div[@class='btn-group type-bt']/a[@title='검색']"), DEFAULT_TIMEOUT_DURATION).click();
 			driver.waitUntilTextNotInclude(BY_COUNT, TIMEOUT, count);
 
 			By BY_CURRENT_PAGE = By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='paging type-00']/a[@class='active']");
@@ -434,12 +438,12 @@ public class Kind implements Crawler {
 				}
 				cx = currentPage;
 
-				List<WebElement> trs_ = driver.findElements(By.xpath("//*[@id='main-contents']/section[1]/table/tbody/tr"), TIMEOUT);
+				List<WebElement> trs_ = driver.findElements(By.xpath("//*[@id='main-contents']/section[1]/table/tbody/tr"), DEFAULT_TIMEOUT_DURATION);
 				for (int cy = 0, sizey = trs_.size(); cy < sizey; cy++) {
 					long forStarted = System.currentTimeMillis();
 
 					driver.switchTo().window(parent);
-					List<WebElement> trs = driver.findElements(By.xpath("//*[@id='main-contents']/section[1]/table/tbody/tr"), TIMEOUT);
+					List<WebElement> trs = driver.findElements(By.xpath("//*[@id='main-contents']/section[1]/table/tbody/tr"), DEFAULT_TIMEOUT_DURATION);
 					WebElement tr = trs.get(cy);			
 					WebElement link = tr.findElement(By.xpath("td[2]/a"));
 					WebElement dateElement = driver.findElement(tr, By.xpath("td[3]"), TIMEOUT);
@@ -478,7 +482,7 @@ public class Kind implements Crawler {
 				
 				// next
 				driver.switchTo().window(parent);
-				driver.findElement(By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='paging type-00']/a[@class='next']"), TIMEOUT).click();
+				driver.findElement(By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='paging type-00']/a[@class='next']"), DEFAULT_TIMEOUT_DURATION).click();
 				driver.waitUntilTextNotInclude(BY_CURRENT_PAGE, TIMEOUT, cx);
 
 				log.debug("{} 『{}』 itemIpoCloseAll() - {}", Utility.indentMiddle(), cx, Utility.toStringPastTimeReadable(started));
