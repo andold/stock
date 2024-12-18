@@ -19,12 +19,15 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletResponse;
+import kr.andold.stock.ApplicationContextProvider;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.CommonBlockService.CrudList;
+import kr.andold.stock.service.ItemCompilePriceEarningsRatioJob;
 import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.ItemDetailJob;
+import kr.andold.stock.service.JobService.Job;
 import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
 
@@ -69,6 +72,15 @@ public class ApiItemController {
 
 		log.info("{} {}:{} - crawl({})", Utility.indentEnd(), result, code, param);
 		return result;
+	}
+
+	@GetMapping(value = "compile")
+	public void compile() {
+		log.info("{} compile()", Utility.indentStart());
+
+		JobService.getQueue1().offer((Job)ApplicationContextProvider.getBean(ItemCompilePriceEarningsRatioJob.class));
+
+		log.info("{} compile()", Utility.indentEnd());
 	}
 
 	@ResponseBody

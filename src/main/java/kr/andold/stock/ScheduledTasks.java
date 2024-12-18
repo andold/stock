@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.BackupJob;
@@ -29,22 +30,27 @@ import lombok.extern.slf4j.Slf4j;
 public class ScheduledTasks {
 	@Autowired private JobService jobService;
 
-	@Scheduled(initialDelay = 1000 * 30, fixedDelay = Long.MAX_VALUE)
+	@Scheduled(initialDelay = 1000 * 8, fixedDelay = Long.MAX_VALUE)
 	public void once() {
 		log.info("{} once()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		JobService.getQueue3().offer(ItemDetailJob.builder().code(null).build());
-		JobService.getQueue3().offer(ItemDividendJob.builder().code(null).build());
-		JobService.getQueue3().offer(ItemPriceJob.builder().code(null).build());
-		JobService.getQueue3().offer(BackupJob.builder().build());
-		JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
+		if (CrawlerService.getDebug()) {
+			log.info("{} DEBUG once() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
+			return;
+		}
+
+		JobService.getQueue2().offer(ItemDetailJob.builder().code(null).build());
+		JobService.getQueue2().offer(ItemDividendJob.builder().code(null).build());
+		JobService.getQueue2().offer(ItemPriceJob.builder().code(null).build());
+		JobService.getQueue2().offer(BackupJob.builder().build());
+		JobService.getQueue2().offer(DeduplicatePriceJob.builder().build());
 
 		log.info("{} once() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
 	
 	// 1초쉬고
-	@Scheduled(initialDelay = 1000 * 32, fixedDelay = 1000)
+	@Scheduled(initialDelay = 1000 * 16, fixedDelay = 1000)
 	public void secondly() {
 		log.trace("{} secondly()", Utility.indentStart());
 		long started = System.currentTimeMillis();

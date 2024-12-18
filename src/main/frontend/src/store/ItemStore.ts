@@ -14,6 +14,9 @@ class ItemStore {
 	crawl(request?: any, onSuccess?: any, onError?: any, element?: any) {
 		repository.crawl(request, onSuccess, onError, element);
 	}
+	compile(request?: any, onSuccess?: any, onError?: any, element?: any) {
+		repository.compile(request, onSuccess, onError, element);
+	}
 	download(filename: string, onSuccess?: any, onError?: any, element?: any) {
 		repository.download(filename, onSuccess, onError, element);
 	}

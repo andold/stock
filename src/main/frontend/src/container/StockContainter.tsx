@@ -256,6 +256,7 @@ function Header(props: any) {
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 											);
 										}}>주식 전체, 정보 다시 읽어 오기</Dropdown.Item>
+										<Dropdown.Item onClick={(param: any) => itemStore.compile({})}>최근 배당수익율 다시 계산</Dropdown.Item>
 										<Dropdown.Item onClick={(param: any) => {
 											setSpinner(spinner + 1);
 											store.compile(null

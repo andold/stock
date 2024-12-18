@@ -38,6 +38,15 @@
 		</encoder>
 	</appender>
 
+	<logger name="com" additivity="false" value="warn">
+		<appender-ref ref="console" />
+		<appender-ref ref="general" />
+	</logger>
+	<logger name="org" additivity="false" value="warn">
+		<appender-ref ref="console" />
+		<appender-ref ref="general" />
+	</logger>
+
 	<logger name="kr.andold.stock" additivity="false" value="debug">
 		<appender-ref ref="console" />
 		<appender-ref ref="stock" />

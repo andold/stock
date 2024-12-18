@@ -27,7 +27,7 @@ public class ItemSpecification {
 	            predicates.add(builder.lessThan(root.get("priority"), (param.getPriority() + 1) * 4));
 	        }
 	        if (StringUtils.hasText(param.getType())) {
-	            predicates.add(builder.equal(builder.lower(root.get("base")), param.getType().toLowerCase()));
+	            predicates.add(builder.equal(builder.lower(root.get("type")), param.getType().toLowerCase()));
 	        }
 	        if (param.getIpoOpen() != null) {
 	            predicates.add(builder.greaterThanOrEqualTo(root.get("ipoOpen"), param.getIpoOpen()));

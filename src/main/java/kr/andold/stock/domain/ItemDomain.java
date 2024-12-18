@@ -3,7 +3,7 @@ package kr.andold.stock.domain;
 import org.springframework.beans.BeanUtils;
 
 import kr.andold.stock.entity.ItemEntity;
-import kr.andold.utils.Utility;
+import kr.andold.stock.service.Utility;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -175,7 +175,7 @@ public class ItemDomain extends ItemEntity implements CommonBlockDomain<ItemDoma
 		}
 
 		if (getPriceEarningsRatio() != null) {
-			compared = Utility.compare(getPriceEarningsRatio(), before.getPriceEarningsRatio());
+			compared = Utility.compareFloat(getPriceEarningsRatio(), before.getPriceEarningsRatio(), 0.000001f);
 			if (compared != 0) {
 				return compared;
 			}

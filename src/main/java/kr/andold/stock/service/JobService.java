@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import kr.andold.stock.ApplicationContextProvider;
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.crawler.Seibro;
 import kr.andold.stock.domain.DividendHistoryDomain;
@@ -41,7 +42,7 @@ public class JobService {
 	@Autowired private DividendHistoryService dividendHistoryService;
 	@Autowired private PriceService priceService;
 
-	static interface Job {
+	public static interface Job {
 		default STATUS run() {
 			return STATUS.NOT_SUPPORT;
 		}
@@ -177,6 +178,13 @@ public class JobService {
 			return STATUS.INVALID;
 		}
 		
+		if (job instanceof ItemCompilePriceEarningsRatioJob) {
+			STATUS result = job.run();
+
+			log.debug("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
+			return STATUS.SUCCESS;
+		}
+
 		if (job instanceof DeduplicatePriceJob) {
 			STATUS result = deduplicatePrice((DeduplicatePriceJob) job);
 
@@ -408,6 +416,7 @@ public class JobService {
 
 		Result<ParserResult> crawlPriceResult = crawlerService.crawlPrice(Date.from(LocalDate.now().atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)));
 		queue2.offer(StockCompileJob.builder().start(LocalDate.now().minusDays(7)).build());
+		queue2.offer((Job)ApplicationContextProvider.getBean(ItemCompilePriceEarningsRatioJob.class));
 
 		log.info("{} 『{}』 priceLatest() - 『{}』 - {}", Utility.indentEnd(), STATUS.SUCCESS, crawlPriceResult, Utility.toStringPastTimeReadable(started));
 		return STATUS.SUCCESS;
