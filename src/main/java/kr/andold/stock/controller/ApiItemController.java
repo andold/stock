@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletResponse;
-import kr.andold.stock.ApplicationContextProvider;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.CommonBlockService.CrudList;
@@ -27,7 +26,6 @@ import kr.andold.stock.service.ItemCompilePriceEarningsRatioJob;
 import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.ItemDetailJob;
-import kr.andold.stock.service.JobService.Job;
 import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,8 +62,6 @@ public class ApiItemController {
 	public CrudList<ItemDomain> crawl(@RequestBody ItemParam param) {
 		log.info("{} crawl({})", Utility.indentStart(), param);
 
-//		CrudList<ItemDomain> result = service.crawl(param);
-
 		String code = (param == null || param.getCode() == null || param.getCode().isBlank()) ? null : param.getCode();
 		JobService.getQueue2().offer(ItemDetailJob.builder().code(code).build());
 		CrudList<ItemDomain> result = CrudList.<ItemDomain>builder().build();
@@ -78,7 +74,7 @@ public class ApiItemController {
 	public void compile() {
 		log.info("{} compile()", Utility.indentStart());
 
-		JobService.getQueue1().offer((Job)ApplicationContextProvider.getBean(ItemCompilePriceEarningsRatioJob.class));
+		JobService.getQueue1().offer(new ItemCompilePriceEarningsRatioJob());
 
 		log.info("{} compile()", Utility.indentEnd());
 	}

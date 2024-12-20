@@ -55,7 +55,10 @@ public class ScheduledTasks {
 		log.trace("{} secondly()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		STATUS result = jobService.run();
+		STATUS result = STATUS.ALEADY_DONE;
+		for (int cx = 0; cx < 128 && result == STATUS.ALEADY_DONE; cx++) {
+			result = jobService.run();
+		}
 
 		log.trace("{} 『{}』 secondly() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 	}

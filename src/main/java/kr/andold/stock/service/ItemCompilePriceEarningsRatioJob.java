@@ -7,10 +7,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import kr.andold.stock.ApplicationContextProvider;
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
@@ -20,6 +20,7 @@ import kr.andold.stock.param.PriceParam;
 import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.JobService.Job;
 import kr.andold.utils.Utility;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -35,13 +36,27 @@ public class ItemCompilePriceEarningsRatioJob implements Job {
 	private List<DividendHistoryDomain> dividends;
 	private List<PriceDomain> prices;
 
+	@Getter private long timeout = 120;	//	TimeUnit.SECONDS
+	
 	@Override
-	public STATUS run() {
-		log.info("{} run()", Utility.indentStart());
+	public STATUS call() throws Exception {
+		log.info("{} call()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		Map<String, Float> map = compileByCurrentPrice();
-		compileByThenPrice(map);
+		ItemCompilePriceEarningsRatioJob that = (ItemCompilePriceEarningsRatioJob) ApplicationContextProvider.getBean(ItemCompilePriceEarningsRatioJob.class);
+		STATUS result = that.main();
+		
+		log.info("{} 『#{}』 call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		return STATUS.SUCCESS;
+	}
+
+	private STATUS main() throws Exception {
+		log.info("{} main()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		ItemCompilePriceEarningsRatioJob that = (ItemCompilePriceEarningsRatioJob) ApplicationContextProvider.getBean(ItemCompilePriceEarningsRatioJob.class);
+		Map<String, Float> map = that.compileByCurrentPrice();
+		that.compileByThenPrice(map);
 		List<ItemDomain> items = new ArrayList<>();
 		for (String code : map.keySet()) {
 			ItemDomain item = ItemDomain.builder().code(code).priceEarningsRatio(map.get(code)).build();
@@ -49,7 +64,7 @@ public class ItemCompilePriceEarningsRatioJob implements Job {
 		}
 		CrudList<ItemDomain> result = itemService.put(items);
 
-		log.info("{} 『#{}』 run() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		log.info("{} 『#{}』 main() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return STATUS.SUCCESS;
 	}
 

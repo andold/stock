@@ -10,8 +10,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedDeque;
-
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,8 +46,11 @@ public class JobService {
 	@Autowired private DividendHistoryService dividendHistoryService;
 	@Autowired private PriceService priceService;
 
-	public static interface Job {
-		default STATUS run() {
+	public static interface Job extends Callable<STATUS> {
+		default long getTimeout() {
+			return 1;
+		}
+		default STATUS call() throws Exception {
 			return STATUS.NOT_SUPPORT;
 		}
 	}
@@ -179,73 +186,84 @@ public class JobService {
 		}
 		
 		if (job instanceof ItemCompilePriceEarningsRatioJob) {
-			STATUS result = job.run();
+			ItemCompilePriceEarningsRatioJob itemJob = (ItemCompilePriceEarningsRatioJob) job;
+			ExecutorService executor = Executors.newSingleThreadExecutor();
+	        Future<STATUS> future = executor.submit(itemJob);
+			STATUS result = STATUS.EXCEPTION;
+			try {
+		        result = future.get(itemJob.getTimeout(), TimeUnit.SECONDS);
+				executor.shutdown();
+			} catch (Exception e) {
+				log.error("{} run({}) - Exception::{}", Utility.indentMiddle(), job, e.getLocalizedMessage(), e);
+				future.cancel(true);
+				executor.shutdownNow();
+			}
 
-			log.debug("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
-			return STATUS.SUCCESS;
+			log.info("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
+			return result;
 		}
 
 		if (job instanceof DeduplicatePriceJob) {
 			STATUS result = deduplicatePrice((DeduplicatePriceJob) job);
 
 			log.debug("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
-			return STATUS.SUCCESS;
+			return result;
 		}
 
 		if (job instanceof BackupJob) {
 			STATUS result = backup((BackupJob) job);
 
 			log.debug("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
-			return STATUS.SUCCESS;
+			return result;
 		}
 
 		if (job instanceof ItemPriceJob) {
 			STATUS result = itemPrice((ItemPriceJob) job);
 
 			log.debug("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
-			return STATUS.SUCCESS;
+			return result;
 		}
 
 		if (job instanceof ItemDetailJob) {
 			STATUS result = itemDetail((ItemDetailJob) job);
 
 			log.debug("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
-			return STATUS.SUCCESS;
+			return result;
 		}
 
 		if (job instanceof PriceLatestJob) {
 			STATUS result = priceLatest((PriceLatestJob) job);
 
 			log.debug("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
-			return STATUS.SUCCESS;
+			return result;
 		}
 
 		if (job instanceof StockCompileJob) {
 			STATUS result = stockCompile((StockCompileJob) job);
 
 			log.debug("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
-			return STATUS.SUCCESS;
+			return result;
 		}
 
 		if (job instanceof DividendAllRecentJob) {
 			STATUS result = dividendAllRecent((DividendAllRecentJob) job);
 
 			log.debug("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
-			return STATUS.SUCCESS;
+			return result;
 		}
 
 		if (job instanceof ItemIpoCloseRecentJob) {
 			STATUS result = itemIpoCloseRecent((ItemIpoCloseRecentJob) job);
 
 			log.debug("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
-			return STATUS.SUCCESS;
+			return result;
 		}
 
 		if (job instanceof ItemDividendJob) {
 			STATUS result = itemDividend((ItemDividendJob) job);
 
 			log.debug("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
-			return STATUS.SUCCESS;
+			return result;
 		}
 
 		log.trace("{} 『{}』 run({}) - {}", Utility.indentEnd(), STATUS.NOT_SUPPORT, job, Utility.toStringPastTimeReadable(started));
