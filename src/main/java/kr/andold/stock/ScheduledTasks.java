@@ -10,11 +10,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.Result.STATUS;
+import kr.andold.stock.service.ItemDetailJob;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.BackupJob;
 import kr.andold.stock.service.JobService.DeduplicatePriceJob;
 import kr.andold.stock.service.JobService.DividendAllRecentJob;
-import kr.andold.stock.service.JobService.ItemDetailJob;
 import kr.andold.stock.service.JobService.ItemDividendJob;
 import kr.andold.stock.service.JobService.ItemIpoCloseRecentJob;
 import kr.andold.stock.service.JobService.ItemPriceJob;

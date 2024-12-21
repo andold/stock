@@ -36,7 +36,7 @@ public class ItemCompilePriceEarningsRatioJob implements Job {
 	private List<DividendHistoryDomain> dividends;
 	private List<PriceDomain> prices;
 
-	@Getter private long timeout = 120;	//	TimeUnit.SECONDS
+	@Getter private Long timeout = 240L;	//	TimeUnit.SECONDS
 	
 	@Override
 	public STATUS call() throws Exception {
@@ -86,7 +86,7 @@ public class ItemCompilePriceEarningsRatioJob implements Job {
 
 			PriceDomain price = candidate(mapThenPrice, dividend.getCode(), dividend.getBase());
 			if (price == null) {
-				log.warn("{} NO-PRICE compileByThenPrice() - 『{}』", Utility.indentMiddle(), dividend);
+				log.debug("{} NO-PRICE compileByThenPrice() - 『{}』", Utility.indentMiddle(), dividend);
 				continue;
 			}
 

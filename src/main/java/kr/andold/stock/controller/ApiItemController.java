@@ -23,9 +23,9 @@ import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.ItemCompilePriceEarningsRatioJob;
+import kr.andold.stock.service.ItemDetailJob;
 import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.JobService;
-import kr.andold.stock.service.JobService.ItemDetailJob;
 import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
 

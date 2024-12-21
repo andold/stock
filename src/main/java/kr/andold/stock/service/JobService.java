@@ -47,17 +47,12 @@ public class JobService {
 	@Autowired private PriceService priceService;
 
 	public static interface Job extends Callable<STATUS> {
-		default long getTimeout() {
-			return 1;
+		default Long getTimeout() {
+			return 1L;
 		}
 		default STATUS call() throws Exception {
 			return STATUS.NOT_SUPPORT;
 		}
-	}
-	@Data
-	@Builder
-	public static class ItemDetailJob implements Job {
-		private String code;
 	}
 	@Data
 	@Builder
@@ -185,13 +180,13 @@ public class JobService {
 			return STATUS.INVALID;
 		}
 		
-		if (job instanceof ItemCompilePriceEarningsRatioJob) {
-			ItemCompilePriceEarningsRatioJob itemJob = (ItemCompilePriceEarningsRatioJob) job;
+		if (job instanceof ItemCompilePriceEarningsRatioJob
+				|| job instanceof ItemDetailJob) {
 			ExecutorService executor = Executors.newSingleThreadExecutor();
-	        Future<STATUS> future = executor.submit(itemJob);
+	        Future<STATUS> future = executor.submit(job);
 			STATUS result = STATUS.EXCEPTION;
 			try {
-		        result = future.get(itemJob.getTimeout(), TimeUnit.SECONDS);
+		        result = future.get(job.getTimeout(), TimeUnit.SECONDS);
 				executor.shutdown();
 			} catch (Exception e) {
 				log.error("{} run({}) - Exception::{}", Utility.indentMiddle(), job, e.getLocalizedMessage(), e);
@@ -199,7 +194,7 @@ public class JobService {
 				executor.shutdownNow();
 			}
 
-			log.info("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
+			log.trace("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
 			return result;
 		}
 
@@ -219,13 +214,6 @@ public class JobService {
 
 		if (job instanceof ItemPriceJob) {
 			STATUS result = itemPrice((ItemPriceJob) job);
-
-			log.debug("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
-			return result;
-		}
-
-		if (job instanceof ItemDetailJob) {
-			STATUS result = itemDetail((ItemDetailJob) job);
 
 			log.debug("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
 			return result;
@@ -438,60 +426,6 @@ public class JobService {
 
 		log.info("{} 『{}』 priceLatest() - 『{}』 - {}", Utility.indentEnd(), STATUS.SUCCESS, crawlPriceResult, Utility.toStringPastTimeReadable(started));
 		return STATUS.SUCCESS;
-	}
-
-	private STATUS itemDetail(ItemDetailJob job) {
-		log.trace("{} itemDetail(『{}』)", Utility.indentStart(), job);
-		long started = System.currentTimeMillis();
-
-		String code = job.getCode();
-		if (code == null || code.isBlank()) {
-			//	null is all
-			List<ItemDomain> items = itemService.search(null);
-			for (ItemDomain item: items) {
-				queue2.offer(ItemDetailJob.builder().code(item.getCode()).build());
-			}
-
-			log.debug("{} 『{}:#{}』 run() - 『{}』 - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.size(items), code, Utility.toStringPastTimeReadable(started));
-			return STATUS.SUCCESS;
-		}
-
-		ItemDomain item = itemService.read(code);
-		if (item == null) {
-			log.debug("{} 『{}』 run() - 『{}』 - {}", Utility.indentEnd(), STATUS.INVALID, code, Utility.toStringPastTimeReadable(started));
-			return STATUS.INVALID;
-		}
-
-		String symbol = item.getSymbol();
-		Date ipoOpen = item.getIpoOpen();
-		Date ipoClose = item.getIpoClose();
-		Integer volumeOfListedShares = item.getVolumeOfListedShares();
-		String type = item.getType();
-		String category = item.getCategory();
-		Date today = new Date();
-
-		if (!(symbol == null || symbol.isBlank()
-					|| volumeOfListedShares == null
-					|| type == null || type.isBlank()
-					|| category == null || category.isBlank()
-					|| ipoOpen == null
-				)
-				|| (ipoClose != null && ipoClose.before(today))
-				|| (type != null && (type.contains("비상장") || type.contains("코넥스")))
-			) {
-			log.trace("{} 『{}』 run() - 『{}』 - {}", Utility.indentEnd(), STATUS.ALEADY_DONE, item, Utility.toStringPastTimeReadable(started));
-			return STATUS.ALEADY_DONE;
-		}
-
-		Result<ParserResult> itemResult = seibro.item(item.getCode());
-		if (itemResult.getStatus() == STATUS.SUCCESS) {
-			put(itemResult.getResult());
-			log.debug("{} 『{}:{}』 run() - 『{}』 - {}", Utility.indentEnd(), STATUS.SUCCESS, itemResult, item, Utility.toStringPastTimeReadable(started));
-			return STATUS.SUCCESS;
-		}
-
-		log.debug("{} 『{}:{}』 run() - 『{}』 - {}", Utility.indentEnd(), STATUS.FAILURE, itemResult, item, Utility.toStringPastTimeReadable(started));
-		return STATUS.FAILURE;
 	}
 
 	private STATUS deduplicatePrice(DeduplicatePriceJob job) {

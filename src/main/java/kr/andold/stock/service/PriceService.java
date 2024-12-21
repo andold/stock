@@ -145,15 +145,14 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		if (param == null) {
 			entities = repository.findAll();
 		} else {
-//			entities = repository.search(param);
 			entities = repository.findAll(PriceSpecification.searchWith(param), Sort.by(Direction.ASC, "code", "base"));
 		}
-		List<PriceDomain> domains = new ArrayList<PriceDomain>();
+		List<PriceDomain> domains = new ArrayList<>();
 		for (PriceEntity entity : entities) {
 			domains.add(PriceDomain.of(entity));
 		}
 
-		log.info("{} #{} prices({}) - {}", Utility.indentEnd(), Utility.size(domains), param, Utility.toStringPastTimeReadable(started));
+		log.info("{} #{} search({}) - {}", Utility.indentEnd(), Utility.size(domains), param, Utility.toStringPastTimeReadable(started));
 		return domains;
 	}
 

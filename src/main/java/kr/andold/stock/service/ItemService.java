@@ -1,5 +1,6 @@
 package kr.andold.stock.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -36,26 +37,36 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 
 	@Cacheable(value= "items")
 	public ItemParam search(ItemParam param, Pageable page) {
+		log.info("{} search({}, {})", Utility.indentStart(), param, page);
+		long started = System.currentTimeMillis();
+
 		Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), DEFAULT_SORT);
 		Page<ItemEntity> result = repository.findAll(ItemSpecification.searchWith(param), pageable);
 		param.setTotalPages(result.getTotalPages());
 		param.setItems(result.get().map(entity -> ItemDomain.of(entity)).collect(Collectors.toList()));
+
+		log.info("{} {} search({}, {}) - {}", Utility.indentEnd(), result, param, page, Utility.toStringPastTimeReadable(started));
 		return param;
 	}
 
 	@Cacheable(value= "items")
 	@Override
 	public List<ItemDomain> search(ItemParam param) {
+		log.info("{} search({})", Utility.indentStart(), param);
+		long started = System.currentTimeMillis();
+
 		if (param == null) {
-			param = ItemParam.builder()
-					.build();
+			param = ItemParam.builder().build();
 		}
 
-		List<ItemEntity> page = repository.findAll(ItemSpecification.searchWith(param), DEFAULT_SORT);
-		return page
-				.stream()
-				.map(entity -> ItemDomain.of(entity))
-				.collect(Collectors.toList());
+		List<ItemEntity> entities = repository.findAll(ItemSpecification.searchWith(param), DEFAULT_SORT);
+		List<ItemDomain> domains = new ArrayList<>();
+		for (ItemEntity entity : entities) {
+			domains.add(ItemDomain.of(entity));
+		}
+
+		log.info("{} #{} search({}) - {}", Utility.indentEnd(), Utility.size(domains), param, Utility.toStringPastTimeReadable(started));
+		return domains;
 	}
 
 	@Modifying
