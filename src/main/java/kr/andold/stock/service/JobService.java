@@ -56,11 +56,6 @@ public class JobService {
 	}
 	@Data
 	@Builder
-	public static class ItemDividendJob implements Job {
-		private String code;
-	}
-	@Data
-	@Builder
 	public static class ItemPriceJob implements Job {
 		private String code;
 	}
