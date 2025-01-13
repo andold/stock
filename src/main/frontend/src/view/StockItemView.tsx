@@ -53,7 +53,7 @@ export default ((props: any) => {
 				}, (_: any, prices: Price[]) => {
 				processItemPrice(items, prices);
 				dividendHistoryStore.search({
-					start: moment().subtract(10, "years").startOf("year").format("YYYY-MM-DDTHH:mm:ss.SSSZZ"),
+					start: moment().subtract(10, "years").startOf("year").format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
 					codes: codes,
 				}, (_: any, histories: DividendHistory[]) => {
 					processItemDividendHistory(items, histories);
