@@ -123,12 +123,12 @@ export default ((props: any) => {
 		if (!gridRef.current) {
 			return;
 		}
-		gridRef.current.api.applyColumnState({
+		gridRef.current!.api.applyColumnState({
 			state: [{ colId: 'priceEarningsRatio', sort: 'desc' }],
 			defaultState: { sort: null },
 		});
-		gridRef.current.api.setGridOption("domLayout", "autoHeight");
-		gridRef.current.api.sizeColumnsToFit();
+		gridRef.current!.api.setGridOption("domLayout", "autoHeight");
+		gridRef.current!.api.sizeColumnsToFit();
 	}
 
 	return (<>
