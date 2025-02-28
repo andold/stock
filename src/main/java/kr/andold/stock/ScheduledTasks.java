@@ -3,12 +3,10 @@ package kr.andold.stock;
 import java.time.LocalDate;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.service.ItemDetailJob;
 import kr.andold.stock.service.ItemDividendJob;
@@ -20,31 +18,31 @@ import kr.andold.stock.service.JobService.ItemIpoCloseRecentJob;
 import kr.andold.stock.service.JobService.ItemPriceJob;
 import kr.andold.stock.service.JobService.PriceLatestJob;
 import kr.andold.stock.service.JobService.StockCompileJob;
+import kr.andold.stock.service.ZookeeperClient;
 import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
 @EnableScheduling
-@ConditionalOnProperty(value = "application.scheduling.enable", havingValue = "true", matchIfMissing = true)
 public class ScheduledTasks {
 	@Autowired private JobService jobService;
+	@Autowired private ZookeeperClient zookeeperClient;
 
 	@Scheduled(initialDelay = 1000 * 8, fixedDelay = Long.MAX_VALUE)
 	public void once() {
 		log.info("{} once()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		if (CrawlerService.getDebug()) {
-			log.info("{} DEBUG once() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
-			return;
+		zookeeperClient.run();
+		Utility.sleep(1000 * 16);
+		if (ZookeeperClient.isMaster()) {
+			JobService.getQueue2().offer(ItemDetailJob.builder().code(null).build());
+			JobService.getQueue2().offer(ItemDividendJob.builder().code(null).build());
+			JobService.getQueue2().offer(ItemPriceJob.builder().code(null).build());
+			JobService.getQueue2().offer(BackupJob.builder().build());
+			JobService.getQueue2().offer(DeduplicatePriceJob.builder().build());
 		}
-
-		JobService.getQueue2().offer(ItemDetailJob.builder().code(null).build());
-		JobService.getQueue2().offer(ItemDividendJob.builder().code(null).build());
-		JobService.getQueue2().offer(ItemPriceJob.builder().code(null).build());
-		JobService.getQueue2().offer(BackupJob.builder().build());
-		JobService.getQueue2().offer(DeduplicatePriceJob.builder().build());
 
 		log.info("{} once() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
@@ -89,10 +87,12 @@ public class ScheduledTasks {
 		log.info("{} daily()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		JobService.getQueue2().offer(PriceLatestJob.builder().build());
-		JobService.getQueue2().offer(ItemDetailJob.builder().code(null).build());
-		JobService.getQueue3().offer(BackupJob.builder().build());
-		JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
+		if (ZookeeperClient.isMaster()) {
+			JobService.getQueue2().offer(PriceLatestJob.builder().build());
+			JobService.getQueue2().offer(ItemDetailJob.builder().code(null).build());
+			JobService.getQueue3().offer(BackupJob.builder().build());
+			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
+		}
 
 		log.info("{} daily() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
@@ -103,13 +103,15 @@ public class ScheduledTasks {
 		log.info("{} weekly()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		JobService.getQueue2().offer(DividendAllRecentJob.builder().build());
-		JobService.getQueue2().offer(ItemIpoCloseRecentJob.builder()
-				.date(Date.from(LocalDate.now().minusMonths(12).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)))
-				.build());
-		JobService.getQueue3().offer(BackupJob.builder().build());
-		JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
-		JobService.getQueue3().offer(StockCompileJob.builder().start(LocalDate.now().minusWeeks(2)).build());
+		if (ZookeeperClient.isMaster()) {
+			JobService.getQueue2().offer(DividendAllRecentJob.builder().build());
+			JobService.getQueue2().offer(ItemIpoCloseRecentJob.builder()
+					.date(Date.from(LocalDate.now().minusMonths(12).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)))
+					.build());
+			JobService.getQueue3().offer(BackupJob.builder().build());
+			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
+			JobService.getQueue3().offer(StockCompileJob.builder().start(LocalDate.now().minusWeeks(2)).build());
+		}
 
 		log.info("{} weekly() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
@@ -119,7 +121,9 @@ public class ScheduledTasks {
 	public void monthly() {
 		log.info("{} monthly()", Utility.indentStart());
 
-		JobService.getQueue3().offer(StockCompileJob.builder().start(LocalDate.now().minusMonths(2)).build());
+		if (ZookeeperClient.isMaster()) {
+			JobService.getQueue3().offer(StockCompileJob.builder().start(LocalDate.now().minusMonths(2)).build());
+		}
 
 		log.info("{} monthly()", Utility.indentEnd());
 	}
@@ -130,7 +134,9 @@ public class ScheduledTasks {
 		log.info("{} quarterly()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-//		Result<ParserResult> result = crawlerService.crawlItemAll();
+		if (ZookeeperClient.isMaster()) {
+//			Result<ParserResult> result = crawlerService.crawlItemAll();
+		}
 
 		log.info("{} quarterly() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
@@ -140,7 +146,9 @@ public class ScheduledTasks {
 	public void yearly() {
 		log.info("{} yearly()", Utility.indentStart());
 
-		JobService.getQueue3().offer(StockCompileJob.builder().start(LocalDate.now().minusYears(2)).build());
+		if (ZookeeperClient.isMaster()) {
+			JobService.getQueue3().offer(StockCompileJob.builder().start(LocalDate.now().minusYears(2)).build());
+		}
 
 		log.info("{} yearly()", Utility.indentEnd());
 	}
