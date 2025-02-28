@@ -1,32 +1,42 @@
 {"properties": [
   {
-    "name": "data.path",
+    "name": "application.bacukp.dir",
     "type": "java.lang.String",
-    "description": "사용자 데이터 경로"
+    "description": "A description for 'application.bacukp.dir'"
   },
   {
-    "name": "data.webdriver.chrome.driver",
+    "name": "application.crawler.date.start",
     "type": "java.lang.String",
-    "description": "크롬 드라이버 설치 경로"
+    "description": "A description for 'application.crawler.date.start'"
   },
   {
-    "name": "app.scheduling.enable",
+    "name": "application.zookeeper.znode.elect.path",
     "type": "java.lang.String",
-    "description": "일정 시간마다 반복적으로 하는 작업. 테스트계에서는 필요없다."
-  },
-  {
-    "name": "app.crawler.debug",
+    "description": "A description for 'application.zookeeper.znode.elect.path'"
+  }
+]}{
+    "name": "application.zookeeper.connect.string",
     "type": "java.lang.String",
-    "description": "크롤링시 테스트계에서 디버깅을 위하여 데이터 샘플링하기 위한"
-  },
-  {
-    "name": "app.crawler.date.start",
+    "description": "A description for 'application.zookeeper.connect.string'"
+  }
+]}{
+    "name": "application.selenium.webdriver.chrome.driver",
     "type": "java.lang.String",
-    "description": "크롤링 자료를 가져오는 시작 날짜"
-  },
-  {
-    "name": "data.user.data.dir",
+    "description": "A description for 'application.selenium.webdriver.chrome.driver'"
+  }
+]}{
+    "name": "application.selenium.user.data.dir",
     "type": "java.lang.String",
-    "description": "A description for 'data.user.data.dir'"
+    "description": "A description for 'application.selenium.user.data.dir'"
+  }
+]}{
+    "name": "application.scheduling.enable",
+    "type": "java.lang.String",
+    "description": "A description for 'application.scheduling.enable'"
+  }
+]}{
+    "name": "application.crawler.debug",
+    "type": "java.lang.String",
+    "description": "A description for 'application.crawler.debug'"
   }
 ]}
