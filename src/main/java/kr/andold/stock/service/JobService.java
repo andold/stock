@@ -472,9 +472,9 @@ public class JobService {
 		makeMap(map, queue2);
 		makeMap(map, queue3);
 
-		log.info("{} 『{}/{}/{}/{}』 status()", Utility.indentMiddle(), Utility.size(queue0), Utility.size(queue1), Utility.size(queue2), Utility.size(queue3));
+		log.info("{} 『{}/{}/{}/{}』『master:{}』 status()", Utility.indentMiddle(), Utility.size(queue0), Utility.size(queue1), Utility.size(queue2), Utility.size(queue3), ZookeeperClient.isMaster());
 		for (String key: map.keySet()) {
-			log.debug("{} 『{}: {}』 status()", Utility.indentMiddle(), key, map.get(key));
+			log.debug("{} 『{}: {}』『master:{}』 status()", Utility.indentMiddle(), key, map.get(key), ZookeeperClient.isMaster());
 		}
 	}
 
