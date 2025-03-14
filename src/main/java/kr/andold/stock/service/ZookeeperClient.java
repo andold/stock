@@ -123,7 +123,7 @@ public class ZookeeperClient implements Watcher {
 		}
 
 		try {
-			List<String> children = zookeeper.getChildren(getCurrentZNodeName(), false);
+			List<String> children = zookeeper.getChildren(getZookeeperZnodeElectPath(), false);
 			Collections.sort(children);
 			String smallestChild = children.get(0);
 			isMaster = smallestChild.equals(currentZNodeName);
