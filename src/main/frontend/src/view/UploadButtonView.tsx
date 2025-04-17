@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 import { Button, Spinner } from "react-bootstrap";
 import { useDrop } from "react-dnd";
@@ -14,7 +14,7 @@ import dividendStore from "../store/DividendHistoryStore";
 //	UploadButtonView.tsx
 export default ((_: any) => {
 	const [disableUpload, setDisableUpload] = useState(0);
-
+	const dropRef = useRef<HTMLDivElement>(null);
 	const [{ isOver, canDrop }, drop] = useDrop(
 		() => ({
 			accept: [NativeTypes.FILE],
@@ -54,11 +54,22 @@ export default ((_: any) => {
 		v = "danger";
 	}
 
-	return (<>
-		<Button ref={drop} size="sm" variant={v} className="ms-1" disabled={disableUpload > 0}>
-			<Spinner as="span" animation="grow" variant="warning" size="sm" role="status" className="mx-1 align-middle" hidden={disableUpload <= 0} />
-			업로드 영역({disableUpload})
-		</Button>
-	</>);
+	drop(dropRef);
 
+	return (
+		<div ref={dropRef}>
+			<Button size="sm" variant={v} className="ms-1" disabled={disableUpload > 0}>
+				<Spinner
+					as="span"
+					animation="grow"
+					variant="warning"
+					size="sm"
+					role="status"
+					className="mx-1 align-middle"
+					hidden={disableUpload <= 0}
+				/>
+				업로드 영역({disableUpload})
+			</Button>
+		</div>
+	);
 });
