@@ -539,7 +539,7 @@ function dividendBarGraphRatioByClosingPrice(mapHistory: any, start: any, curren
 										const history = mapHistory.get(moment([start.year() + cx, 11 - cy]).format("YYYY-MM"));
 										if (history && history.dividend && history.priceClosing) {
 											return (
-												<OverlayTrigger key={cy} overlay={<Tooltip>{moment([start.year() + cx, 11 - cy]).format("YYYY-MM")}: {((history.dividend / history.priceClosing * 100) || 0).toFixed(2)}%</Tooltip>}>
+												<OverlayTrigger key={Math.random()} overlay={<Tooltip>{moment([start.year() + cx, 11 - cy]).format("YYYY-MM")}: {((history.dividend / history.priceClosing * 100) || 0).toFixed(2)}%</Tooltip>}>
 													<Row className="px-0" style={{
 														marginLeft: 1,
 														marginRight: 1,
@@ -634,7 +634,7 @@ function dividendBarGraphAmount(mapHistory: any, start: any, lineHeight: number)
 	return (
 		<Row className="m-0 p-0 border-bottom" style={{ top: 0, }}>{
 			store.range(years).map((cx: number) => (
-				<Col key={cx} className={`m-0 p-0${cx >= years - 1 ? " border-bottom border-danger" : ""}`} style={{ height: lineHeight, }}>
+				<Col key={Math.random()} className={`m-0 p-0${cx >= years - 1 ? " border-bottom border-danger" : ""}`} style={{ height: lineHeight, }}>
 					<Row className="m-0 p-0">
 						<OverlayTrigger overlay={<Tooltip>{start.year() + cx}년: {(mapHistory.get(start.year() + cx) || 0).toLocaleString()}원</Tooltip>}>
 							<Col className="m-0 p-0" style={{ verticalAlign: "top", height: lineHeight, }}>
@@ -648,7 +648,7 @@ function dividendBarGraphAmount(mapHistory: any, start: any, lineHeight: number)
 										const history = mapHistory.get(moment([start.year() + cx, 11 - cy]).format("YYYY-MM"));
 										if (history && history.dividend > 0) {
 											return (
-												<Row className="px-0" style={{
+												<Row key={Math.random()} className="px-0" style={{
 													marginLeft: 1,
 													marginRight: 1,
 													height: history.dividend / max * lineHeight,
