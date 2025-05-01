@@ -152,9 +152,10 @@ public class JobService {
 				result = STATUS.SUCCESS;
 			}
 
-			int mills = startedNetworkUsage.pause(1024 * 1024 * 8 / 60); // 1분(60초)에 1 Mbytes 트래픽
+			int mills1MB = startedNetworkUsage.pause(1024 * 1024 * 8 / 60);
+			int mills = Math.min(60 * 1000, mills1MB); // 1분(60초)에 1 Mbytes 트래픽
 			if (mills > 1000) {
-				log.info("{} 『{}』 run() - PAUSE {}", Utility.indentEnd(), result, Utility.toStringTimeReadable(mills));
+				log.info("{} 『{}:{}ms/MB』 run() - PAUSE {}", Utility.indentMiddle(), result, mills1MB, Utility.toStringTimeReadable(mills));
 			}
 			Utility.sleep(mills);
 		} catch (Exception e) {
