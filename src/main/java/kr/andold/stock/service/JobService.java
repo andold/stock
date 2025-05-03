@@ -46,6 +46,8 @@ public class JobService {
 	@Autowired private DividendHistoryService dividendHistoryService;
 	@Autowired private PriceService priceService;
 
+	@Autowired private ZookeeperClient zookeeperClient;
+
 	public static interface Job extends Callable<STATUS> {
 		default Long getTimeout() {
 			return 1L;
@@ -473,9 +475,9 @@ public class JobService {
 		makeMap(map, queue2);
 		makeMap(map, queue3);
 
-		log.info("{} 『{}/{}/{}/{}』『master:{}』 status()", Utility.indentMiddle(), Utility.size(queue0), Utility.size(queue1), Utility.size(queue2), Utility.size(queue3), ZookeeperClient.isMaster());
+		log.info("{} 『{}/{}/{}/{}』『master:{}』 status()", Utility.indentMiddle(), Utility.size(queue0), Utility.size(queue1), Utility.size(queue2), Utility.size(queue3), zookeeperClient.isMaster());
 		for (String key: map.keySet()) {
-			log.debug("{} 『{}: {}』『master:{}』 status()", Utility.indentMiddle(), key, map.get(key), ZookeeperClient.isMaster());
+			log.debug("{} 『{}: {}』『master:{}』 status()", Utility.indentMiddle(), key, map.get(key), zookeeperClient.isMaster());
 		}
 	}
 

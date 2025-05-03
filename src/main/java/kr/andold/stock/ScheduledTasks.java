@@ -35,8 +35,8 @@ public class ScheduledTasks {
 		long started = System.currentTimeMillis();
 
 		zookeeperClient.run();
-		Utility.sleep(1000 * 16);
-		if (ZookeeperClient.isMaster()) {
+		Utility.sleep(1000 * 32);
+		if (zookeeperClient.isMaster()) {
 			JobService.getQueue2().offer(ItemDetailJob.builder().code(null).build());
 			JobService.getQueue2().offer(ItemDividendJob.builder().code(null).build());
 			JobService.getQueue2().offer(ItemPriceJob.builder().code(null).build());
@@ -87,7 +87,7 @@ public class ScheduledTasks {
 		log.info("{} daily()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		if (ZookeeperClient.isMaster()) {
+		if (zookeeperClient.isMaster()) {
 			JobService.getQueue2().offer(PriceLatestJob.builder().build());
 			JobService.getQueue2().offer(ItemDetailJob.builder().code(null).build());
 			JobService.getQueue3().offer(BackupJob.builder().build());
@@ -103,7 +103,7 @@ public class ScheduledTasks {
 		log.info("{} weekly()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		if (ZookeeperClient.isMaster()) {
+		if (zookeeperClient.isMaster()) {
 			JobService.getQueue2().offer(DividendAllRecentJob.builder().build());
 			JobService.getQueue2().offer(ItemIpoCloseRecentJob.builder()
 					.date(Date.from(LocalDate.now().minusMonths(12).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)))
@@ -121,7 +121,7 @@ public class ScheduledTasks {
 	public void monthly() {
 		log.info("{} monthly()", Utility.indentStart());
 
-		if (ZookeeperClient.isMaster()) {
+		if (zookeeperClient.isMaster()) {
 			JobService.getQueue3().offer(StockCompileJob.builder().start(LocalDate.now().minusMonths(2)).build());
 		}
 
@@ -134,7 +134,7 @@ public class ScheduledTasks {
 		log.info("{} quarterly()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		if (ZookeeperClient.isMaster()) {
+		if (zookeeperClient.isMaster()) {
 //			Result<ParserResult> result = crawlerService.crawlItemAll();
 		}
 
@@ -146,7 +146,7 @@ public class ScheduledTasks {
 	public void yearly() {
 		log.info("{} yearly()", Utility.indentStart());
 
-		if (ZookeeperClient.isMaster()) {
+		if (zookeeperClient.isMaster()) {
 			JobService.getQueue3().offer(StockCompileJob.builder().start(LocalDate.now().minusYears(2)).build());
 		}
 
