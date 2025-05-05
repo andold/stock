@@ -468,16 +468,16 @@ public class JobService {
 		return result;
 	}
 
-	public void status() {
+	public void status(String prefix) {
 		Map<String, Integer> map = new HashMap<>();
 		makeMap(map, queue0);
 		makeMap(map, queue1);
 		makeMap(map, queue2);
 		makeMap(map, queue3);
 
-		log.info("{} 『{}/{}/{}/{}』『master:{}』 status()", Utility.indentMiddle(), Utility.size(queue0), Utility.size(queue1), Utility.size(queue2), Utility.size(queue3), zookeeperClient.isMaster());
+		log.info("{} {} 『{}/{}/{}/{}』『master:{}』 status()", Utility.indentMiddle(), prefix, Utility.size(queue0), Utility.size(queue1), Utility.size(queue2), Utility.size(queue3), zookeeperClient.isMaster());
 		for (String key: map.keySet()) {
-			log.debug("{} 『{}: {}』『master:{}』 status()", Utility.indentMiddle(), key, map.get(key), zookeeperClient.isMaster());
+			log.debug("{} {} 『{}: {}』『master:{}』 status()", Utility.indentMiddle(), prefix, key, map.get(key), zookeeperClient.isMaster());
 		}
 	}
 

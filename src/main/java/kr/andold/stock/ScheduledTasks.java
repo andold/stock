@@ -67,7 +67,7 @@ public class ScheduledTasks {
 		log.debug("{} minutely()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		jobService.status();
+		jobService.status(zookeeperClient.status(true));
 
 		log.debug("{} minutely() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
