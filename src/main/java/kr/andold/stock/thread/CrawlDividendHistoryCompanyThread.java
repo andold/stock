@@ -138,7 +138,7 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 			By BY_CURRENT_PAGE = By.xpath("//div[@id='cntsPaging01']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']");
 
 			// 첫번째 라인 저장
-			String previous1stLine = chromeDriver.getText(BY_TABLE_1ST_LINE, TIMEOUT, MARK_ANDOLD_SINCE);
+			String previous1stLine = chromeDriver.getText(BY_TABLE_1ST_LINE, DEFAULT_TIMEOUT_DURATION, MARK_ANDOLD_SINCE);
 
 			// 혹시 몰라 닫기 클릭
 			chromeDriver.switchTo().defaultContent();
@@ -154,7 +154,7 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 			StringBuffer sb = new StringBuffer();
 
 			// 페이징 처리 - 여기부터
-			String currentPage = chromeDriver.getText(BY_CURRENT_PAGE, TIMEOUT, "andold");	//	현재 페이지 번호
+			String currentPage = chromeDriver.getText(BY_CURRENT_PAGE, DEFAULT_TIMEOUT_DURATION, "andold");	//	현재 페이지 번호
 			while(true) {
 				WebElement table = chromeDriver.findElement(BY_TABLE, DEFAULT_TIMEOUT_DURATION);
 				sb.append(chromeDriver.extractTextContentFromTableElement(table));
@@ -164,9 +164,9 @@ public class CrawlDividendHistoryCompanyThread implements Callable<ParserResult>
 				
 				// 변경 확인
 				chromeDriver.waitUntilTextNotInclude(BY_TABLE_1ST_LINE, TIMEOUT, previous1stLine);
-				previous1stLine = chromeDriver.getText(BY_TABLE_1ST_LINE, TIMEOUT, MARK_ANDOLD_SINCE);
+				previous1stLine = chromeDriver.getText(BY_TABLE_1ST_LINE, DEFAULT_TIMEOUT_DURATION, MARK_ANDOLD_SINCE);
 
-				String nextPage = chromeDriver.getText(BY_CURRENT_PAGE, TIMEOUT, currentPage);
+				String nextPage = chromeDriver.getText(BY_CURRENT_PAGE, DEFAULT_TIMEOUT_DURATION, currentPage);
 				if (currentPage.equalsIgnoreCase(nextPage)) {
 					break;
 				}

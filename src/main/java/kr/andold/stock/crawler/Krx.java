@@ -726,7 +726,7 @@ public class Krx implements Crawler {
 
 			// 조회 클릭
 			By BY_STANDARD_CODE = By.xpath("//*[@id='ovrvwGenBind']/tbody/tr[2]/td[1]/text()");	// 표준코드
-			String previousStandardCode = driver.getText(BY_STANDARD_CODE, TIMEOUT, URL_COMPANY_EACH_SUMMARY_INFO);
+			String previousStandardCode = driver.getText(BY_STANDARD_CODE, DEFAULT_TIMEOUT_DURATION, URL_COMPANY_EACH_SUMMARY_INFO);
 			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), DEFAULT_TIMEOUT_DURATION).click();
 			driver.waitUntilTextNotInclude(BY_STANDARD_CODE, TIMEOUT, previousStandardCode);
 			
@@ -734,7 +734,7 @@ public class Krx implements Crawler {
 			sb.append(MARK_START_END_POINT_COMPANY_EACH_SUMMARY_INFO);
 			
 			// 타입	ex)  | KOSDAQ
-			sb.append(String.format("KEYWORD\t%s\n", driver.getText(By.xpath("//*[@id='isuInfoTitle']/text()"), TIMEOUT, "-").replaceAll("[ \\|]+", "")));
+			sb.append(String.format("KEYWORD\t%s\n", driver.getText(By.xpath("//*[@id='isuInfoTitle']/text()"), DEFAULT_TIMEOUT_DURATION, "-").replaceAll("[ \\|]+", "")));
 			
 			// 정보 테이블 출력
 			WebElement tableElement = driver.findElement(By.xpath("//*[@id='ovrvwGenBind']"), DEFAULT_TIMEOUT_DURATION);
@@ -796,7 +796,7 @@ public class Krx implements Crawler {
 
 			// 조회 클릭
 			By BY_STANDARD_CODE = By.xpath("//*[@id='jsGrid_MDCSTAT047_1']/tbody/tr[3]/td[1]/text()");	// 표준코드
-			String previousStandardCode = driver.getText(BY_STANDARD_CODE, TIMEOUT, URL_ETF_EACH_SUMMARY_INFO);
+			String previousStandardCode = driver.getText(BY_STANDARD_CODE, DEFAULT_TIMEOUT_DURATION, URL_ETF_EACH_SUMMARY_INFO);
 			driver.findElement(By.xpath("//*[@id='jsSearchButton']"), DEFAULT_TIMEOUT_DURATION).click();
 			driver.waitUntilTextNotInclude(BY_STANDARD_CODE, TIMEOUT, previousStandardCode);
 			
@@ -804,7 +804,7 @@ public class Krx implements Crawler {
 			sb.append(MARK_START_END_POINT_ETF_EACH_SUMMARY_INFO);
 
 			// 종목명 약어 ex) TIGER 미국나스닥100커버드콜(합성) (441680)
-			sb.append(String.format("KEYWORD\t%s\n", driver.getText(By.xpath("//*[@id='jsIdxInfo']/p/label"), TIMEOUT, "-")));
+			sb.append(String.format("KEYWORD\t%s\n", driver.getText(By.xpath("//*[@id='jsIdxInfo']/p/label"), DEFAULT_TIMEOUT_DURATION, "-")));
 
 			// 테이블 전체 출력
 			WebElement tableElement = driver.findElement(By.xpath("//*[@id='jsGrid_MDCSTAT047_1']"), DEFAULT_TIMEOUT_DURATION);

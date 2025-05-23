@@ -139,7 +139,7 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 			// 종목명 입력
 			WebElement keywordElement = driver.findElement(By.xpath("//input[@id='search_string']")); // 종목명 검색어 입력창
 			By BY_MARK_CODE_SEARCH_DONE = By.xpath("//ul[@id='contentsList']/li");
-			String textPrevious = driver.getText(BY_MARK_CODE_SEARCH_DONE, 1, "andold");
+			String textPrevious = driver.getText(BY_MARK_CODE_SEARCH_DONE, DEFAULT_TIMEOUT_DURATION, "andold");
 			keywordElement.clear();
 			keywordElement.sendKeys(code);
 			
@@ -176,7 +176,7 @@ public class CrawlDividendHistoryEtfThread implements Callable<ParserResult> {
 			
 			// 조회 아이콘 클릭
 			By BY_MARK_DIVIDEND_SEARCH_DONE = By.xpath("//*[@id='grid1_body_table']//td[3]");
-			textPrevious = driver.getText(BY_MARK_DIVIDEND_SEARCH_DONE, 1, "andold");
+			textPrevious = driver.getText(BY_MARK_DIVIDEND_SEARCH_DONE, DEFAULT_TIMEOUT_DURATION, "andold");
 			driver.findElement(By.xpath("//*[@id='image17']")).click();
 
 			// 내용이 바뀔 때까지

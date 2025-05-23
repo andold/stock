@@ -86,7 +86,7 @@ public class Kind implements Crawler {
 			Date currentDate = new Date();;
 			for(String cx = "0";;) {
 				driver.switchTo().window(parent);
-				String currentPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, cx);
+				String currentPage = driver.getText(BY_CURRENT_PAGE, DEFAULT_TIMEOUT_DURATION, cx);
 				log.info("{} itemByIpoCloseStatus({}) - 『{}』", Utility.indentMiddle(), start, currentPage);
 				if (currentPage.equalsIgnoreCase(cx) || start.after(currentDate)) {
 					break;
@@ -124,9 +124,9 @@ public class Kind implements Crawler {
 						}
 
 						driver.switchTo().window(child);
-						String content = driver.getText(By.xpath("/html/body/form/section/div/table[1]/tbody/tr[3]/td[2]/strong"), TIMEOUT * 4, previousCode);
+						String content = driver.getText(By.xpath("/html/body/form/section/div/table[1]/tbody/tr[3]/td[2]/strong"), DEFAULT_TIMEOUT_DURATION_LONG, previousCode);
 						if (content.strip().endsWith("상장폐지")) {
-							String code = driver.getText(By.xpath("/html/body/form/section/div/table[1]/tbody/tr[2]/td[2]"), TIMEOUT, null);
+							String code = driver.getText(By.xpath("/html/body/form/section/div/table[1]/tbody/tr[2]/td[2]"), DEFAULT_TIMEOUT_DURATION, null);
 							log.info("{} itemByIpoCloseStatus({}) - 『{}』", Utility.indentMiddle(), start, Utility.ellipsisEscape(code, 32, 32));
 							items.add(ItemDomain.builder().code(code).ipoClose(Utility.parseDateTime(date, null)).build());
 							previousCode = code;
@@ -420,7 +420,7 @@ public class Kind implements Crawler {
 			
 			// 검색 클릭
 			By BY_COUNT = By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='info type-00']/em");
-			String count = driver.getText(BY_COUNT, TIMEOUT, "32");
+			String count = driver.getText(BY_COUNT, DEFAULT_TIMEOUT_DURATION, "32");
 			driver.findElement(By.xpath("//*[@id='searchForm']/section/div/div[@class='btn-group type-bt']/a[@title='검색']"), DEFAULT_TIMEOUT_DURATION).click();
 			driver.waitUntilTextNotInclude(BY_COUNT, TIMEOUT, count);
 
@@ -432,7 +432,7 @@ public class Kind implements Crawler {
 			result.setItems(items);
 			for(String cx = "0";;) {
 				driver.switchTo().window(parent);
-				String currentPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, cx);
+				String currentPage = driver.getText(BY_CURRENT_PAGE, DEFAULT_TIMEOUT_DURATION, cx);
 				if (currentPage.equalsIgnoreCase(cx)) {
 					break;
 				}
@@ -462,9 +462,9 @@ public class Kind implements Crawler {
 						}
 
 						driver.switchTo().window(child);
-						String content = driver.getText(By.xpath("/html/body/form/section/div/table[1]/tbody/tr[3]/td[2]/strong"), TIMEOUT * 4, previousCode);
+						String content = driver.getText(By.xpath("/html/body/form/section/div/table[1]/tbody/tr[3]/td[2]/strong"), DEFAULT_TIMEOUT_DURATION_LONG, previousCode);
 						if (content.strip().endsWith("상장폐지")) {
-							String code = driver.getText(By.xpath("/html/body/form/section/div/table[1]/tbody/tr[2]/td[2]"), TIMEOUT, null);
+							String code = driver.getText(By.xpath("/html/body/form/section/div/table[1]/tbody/tr[2]/td[2]"), DEFAULT_TIMEOUT_DURATION, null);
 							items.add(ItemDomain.builder().code(code).ipoClose(Utility.parseDateTime(date, null)).build());
 							previousCode = code;
 						}

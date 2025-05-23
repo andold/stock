@@ -114,7 +114,7 @@ public class Seibro implements Crawler {
 
 			// 조회 아이콘 클릭
 			By BY_MARK_DIVIDEND_SEARCH_DONE = By.xpath("//*[@id='grid1_body_table']//td[3]");
-			String textPrevious = driver.getText(BY_MARK_DIVIDEND_SEARCH_DONE, 1, "andold");
+			String textPrevious = driver.getText(BY_MARK_DIVIDEND_SEARCH_DONE, DEFAULT_DURATION, "andold");
 			driver.findElement(By.xpath("//*[@id='image17']"), DEFAULT_DURATION).click();
 			// 내용이 바뀔 때까지
 			driver.waitUntilTextNotInclude(BY_MARK_DIVIDEND_SEARCH_DONE, TIMEOUT, textPrevious);
@@ -165,7 +165,7 @@ public class Seibro implements Crawler {
 			driver.waitUntilTextNotInclude(By.xpath("//*[@id='P_ListCnt']"), TIMEOUT, MARK_COUNT);
 	
 			// 검색 결과에서 선택
-			switch (driver.getText(By.xpath("//*[@id='P_ListCnt']"), TIMEOUT, MARK_COUNT)) {
+			switch (driver.getText(By.xpath("//*[@id='P_ListCnt']"), DEFAULT_DURATION, MARK_COUNT)) {
 			case "0":
 				driver.switchTo().defaultContent();
 				driver.findElement(By.xpath("//div[@id='group164']/a[@id='anchor3']"), DEFAULT_DURATION).click();
@@ -244,7 +244,7 @@ public class Seibro implements Crawler {
 			By BY_CURRENT_PAGE = By.xpath("//div[@id='cntsPaging01']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']");
 
 			// 첫번째 라인 저장
-			String previous1stLine = driver.getText(BY_TABLE_1ST_LINE, TIMEOUT, MARK_ANDOLD_SINCE);
+			String previous1stLine = driver.getText(BY_TABLE_1ST_LINE, DEFAULT_DURATION, MARK_ANDOLD_SINCE);
 
 			driver.switchTo().defaultContent();
 
@@ -260,7 +260,7 @@ public class Seibro implements Crawler {
 			sb.append(MARK_START_END_POINT_COMPANY);
 
 			// 페이징 처리 - 여기부터
-			String currentPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, "andold"); // 현재 페이지 번호
+			String currentPage = driver.getText(BY_CURRENT_PAGE, DEFAULT_DURATION, "andold"); // 현재 페이지 번호
 			while (true) {
 				WebElement table = driver.findElement(BY_TABLE, DEFAULT_DURATION);
 				sb.append(driver.extractTextFromTableElement(table));
@@ -270,9 +270,9 @@ public class Seibro implements Crawler {
 
 				// 변경 확인
 				driver.waitUntilTextNotInclude(BY_TABLE_1ST_LINE, TIMEOUT, previous1stLine);
-				previous1stLine = driver.getText(BY_TABLE_1ST_LINE, TIMEOUT, MARK_ANDOLD_SINCE);
+				previous1stLine = driver.getText(BY_TABLE_1ST_LINE, DEFAULT_DURATION, MARK_ANDOLD_SINCE);
 
-				String nextPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, currentPage);
+				String nextPage = driver.getText(BY_CURRENT_PAGE, DEFAULT_DURATION, currentPage);
 				if (currentPage.equalsIgnoreCase(nextPage)) {
 					break;
 				}
@@ -486,7 +486,7 @@ public class Seibro implements Crawler {
 			driver.waitUntilTextNotInclude(BY_SEARCH_RESULT_COUNT, TIMEOUT, INVALID_COUNT);
 
 			//	검색 결과에서 선택
-			String count = driver.getText(BY_SEARCH_RESULT_COUNT, TIMEOUT, "0");
+			String count = driver.getText(BY_SEARCH_RESULT_COUNT, DEFAULT_DURATION, "0");
 			if ("0".contentEquals(count)) {
 				driver.quit();
 				Result<ChromeDriverWrapper> result = Result.<ChromeDriverWrapper>builder().status(STATUS.FAIL_NO_RESULT).build();
@@ -536,7 +536,7 @@ public class Seibro implements Crawler {
 
 			// 조회 아이콘 클릭
 			By BY_TABLE_1ST_LINE = By.xpath("//table/tbody/tr[1]");
-			String previous1stLine = driver.getText(BY_TABLE_1ST_LINE, TIMEOUT, "andold");	//	이전거
+			String previous1stLine = driver.getText(BY_TABLE_1ST_LINE, DEFAULT_DURATION, "andold");	//	이전거
 			driver.findElement(By.xpath("//a[@id='group44']"), DEFAULT_DURATION).click();
 			driver.waitUntilTextNotInclude(BY_TABLE_1ST_LINE, TIMEOUT, previous1stLine);	//	이전거
 
@@ -640,7 +640,7 @@ public class Seibro implements Crawler {
 			driver.waitUntilTextNotInclude(BY_SEARCH_RESULT_COUNT, TIMEOUT, INVALID_COUNT);
 
 			//	검색 결과에서 선택
-			String count = driver.getText(BY_SEARCH_RESULT_COUNT, TIMEOUT, "0");
+			String count = driver.getText(BY_SEARCH_RESULT_COUNT, DEFAULT_DURATION, "0");
 			if ("0".contentEquals(count)) {
 				driver.quit();
 				Result<ChromeDriverWrapper> result = Result.<ChromeDriverWrapper>builder().status(STATUS.FAIL_NO_RESULT).build();
@@ -651,7 +651,7 @@ public class Seibro implements Crawler {
 			By BY_SEARCH_CODE_RESULT = By.xpath("//ul[@id='contentsList']/li/a");
 			By BY_1ST_VOLUME = By.xpath("//*[@id='grid1_cell_0_6']/nobr");
 			if ("1".contentEquals(count)) {
-				String firstVolume = driver.getText(BY_1ST_VOLUME, TIMEOUT, "-");
+				String firstVolume = driver.getText(BY_1ST_VOLUME, DEFAULT_DURATION, "-");
 				driver.clickIfExist(BY_SEARCH_CODE_RESULT);
 				driver.waitUntilTextNotInclude(BY_1ST_VOLUME, TIMEOUT, firstVolume);
 			} else {
@@ -660,7 +660,7 @@ public class Seibro implements Crawler {
 				for (WebElement candidate : candidates) {
 					String href = candidate.getAttribute("href");	// javascript:SelectedValueReturn( 'KR7391680006', '흥국HK하이볼액티브증권상장지수투자신탁[주식]' ) 
 					if (href.matches(String.format(".+KR.%s.+", code))) {
-						String firstVolume = driver.getText(BY_1ST_VOLUME, TIMEOUT, "-");
+						String firstVolume = driver.getText(BY_1ST_VOLUME, DEFAULT_DURATION, "-");
 						candidate.click();
 						driver.waitUntilTextNotInclude(BY_1ST_VOLUME, TIMEOUT, firstVolume);
 						found = true;
@@ -819,15 +819,15 @@ public class Seibro implements Crawler {
 
 			// 조회 클릭	//*[@id="grid1_cell_0_9"]/nobr
 			By BY_MARK_PAGE_CHANGE = By.xpath("//*[@id='grid1_cell_0_9']/nobr");
-			String count = driver.getText(By.xpath("//*[@id='totalCnt']"), TIMEOUT, "(-1건)");
-			String markPageChange = driver.getText(BY_MARK_PAGE_CHANGE, TIMEOUT, "");
+			String count = driver.getText(By.xpath("//*[@id='totalCnt']"), DEFAULT_DURATION, "(-1건)");
+			String markPageChange = driver.getText(BY_MARK_PAGE_CHANGE, DEFAULT_DURATION, "");
 			driver.findElement(By.xpath("//*[@id='group166']"), DEFAULT_DURATION).click();
 			driver.waitUntilTextNotInclude(By.xpath("//*[@id='totalCnt']"), TIMEOUT, count);
 			driver.waitUntilIsDisplayed(By.xpath("//*[@id='___processbar2_i']"), false, TIMEOUT);
 			driver.waitUntilTextNotInclude(BY_MARK_PAGE_CHANGE, TIMEOUT, markPageChange);
 
 			// 기준일 수집
-			String base = driver.getText(By.xpath("//*[@id='D_day1']"), TIMEOUT, "기준일 : 1980/05/18");
+			String base = driver.getText(By.xpath("//*[@id='D_day1']"), DEFAULT_DURATION, "기준일 : 1980/05/18");
 			
 			// 페이지마다 - 테이블 내용 저장
 			StringBuffer sb = new StringBuffer();
@@ -843,7 +843,7 @@ public class Seibro implements Crawler {
 				sb.append(MARK_ANDOLD_SINCE);
 
 				// 다음 페이지
-				markPageChange = driver.getText(BY_MARK_PAGE_CHANGE, TIMEOUT, "-");
+				markPageChange = driver.getText(BY_MARK_PAGE_CHANGE, DEFAULT_DURATION, "-");
 				if (CrawlerService.getDebug()) {
 					driver.clickIfExist(By.xpath("//*[@id='cntsPaging01_nextPage_btn']/a"));
 				} else {
@@ -851,7 +851,7 @@ public class Seibro implements Crawler {
 				}
 				driver.waitUntilIsDisplayed(By.xpath("//*[@id='___processbar2_i']"), false, TIMEOUT);
 				driver.waitUntilTextNotInclude(BY_MARK_PAGE_CHANGE, TIMEOUT, markPageChange);
-				String currentPageNumber = driver.getText(BY_CURRENT_PAGE, TIMEOUT, "-1");
+				String currentPageNumber = driver.getText(BY_CURRENT_PAGE, DEFAULT_DURATION, "-1");
 				
 				// 다음 페이지가 갔는데...
 				if (pageNumber.equalsIgnoreCase(currentPageNumber)) {
@@ -898,15 +898,15 @@ public class Seibro implements Crawler {
 			// 조회 클릭	//*[@id="grid1_cell_0_9"]/nobr
 			By BY_MARK_PAGE_CHANGE = By.xpath("//*[@id='grid1_cell_0_6']/nobr");
 			By BY_COUNT = By.xpath("//*[@id='LIST_CNT']");
-			String count = driver.getText(BY_COUNT, TIMEOUT, "(-1)건");
-			String markPageChange = driver.getText(BY_MARK_PAGE_CHANGE, TIMEOUT, "");
+			String count = driver.getText(BY_COUNT, DEFAULT_DURATION, "(-1)건");
+			String markPageChange = driver.getText(BY_MARK_PAGE_CHANGE, DEFAULT_DURATION, "");
 			driver.findElement(By.xpath("//*[@id='group133']"), DEFAULT_DURATION).click();
 			driver.waitUntilTextNotInclude(BY_COUNT, TIMEOUT, count);
 			driver.waitUntilIsDisplayed(By.xpath("//*[@id='___processbar2_i']"), false, TIMEOUT);
 			driver.waitUntilTextNotInclude(BY_MARK_PAGE_CHANGE, TIMEOUT, markPageChange);
 
 			// 기준일 수집
-			String base = driver.getText(By.xpath("//*[@id='STD_DT']"), TIMEOUT, "기준일 : 1980/05/18");
+			String base = driver.getText(By.xpath("//*[@id='STD_DT']"), DEFAULT_DURATION, "기준일 : 1980/05/18");
 			
 			// 페이지마다 - 테이블 내용 저장
 			StringBuffer sb = new StringBuffer();
@@ -922,7 +922,7 @@ public class Seibro implements Crawler {
 				sb.append(MARK_ANDOLD_SINCE);
 
 				// 다음 페이지
-				markPageChange = driver.getText(BY_MARK_PAGE_CHANGE, TIMEOUT, "-");
+				markPageChange = driver.getText(BY_MARK_PAGE_CHANGE, DEFAULT_DURATION, "-");
 				if (CrawlerService.getDebug()) {
 					driver.clickIfExist(By.xpath("//*[@id='pageList1_nextPage_btn']/a"));
 				} else {
@@ -930,7 +930,7 @@ public class Seibro implements Crawler {
 				}
 				driver.waitUntilIsDisplayed(By.xpath("//*[@id='___processbar2_i']"), false, TIMEOUT);
 				driver.waitUntilTextNotInclude(BY_MARK_PAGE_CHANGE, TIMEOUT, markPageChange);
-				String currentPageNumber = driver.getText(BY_CURRENT_PAGE, TIMEOUT, "-1");
+				String currentPageNumber = driver.getText(BY_CURRENT_PAGE, DEFAULT_DURATION, "-1");
 				
 				// 다음 페이지가 갔는데...
 				if (pageNumber.equalsIgnoreCase(currentPageNumber)) {
@@ -1020,7 +1020,7 @@ public class Seibro implements Crawler {
 			By BY_CURRENT_PAGE = By.xpath("//div[@id='cntsPaging01']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']");
 
 			// 첫번째 라인 저장
-			String previous1stLine = driver.getText(BY_TABLE_1ST_LINE, TIMEOUT, MARK_ANDOLD_SINCE);
+			String previous1stLine = driver.getText(BY_TABLE_1ST_LINE, DEFAULT_DURATION, MARK_ANDOLD_SINCE);
 
 			// 조회 클릭
 			if (!clickSearchIconInCompany(driver)) {
@@ -1034,7 +1034,7 @@ public class Seibro implements Crawler {
 			sb.append(MARK_START_END_POINT_COMPANY);
 
 			// 페이징 처리 - 여기부터
-			String currentPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, "andold"); // 현재 페이지 번호
+			String currentPage = driver.getText(BY_CURRENT_PAGE, DEFAULT_DURATION, "andold"); // 현재 페이지 번호
 			while (true) {
 				WebElement table = driver.findElement(By.xpath("//*[@id='grid1_body_table']"), DEFAULT_DURATION);
 				sb.append(driver.extractTextFromTableElement(table));
@@ -1044,9 +1044,9 @@ public class Seibro implements Crawler {
 
 				// 변경 확인
 				driver.waitUntilTextNotInclude(BY_TABLE_1ST_LINE, TIMEOUT, previous1stLine);
-				previous1stLine = driver.getText(BY_TABLE_1ST_LINE, TIMEOUT, MARK_ANDOLD_SINCE);
+				previous1stLine = driver.getText(BY_TABLE_1ST_LINE, DEFAULT_DURATION, MARK_ANDOLD_SINCE);
 
-				String nextPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, currentPage);
+				String nextPage = driver.getText(BY_CURRENT_PAGE, DEFAULT_DURATION, currentPage);
 				if (currentPage.equalsIgnoreCase(nextPage) || (CrawlerService.getDebug() && currentPage.equalsIgnoreCase("3"))) {
 					break;
 				}
@@ -1103,7 +1103,7 @@ public class Seibro implements Crawler {
 			// 조회 아이콘 클릭
 			By BY_MARK_DIVIDEND_SEARCH_DONE = By.xpath("//*[@id='grid1_cell_0_8']");
 			driver.setText(BY_MARK_DIVIDEND_SEARCH_DONE, MARK_ANDOLD_SINCE, TIMEOUT);
-			String textPrevious = driver.getText(BY_MARK_DIVIDEND_SEARCH_DONE, 1, "andold");
+			String textPrevious = driver.getText(BY_MARK_DIVIDEND_SEARCH_DONE, DEFAULT_DURATION, "andold");
 			driver.waitUntilIsDisplayed(By.xpath("//*[@id='wframe46']"), false, TIMEOUT);
 			driver.findElement(By.xpath("//*[@id='image17']"), DEFAULT_DURATION).click();
 			// 내용이 바뀔 때까지
@@ -1117,8 +1117,8 @@ public class Seibro implements Crawler {
 			By BY_CURRENT_PAGE = By.xpath("//div[@id='pageList1']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']");
 			By BY_NEXT_PAGE_ICON = By.xpath("//*[@id='pageList1_next_btn']/a");
 			By BY_TABLE_1ST_LINE = By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]");
-			String currentPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, "andold"); // 현재 페이지 번호
-			for(String previous1stLine = driver.getText(BY_TABLE_1ST_LINE, TIMEOUT, MARK_ANDOLD_SINCE);;) {
+			String currentPage = driver.getText(BY_CURRENT_PAGE, DEFAULT_DURATION, "andold"); // 현재 페이지 번호
+			for(String previous1stLine = driver.getText(BY_TABLE_1ST_LINE, DEFAULT_DURATION, MARK_ANDOLD_SINCE);;) {
 				WebElement table = driver.findElement(By.xpath("//*[@id='grid1_body_table']"), DEFAULT_DURATION);
 				sb.append(driver.extractTextContentFromTableElement(table));
 				sb.append(MARK_ANDOLD_SINCE);
@@ -1128,9 +1128,9 @@ public class Seibro implements Crawler {
 
 				// 변경 확인
 				driver.waitUntilTextNotInclude(BY_TABLE_1ST_LINE, TIMEOUT, previous1stLine);
-				previous1stLine = driver.getText(BY_TABLE_1ST_LINE, TIMEOUT, MARK_ANDOLD_SINCE);
+				previous1stLine = driver.getText(BY_TABLE_1ST_LINE, DEFAULT_DURATION, MARK_ANDOLD_SINCE);
 
-				String nextPage = driver.getText(BY_CURRENT_PAGE, TIMEOUT, currentPage);
+				String nextPage = driver.getText(BY_CURRENT_PAGE, DEFAULT_DURATION, currentPage);
 				if (currentPage.equalsIgnoreCase(nextPage) || (CrawlerService.getDebug() && currentPage.equalsIgnoreCase("3"))) {
 					break;
 				}
@@ -1280,7 +1280,7 @@ public class Seibro implements Crawler {
 			driver.waitUntilTextNotInclude(BY_SEARCH_RESULT_COUNT, TIMEOUT, INVALID_COUNT);
 
 			//	검색 결과에서 선택
-			String count = driver.getText(BY_SEARCH_RESULT_COUNT, TIMEOUT, "0");
+			String count = driver.getText(BY_SEARCH_RESULT_COUNT, DEFAULT_DURATION, "0");
 			if ("0".contentEquals(count)) {
 				driver.quit();
 				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
@@ -1307,7 +1307,7 @@ public class Seibro implements Crawler {
 			StringBuffer sb = new StringBuffer();
 			sb.append(MARK_START_END_POINT_COMPANY_EACH_SUMMARY_INFO);
 
-			sb.append(String.format("KEYWORD\t%s\t%s\t%s\n", code, driver.getText(By.xpath("//p[@id='btn_item']"), TIMEOUT, "모름"), driver.getText(By.xpath("//h3[@id='h3_tit_01']"), TIMEOUT, "종목명")));	// 종목명
+			sb.append(String.format("KEYWORD\t%s\t%s\t%s\n", code, driver.getText(By.xpath("//p[@id='btn_item']"), DEFAULT_DURATION, "모름"), driver.getText(By.xpath("//h3[@id='h3_tit_01']"), DEFAULT_DURATION, "종목명")));	// 종목명
 			String category = driver.findElement(By.xpath("//dd[@id='item_add_info_left_01_dd']"), DEFAULT_DURATION).getText();
 			if (category.isBlank()) {
 				sb.append(String.format("KEYWORD\t\"%s\"\n", "미분류"));	// 표준산업분류
@@ -1427,7 +1427,7 @@ public class Seibro implements Crawler {
 			sb.append(String.format("%s\n", driver.findElementIncludeText(By.xpath("//h3[@id='KOR_SECN_NM']"), TIMEOUT, code).getText()));	// symbol
 			sb.append(String.format("%s\n", driver.findElement(By.xpath("//div[@id='ETF_BIG_SORT_NM']"), DEFAULT_DURATION).getText()));	// 분류
 			sb.append(String.format("%s\n", driver.findElement(By.xpath("//span[@id='SETUP_DT']"), DEFAULT_DURATION).getText()));	// 설정일
-			sb.append(String.format("%s\n", driver.getText(By.xpath("//*[@id='grid1_cell_0_3']/nobr"), TIMEOUT, "-1")));	// 총발행주식수
+			sb.append(String.format("%s\n", driver.getText(By.xpath("//*[@id='grid1_cell_0_3']/nobr"), DEFAULT_DURATION, "-1")));	// 총발행주식수
 			sb.append(String.format("%s\n", driver.findElement(By.xpath("//dd[@id='TOT_RECM_RATE']"), DEFAULT_DURATION).getText()));	// 보수(%)
 			driver.quit();
 
@@ -1522,7 +1522,7 @@ public class Seibro implements Crawler {
 			driver.waitUntilTextNotInclude(BY_SEARCH_RESULT_COUNT, TIMEOUT, INVALID_COUNT);
 
 			//	검색 결과에서 선택
-			String count = driver.getText(BY_SEARCH_RESULT_COUNT, TIMEOUT, "0");
+			String count = driver.getText(BY_SEARCH_RESULT_COUNT, DEFAULT_DURATION, "0");
 			if ("0".contentEquals(count)) {
 				driver.quit();
 				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
@@ -1536,7 +1536,7 @@ public class Seibro implements Crawler {
 
 			// 조회 아이콘 클릭
 			By BY_TABLE_1ST_LINE = By.xpath("//table/tbody/tr[1]");
-			String previous1stLine = driver.getText(BY_TABLE_1ST_LINE, 1, "andold");	//	이전거
+			String previous1stLine = driver.getText(BY_TABLE_1ST_LINE, DEFAULT_DURATION, "andold");	//	이전거
 			driver.findElement(By.xpath("//a[@id='group44']"), DEFAULT_DURATION).click();
 			driver.waitUntilTextNotInclude(BY_TABLE_1ST_LINE, TIMEOUT, previous1stLine);	//	이전거
 
@@ -1555,10 +1555,10 @@ public class Seibro implements Crawler {
 
 				// 다음 페이지
 				By BY_1ST_VOLUME = By.xpath("//*[@id='grid1_cell_0_6']/nobr");
-				String firstVolume = driver.getText(BY_1ST_VOLUME, TIMEOUT, "-");
+				String firstVolume = driver.getText(BY_1ST_VOLUME, DEFAULT_DURATION, "-");
 				driver.clickIfExist(By.xpath("//li[@id='cntsPaging01_next_btn']/a"));
 				driver.waitUntilTextNotInclude(BY_1ST_VOLUME, TIMEOUT, firstVolume);
-				String currentPageNumber = driver.getText(BY_CURRENT_PAGE, TIMEOUT, "-1");
+				String currentPageNumber = driver.getText(BY_CURRENT_PAGE, DEFAULT_DURATION, "-1");
 				
 				// 다음 페이지가 갔는데...
 				if (pageNumber.equalsIgnoreCase(currentPageNumber)) {
@@ -1638,7 +1638,7 @@ public class Seibro implements Crawler {
 			log.debug("{} 일별시세::priceEtf({}) - 『{}』『{}』", Utility.indentMiddle(), code, "종목명 검색 아이콘", driver.getText(BY_STOCK_NAME_SEARCH_ICON, Duration.ZERO));
 
 			//	검색 결과에서 선택
-			String count = driver.getText(BY_SEARCH_RESULT_COUNT, TIMEOUT, "0");
+			String count = driver.getText(BY_SEARCH_RESULT_COUNT, DEFAULT_DURATION, "0");
 			if ("0".contentEquals(count)) {
 				driver.quit();
 				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
@@ -1649,7 +1649,7 @@ public class Seibro implements Crawler {
 			By BY_SEARCH_CODE_RESULT = By.xpath("//ul[@id='contentsList']/li/a");
 			By BY_1ST_VOLUME = By.xpath("//*[@id='grid1_cell_0_6']/nobr");
 			if ("1".contentEquals(count)) {
-				String firstVolume = driver.getText(BY_1ST_VOLUME, TIMEOUT, "-");
+				String firstVolume = driver.getText(BY_1ST_VOLUME, DEFAULT_DURATION, "-");
 				driver.clickIfExist(BY_SEARCH_CODE_RESULT);
 				driver.waitUntilTextNotInclude(BY_1ST_VOLUME, TIMEOUT, firstVolume);
 			} else {
@@ -1658,7 +1658,7 @@ public class Seibro implements Crawler {
 				for (WebElement candidate : candidates) {
 					String href = candidate.getAttribute("href");	// javascript:SelectedValueReturn( 'KR7391680006', '흥국HK하이볼액티브증권상장지수투자신탁[주식]' ) 
 					if (href.matches(String.format(".+KR.%s.+", code))) {
-						String firstVolume = driver.getText(BY_1ST_VOLUME, TIMEOUT, "-");
+						String firstVolume = driver.getText(BY_1ST_VOLUME, DEFAULT_DURATION, "-");
 						candidate.click();
 						driver.waitUntilTextNotInclude(BY_1ST_VOLUME, TIMEOUT, firstVolume);
 						found = true;
@@ -1714,11 +1714,11 @@ public class Seibro implements Crawler {
 
 				// 다음 페이지
 				By BY_NEXT_PAGE = By.xpath("//*[@id='pageList1_next_btn']/a");
-				String firstVolume = driver.getText(BY_1ST_VOLUME, TIMEOUT, "-");
+				String firstVolume = driver.getText(BY_1ST_VOLUME, DEFAULT_DURATION, "-");
 				driver.clickIfExist(BY_NEXT_PAGE);
 				log.debug("{} 일별시세::priceEtf({}) - 『{}』『{}』", Utility.indentEnd(), code, "다음 페이지", driver.getText(BY_NEXT_PAGE, Duration.ZERO));
 				driver.waitUntilTextNotInclude(BY_1ST_VOLUME, TIMEOUT, firstVolume);
-				String currentPageNumber = driver.getText(BY_CURRENT_PAGE, TIMEOUT, "-1");
+				String currentPageNumber = driver.getText(BY_CURRENT_PAGE, DEFAULT_DURATION, "-1");
 				if (pageNumber.equalsIgnoreCase(currentPageNumber)) {
 					break;
 				}

@@ -3,7 +3,7 @@ package kr.andold.stock.domain;
 import org.springframework.beans.BeanUtils;
 
 import kr.andold.stock.entity.ItemEntity;
-import kr.andold.stock.service.Utility;
+import kr.andold.utils.Utility;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
