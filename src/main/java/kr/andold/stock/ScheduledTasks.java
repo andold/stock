@@ -35,8 +35,8 @@ public class ScheduledTasks {
 		long started = System.currentTimeMillis();
 
 		zookeeperClient.run();
-		Utility.sleep(1000 * 32);
 		if (zookeeperClient.isMaster()) {
+			Utility.sleep(1000 * 32);
 			JobService.getQueue2().offer(ItemDetailJob.builder().code(null).build());
 			JobService.getQueue2().offer(ItemDividendJob.builder().code(null).build());
 			JobService.getQueue2().offer(ItemPriceJob.builder().code(null).build());
@@ -73,7 +73,7 @@ public class ScheduledTasks {
 	}
 
 	// 매시마다 - compile, purge
-	@Scheduled(cron = "19 10 * * * *")
+	@Scheduled(cron = "0 0 * * * *")
 	public void hourly() {
 		log.info("{} hourly()", Utility.indentStart());
 		long started = System.currentTimeMillis();
@@ -82,7 +82,7 @@ public class ScheduledTasks {
 	}
 
 	// 평일 - price, compile
-	@Scheduled(cron = "50 40 08 * * MON-SAT")
+	@Scheduled(cron = "0 0 10 * * MON-SAT")
 	public void daily() {
 		log.info("{} daily()", Utility.indentStart());
 		long started = System.currentTimeMillis();
@@ -98,7 +98,7 @@ public class ScheduledTasks {
 	}
 
 	// 매주 일요일 - dividend
-	@Scheduled(cron = "02 24 3 * * SUN")
+	@Scheduled(cron = "0 0 0 * * SUN")
 	public void weekly() {
 		log.info("{} weekly()", Utility.indentStart());
 		long started = System.currentTimeMillis();
@@ -117,7 +117,7 @@ public class ScheduledTasks {
 	}
 
 	// 매달
-	@Scheduled(cron = "0 12 15 1 * *")
+	@Scheduled(cron = "0 0 0 1 * *")
 	public void monthly() {
 		log.info("{} monthly()", Utility.indentStart());
 
@@ -129,7 +129,7 @@ public class ScheduledTasks {
 	}
 
 	// 매분기 첫달 첫번째 일요일 - items
-	@Scheduled(cron = "19 17 17 1-7 1,4,7,10 SUN")
+	@Scheduled(cron = "0 0 0 1-7 1,4,7,10 SUN")
 	public void quarterly() {
 		log.info("{} quarterly()", Utility.indentStart());
 		long started = System.currentTimeMillis();
@@ -142,7 +142,7 @@ public class ScheduledTasks {
 	}
 
 	// 매년
-	@Scheduled(cron = "0 12 15 13 1 *")
+	@Scheduled(cron = "0 0 0 1 1 *")
 	public void yearly() {
 		log.info("{} yearly()", Utility.indentStart());
 
