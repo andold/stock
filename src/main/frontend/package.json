@@ -40,6 +40,8 @@
 		]
 	},
 	"devDependencies": {
-		"@babel/plugin-proposal-decorators": "^7.20.5"
+		"@babel/plugin-proposal-decorators": "^7.20.5",
+		"ajv": "^8.17.1",
+		"typescript": "^4.9.5"
 	}
 }
