@@ -10,55 +10,9 @@ import java.util.Map;
 import org.springframework.web.multipart.MultipartFile;
 
 import kr.andold.utils.Utility;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import kr.andold.utils.persist.CrudList;
 
 public interface CommonBlockService<X, Y, Z> {
-	@Builder
-	@Data
-	@NoArgsConstructor
-	@AllArgsConstructor
-	public class CrudList<Y> {
-		private List<Y> creates;
-		private List<Y> duplicates;
-		private List<Y> updates;
-		private List<Y> removes;
-
-		CrudList<Y> clear() {
-			if (creates == null) {
-				creates = new ArrayList<>();
-			} else {
-				creates.clear();
-			}
-			if (duplicates == null) {
-				duplicates = new ArrayList<>();
-			} else {
-				duplicates.clear();
-			}
-			if (updates == null) {
-				updates = new ArrayList<>();
-			} else {
-				updates.clear();
-			}
-			if (removes == null) {
-				removes = new ArrayList<>();
-			} else {
-				removes.clear();
-			}
-
-			return this;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("CrudList(creates: #%d, duplicates: #%d, updates: #%d, removes: #%d)", Utility.size(creates), Utility.size(duplicates), Utility.size(updates), Utility.size(removes));
-		}
-
-	}
-
 	List<Y> update(List<Y> domains);
 
 	Y toDomain(String line);
@@ -105,12 +59,12 @@ public interface CommonBlockService<X, Y, Z> {
 
 	default CrudList<Y> put(List<Y> afters) {
 		if (afters == null || afters.isEmpty()) {
-			return new CrudList<Y>().clear();
+			return new CrudList<Y>();
 		}
 
 		List<Y> befores = search(null);
 		CrudList<Y> list = differ(befores, afters);
-		list.setRemoves(null);
+		list.getRemoves().clear();
 		batch(list);
 		return list;
 	}
@@ -154,7 +108,7 @@ public interface CommonBlockService<X, Y, Z> {
 	}
 
 	default CrudList<Y> differ(List<Y> befores, List<Y> afters) {
-		CrudList<Y> result = new CrudList<Y>().clear();
+		CrudList<Y> result = new CrudList<Y>();
 		Map<String, Y> mapBefore = makeMap(befores);
 		Map<String, Y> mapAfter = makeMap(afters);
 		for (String key : mapBefore.keySet()) {
@@ -193,7 +147,7 @@ public interface CommonBlockService<X, Y, Z> {
 	}
 
 	default int dedup(List<Y> domains) {
-		CrudList<Y> result = new CrudList<Y>().clear();
+		CrudList<Y> result = new CrudList<Y>();
 		List<Y> removes = result.getRemoves();
 		Map<String, Y> mapUpdates = new HashMap<>();
 

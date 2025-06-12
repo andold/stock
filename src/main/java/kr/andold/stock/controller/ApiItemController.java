@@ -21,12 +21,12 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.param.ItemParam;
-import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.ItemCompilePriceEarningsRatioJob;
 import kr.andold.stock.service.ItemDetailJob;
 import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.JobService;
 import kr.andold.utils.Utility;
+import kr.andold.utils.persist.CrudList;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

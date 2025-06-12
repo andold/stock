@@ -21,8 +21,8 @@ import kr.andold.stock.param.StockParam;
 import kr.andold.stock.param.StockParam.InnerDividendHistoryParam;
 import kr.andold.stock.param.StockParam.InnerItemParam;
 import kr.andold.stock.param.StockParam.InnerPriceParam;
-import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.utils.Utility;
+import kr.andold.utils.persist.CrudList;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

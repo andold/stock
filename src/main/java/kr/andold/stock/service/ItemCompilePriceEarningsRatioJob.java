@@ -17,12 +17,18 @@ import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.param.DividendHistoryParam;
 import kr.andold.stock.param.PriceParam;
-import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.JobService.Job;
 import kr.andold.utils.Utility;
+import kr.andold.utils.persist.CrudList;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Slf4j
 @Service
 public class ItemCompilePriceEarningsRatioJob implements Job {
@@ -36,7 +42,7 @@ public class ItemCompilePriceEarningsRatioJob implements Job {
 	private List<DividendHistoryDomain> dividends;
 	private List<PriceDomain> prices;
 
-	@Getter private Long timeout = 240L;	//	TimeUnit.SECONDS
+	@Builder.Default @Getter private Long timeout = 240L;	//	TimeUnit.SECONDS
 	
 	@Override
 	public STATUS call() throws Exception {

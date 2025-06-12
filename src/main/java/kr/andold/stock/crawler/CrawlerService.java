@@ -26,7 +26,7 @@ import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.PriceService;
 import kr.andold.utils.ChromeDriverWrapper;
 import kr.andold.utils.Utility;
-import kr.andold.stock.service.CommonBlockService.CrudList;
+import kr.andold.utils.persist.CrudList;
 import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -102,7 +102,7 @@ public class CrawlerService {
 		return resultSeibro;
 	}
 
-	private void put(ParserResult result) {
+	public void put(ParserResult result) {
 		log.debug("{} put({})", Utility.indentStart(), result);
 		long started = System.currentTimeMillis();
 
@@ -117,26 +117,19 @@ public class CrawlerService {
 	public static ChromeDriverWrapper defaultChromeDriver() {
 		System.setProperty("webdriver.chrome.driver", webdriverPath);
 		ChromeOptions options = new ChromeOptions();
-		options.addArguments("--remote-allow-origins=*");
-		options.addArguments("--incognito");
-		options.addArguments("--enable-gpu");
-		options.addArguments("--verbose");
-		options.addArguments(String.format("--user-data-dir=%s", userDataDir));
-		options.addArguments("--disable-infobars");
-		options.addArguments("--disable-extensions");
-		options.addArguments("--no-sandbox");
-		options.addArguments("--disable-application-cache");
-		options.addArguments("--disable-gpu");
+		options.addArguments("--disable-blink-features=AutomationControlled");
 		options.addArguments("--disable-dev-shm-usage");
+		options.addArguments("--disable-infobars");
+		options.addArguments("--remote-allow-origins=*");
+		options.addArguments("--window-size=2048,1024");
+		options.addArguments(String.format("--user-data-dir=%s", getUserDataDir()));
 		options.setPageLoadStrategy(PageLoadStrategy.NONE);
 		if (debug) {
 			options.addArguments(String.format("--window-size=%d,%d", 1920 * 1, 1090 * 1 - 128));
-			options.addArguments("--window-position=1920,0");
+			options.addArguments("--window-position=512,0");
 		} else {
 			options.addArguments("--window-size=3840,4320");
 			options.addArguments("--headless");
-			options.addArguments("--no-sandbox");
-			options.addArguments("--disable-dev-shm-usage");
 		}
 		ChromeDriverWrapper driver = new ChromeDriverWrapper(options);
 		return driver;

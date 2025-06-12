@@ -33,7 +33,7 @@ import kr.andold.stock.param.PriceParam;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.PriceService;
 import kr.andold.utils.Utility;
-import kr.andold.stock.service.CommonBlockService.CrudList;
+import kr.andold.utils.persist.CrudList;
 import kr.andold.stock.service.JobService.DeduplicatePriceJob;
 import lombok.extern.slf4j.Slf4j;
 

@@ -21,11 +21,11 @@ import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.StockParam;
-import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.BackupJob;
 import kr.andold.stock.service.StockService;
 import kr.andold.utils.Utility;
+import kr.andold.utils.persist.CrudList;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

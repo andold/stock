@@ -27,6 +27,7 @@ import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.stock.thread.CrawlDividendHistoryCompanyThread;
 import kr.andold.stock.thread.CrawlDividendHistoryEtfThread;
 import kr.andold.utils.Utility;
+import kr.andold.utils.persist.CrudList;
 
 @Service
 public class DividendHistoryService implements CommonBlockService<DividendHistoryParam, DividendHistoryDomain, DividendHistoryEntity> {

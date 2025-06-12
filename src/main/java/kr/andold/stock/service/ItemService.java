@@ -25,6 +25,7 @@ import kr.andold.stock.repository.ItemRepository;
 import kr.andold.stock.repository.ItemSpecification;
 import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.utils.Utility;
+import kr.andold.utils.persist.CrudList;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

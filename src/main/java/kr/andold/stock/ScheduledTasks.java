@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import kr.andold.stock.domain.Result.STATUS;
+import kr.andold.stock.job.CrawlPriceLatestJob;
 import kr.andold.stock.service.ItemDetailJob;
 import kr.andold.stock.service.ItemDividendJob;
 import kr.andold.stock.service.JobService;
@@ -16,7 +17,6 @@ import kr.andold.stock.service.JobService.DeduplicatePriceJob;
 import kr.andold.stock.service.JobService.DividendAllRecentJob;
 import kr.andold.stock.service.JobService.ItemIpoCloseRecentJob;
 import kr.andold.stock.service.JobService.ItemPriceJob;
-import kr.andold.stock.service.JobService.PriceLatestJob;
 import kr.andold.stock.service.JobService.StockCompileJob;
 import kr.andold.stock.service.ZookeeperClient;
 import kr.andold.utils.Utility;
@@ -35,7 +35,7 @@ public class ScheduledTasks {
 		long started = System.currentTimeMillis();
 
 		zookeeperClient.run();
-		Utility.sleep(1000 * 64);
+		Utility.sleep(1000 * 512);
 		if (zookeeperClient.isMaster()) {
 			JobService.getQueue2().offer(ItemDetailJob.builder().code(null).build());
 			JobService.getQueue2().offer(ItemDividendJob.builder().code(null).build());
@@ -85,7 +85,7 @@ public class ScheduledTasks {
 		long started = System.currentTimeMillis();
 
 		if (zookeeperClient.isMaster()) {
-			JobService.getQueue2().offer(PriceLatestJob.builder().build());
+			JobService.getQueue2().addLast(CrawlPriceLatestJob.builder().build());
 			JobService.getQueue2().offer(ItemDetailJob.builder().code(null).build());
 			JobService.getQueue3().offer(BackupJob.builder().build());
 			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());

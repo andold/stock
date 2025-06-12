@@ -19,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import kr.andold.stock.ApplicationContextProvider;
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.crawler.Seibro;
 import kr.andold.stock.domain.DividendHistoryDomain;
@@ -27,10 +26,11 @@ import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.domain.Result;
 import kr.andold.stock.domain.Result.STATUS;
+import kr.andold.stock.job.CrawlPriceLatestJob;
 import kr.andold.stock.param.DividendHistoryParam;
-import kr.andold.stock.service.CommonBlockService.CrudList;
 import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.utils.Utility;
+import kr.andold.utils.persist.CrudList;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -179,7 +179,8 @@ public class JobService {
 		}
 		
 		if (job instanceof ItemCompilePriceEarningsRatioJob
-				|| job instanceof ItemDetailJob) {
+				|| job instanceof ItemDetailJob
+				|| job instanceof CrawlPriceLatestJob) {
 			ExecutorService executor = Executors.newSingleThreadExecutor();
 	        Future<STATUS> future = executor.submit(job);
 			STATUS result = STATUS.EXCEPTION;
@@ -212,13 +213,6 @@ public class JobService {
 
 		if (job instanceof ItemPriceJob) {
 			STATUS result = itemPrice((ItemPriceJob) job);
-
-			log.debug("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
-			return result;
-		}
-
-		if (job instanceof PriceLatestJob) {
-			STATUS result = priceLatest((PriceLatestJob) job);
 
 			log.debug("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
 			return result;
@@ -411,18 +405,6 @@ public class JobService {
 				, Utility.size(queue0), Utility.size(queue1), Utility.size(queue2), Utility.size(queue3)
 				, Utility.size(compileResult), purged
 				, job, Utility.toStringPastTimeReadable(started));
-		return STATUS.SUCCESS;
-	}
-
-	private STATUS priceLatest(PriceLatestJob job) {
-		log.info("{} priceLatest()", Utility.indentStart());
-		long started = System.currentTimeMillis();
-
-		Result<ParserResult> crawlPriceResult = crawlerService.crawlPrice(Date.from(LocalDate.now().atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)));
-		queue2.offer(StockCompileJob.builder().start(LocalDate.now().minusDays(7)).build());
-		queue2.offer((Job)ApplicationContextProvider.getBean(ItemCompilePriceEarningsRatioJob.class));
-
-		log.info("{} 『{}』 priceLatest() - 『{}』 - {}", Utility.indentEnd(), STATUS.SUCCESS, crawlPriceResult, Utility.toStringPastTimeReadable(started));
 		return STATUS.SUCCESS;
 	}
 
