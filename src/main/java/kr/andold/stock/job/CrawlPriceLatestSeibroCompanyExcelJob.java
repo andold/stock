@@ -153,7 +153,7 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 				log.debug("{} 『BLANK::{}』 parseLines(『{}』, 『{}』)", Utility.indentMiddle(), lines[cx], date, Utility.ellipsisEscape(text, 64));
 				continue;
 			}
-			log.debug("{} 『{}』『{}』 parseLines(『{}』, 『{}』)", Utility.indentMiddle(), words[indexCode], words[indexPrice], date, Utility.ellipsisEscape(text, 64));
+			log.debug("{} 『{}』『{}』 parseLines(『{}』, ...)", Utility.indentMiddle(), words[indexCode], words[indexPrice], date);
 
 			PriceDomain price = PriceDomain.builder()
 					.code(words[indexCode])
