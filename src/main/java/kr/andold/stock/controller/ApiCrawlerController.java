@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.Result;
 import kr.andold.stock.domain.Result.STATUS;
-import kr.andold.stock.job.CrawlPriceLatestJob;
+import kr.andold.stock.job.CrawlPriceLatestSeibroCompanyExcelJob;
+import kr.andold.stock.job.CrawlPriceLatestSeibroEtfJob;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.PriceParam;
 import kr.andold.stock.service.JobService;
@@ -46,7 +47,8 @@ public class ApiCrawlerController {
 	public Result<ParserResult> crawlPriceAll(@RequestBody PriceParam param) {
 		log.info("{} crawlPriceAll({})", Utility.indentStart(), param);
 
-		JobService.getQueue1().offer(CrawlPriceLatestJob.builder().build());
+		JobService.getQueue1().addLast(CrawlPriceLatestSeibroCompanyExcelJob.builder().build());
+		JobService.getQueue1().addLast(CrawlPriceLatestSeibroEtfJob.builder().build());
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
 
 		log.info("{} 『{}』 - crawlPriceAll({})", Utility.indentEnd(), result, param);
