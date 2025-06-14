@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.job.CrawlPriceLatestSeibroCompanyExcelJob;
 import kr.andold.stock.job.CrawlPriceLatestSeibroEtfJob;
@@ -36,13 +37,17 @@ public class ScheduledTasks {
 		long started = System.currentTimeMillis();
 
 		zookeeperClient.run();
-		Utility.sleep(1000 * 512);
+		if (CrawlerService.getDebug()) {
+			Utility.sleep(1000 * 512);
+		} else {
+			Utility.sleep(1000 * 32);
+		}
 		if (zookeeperClient.isMaster()) {
-			JobService.getQueue2().offer(ItemDetailJob.builder().code(null).build());
-			JobService.getQueue2().offer(ItemDividendJob.builder().code(null).build());
-			JobService.getQueue2().offer(ItemPriceJob.builder().code(null).build());
-			JobService.getQueue2().offer(BackupJob.builder().build());
-			JobService.getQueue2().offer(DeduplicatePriceJob.builder().build());
+			JobService.getQueue3().offer(ItemDetailJob.builder().code(null).build());
+			JobService.getQueue3().offer(ItemDividendJob.builder().code(null).build());
+			JobService.getQueue3().offer(ItemPriceJob.builder().code(null).build());
+			JobService.getQueue3().offer(BackupJob.builder().build());
+			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
 		}
 
 		log.info("{} once() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
