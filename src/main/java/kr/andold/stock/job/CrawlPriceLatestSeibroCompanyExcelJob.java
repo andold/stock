@@ -49,6 +49,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 	private static final int TIMEOUT = 8000;
+	private static final int TIMEOUT_DOWNLOAD = 256;
 	// SEIBro > 주식 > 종목전체검색 > 주식종목전체검색
 	private static final String URL_PRICE_COMPANY_CURRENT = Seibro.URL_PRICE_COMPANY_CURRENT;
 	private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(8);
@@ -261,7 +262,7 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 		log.info("{} waitUntilDownloadComplete(『{}』)", Utility.indentStart(), donwloadFiles);
 		long started = System.currentTimeMillis();
 
-		for (int cx = 0; cx < 128; cx++) {
+		for (int cx = 0; cx < TIMEOUT_DOWNLOAD; cx++) {
 			Set<String> neo = donwloadFiles(driver, donwloadFiles);
 			if (cx % 8 == 0) {
 				log.info("{} 『{}/{}:{}』 waitUntilDownloadComplete(『{}』) - {}", Utility.indentMiddle(), cx, 128, neo, donwloadFiles, Utility.toStringPastTimeReadable(started));
