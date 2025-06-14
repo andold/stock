@@ -142,15 +142,15 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 		for (int cx = 1; cx < lines.length; cx++) {
 			String[] words = lines[cx].split(DELEMETER);
 			if (words == null || words.length <= indexPrice) {
-				log.debug("{} 『INVALID::{}』 parseLines(『{}』, 『{}』)", Utility.indentMiddle(), lines[cx], date, Utility.ellipsisEscape(text, 64));
+				log.debug("{} 『INVALID::{}』 parseLines(『{}』, ...)", Utility.indentMiddle(), Utility.ellipsisEscape(lines[cx], 32), date);
 				continue;
 			}
 			if (words[indexCode].isBlank()) {
-				log.debug("{} 『BLANK::{}』 parseLines(『{}』, 『{}』)", Utility.indentMiddle(), lines[cx], date, Utility.ellipsisEscape(text, 64));
+				log.debug("{} 『BLANK::{}』 parseLines(『{}』, ...)", Utility.indentMiddle(), Utility.ellipsisEscape(lines[cx], 32), date);
 				continue;
 			}
 			if (words[indexPrice].isBlank()) {
-				log.debug("{} 『BLANK::{}』 parseLines(『{}』, 『{}』)", Utility.indentMiddle(), lines[cx], date, Utility.ellipsisEscape(text, 64));
+				log.trace("{} 『BLANK::{}』 parseLines(『{}』, ...)", Utility.indentMiddle(), Utility.ellipsisEscape(lines[cx], 32), date);
 				continue;
 			}
 			log.debug("{} 『{}』『{}』 parseLines(『{}』, ...)", Utility.indentMiddle(), words[indexCode], words[indexPrice], date);
@@ -265,7 +265,7 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 		for (int cx = 0; cx < TIMEOUT_DOWNLOAD; cx++) {
 			Set<String> neo = donwloadFiles(driver, donwloadFiles);
 			if (cx % 8 == 0) {
-				log.info("{} 『{}/{}:{}』 waitUntilDownloadComplete(『{}』) - {}", Utility.indentMiddle(), cx, 128, neo, donwloadFiles, Utility.toStringPastTimeReadable(started));
+				log.info("{} 『{}/{}:{}』 waitUntilDownloadComplete(『{}』) - {}", Utility.indentMiddle(), cx, TIMEOUT_DOWNLOAD, neo, donwloadFiles, Utility.toStringPastTimeReadable(started));
 			}
 			
 			for (String filename : neo) {

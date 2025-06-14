@@ -1,5 +1,6 @@
 package kr.andold.stock.crawler;
 
+import java.io.File;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -65,7 +66,9 @@ public class CrawlerService {
 	@Getter private static String userDataDir;
 	@Value("${application.selenium.user.data.dir}")
 	public void setUserDataDir(String value) {
+		log.info("{} INIT::CrawlerService.setUserDataDir({})", Utility.indentMiddle(), value);
 		userDataDir = value;
+		clearFolder(value);
 	}
 
 	@Getter private static Boolean debug = false;
@@ -82,6 +85,34 @@ public class CrawlerService {
 		crawlerDateStart = value;
 	}
 
+	public static void clearFolder(String path) {
+		File folder = new File(path);
+		File[] files = folder.listFiles();
+		if (files != null) { // some JVMs return null for empty dirs
+			for (File f : files) {
+				if (f.isDirectory()) {
+					deleteFolder(f);
+				} else {
+					f.delete();
+				}
+			}
+		}
+	}
+
+	public static void deleteFolder(File folder) {
+		File[] files = folder.listFiles();
+		if (files != null) { // some JVMs return null for empty dirs
+			for (File f : files) {
+				if (f.isDirectory()) {
+					deleteFolder(f);
+				} else {
+					f.delete();
+				}
+			}
+		}
+		folder.delete();
+	}
+	
 	public Result<ParserResult> crawlPrice(Date date) {
 		log.info("{} crawlPrice({})", Utility.indentStart(), date);
 		long started = System.currentTimeMillis();
@@ -116,21 +147,21 @@ public class CrawlerService {
 
 	public static ChromeDriverWrapper defaultChromeDriver() {
 		System.setProperty("webdriver.chrome.driver", webdriverPath);
+
 		ChromeOptions options = new ChromeOptions();
 		options.addArguments("--disable-blink-features=AutomationControlled");
 		options.addArguments("--disable-dev-shm-usage");
 		options.addArguments("--disable-infobars");
+		options.addArguments("--disable-popup-blocking");
 		options.addArguments("--remote-allow-origins=*");
-		options.addArguments("--window-size=2048,1024");
 		options.addArguments(String.format("--user-data-dir=%s", getUserDataDir()));
-		options.setPageLoadStrategy(PageLoadStrategy.NONE);
+		options.addArguments(String.format("--window-size=%d,%d", 1920 * 1, 1090 * 1 - 256));
+		options.addArguments("--window-position=0,0");
 		if (debug) {
-			options.addArguments(String.format("--window-size=%d,%d", 1920 * 1, 1090 * 1 - 128));
-			options.addArguments("--window-position=512,0");
 		} else {
-			options.addArguments("--window-size=3840,4320");
 			options.addArguments("--headless");
 		}
+		options.setPageLoadStrategy(PageLoadStrategy.NONE);
 		ChromeDriverWrapper driver = new ChromeDriverWrapper(options);
 		return driver;
 	}
