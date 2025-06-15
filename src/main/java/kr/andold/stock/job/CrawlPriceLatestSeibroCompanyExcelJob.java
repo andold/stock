@@ -168,6 +168,7 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 		return prices;
 	}
 
+	@SuppressWarnings("resource")
 	private String readExcel(String filename) throws IOException {
 		log.debug("{} readExcel(『{}』)", Utility.indentStart(), filename);
 
@@ -177,11 +178,12 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 		// Create Workbook instance holding reference to .xlsx file
 		Workbook workbook = null;
 
-		if (filename.endsWith("xlsx")) {
-			workbook = new XSSFWorkbook(file);
-		} else if (filename.endsWith("xls")) {
-			workbook = new HSSFWorkbook(file);
-		}
+		workbook = new XSSFWorkbook(file);
+//		if (filename.endsWith("xlsx")) {
+//			workbook = new XSSFWorkbook(file);
+//		} else if (filename.endsWith("xls")) {
+//			workbook = new HSSFWorkbook(file);
+//		}
 		
 		// Get first/desired sheet from the workbook
 		Sheet sheet = workbook.getSheetAt(0);
@@ -269,7 +271,7 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 			}
 			
 			for (String filename : neo) {
-				if (filename.matches("주식종목전체검색( \\([0-9]+\\))?\\.xlsx")) {
+				if (filename.matches("((주식종목전체검색( \\([0-9]+\\))?\\.xlsx)|(download( \\([0-9]+\\))))")) {
 					log.info("{} 『{}』 waitUntilDownloadComplete(『{}』) - {}", Utility.indentEnd(), filename, donwloadFiles, Utility.toStringPastTimeReadable(started));
 					return filename;
 				}
