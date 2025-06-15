@@ -12,7 +12,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -271,7 +270,7 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 			}
 			
 			for (String filename : neo) {
-				if (filename.matches("((주식종목전체검색( \\([0-9]+\\))?\\.xlsx)|(download( \\([0-9]+\\))))")) {
+				if (filename.matches("((주식종목전체검색( \\([0-9]+\\))?\\.xlsx)|(download( \\([0-9]+\\))?))")) {
 					log.info("{} 『{}』 waitUntilDownloadComplete(『{}』) - {}", Utility.indentEnd(), filename, donwloadFiles, Utility.toStringPastTimeReadable(started));
 					return filename;
 				}
