@@ -157,10 +157,7 @@ public class CrawlerService {
 		options.addArguments(String.format("--user-data-dir=%s", getUserDataDir()));
 		options.addArguments(String.format("--window-size=%d,%d", 1920 * 1, 1090 * 1 - 256));
 		options.addArguments("--window-position=0,0");
-		if (debug) {
-		} else {
-			options.addArguments("--headless");
-		}
+//		options.addArguments("--headless");
 		options.setPageLoadStrategy(PageLoadStrategy.NONE);
 		ChromeDriverWrapper driver = new ChromeDriverWrapper(options);
 		return driver;
