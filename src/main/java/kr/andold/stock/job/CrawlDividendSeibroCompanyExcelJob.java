@@ -208,7 +208,7 @@ public class CrawlDividendSeibroCompanyExcelJob implements Job {
 			}
 			
 			for (String filename : neo) {
-				if (filename.matches("((배당내역상세( \\([0-9]+\\))?\\.xls)|(download( \\([0-9]+\\))?))")) {
+				if (filename.matches("((.+(\\([0-9]+\\))?\\.xls)|(download( \\([0-9]+\\))?))")) {
 					log.info("{} 『{}』 waitUntilDownloadComplete(『{}』) - {}", Utility.indentEnd(), filename, donwloadFiles, Utility.toStringPastTimeReadable(started));
 					return filename;
 				}
