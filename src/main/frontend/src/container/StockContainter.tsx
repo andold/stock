@@ -1,6 +1,6 @@
 import moment from "moment";
 import React, { useRef, useState } from "react";
-import { Button, Col, Container, Dropdown, Form, InputGroup, NavDropdown, Navbar, Offcanvas, Spinner, } from "react-bootstrap";
+import { Button, Col, Container, Dropdown, Form, InputGroup, Navbar, Offcanvas, Spinner, } from "react-bootstrap";
 
 // domain
 import { StockForm } from "../model/StockModel";
@@ -12,11 +12,11 @@ import dividendHistoryStore from "../store/DividendHistoryStore";
 import priceStore from "../store/PriceStore";
 import crawlStore from "../store/CrawlStore";
 
-
 // view
 import StockItemView from "../view/StockItemView";
 import UploadButtonView from "../view/UploadButtonView";
 
+const PAGE_SIZES = [8, 16, 32, 48, 64, 128, 256, 512, 1024];
 // StockContainter.tsx
 export default ((props: any) => {
 	const { } = props;
@@ -24,7 +24,7 @@ export default ((props: any) => {
 	const [form, setForm] = useState<StockForm>({
 		mode: 0,
 
-		size: 32,
+		size: 48,
 		page: 0,
 		totalPages: 1,
 		rowHeight: 32,
@@ -80,12 +80,7 @@ function Header(props: any) {
 
 	const [spinner, setSpinner] = useState<number>(0);
 
-	const [disableCompile, setDisableCompile] = useState(false);
 	const [disableDownload, setDisableDownload] = useState(false);
-	const [disableCrawlDividendAllRecent, setDisableCrawlDividendAllRecent] = useState(false);
-	const [disableCrawlPricaAll, setDisableCrawlPriceAll] = useState(false);
-	const [disableCrawlItemIpoCloseAll, setDisableCrawlItemIpoCloseAll] = useState(false);
-	const [disablePurgePrice, setDisablePurgePrice] = useState(false);
 	
 	function handleOnKeyDownKeyword(event: any) {
 		(event.key === "Enter") && onChange && onChange({ keyword: event.target.value, });
@@ -101,40 +96,6 @@ function Header(props: any) {
 			});
 		});
 	}
-	function handleOnClickPurgePrice() {
-		setDisablePurgePrice(true);
-		priceStore.purge(null, () => setDisablePurgePrice(false));
-	}
-	function handleOnClickCrawlItemIpoCloseAll() {
-		setDisableCrawlItemIpoCloseAll(true);
-		crawlStore.crawlItemIpoCloseRecent(null, () => setDisableCrawlItemIpoCloseAll(false));
-	}
-	function handleOnClickCrawlDividendAllRecent() {
-		setDisableCrawlDividendAllRecent(true);
-		crawlStore.crawlDividendAllRecent(null, () => setDisableCrawlDividendAllRecent(false));
-	}
-	function handleOnClickCrawlPriceAll() {
-		setDisableCrawlPriceAll(true);
-		crawlStore.crawlPriceAll({base: moment().format("YYYY-MM-DDTHH:mm:ss.SSSZ")}, (_: any, response: any) => {
-			setDisableCrawlPriceAll(false);
-		});
-	}
-	function handleOnClickCompile() {
-		setDisableCompile(true);
-		store.compile(null, () => {
-			setDisableCompile(false);
-			onChange && onChange({});
-		});
-	}
-	function handleOnCrawlTest() {
-		setSpinner(spinner + 1);
-		crawlStore.test({}, (_: any) => {
-			if (spinner == 1) {	// 마지막에서만 재검색
-				onChange && onChange({});
-			}
-			setSpinner(spinner - 1);
-		});
-	}
 	function handleOnClickMode(e: any) {
 		if (e.ctrlKey) {
 			onChange && onChange({ mode: form.mode - 1 });
@@ -142,7 +103,7 @@ function Header(props: any) {
 			onChange && onChange({ mode: form.mode + 1 });
 		}
 	}
-	function handleOnClickDownloadNoStreaming(e: any) {
+	function handleOnClickDownloadNoStreaming(_: any) {
 		setSpinner(spinner + 1);
 		priceStore.downloadNoStreaming(`stock-prices-${moment().format("YYYYMMDD")}.json`, (_: any) => {
 			if (spinner == 1) {	// 마지막에서만 재검색
@@ -216,7 +177,7 @@ function Header(props: any) {
 							<InputGroup size="sm">
 								<Form.Select className="border-secondary bg-dark text-white  px-1" value={form.size || ""} title="페이지 크기:: 한 화면에 나오는 데이터의 갯수"
 									onChange={(event: any) => onChange && onChange({ size: Number(event.target.value), page: 0, })}
-								>{[8, 16, 32, 64, 128, 256, 512, 1024].map(x => (<option key={x} value={x}>{x}</option>))}</Form.Select>
+								>{PAGE_SIZES.map(x => (<option key={x} value={x}>{x}</option>))}</Form.Select>
 								<Form.Select className="border-secondary bg-dark text-white px-1" value={form.rowHeight || ""} title="한줄이 높이"
 									onChange={(event: any) => onChange && onChange({ rowHeight: event.target.value, })}
 								>{store.range(6).map(x => (<option key={x} value={(x + 3) * 8}>{(x + 3) * 8}</option>))}</Form.Select>
@@ -247,84 +208,84 @@ function Header(props: any) {
 									<Dropdown.Toggle id="dropdown-basic">메뉴</Dropdown.Toggle>
 									<Dropdown.Menu>
 										<Dropdown.Item onClick={handleOnClickDownloadNoStreaming}>다운로드</Dropdown.Item>
-										<Dropdown.Item onClick={(param: any) => store.backup({})}>지금 백업</Dropdown.Item>
-										<Dropdown.Item onClick={(param: any) => {
+										<Dropdown.Item onClick={(_: any) => store.backup({})}>지금 백업</Dropdown.Item>
+										<Dropdown.Item onClick={(_: any) => {
 											setSpinner(spinner + 1);
 											itemStore.crawl({base: moment().format("YYYY-MM-DDTHH:mm:ss.SSSZ")}
-												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, () => { setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 											);
 										}}>주식 전체, 정보 다시 읽어 오기</Dropdown.Item>
-										<Dropdown.Item onClick={(param: any) => itemStore.compile({})}>최근 배당수익율 다시 계산</Dropdown.Item>
-										<Dropdown.Item onClick={(param: any) => {
+										<Dropdown.Item onClick={(_: any) => itemStore.compile({})}>최근 배당수익율 다시 계산</Dropdown.Item>
+										<Dropdown.Item onClick={(_: any) => {
 											setSpinner(spinner + 1);
 											store.compile(null
-												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, () => { setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 											);
 										}}>Compile</Dropdown.Item>
-										<Dropdown.Item onClick={(param: any) => {
+										<Dropdown.Item onClick={() => {
 											setSpinner(spinner + 1);
 											crawlStore.crawlDividendAllRecent(null
-												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, () => { setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 											);
 										}}>최근 배당 수집</Dropdown.Item>
-										<Dropdown.Item onClick={(param: any) => {
+										<Dropdown.Item onClick={() => {
 											setSpinner(spinner + 1);
 											crawlStore.crawlItemIpoCloseRecent(null
-												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, () => { setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 											);
 										}}>상장폐지일 수집</Dropdown.Item>
-										<Dropdown.Item onClick={(param: any) => {
+										<Dropdown.Item onClick={() => {
 											setSpinner(spinner + 1);
 											crawlStore.crawlPriceAll({base: moment().format("YYYY-MM-DDTHH:mm:ss.SSSZ")}
-												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, () => { setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 											);
 										}}>오늘 기준 주가 수집</Dropdown.Item>
-										<Dropdown.Item onClick={(param: any) => {
+										<Dropdown.Item onClick={() => {
 											setSpinner(spinner + 1);
 											priceStore.purge(null
-												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, () => { setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 											);
 										}}>주가 정리</Dropdown.Item>
-										<Dropdown.Item onClick={(param: any) => {
+										<Dropdown.Item onClick={() => {
 											setSpinner(spinner + 1);
 											priceStore.deduplicate(null
-												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, () => { setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 											);
 										}}>주가 중복 제거</Dropdown.Item>
-										<Dropdown.Item onClick={(param: any) => {
+										<Dropdown.Item onClick={() => {
 											setSpinner(spinner + 1);
 											priceStore.compile({start: moment().subtract(2, "weeks").format("YYYY-MM-DDTHH:mm:ss.SSSZ")}
-												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, () => { setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 											);
 										}}>주가 대표일 정리(최근 2주)</Dropdown.Item>
-										<Dropdown.Item onClick={(param: any) => {
+										<Dropdown.Item onClick={() => {
 											setSpinner(spinner + 1);
 											priceStore.compile({start: moment().subtract(2, "months").format("YYYY-MM-DDTHH:mm:ss.SSSZ")}
-												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, () => { setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 											);
 										}}>주가 대표일 정리(최근 2달)</Dropdown.Item>
-										<Dropdown.Item onClick={(param: any) => {
+										<Dropdown.Item onClick={() => {
 											setSpinner(spinner + 1);
 											priceStore.compile({start: moment().subtract(2, "years").format("YYYY-MM-DDTHH:mm:ss.SSSZ")}
-												, (_: any, response: any) => { setSpinner(spinner - 1); }
+												, () => { setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 												, (p0: any, p1: any) => { console.warn(p0, p1); setSpinner(spinner - 1); }
 											);
