@@ -1,6 +1,7 @@
 package kr.andold.stock.controller;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.Result;
 import kr.andold.stock.domain.Result.STATUS;
+import kr.andold.stock.job.CrawlDividendSeibroCompanyExcelJob;
+import kr.andold.stock.job.CrawlDividendSeibroEtfJob;
 import kr.andold.stock.job.CrawlPriceLatestSeibroCompanyExcelJob;
 import kr.andold.stock.job.CrawlPriceLatestSeibroEtfJob;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.PriceParam;
 import kr.andold.stock.service.JobService;
-import kr.andold.stock.service.JobService.DividendAllRecentJob;
 import kr.andold.stock.service.JobService.ItemIpoCloseRecentJob;
 import kr.andold.utils.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
@@ -95,7 +97,10 @@ public class ApiCrawlerController {
 	public Result<ParserResult> crawlDividendAllRecent() {
 		log.info("{} crawlDividendAllRecent()", Utility.indentStart());
 
-		JobService.getQueue1().offer(DividendAllRecentJob.builder().build());
+		ZonedDateTime sixMonthAgo = ZonedDateTime.now().minusMonths(6);
+		JobService.getQueue1().addLast(CrawlDividendSeibroCompanyExcelJob.builder().start(sixMonthAgo).build());
+		JobService.getQueue1().addLast(CrawlDividendSeibroEtfJob.builder().start(sixMonthAgo).build());
+//		JobService.getQueue1().offer(DividendAllRecentJob.builder().build());
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
 		
 		log.info("{} 『{}』 - crawlDividendAllRecent()", Utility.indentEnd(), result);

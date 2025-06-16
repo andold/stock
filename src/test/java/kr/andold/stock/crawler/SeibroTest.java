@@ -29,6 +29,7 @@ public class SeibroTest {
 		assertEquals(result.getResult().isEmpty(), false);
 	}
 
+	@Deprecated
 	@Test
 	public void testDividendCompany() {
 		Result<ParserResult> result = service

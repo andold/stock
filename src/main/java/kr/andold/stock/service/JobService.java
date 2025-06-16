@@ -71,6 +71,8 @@ public class JobService {
 	public static class StockCompileJob implements Job {
 		private LocalDate start;
 	}
+	
+	@Deprecated
 	@Builder
 	public static class DividendAllRecentJob implements Job {
 	}
@@ -227,6 +229,7 @@ public class JobService {
 			return result;
 		}
 
+		// @Deprecated
 		if (job instanceof DividendAllRecentJob) {
 			STATUS result = dividendAllRecent((DividendAllRecentJob) job);
 
@@ -248,8 +251,21 @@ public class JobService {
 			return result;
 		}
 
-		log.trace("{} 『{}』 run({}) - {}", Utility.indentEnd(), STATUS.NOT_SUPPORT, job, Utility.toStringPastTimeReadable(started));
-		return STATUS.NOT_SUPPORT;
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<STATUS> future = executor.submit(job);
+		STATUS result = STATUS.NOT_SUPPORT;
+		try {
+	        result = future.get(job.getTimeout(), TimeUnit.SECONDS);
+			executor.shutdown();
+		} catch (Exception e) {
+			log.error("{} run({}) - Exception::{}", Utility.indentMiddle(), job, e.getLocalizedMessage(), e);
+			future.cancel(true);
+			executor.shutdownNow();
+			result = STATUS.EXCEPTION;
+		}
+
+		log.trace("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
+		return result;
 	}
 
 	private STATUS itemPrice(ItemPriceJob job) {
@@ -386,6 +402,7 @@ public class JobService {
 		return result.getStatus();
 	}
 
+	@Deprecated
 	private STATUS dividendAllRecent(DividendAllRecentJob job) {
 		log.info("{} dividendAll({})", Utility.indentStart(), job);
 		long started = System.currentTimeMillis();

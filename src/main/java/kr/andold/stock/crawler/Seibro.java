@@ -30,7 +30,7 @@ public class Seibro implements Crawler {
 	private static final Duration DEFAULT_DURATION = Duration.ofSeconds(4);
 	private static final Duration DEFAULT_DURATION_LONG = Duration.ofSeconds(4 * 4);
 
-	private static final String URL_COMPANY = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285";
+	public static final String URL_COMPANY = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285";
 	private static final String URL_ETF = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179";
 	private static final String MARK_START_END_POINT_COMPANY = String.format("KEYWORD\t%s\t%s\tURL\t%s\n", "CrawlDividendHistoryCompanyThread", "주식(기업) 배당금 내역", URL_COMPANY);
 	private static final String MARK_START_END_POINT_ETF = String.format("KEYWORD\t%s\t%s\tURL\t%s\n", "ETF 배당금 내역", "KSD 증권정보포털 SEIBro", URL_ETF);
@@ -969,6 +969,7 @@ public class Seibro implements Crawler {
 		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
 	}
 
+	@Deprecated
 	@Override
 	public Result<ParserResult> dividend(Date start) {
 		log.info("{} dividend({})", Utility.indentStart(), start);
@@ -998,6 +999,7 @@ public class Seibro implements Crawler {
 		return result;
 	}
 
+	@Deprecated
 	protected Result<ParserResult> dividendCompany(Date start) {
 		log.debug("{} dividendCompany({})", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();
@@ -1081,7 +1083,7 @@ public class Seibro implements Crawler {
 		log.debug("{} clickShowWideIcon() - 『{}』『{}』", Utility.indentMiddle(), "넓게보기", driver.getText(BY_XPATH_VIEW_WIDE, Duration.ZERO));
 	}
 
-	protected Result<ParserResult> dividendEtf(Date start) {
+	public Result<ParserResult> dividendEtf(Date start) {
 		log.debug("{} dividendEtf({})", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();
 

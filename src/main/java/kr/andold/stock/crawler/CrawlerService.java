@@ -246,6 +246,7 @@ public class CrawlerService {
 		return result;
 	}
 
+	@Deprecated
 	public Result<ParserResult> crawlDividendAllRecent() {
 		log.info("{} crawlDividendAllRecent()", Utility.indentStart());
 		long started = System.currentTimeMillis();

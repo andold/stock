@@ -1,6 +1,7 @@
 package kr.andold.stock;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.Result.STATUS;
+import kr.andold.stock.job.CrawlDividendSeibroCompanyExcelJob;
+import kr.andold.stock.job.CrawlDividendSeibroEtfJob;
 import kr.andold.stock.job.CrawlPriceLatestSeibroCompanyExcelJob;
 import kr.andold.stock.job.CrawlPriceLatestSeibroEtfJob;
 import kr.andold.stock.service.ItemDetailJob;
@@ -16,7 +19,6 @@ import kr.andold.stock.service.ItemDividendJob;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.BackupJob;
 import kr.andold.stock.service.JobService.DeduplicatePriceJob;
-import kr.andold.stock.service.JobService.DividendAllRecentJob;
 import kr.andold.stock.service.JobService.ItemIpoCloseRecentJob;
 import kr.andold.stock.service.JobService.ItemPriceJob;
 import kr.andold.stock.service.JobService.StockCompileJob;
@@ -108,7 +110,10 @@ public class ScheduledTasks {
 		long started = System.currentTimeMillis();
 
 		if (zookeeperClient.isMaster()) {
-			JobService.getQueue2().offer(DividendAllRecentJob.builder().build());
+			ZonedDateTime sixMonthAgo = ZonedDateTime.now().minusMonths(6);
+			JobService.getQueue2().addLast(CrawlDividendSeibroCompanyExcelJob.builder().start(sixMonthAgo).build());
+			JobService.getQueue2().addLast(CrawlDividendSeibroEtfJob.builder().start(sixMonthAgo).build());
+//			JobService.getQueue2().offer(DividendAllRecentJob.builder().build());
 			JobService.getQueue2().offer(ItemIpoCloseRecentJob.builder()
 					.date(Date.from(LocalDate.now().minusMonths(12).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)))
 					.build());
