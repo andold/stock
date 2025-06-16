@@ -79,7 +79,7 @@ public class CrawlDividendSeibroCompanyExcelJob implements Job {
 			String text = readExcel(filename);
 			List<DividendHistoryDomain> dividends = parseLines(text);
 			CrudList<DividendHistoryDomain> crud = service.put(dividends);
-			propergate();
+			propergate(crud);
 			driver.quit();
 
 			log.debug("{} 『{}』 CrawlDividendSeibroCompanyExcelJob::main() - {}", Utility.indentEnd(), crud, Utility.toStringPastTimeReadable(started));
@@ -93,10 +93,10 @@ public class CrawlDividendSeibroCompanyExcelJob implements Job {
 		return STATUS.EXCEPTION;
 	}
 
-	private void propergate() {
-		log.debug("{} propergate()", Utility.indentStart());
+	private void propergate(CrudList<DividendHistoryDomain> crud) {
+		log.debug("{} propergate(『{}』)", Utility.indentStart(), crud);
 
-		log.debug("{} propergate()", Utility.indentEnd());
+		log.debug("{} propergate(『{}』)", Utility.indentEnd(), crud);
 	}
 
 	private static final String DELEMETER = "[\t]";
@@ -129,10 +129,10 @@ public class CrawlDividendSeibroCompanyExcelJob implements Job {
 		}
 		log.debug("{} 『{}』『{}』 parseLines(『{}』)", Utility.indentMiddle(), heads[indexCode], heads[indexDividend], Utility.ellipsisEscape(text, 64));
 
-		for (int cx = 1; cx < lines.length; cx++) {
+		for (int cx = 2; cx < lines.length; cx++) {
 			String[] words = lines[cx].split(DELEMETER);
 			if (words == null || words.length <= indexDividend) {
-				log.debug("{} 『INVALID::{}』 parseLines(『{}』)", Utility.indentMiddle(), Utility.ellipsisEscape(lines[cx], 32));
+				log.debug("{} 『INVALID::{}』 parseLines()", Utility.indentMiddle(), Utility.ellipsisEscape(lines[cx], 32));
 				continue;
 			}
 			if (words[indexCode].isBlank()) {
