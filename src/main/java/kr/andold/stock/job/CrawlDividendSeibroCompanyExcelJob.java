@@ -59,6 +59,7 @@ public class CrawlDividendSeibroCompanyExcelJob implements Job {
 		long started = System.currentTimeMillis();
 
 		CrawlDividendSeibroCompanyExcelJob that = (CrawlDividendSeibroCompanyExcelJob) ApplicationContextProvider.getBean(CrawlDividendSeibroCompanyExcelJob.class);
+		that.setStart(start);
 		STATUS result = that.main();
 
 		log.debug("{} 『#{}』 CrawlDividendSeibroCompanyExcelJob::call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));

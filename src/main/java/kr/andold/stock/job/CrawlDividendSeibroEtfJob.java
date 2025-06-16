@@ -39,6 +39,7 @@ public class CrawlDividendSeibroEtfJob implements Job {
 		long started = System.currentTimeMillis();
 
 		CrawlDividendSeibroEtfJob that = (CrawlDividendSeibroEtfJob) ApplicationContextProvider.getBean(CrawlDividendSeibroEtfJob.class);
+		that.setStart(start);
 		STATUS result = that.main();
 
 		log.debug("{} 『#{}』 CrawlPriceLatestSeibroEtfJob::call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));

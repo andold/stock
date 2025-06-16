@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.job.CrawlDividendSeibroCompanyExcelJob;
 import kr.andold.stock.job.CrawlDividendSeibroEtfJob;
@@ -39,11 +38,7 @@ public class ScheduledTasks {
 		long started = System.currentTimeMillis();
 
 		zookeeperClient.run();
-		if (CrawlerService.getDebug()) {
-			Utility.sleep(1000 * 512);
-		} else {
-			Utility.sleep(1000 * 32);
-		}
+		Utility.sleep(1000 * 32);
 		if (zookeeperClient.isMaster()) {
 			JobService.getQueue3().offer(ItemDetailJob.builder().code(null).build());
 			JobService.getQueue3().offer(ItemDividendJob.builder().code(null).build());
