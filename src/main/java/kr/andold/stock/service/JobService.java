@@ -172,6 +172,7 @@ public class JobService {
 		return result;
 	}
 
+	@SuppressWarnings("deprecation")
 	private STATUS run(Job job) {
 		log.trace("{} run({})", Utility.indentStart(), job);
 		long started = System.currentTimeMillis();

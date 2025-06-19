@@ -33,5 +33,10 @@
     "name": "application.crawler.debug",
     "type": "java.lang.String",
     "description": "A description for 'application.crawler.debug'"
+  },
+  {
+    "name": "application.service.key.apis.data.go.kr",
+    "type": "java.lang.String",
+    "description": "A description for 'application.service.key.apis.data.go.kr'"
   }
 ]}
