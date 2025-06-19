@@ -52,7 +52,7 @@ public class ApiCrawlerController {
 		ZonedDateTime oneWeekAgo = ZonedDateTime.now().minusWeeks(1);
 		JobService.getQueue1().addLast(CrawlPriceLatestSeibroCompanyExcelJob.builder().build());
 //		JobService.getQueue1().addLast(CrawlPriceLatestSeibroEtfJob.builder().build());
-		JobService.getQueue1().addLast(CrawlPriceLatestDataGoKrEtfJob.builder().start(oneWeekAgo).build());
+		CrawlPriceLatestDataGoKrEtfJob.regist(JobService.getQueue1(), oneWeekAgo);
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
 
 		log.info("{} 『{}』 - crawlPriceAll({})", Utility.indentEnd(), result, param);

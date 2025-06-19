@@ -54,6 +54,7 @@ public class CrawlPriceLatestDataGoKrEtfJob implements Job {
 		long started = System.currentTimeMillis();
 
 		CrawlPriceLatestDataGoKrEtfJob that = (CrawlPriceLatestDataGoKrEtfJob) ApplicationContextProvider.getBean(CrawlPriceLatestDataGoKrEtfJob.class);
+		that.setStart(start);
 		STATUS result = that.main();
 
 		log.debug("{} 『#{}』 CrawlPriceLatestDataGoKrEtfJob::call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));

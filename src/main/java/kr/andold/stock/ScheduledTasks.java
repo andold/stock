@@ -26,14 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 @EnableScheduling
 public class ScheduledTasks {
-
-    private final CrawlPriceLatestDataGoKrEtfJob crawlPriceLatestDataGoKrEtfJob;
 	@Autowired private JobService jobService;
 	@Autowired private ZookeeperClient zookeeperClient;
-
-    ScheduledTasks(CrawlPriceLatestDataGoKrEtfJob crawlPriceLatestDataGoKrEtfJob) {
-        this.crawlPriceLatestDataGoKrEtfJob = crawlPriceLatestDataGoKrEtfJob;
-    }
 
 	@Scheduled(initialDelay = 1000 * 8, fixedDelay = Long.MAX_VALUE)
 	public void once() {
@@ -94,7 +88,7 @@ public class ScheduledTasks {
 			ZonedDateTime oneWeekAgo = ZonedDateTime.now().minusWeeks(1);
 			JobService.getQueue2().addLast(CrawlPriceLatestSeibroCompanyExcelJob.builder().build());
 //			JobService.getQueue2().addLast(CrawlPriceLatestSeibroEtfJob.builder().build());
-			JobService.getQueue2().addLast(CrawlPriceLatestDataGoKrEtfJob.builder().start(oneWeekAgo).build());
+			CrawlPriceLatestDataGoKrEtfJob.regist(JobService.getQueue2(), oneWeekAgo);
 			JobService.getQueue2().offer(ItemDetailJob.builder().code(null).build());
 			JobService.getQueue3().offer(BackupJob.builder().build());
 			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
