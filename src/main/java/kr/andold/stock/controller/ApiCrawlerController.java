@@ -17,8 +17,8 @@ import kr.andold.stock.domain.Result;
 import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.job.CrawlDividendSeibroCompanyExcelJob;
 import kr.andold.stock.job.CrawlDividendSeibroEtfJob;
+import kr.andold.stock.job.CrawlPriceLatestDataGoKrCompanyJob;
 import kr.andold.stock.job.CrawlPriceLatestDataGoKrEtfJob;
-import kr.andold.stock.job.CrawlPriceLatestSeibroCompanyExcelJob;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.PriceParam;
 import kr.andold.stock.service.JobService;
@@ -50,7 +50,8 @@ public class ApiCrawlerController {
 		log.info("{} crawlPriceAll({})", Utility.indentStart(), param);
 
 		ZonedDateTime oneWeekAgo = ZonedDateTime.now().minusWeeks(1);
-		JobService.getQueue1().addLast(CrawlPriceLatestSeibroCompanyExcelJob.builder().build());
+//		JobService.getQueue1().addLast(CrawlPriceLatestSeibroCompanyExcelJob.builder().build());
+		CrawlPriceLatestDataGoKrCompanyJob.regist(JobService.getQueue1(), oneWeekAgo);
 //		JobService.getQueue1().addLast(CrawlPriceLatestSeibroEtfJob.builder().build());
 		CrawlPriceLatestDataGoKrEtfJob.regist(JobService.getQueue1(), oneWeekAgo);
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();

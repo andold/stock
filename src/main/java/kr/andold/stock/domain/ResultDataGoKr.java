@@ -15,6 +15,41 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResultDataGoKr<T> {
+	// 주식시세
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class ResultPriceCompany {
+		private ResultDataGoKr.ResponseDomain<ResultDataGoKr.PriceCompanyDomain> response;
+	}
+
+	// ETF시세
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class PriceCompanyDomain {
+		private String basDt;
+		private String srtnCd;
+		private String isinCd;
+		private String itmsNm;
+		private String mrktCtg;
+		private Integer clpr;
+		private String vs;
+		private String fltRt;
+		private Integer mkp;
+		private Integer hipr;
+		private Integer lopr;
+		private Integer trqu;
+		private String trPrc;
+		private String lstgStCnt;
+		private String mrktTotAmt;
+		
+		public String toString() {
+			return Utility.toStringJson(this);
+		}
+	}
 	// ETF시세
 	@Data
 	@Builder

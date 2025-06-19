@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import kr.andold.stock.domain.PriceDomain;
+import kr.andold.stock.domain.ResultDataGoKr.PriceCompanyDomain;
 import kr.andold.stock.domain.ResultDataGoKr.PriceEtfDomain;
 import kr.andold.utils.Utility;
 import kr.andold.utils.persist.CrudList;
@@ -50,6 +51,18 @@ public class DataGoKrService {
 	}
 
 	public PriceDomain toPriceDomain(PriceEtfDomain item) {
+		return PriceDomain.builder()
+				.code(item.getSrtnCd())
+				.base(Utility.parseDateTime(item.getBasDt()))
+				.closing(item.getClpr())
+				.market(item.getMkp())
+				.high(item.getHipr())
+				.low(item.getLopr())
+				.volume(item.getTrqu())
+				.build();
+	}
+
+	public PriceDomain toPriceDomain(PriceCompanyDomain item) {
 		return PriceDomain.builder()
 				.code(item.getSrtnCd())
 				.base(Utility.parseDateTime(item.getBasDt()))
