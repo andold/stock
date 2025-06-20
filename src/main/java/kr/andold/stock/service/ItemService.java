@@ -7,8 +7,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,12 +29,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ItemService implements CommonBlockService<ItemParam, ItemDomain, ItemEntity> {
-	private static final Sort DEFAULT_SORT = Sort.by(Order.asc("priority"), Order.desc("priceEarningsRatio").nullsLast(), Order.asc("symbol"), Order.asc("code"));
+	private static final Sort DEFAULT_SORT = Sort.by(Order.asc("priority"), Order.desc("priceEarningsRatio").nullsFirst(), Order.asc("symbol"), Order.asc("code"));
 
 	@Autowired private ItemRepository repository;
 	@Autowired private Seibro seibro;
 
-	@Cacheable(value= "items")
 	public ItemParam search(ItemParam param, Pageable page) {
 		log.info("{} search({}, {})", Utility.indentStart(), param, page);
 		long started = System.currentTimeMillis();
@@ -50,7 +47,6 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 		return param;
 	}
 
-	@Cacheable(value= "items")
 	@Override
 	public List<ItemDomain> search(ItemParam param) {
 		log.info("{} search({})", Utility.indentStart(), param);
@@ -71,7 +67,6 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 	}
 
 	@Modifying
-	@CacheEvict(value = "items")
 	@Override
 	public List<ItemDomain> update(List<ItemDomain> domains) {
 		log.debug("{} update(『#{}』)", Utility.indentStart(), Utility.size(domains));
@@ -86,7 +81,6 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 	}
 
 	@Modifying
-	@CacheEvict(value = "items")
 	public ItemDomain update(ItemDomain domain) {
 		Optional<ItemEntity> read = repository.findById(domain.getId());
 		if (read.isEmpty()) {
@@ -120,7 +114,6 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 	}
 
 	@Modifying
-	@CacheEvict(value = "items")
 	@Override
 	public int remove(List<ItemDomain> domains) {
 		List<ItemEntity> entities = toEntities(domains);
@@ -130,7 +123,6 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 	}
 
 	@Modifying
-	@CacheEvict(value = "items")
 	@Override
 	public List<ItemDomain> create(List<ItemDomain> domains) {
 		log.info("{} create(#{})", Utility.indentStart(), Utility.size(domains));
@@ -154,13 +146,23 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 		if (before.getPriority() == null) {
 			before.setPriority(8);
 		}
+		if (before.getPriceEarningsRatio() == null) {
+			before.setPriceEarningsRatio(0f);
+		}
 	}
 
 	@Override
 	public void prepareCreate(ItemDomain domain) {
 		domain.setId(null);
-		if (domain.getPriority() == null)
+		if (domain.getIsinCode() == null) {
+			domain.setIsinCode("");
+		}
+		if (domain.getPriority() == null) {
 			domain.setPriority(8);
+		}
+		if (domain.getPriceEarningsRatio() == null) {
+			domain.setPriceEarningsRatio(0f);
+		}
 		Date now = new Date();
 		domain.setCreated(now);
 		domain.setUpdated(now);
@@ -177,7 +179,6 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 		return Utility.parseJsonLine(line, ItemDomain.class);
 	}
 
-	@Cacheable(value= "items")
 	public ItemDomain read(Integer id) {
 		Optional<ItemEntity> op = repository.findById(id);
 		if (op.isPresent()) {

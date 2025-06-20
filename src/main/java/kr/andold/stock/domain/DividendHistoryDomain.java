@@ -6,12 +6,16 @@ import org.springframework.beans.BeanUtils;
 
 import kr.andold.stock.entity.DividendHistoryEntity;
 import kr.andold.utils.Utility;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @NoArgsConstructor
 public class DividendHistoryDomain extends DividendHistoryEntity implements CommonBlockDomain<DividendHistoryDomain, DividendHistoryEntity> {
+	@Getter @Setter private String name;
+
 	@Override
 	public DividendHistoryEntity toEntity() {
 		DividendHistoryEntity entity = new DividendHistoryEntity();

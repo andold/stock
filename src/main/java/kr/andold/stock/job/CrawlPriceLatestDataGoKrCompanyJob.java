@@ -121,7 +121,7 @@ public class CrawlPriceLatestDataGoKrCompanyJob implements Job {
 				List<PriceDomain> prices = new ArrayList<>();
 				for (int cy = 0, sizex = list.size(); cy < sizex; cy++) {
 					ResultDataGoKr.PriceCompanyDomain item = list.get(cy);
-					PriceDomain price = service.toPriceDomain(item);
+					PriceDomain price = DataGoKrService.toPriceDomain(item);
 					prices.add(price);
 					log.trace("{} CrawlPriceLatestDataGoKrCompanyJob::main(『{}』)- 『{}/{}』『{}』", Utility.indentMiddle(), start, cy, sizex, item);
 				}

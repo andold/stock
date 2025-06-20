@@ -3,6 +3,7 @@ package kr.andold.stock.controller;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletResponse;
 import kr.andold.stock.domain.ItemDomain;
+import kr.andold.stock.job.CrawlItemLatestDataGoKrCompanyJob;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.ItemCompilePriceEarningsRatioJob;
 import kr.andold.stock.service.ItemDetailJob;
@@ -63,6 +65,10 @@ public class ApiItemController {
 		log.info("{} crawl({})", Utility.indentStart(), param);
 
 		String code = (param == null || param.getCode() == null || param.getCode().isBlank()) ? null : param.getCode();
+		if (code == null) {
+			ZonedDateTime oneWeekAgo = ZonedDateTime.now().minusWeeks(1);
+			CrawlItemLatestDataGoKrCompanyJob.regist(JobService.getQueue1(), oneWeekAgo);
+		}
 		JobService.getQueue2().offer(ItemDetailJob.builder().code(code).build());
 		CrudList<ItemDomain> result = CrudList.<ItemDomain>builder().build();
 

@@ -7,10 +7,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.jsoup.Jsoup;
@@ -18,13 +19,12 @@ import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
+import kr.andold.stock.domain.DividendHistoryDomain;
+import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.domain.ResultDataGoKr;
+import kr.andold.stock.domain.ResultDataGoKr.DividendDomain;
+import kr.andold.stock.service.DataGoKrService;
 import kr.andold.stock.service.Utility;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,6 +44,10 @@ public class NoSpringTest {
 	public static final String URL_STOCK_PRICE = "https://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getStockPriceInfo?resultType=json&pageNo=1";
 	// ETF시세
 	public static final String URL_ETF_PRICE = "https://apis.data.go.kr/1160100/service/GetSecuritiesProductInfoService/getETFPriceInfo?resultType=json";
+	// 배당정보조회
+	public static final String URL_DIVIDEND = "http://apis.data.go.kr/1160100/service/GetStocDiviInfoService/getDiviInfo?resultType=json";
+	// KRX에 상장된 종목에 대한 정보조회
+	public static final String URL_ITEM = "https://apis.data.go.kr/1160100/service/GetKrxListedInfoService/getItemInfo?resultType=json";
 
 	// ETF시세
 	@Data
@@ -84,15 +88,63 @@ public class NoSpringTest {
 		log.info(Utility.HR);
 	}
 
+	// KRX에 상장된 종목에 대한 정보조회
+	@Test
+	public void itemTest() {
+		int numOfRows = 1024 * 8;
+		int pageNo = 2;
+		ZonedDateTime oneWeekAgo = ZonedDateTime.now().minusWeeks(1);
+		ZonedDateTime start = oneWeekAgo;
+
+//		String url = String.format("%s&isinCd=KR7000100008&serviceKey=%s&numOfRows=%d&pageNo=%d&beginBasDt=%s", URL_ITEM, SERVICE_KEY, numOfRows, pageNo, start.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+		String url = String.format("%s&serviceKey=%s&numOfRows=%d&pageNo=%d&beginBasDt=%s", URL_ITEM, SERVICE_KEY, numOfRows, pageNo, start.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+		log.info(url);
+		String html = read(url);
+		log.info(Utility.ellipsisEscape(html, 256, 128));
+		ResultDataGoKr.ResultItem result = Utility.parseJsonLine(html, ResultDataGoKr.ResultItem.class);
+		log.info("result: {}", result);
+		log.info(Utility.HR);
+		List<ResultDataGoKr.ItemDomain> list = result.getResponse().getBody().getItems().getItem();
+		for (int cx = 0, sizex = list.size(); cx < sizex; cx++) {
+			ResultDataGoKr.ItemDomain item = list.get(cx);
+			ItemDomain p = DataGoKrService.toItemDomain(item);
+			if (!p.getType().equalsIgnoreCase("KOSPI")) {
+				continue;
+			}
+			log.info("{}/{} {}", cx, sizex, item);
+//			log.info("{}/{} {}", cx, sizex, p);
+		}
+	}
+
+	// 배당정보조회
+	@Test
+	public void dividendTest() {
+		int numOfRows = 1024;
+		int pageNo = 1;
+		String url = String.format("%s&serviceKey=%s&numOfRows=%d&pageNo=%d", URL_DIVIDEND, SERVICE_KEY, numOfRows, pageNo);
+		log.info(url);
+		String html = read(url);
+		log.info(Utility.ellipsisEscape(html, 256, 128));
+		ResultDataGoKr.ResultDividend result = Utility.parseJsonLine(html, ResultDataGoKr.ResultDividend.class);
+		log.info("result: {}", result);
+		log.info(Utility.HR);
+		List<ResultDataGoKr.DividendDomain> list = result.getResponse().getBody().getItems().getItem();
+		for (int cx = 0, sizex = list.size(); cx < sizex; cx++) {
+			ResultDataGoKr.DividendDomain item = list.get(cx);
+			DividendHistoryDomain p = toDividendHistoryDomain(item);
+			if (p.getDividend() <= 0) {
+				continue;
+			}
+//			log.info("{}/{} {}", cx, sizex, item);
+			log.info("{}/{} {}", cx, sizex, p);
+		}
+	}
+
 	// ETF시세
 	@Test
 	public void etfPriceTest() {
-//		int numOfRows = 1024 * 16;
 		int numOfRows = 8;
-//		int pageNo = 1;
 		int pageNo = 1024;
-//		String url = String.format("%s&basDt=20250613&serviceKey=%s&numOfRows=%d", URL_ETF_PRICE, SERVICE_KEY, numOfRows);
-//		String url = String.format("%s&beginBasDt=20250612&serviceKey=%s&numOfRows=%d", URL_ETF_PRICE, SERVICE_KEY, 1);
 		String url = String.format("%s&beginBasDt=20250612&serviceKey=%s&numOfRows=%d&pageNo=%d", URL_ETF_PRICE, SERVICE_KEY, numOfRows, pageNo);
 		log.info(url);
 		String html = read(url);
@@ -106,6 +158,16 @@ public class NoSpringTest {
 			log.info("{}/{} {}", cx, sizex, item);
 			log.info("{}/{} {}", cx, sizex, p);
 		}
+	}
+
+	private DividendHistoryDomain toDividendHistoryDomain(DividendDomain item) {
+		return DividendHistoryDomain.builder()
+				.code(item.getIsinCd())
+				.name(item.getIsinCdNm())
+				.base(Utility.parseDateTime(item.getDvdnBasDt()))
+				.pay(Utility.parseDateTime(item.getCashDvdnPayDt()))
+				.dividend(Math.round(item.getStckGenrDvdnAmt()))
+				.build();
 	}
 
 	public PriceDomain toPriceDomain(ResultDataGoKr.PriceEtfDomain item) {
@@ -205,7 +267,7 @@ public class NoSpringTest {
 	@Test
 	public void parseJsonTest() {
 		String text = Utility.readClassPathFile("sample/items.json");
-		ResultDomain result = ResultDomain.of(text);
+		ResultDataGoKr.ResultItem result = Utility.parseJsonLine(text, ResultDataGoKr.ResultItem.class);
 		log.info("{}", result);
 		log.info("{}", result.getResponse().getBody().getItems().getItem());
 	}
@@ -256,100 +318,11 @@ public class NoSpringTest {
         if (response.statusCode() == 200) {
             String responseBody = response.body();
             log.info("응답 {}", responseBody);
-            parseJson(response.body());
+    		ResultDataGoKr.ResultItem result = Utility.parseJsonLine(responseBody, ResultDataGoKr.ResultItem.class);
+            log.info("result {}", result);
         } else {
             log.info("실패 {}", response.statusCode());
         }	
-	}
-
-	@Data
-	@Builder
-	@NoArgsConstructor
-	@AllArgsConstructor
-	public static class ItemDomain {
-		private String basDt;
-		private String crno;
-		private String dpsgRegDt;
-		private String isinCd;
-		private String isinCdNm;
-		private String issuFrmtClsfNm;
-		private String issuStckCnt;
-		private String itmsShrtnCd;
-		private String lstgAbolDt;
-		private String lstgDt;
-		private String scrsItmsKcd;
-		private String scrsItmsKcdNm;
-		private String stckIssuCmpyNm;
-		private String stckParPrc;
-		
-		public String toString() {
-			return Utility.toStringJson(this);
-		}
-	}
-	@Data
-	@Builder
-	@NoArgsConstructor
-	@AllArgsConstructor
-	public static class ItemsDomain {
-		private List<ItemDomain> item;
-		public String toString() {
-			return Utility.toStringJson(this);
-		}
-	}
-	@Data
-	@Builder
-	@NoArgsConstructor
-	@AllArgsConstructor
-	public static class HeaderDomain {
-		private String resultCode;
-		private String resultMsg;
-	}
-	@Data
-	@Builder
-	@NoArgsConstructor
-	@AllArgsConstructor
-	public static class BodyDomain {
-		private Integer numOfRows;
-		private Integer pageNo;
-		private Integer totalCount;
-		private ItemsDomain items;
-	}
-	@Data
-	@Builder
-	@NoArgsConstructor
-	@AllArgsConstructor
-	public static class ResponseDomain {
-		private HeaderDomain header;
-		private BodyDomain body;
-	}
-	@Data
-	@Builder
-	@NoArgsConstructor
-	@AllArgsConstructor
-	public static class ResultDomain {
-		private ResponseDomain response;
-		public static ResultDomain of(String text) {
-			ObjectMapper objectMapper = new ObjectMapper();
-			objectMapper.setSerializationInclusion(Include.NON_NULL);
-			objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-			objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-			try {
-				return objectMapper.readValue(text, ResultDomain.class);
-			} catch (Exception e) {
-				try {
-					return objectMapper.readValue(URLDecoder.decode(text, "UTF-8"), ResultDomain.class);
-				} catch (Exception f) {
-					e.printStackTrace();
-					f.printStackTrace();
-				}
-			}
-
-			return null;
-		}
-	}
-	private void parseJson(String text) {
-		ResultDomain result = ResultDomain.of(text);
-		log.info("{}", result);
 	}
 
 	@Test

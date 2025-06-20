@@ -36,6 +36,9 @@ public class ItemEntity {
 	// 종목코드
 	private String code;
 
+	// 국제 증권 식별 번호(International Securities Identification Number)
+	private String isinCode;
+
 	// 표시 우선 순위
 	private Integer priority;
 

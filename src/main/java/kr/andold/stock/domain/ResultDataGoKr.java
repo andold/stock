@@ -15,6 +15,74 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResultDataGoKr<T> {
+	// 종목 정보
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class ResultItem {
+		private ResultDataGoKr.ResponseDomain<ResultDataGoKr.ItemDomain> response;
+	}
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class ItemDomain {
+		private String basDt;
+		private String srtnCd;
+		private String isinCd;
+		private String mrktCtg;
+		private String itmsNm;
+		private String crno;
+		private String corpNm;
+		
+		public String toString() {
+			return Utility.toStringJson(this);
+		}
+	}
+
+	// 배당정보조회
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class ResultDividend {
+		private ResultDataGoKr.ResponseDomain<ResultDataGoKr.DividendDomain> response;
+	}
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class DividendDomain {
+		private String basDt;
+		private String cashDvdnPayDt;
+		private String cashGrdnDvdnRt;
+		private String crno;
+		private String dvdnBasDt;
+		private String isinCd;
+		private String isinCdNm;
+		private String scrsItmsKcd;
+		private String scrsItmsKcdNm;
+		private String stckDvdnRcd;
+
+		private String stckDvdnRcdNm;
+		private String stckGenrCashDvdnRt;
+		private Float stckGenrDvdnAmt;
+		private String stckGenrDvdnRt;
+		private String stckGrdnDvdnAmt;
+		private String stckGrdnDvdnRt;
+		private String stckHndvDt;
+		private String stckIssuCmpyNm;
+		private String stckParPrc;
+		private String stckStacMd;
+		private String trsnmDptyDcd;
+		private String trsnmDptyDcdNm;
+		
+		public String toString() {
+			return Utility.toStringJson(this);
+		}
+	}
+
 	// 주식시세
 	@Data
 	@Builder
@@ -23,8 +91,6 @@ public class ResultDataGoKr<T> {
 	public static class ResultPriceCompany {
 		private ResultDataGoKr.ResponseDomain<ResultDataGoKr.PriceCompanyDomain> response;
 	}
-
-	// ETF시세
 	@Data
 	@Builder
 	@NoArgsConstructor
@@ -50,6 +116,7 @@ public class ResultDataGoKr<T> {
 			return Utility.toStringJson(this);
 		}
 	}
+
 	// ETF시세
 	@Data
 	@Builder
@@ -104,30 +171,6 @@ public class ResultDataGoKr<T> {
 		private String lopr;
 		private String trqu;
 		private String trPrc;
-		
-		public String toString() {
-			return Utility.toStringJson(this);
-		}
-	}
-	@Data
-	@Builder
-	@NoArgsConstructor
-	@AllArgsConstructor
-	public static class ItemDomain {
-		private String basDt;
-		private String crno;
-		private String dpsgRegDt;
-		private String isinCd;
-		private String isinCdNm;
-		private String issuFrmtClsfNm;
-		private String issuStckCnt;
-		private String itmsShrtnCd;
-		private String lstgAbolDt;
-		private String lstgDt;
-		private String scrsItmsKcd;
-		private String scrsItmsKcdNm;
-		private String stckIssuCmpyNm;
-		private String stckParPrc;
 		
 		public String toString() {
 			return Utility.toStringJson(this);

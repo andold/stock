@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
-import kr.andold.stock.domain.ResultDataGoKr.PriceCompanyDomain;
-import kr.andold.stock.domain.ResultDataGoKr.PriceEtfDomain;
+import kr.andold.stock.domain.ResultDataGoKr;
 import kr.andold.utils.Utility;
 import kr.andold.utils.persist.CrudList;
 import lombok.Getter;
@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class DataGoKrService {
+	@Autowired private ItemService itemService;
 	@Autowired private PriceService priceService;
 
 	@Getter private static String serviceKey;
@@ -50,32 +51,45 @@ public class DataGoKrService {
 		return "";
 	}
 
-	public PriceDomain toPriceDomain(PriceEtfDomain item) {
+	public static PriceDomain toPriceDomain(ResultDataGoKr.PriceEtfDomain domain) {
 		return PriceDomain.builder()
-				.code(item.getSrtnCd())
-				.base(Utility.parseDateTime(item.getBasDt()))
-				.closing(item.getClpr())
-				.market(item.getMkp())
-				.high(item.getHipr())
-				.low(item.getLopr())
-				.volume(item.getTrqu())
+				.code(domain.getSrtnCd())
+				.base(Utility.parseDateTime(domain.getBasDt()))
+				.closing(domain.getClpr())
+				.market(domain.getMkp())
+				.high(domain.getHipr())
+				.low(domain.getLopr())
+				.volume(domain.getTrqu())
 				.build();
 	}
 
-	public PriceDomain toPriceDomain(PriceCompanyDomain item) {
+	public static PriceDomain toPriceDomain(ResultDataGoKr.PriceCompanyDomain domain) {
 		return PriceDomain.builder()
-				.code(item.getSrtnCd())
-				.base(Utility.parseDateTime(item.getBasDt()))
-				.closing(item.getClpr())
-				.market(item.getMkp())
-				.high(item.getHipr())
-				.low(item.getLopr())
-				.volume(item.getTrqu())
+				.code(domain.getSrtnCd())
+				.base(Utility.parseDateTime(domain.getBasDt()))
+				.closing(domain.getClpr())
+				.market(domain.getMkp())
+				.high(domain.getHipr())
+				.low(domain.getLopr())
+				.volume(domain.getTrqu())
 				.build();
 	}
 
-	public CrudList<PriceDomain> putPrice(List<PriceDomain> prices) {
-		return priceService.put(prices);
+	public CrudList<PriceDomain> putPrice(List<PriceDomain> list) {
+		return priceService.put(list);
+	}
+
+	public static ItemDomain toItemDomain(ResultDataGoKr.ItemDomain domain) {
+		return ItemDomain.builder()
+				.code(domain.getSrtnCd())
+				.isinCode(domain.getIsinCd())
+				.symbol(domain.getItmsNm())
+				.type(domain.getMrktCtg())
+				.build();
+	}
+
+	public CrudList<ItemDomain> putItem(List<ItemDomain> list) {
+		return itemService.put(list);
 	}
 
 }

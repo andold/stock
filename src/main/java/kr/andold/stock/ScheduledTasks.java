@@ -11,12 +11,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.job.*;
 import kr.andold.stock.service.ItemDetailJob;
-import kr.andold.stock.service.ItemDividendJob;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.BackupJob;
 import kr.andold.stock.service.JobService.DeduplicatePriceJob;
 import kr.andold.stock.service.JobService.ItemIpoCloseRecentJob;
-import kr.andold.stock.service.JobService.ItemPriceJob;
 import kr.andold.stock.service.JobService.StockCompileJob;
 import kr.andold.stock.service.ZookeeperClient;
 import kr.andold.utils.Utility;
@@ -37,10 +35,9 @@ public class ScheduledTasks {
 		zookeeperClient.run();
 		Utility.sleep(1000 * 32);
 		if (zookeeperClient.isMaster()) {
-			JobService.getQueue3().offer(ItemDetailJob.builder().code(null).build());
-			JobService.getQueue3().offer(ItemDividendJob.builder().code(null).build());
-			JobService.getQueue3().offer(ItemPriceJob.builder().code(null).build());
-			JobService.getQueue3().offer(BackupJob.builder().build());
+//			JobService.getQueue3().offer(ItemDividendJob.builder().code(null).build());
+//			JobService.getQueue3().offer(ItemPriceJob.builder().code(null).build());
+//			JobService.getQueue3().offer(BackupJob.builder().build());
 			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
 		}
 
@@ -105,6 +102,7 @@ public class ScheduledTasks {
 		long started = System.currentTimeMillis();
 
 		if (zookeeperClient.isMaster()) {
+			ZonedDateTime oneWeekAgo = ZonedDateTime.now().minusWeeks(1);
 			ZonedDateTime sixMonthAgo = ZonedDateTime.now().minusMonths(6);
 			JobService.getQueue2().addLast(CrawlDividendSeibroCompanyExcelJob.builder().start(sixMonthAgo).build());
 			JobService.getQueue2().addLast(CrawlDividendSeibroEtfJob.builder().start(sixMonthAgo).build());
@@ -115,6 +113,7 @@ public class ScheduledTasks {
 			JobService.getQueue3().offer(BackupJob.builder().build());
 			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
 			JobService.getQueue3().offer(StockCompileJob.builder().start(LocalDate.now().minusWeeks(2)).build());
+			CrawlItemLatestDataGoKrCompanyJob.regist(JobService.getQueue2(), oneWeekAgo);
 		}
 
 		log.info("{} weekly() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));

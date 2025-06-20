@@ -13,6 +13,7 @@ CREATE TABLE stock_item (
 id			serial not null,
 
 code		varchar(1024) not null DEFAULT '',
+isin_code	varchar(1024) not null DEFAULT '',
 symbol		varchar(1024),
 priority	integer,
 field_type	varchar(1024),
