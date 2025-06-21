@@ -17,6 +17,8 @@ import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.domain.ResultDataGoKr;
 import kr.andold.stock.domain.ResultDataGoKr.DividendDomain;
+import kr.andold.stock.domain.ResultDataGoKr.ItemDetailDomain;
+import kr.andold.stock.job.CrawlItemDetailDataGoKrCompanyJob;
 import kr.andold.utils.Utility;
 import kr.andold.utils.persist.CrudList;
 import lombok.Getter;
@@ -93,6 +95,17 @@ public class DataGoKrService {
 				.build();
 	}
 
+	public static ItemDomain toItemDomain(ItemDetailDomain domain) {
+		return ItemDomain.builder()
+				.code(domain.getItmsShrtnCd())
+				.isinCode(domain.getIsinCd())
+				.symbol(domain.getIsinCdNm())
+				.volumeOfListedShares(domain.getIssuStckCnt())
+				.ipoOpen(Utility.parseDateTime(domain.getLstgDt()))
+				.ipoClose(Utility.parseDateTime(domain.getLstgAbolDt()))
+				.build();
+	}
+
 	public CrudList<ItemDomain> putItem(List<ItemDomain> list) {
 		return itemService.put(list);
 	}
@@ -117,7 +130,8 @@ public class DataGoKrService {
 			String isinCode = dividend.getIsinCode();
 			String code = map.get(isinCode);
 			if (code == null) {
-				log.info("{} putDividendHistoryDomain(『#{}』) - 『{}:{}』『{}』", Utility.indentMiddle(), Utility.size(dividends), isinCode, code, dividend);
+				log.warn("{} putDividendHistoryDomain(『#{}』) - 『{}:{}』『{}』", Utility.indentMiddle(), Utility.size(dividends), isinCode, code, dividend);
+				CrawlItemDetailDataGoKrCompanyJob.regist(JobService.getQueue3(), isinCode);
 				dividend.setCode("");
 			} else {
 				dividend.setCode(code);

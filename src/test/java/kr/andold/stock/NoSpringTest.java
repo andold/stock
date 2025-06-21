@@ -88,6 +88,37 @@ public class NoSpringTest {
 		log.info(Utility.HR);
 	}
 
+	// 종목기본정보조회
+	@Test
+	public void itemBasicInfoTest() {
+		int numOfRows = 1024;
+		int pageNo = 1;
+		ZonedDateTime start = ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, Utility.ZONE_ID_KST);
+		ZonedDateTime oneWeekAgo = ZonedDateTime.now().minusWeeks(1);
+		start = oneWeekAgo;
+		String isinCode = "KR7015060007";		// 미주실업
+		String URL = "http://apis.data.go.kr/1160100/service/GetStocIssuInfoService_V2/getItemBasiInfo_V2?resultType=json";
+		String url = String.format("%s&serviceKey=%s&numOfRows=%d&pageNo=%d&basDt=%s&&isinCd=%s"
+				, URL, SERVICE_KEY, numOfRows, pageNo, start.format(DateTimeFormatter.ofPattern("yyyyMMdd")), isinCode);
+		log.info("url:{}", url);
+		String html = read(url);
+		log.info("html:{}", Utility.ellipsisEscape(html, 256, 128));
+		ResultDataGoKr.ResultItem result = Utility.parseJsonLine(html, ResultDataGoKr.ResultItem.class);
+//		log.info("result: {}", result);
+		log.info(Utility.HR);
+		List<ResultDataGoKr.ItemDomain> list = result.getResponse().getBody().getItems().getItem();
+		for (int cx = 0, sizex = list.size(); cx < sizex; cx++) {
+			ResultDataGoKr.ItemDomain item = list.get(cx);
+			ItemDomain domain = DataGoKrService.toItemDomain(item);
+//			if (item.getItmsNm().contains("포스코")) {
+//				// 디버그
+//				log.info("{} CrawlItemLatestDataGoKrCompanyJob::main(『{}』)- 『{}』『{}』", Utility.indentMiddle(), start, item, domain);
+//			}
+			log.info("{}/{} {}", cx, sizex, item);
+			log.info("{}/{} {}", cx, sizex, domain);
+		}
+	}
+
 	@Test
 	public void regularExpressionLineFirstTest() {
 		String origin = "A0123";

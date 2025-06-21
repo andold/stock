@@ -15,6 +15,40 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResultDataGoKr<T> {
+	// 종목기본정보조회
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class ResultItemDetail {
+		private ResultDataGoKr.ResponseDomain<ResultDataGoKr.ItemDetailDomain> response;
+	}
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class ItemDetailDomain {
+		private String basDt;
+		private String crno;
+		private String dpsgCanDt;
+		private String dpsgRegDt;
+		private String isinCd;
+		private String isinCdNm;
+		private String issuFrmtClsfNm;
+		private Integer issuStckCnt;
+		private String itmsShrtnCd;
+		private String lstgAbolDt;
+		private String lstgDt;
+		private String scrsItmsKcd;
+		private String scrsItmsKcdNm;
+		private String stckIssuCmpyNm;
+		private String stckParPrc;
+
+		public String toString() {
+			return Utility.toStringJson(this);
+		}
+	}
+
 	// 종목 정보
 	@Data
 	@Builder
