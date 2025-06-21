@@ -123,6 +123,10 @@ public class CrawlItemLatestDataGoKrCompanyJob implements Job {
 					ResultDataGoKr.ItemDomain item = list.get(cy);
 					ItemDomain domain = DataGoKrService.toItemDomain(item);
 					items.add(domain);
+					if (item.getItmsNm().contains("포스코")) {
+						// 디버그
+						log.debug("{} CrawlItemLatestDataGoKrCompanyJob::main(『{}』)- 『{}』『{}』", Utility.indentMiddle(), start, item, domain);
+					}
 					log.trace("{} CrawlItemLatestDataGoKrCompanyJob::main(『{}』)- 『{}/{}』『{}』", Utility.indentMiddle(), start, cy, sizex, item);
 				}
 

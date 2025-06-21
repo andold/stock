@@ -2,8 +2,6 @@ package kr.andold.stock.job;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.time.ZonedDateTime;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class CrawlDividendSeibroCompanyExcelJobTest {
-	@SuppressWarnings("deprecation")
-	@Autowired private CrawlDividendSeibroCompanyExcelJob job;
+class CrawlDividendLatestDataGoKrCompanyJobTest {
+	@Autowired private CrawlDividendLatestDataGoKrCompanyJob job;
 
 	@BeforeEach
 	public void before() {
@@ -25,10 +22,8 @@ class CrawlDividendSeibroCompanyExcelJobTest {
 		assertNotNull(job);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Test
 	public void main() {
-		job.setStart(ZonedDateTime.now().minusMonths(1));
 		STATUS status = job.main();
 		log.info("{}", status);
 	}

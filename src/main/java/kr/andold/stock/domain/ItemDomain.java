@@ -167,6 +167,13 @@ public class ItemDomain extends ItemEntity implements CommonBlockDomain<ItemDoma
 			}
 		}
 
+		if (getIsinCode() != null) {
+			compared = Utility.compare(getIsinCode(), before.getIsinCode());
+			if (compared != 0) {
+				return compared;
+			}
+		}
+
 		if (getPriority() != null) {
 			compared = Utility.compare(getPriority(), before.getPriority());
 			if (compared != 0) {

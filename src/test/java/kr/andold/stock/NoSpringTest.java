@@ -98,7 +98,7 @@ public class NoSpringTest {
 	@Test
 	public void itemTest() {
 		int numOfRows = 1024 * 8;
-		int pageNo = 2;
+		int pageNo = 1;
 		ZonedDateTime oneWeekAgo = ZonedDateTime.now().minusWeeks(1);
 		ZonedDateTime start = oneWeekAgo;
 
@@ -108,24 +108,25 @@ public class NoSpringTest {
 		String html = read(url);
 		log.info(Utility.ellipsisEscape(html, 256, 128));
 		ResultDataGoKr.ResultItem result = Utility.parseJsonLine(html, ResultDataGoKr.ResultItem.class);
-		log.info("result: {}", result);
+//		log.info("result: {}", result);
 		log.info(Utility.HR);
 		List<ResultDataGoKr.ItemDomain> list = result.getResponse().getBody().getItems().getItem();
 		for (int cx = 0, sizex = list.size(); cx < sizex; cx++) {
 			ResultDataGoKr.ItemDomain item = list.get(cx);
-			ItemDomain p = DataGoKrService.toItemDomain(item);
-			if (!p.getType().equalsIgnoreCase("KOSPI")) {
-				continue;
+			ItemDomain domain = DataGoKrService.toItemDomain(item);
+			if (item.getItmsNm().contains("포스코")) {
+				// 디버그
+				log.info("{} CrawlItemLatestDataGoKrCompanyJob::main(『{}』)- 『{}』『{}』", Utility.indentMiddle(), start, item, domain);
 			}
-			log.info("{}/{} {}", cx, sizex, item);
-//			log.info("{}/{} {}", cx, sizex, p);
+//			log.info("{}/{} {}", cx, sizex, item);
+//			log.info("{}/{} {}", cx, sizex, domain);
 		}
 	}
 
 	// 배당정보조회
 	@Test
 	public void dividendTest() {
-		int numOfRows = 1024;
+		int numOfRows = 4;
 		int pageNo = 1;
 		String url = String.format("%s&serviceKey=%s&numOfRows=%d&pageNo=%d", URL_DIVIDEND, SERVICE_KEY, numOfRows, pageNo);
 		log.info(url);
@@ -168,7 +169,7 @@ public class NoSpringTest {
 
 	private DividendHistoryDomain toDividendHistoryDomain(DividendDomain item) {
 		return DividendHistoryDomain.builder()
-				.code(item.getIsinCd())
+				.isinCode(item.getIsinCd())
 				.name(item.getIsinCdNm())
 				.base(Utility.parseDateTime(item.getDvdnBasDt()))
 				.pay(Utility.parseDateTime(item.getCashDvdnPayDt()))

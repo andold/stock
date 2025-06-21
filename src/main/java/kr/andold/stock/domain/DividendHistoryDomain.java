@@ -107,6 +107,10 @@ public class DividendHistoryDomain extends DividendHistoryEntity implements Comm
 		return String.format("%s.%tF", getCode(), getBase());
 	}
 
+	public String keyByIsinCode() {
+		return String.format("%s.%tF", getIsinCode(), getBase());
+	}
+
 	@Override
 	public String toString() {
 		return Utility.toStringJson(this);

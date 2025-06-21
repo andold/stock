@@ -35,6 +35,7 @@ CREATE TABLE stock_dividend_history (
 id			serial not null,
 
 code		varchar(1024) not null DEFAULT '',
+isin_code	varchar(1024) not null DEFAULT '',
 base		timestamp not null DEFAULT CURRENT_TIMESTAMP,
 pay			timestamp,
 dividend	integer,
@@ -53,6 +54,7 @@ CREATE TABLE stock_price (
 id			serial not null,
 
 code		varchar(1024) not null DEFAULT '',
+isin_code	varchar(1024) not null DEFAULT '',
 base		timestamp not null DEFAULT CURRENT_TIMESTAMP,
 closing		integer,
 market		integer,

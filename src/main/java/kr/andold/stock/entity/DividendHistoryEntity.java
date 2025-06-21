@@ -31,7 +31,11 @@ public class DividendHistoryEntity {
 	@Column(name = "id")
 	private Integer id;
 
+	// 종목코드
 	private String code;
+
+	// 국제 증권 식별 번호(International Securities Identification Number)
+	private String isinCode;
 
 	@Column(name = "base")
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
