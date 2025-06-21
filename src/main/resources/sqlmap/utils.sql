@@ -1,3 +1,6 @@
+-- A로 시작하는 code 지우기
+DELETE from stock_item				WHERE code LIKE 'A%' AND isin_code <> '';
+
 -- KR로 시작하는 code 지우기
 DELETE from stock_item				WHERE code > 'KR' AND code < 'KS';
 DELETE from stock_dividend_history	WHERE code > 'KR' AND code < 'KS';

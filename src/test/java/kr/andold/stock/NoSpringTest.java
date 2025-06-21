@@ -88,6 +88,12 @@ public class NoSpringTest {
 		log.info(Utility.HR);
 	}
 
+	@Test
+	public void regularExpressionLineFirstTest() {
+		String origin = "A0123";
+		log.info("{} {}", origin, origin.replaceFirst("^A", ""));
+	}
+
 	// KRX에 상장된 종목에 대한 정보조회
 	@Test
 	public void itemTest() {
