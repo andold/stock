@@ -57,13 +57,32 @@ export default ((props: any) => {
 					codes: codes,
 				}, (_: any, histories: DividendHistory[]) => {
 					processItemDividendHistory(items, histories);
-					setRowData(items);
+
+					priceStore.search({
+							codes: codes,
+							flag: 1,
+					}, (_: any, flagedPrices: Price[]) => {
+						processItemFlagedPrices(items, flagedPrices);
+
+						setRowData(items);
+					});
 				});
 			});
 		});
 		return function() { setRowData([]); };
 	}, [form]);
 
+	function processItemFlagedPrices(items: Item[], prices: Price[]) {
+		const map = priceStore.makeMapByFlag(prices);
+		items.forEach((item: Item) => {
+			item.custom = {
+				...item.custom,
+				weekPrices: map.get(`${item.code}.32`),
+				monthPrices: map.get(`${item.code}.64`),
+				yearPrices: map.get(`${item.code}.128`),
+			};
+		});
+	}
 	function processItemPrice(items: Item[], prices: Price[]) {
 		const map = priceStore.makeMap(prices);
 		items.forEach((item: Item) => {
@@ -105,17 +124,6 @@ export default ((props: any) => {
 				...item.custom,
 				histories: sorted,
 				mapHistory: mapHistory,
-			};
-		});
-	}
-	function processItemPriceFlag(items: Item[], prices: Price[]) {
-		const map = priceStore.makeMapByFlag(prices);
-		items.forEach((item: Item) => {
-			item.custom = {
-				...item.custom,
-				weekPrices: map.get(`${item.code}.32`),
-				monthPrices: map.get(`${item.code}.64`),
-				yearPrices: map.get(`${item.code}.128`),
 			};
 		});
 	}

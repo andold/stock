@@ -77,6 +77,7 @@ export function PriceRecentCellRenderer(param: any) {
 			return;
 		}
 
+		console.log(param.data.custom);
 		priceStore.search({
 				codes: [param.data.code],
 				flag: 1,
