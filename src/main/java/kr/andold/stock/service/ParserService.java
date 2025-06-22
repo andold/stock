@@ -178,7 +178,7 @@ public class ParserService {
 	private static void infoPrintTokens(String text) {
 		StockLexer lexer = new StockLexer(CharStreams.fromString(text));
 		String tokensFromText = tokens(lexer, "NEWLINE");
-		log.info("{} tokensFromText = 『\n{}\n』", Utility.indentMiddle(), tokensFromText);
+		log.info("{} tokensFromText = 『{}』", Utility.indentMiddle(), Utility.ellipsisEscape(tokensFromText, 128, 128));
 	}
 
 	public static String tokens(Lexer lexer, String eol) {
@@ -253,10 +253,10 @@ public class ParserService {
 				.build();
 
 		if (debug || result.isEmpty()) {
-			log.info("{} parse(『\n{}\n』)", Utility.indentMiddle(), text);
+			log.info("{} parse(『{}』)", Utility.indentMiddle(), Utility.ellipsisEscape(text, 128, 128));
 			infoPrintTokens(text);
 		} else {
-			log.debug("{} parse(『\n{}\n』)", Utility.indentMiddle(), Utility.ellipsis(text, 1024, 1024));
+			log.debug("{} parse(『{}』)", Utility.indentMiddle(), Utility.ellipsis(text, 128, 128));
 		}
 
 		if (result.isEmpty()) {
@@ -298,21 +298,21 @@ public class ParserService {
 				.build();
 
 		if (debug || result.isEmpty()) {
-			log.info("{} parseByKrxEtf(『\n{}\n』)", Utility.indentMiddle(), text);
+			log.info("{} parseByKrxEtf(『\n{}\n』)", Utility.indentMiddle(), Utility.ellipsisEscape(text, 128));
 			infoPrintTokensBySeibro(text);
 		} else {
-			log.debug("{} parseByKrxEtf(『\n{}\n』)", Utility.indentMiddle(), Utility.ellipsis(text, 1024, 1024));
+			log.debug("{} parseByKrxEtf(『\n{}\n』)", Utility.indentMiddle(), Utility.ellipsisEscape(text, 128, 128));
 		}
 
 		if (result.isEmpty()) {
 			result = parseBySeibroEtf(text, debug);
 		}
 
-		log.debug("{} {} parseByKrxEtf(『{}』, 『{}』) - {}", Utility.indentEnd(), result, Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));
+		log.debug("{} {} parseByKrxEtf(『{}』, 『{}』) - {}", Utility.indentEnd(), result, Utility.ellipsisEscape(text, 128), debug, Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 	protected static ParserResult parseBySeibro(String text, boolean debug) {
-		log.debug("{} parseBySeibro(『{}』, {}』)", Utility.indentStart(), Utility.ellipsisEscape(text, 16), debug);
+		log.debug("{} parseBySeibro(『{}』, {}』)", Utility.indentStart(), Utility.ellipsisEscape(text, 128), debug);
 		long started = System.currentTimeMillis();
 
 		LIST_STOCK_ITEM.clear();
@@ -380,10 +380,10 @@ public class ParserService {
 				.build();
 
 		if (debug || result.isEmpty()) {
-			log.info("{} parseBySeibroEtf(『\n{}\n』)", Utility.indentMiddle(), text);
+			log.info("{} parseBySeibroEtf(『{}』)", Utility.indentMiddle(), Utility.ellipsisEscape(text, 128, 128));
 			infoPrintTokensBySeibroEtf(text);
 		} else {
-			log.debug("{} parseBySeibroEtf(『\n{}\n』)", Utility.indentMiddle(), Utility.ellipsis(text, 1024, 1024));
+			log.debug("{} parseBySeibroEtf(『{}』)", Utility.indentMiddle(), Utility.ellipsisEscape(text, 128, 128));
 		}
 
 		log.debug("{} {} parseBySeibroEtf(『{}』, 『{}』) - {}", Utility.indentEnd(), result, Utility.ellipsisEscape(text, 16), debug, Utility.toStringPastTimeReadable(started));
@@ -393,12 +393,12 @@ public class ParserService {
 	private static void infoPrintTokensBySeibro(String text) {
 		SeibroLexer lexer = new SeibroLexer(CharStreams.fromString(text));
 		String tokensFromText = tokens(lexer, "NEWLINE");
-		log.info("{} infoPrintTokensBySeibro::tokensFromText = 『\n{}\n』", Utility.indentMiddle(), tokensFromText);
+		log.info("{} infoPrintTokensBySeibro::tokensFromText = 『{}』", Utility.indentMiddle(), Utility.ellipsisEscape(tokensFromText, 128));
 	}
 	private static void infoPrintTokensBySeibroEtf(String text) {
 		SeibroEtfLexer lexer = new SeibroEtfLexer(CharStreams.fromString(text));
 		String tokensFromText = tokens(lexer, "NEWLINE");
-		log.info("{} infoPrintTokensBySeibroEtf::tokensFromText = 『\n{}\n』", Utility.indentMiddle(), tokensFromText);
+		log.info("{} infoPrintTokensBySeibroEtf::tokensFromText = 『{}』", Utility.indentMiddle(), Utility.ellipsisEscape(tokensFromText, 128));
 	}
 
 }
