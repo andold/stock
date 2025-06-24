@@ -154,6 +154,7 @@ public class JobService {
 				Job job = queue3.poll();
 				result = run(job);
 			} else {
+				Utility.sleep(1000);
 				result = STATUS.SUCCESS;
 			}
 
@@ -164,6 +165,7 @@ public class JobService {
 			}
 			Utility.sleep(mills);
 		} catch (Exception e) {
+			Utility.sleep(1000);
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 			result = STATUS.EXCEPTION;
 		}

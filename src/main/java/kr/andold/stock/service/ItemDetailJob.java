@@ -39,20 +39,21 @@ public class ItemDetailJob implements Job {
 
 	@Override
 	public STATUS call() throws Exception {
-		log.debug("{} call({})", Utility.indentStart(), code);
+		log.trace("{} call({})", Utility.indentStart(), code);
 		long started = System.currentTimeMillis();
 
 		ItemDetailJob that = (ItemDetailJob) ApplicationContextProvider.getBean(ItemDetailJob.class);
 		that.setCode(getCode());
 		that.setTimeout(getTimeout());
 		STATUS result = that.main();
+		log.debug("{} 『#{}』 ItemDetailJob::call({}) - {}", Utility.indentMiddle(), result, code, Utility.toStringPastTimeReadable(started));
 		
-		log.debug("{} 『#{}』 call({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+		log.trace("{} 『#{}』 call({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
 	private STATUS main() throws Exception {
-		log.debug("{} main({})", Utility.indentStart(), code);
+		log.trace("{} main({})", Utility.indentStart(), code);
 		long started = System.currentTimeMillis();
 
 		String code = getCode();
@@ -69,7 +70,7 @@ public class ItemDetailJob implements Job {
 
 		ItemDomain item = itemService.read(code);
 		if (item == null) {
-			log.debug("{} 『{}』 main() - 『{}』 - {}", Utility.indentEnd(), STATUS.INVALID, code, Utility.toStringPastTimeReadable(started));
+			log.trace("{} 『{}』 main() - 『{}』 - {}", Utility.indentEnd(), STATUS.INVALID, code, Utility.toStringPastTimeReadable(started));
 			return STATUS.INVALID;
 		}
 
@@ -90,18 +91,21 @@ public class ItemDetailJob implements Job {
 				|| (ipoClose != null && ipoClose.before(today))
 				|| (type != null && (type.contains("비상장") || type.contains("코넥스")))
 			) {
-			log.debug("{} 『{}』 main() - 『{}』 - {}", Utility.indentEnd(), STATUS.ALEADY_DONE, item, Utility.toStringPastTimeReadable(started));
+			log.trace("{} 『{}』 main() - 『{}』 - {}", Utility.indentEnd(), STATUS.ALEADY_DONE, item, Utility.toStringPastTimeReadable(started));
 			return STATUS.ALEADY_DONE;
 		}
 
 		Result<ParserResult> itemResult = seibro.item(item.getCode());
 		if (itemResult.getStatus() == STATUS.SUCCESS) {
 			put(itemResult.getResult());
-			log.debug("{} 『{}:{}』 main() - 『{}』 - {}", Utility.indentEnd(), STATUS.SUCCESS, itemResult, item, Utility.toStringPastTimeReadable(started));
+			Utility.sleep(1000);
+
+			log.trace("{} 『{}:{}』 main() - 『{}』 - {}", Utility.indentEnd(), STATUS.SUCCESS, itemResult, item, Utility.toStringPastTimeReadable(started));
 			return STATUS.SUCCESS;
 		}
+		Utility.sleep(1000);
 
-		log.debug("{} 『{}』 main() - {}", Utility.indentEnd(), itemResult.getStatus(), Utility.toStringPastTimeReadable(started));
+		log.trace("{} 『{}』 main() - {}", Utility.indentEnd(), itemResult.getStatus(), Utility.toStringPastTimeReadable(started));
 		return itemResult.getStatus();
 	}
 

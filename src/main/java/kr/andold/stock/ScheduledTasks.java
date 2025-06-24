@@ -45,7 +45,7 @@ public class ScheduledTasks {
 	}
 	
 	// 1초쉬고
-	@Scheduled(initialDelay = 1000 * 16, fixedDelay = 1000)
+	@Scheduled(initialDelay = 1000 * 16, fixedDelay = 1)
 	public void secondly() {
 		log.trace("{} secondly()", Utility.indentStart());
 		long started = System.currentTimeMillis();
