@@ -157,7 +157,11 @@ public class CrawlerService {
 		options.addArguments(String.format("--user-data-dir=%s", getUserDataDir()));
 		options.addArguments(String.format("--window-size=%d,%d", 1920 * 1, 1090 * 1 - 256));
 		options.addArguments("--window-position=0,0");
-//		options.addArguments("--headless");
+
+		// ref) https://study-grow.tistory.com/entry/DevToolsActivePort-file-doesnt-exist-error-%ED%95%B4%EA%B2%B0%EB%B2%95
+		options.addArguments("--headless");
+		options.addArguments("--no-sandbox");
+
 		options.setPageLoadStrategy(PageLoadStrategy.NONE);
 		ChromeDriverWrapper driver = new ChromeDriverWrapper(options);
 		return driver;
