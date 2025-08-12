@@ -35,9 +35,6 @@ public class ScheduledTasks {
 		zookeeperClient.run();
 		Utility.sleep(1000 * 32);
 		if (zookeeperClient.isMaster()) {
-//			JobService.getQueue3().offer(ItemDividendJob.builder().code(null).build());
-//			JobService.getQueue3().offer(ItemPriceJob.builder().code(null).build());
-//			JobService.getQueue3().offer(BackupJob.builder().build());
 			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
 		}
 
@@ -58,12 +55,12 @@ public class ScheduledTasks {
 	// 매분마다 - compile, purge
 	@Scheduled(cron = "0 * * * * *")
 	public void minutely() {
-		log.debug("{} minutely()", Utility.indentStart());
+		log.trace("{} minutely()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
 		jobService.status(zookeeperClient.status(true));
 
-		log.debug("{} minutely() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
+		log.trace("{} minutely() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
 
 	// 매시마다 - compile, purge
@@ -83,11 +80,8 @@ public class ScheduledTasks {
 
 		if (zookeeperClient.isMaster()) {
 			ZonedDateTime oneWeekAgo = ZonedDateTime.now().minusWeeks(1);
-//			JobService.getQueue2().addLast(CrawlPriceLatestSeibroCompanyExcelJob.builder().build());
 			CrawlPriceLatestDataGoKrCompanyJob.regist(JobService.getQueue2(), oneWeekAgo);
-//			JobService.getQueue2().addLast(CrawlPriceLatestSeibroEtfJob.builder().build());
 			CrawlPriceLatestDataGoKrEtfJob.regist(JobService.getQueue2(), oneWeekAgo);
-			JobService.getQueue2().offer(ItemDetailJob.builder().code(null).build());
 			JobService.getQueue3().offer(BackupJob.builder().build());
 			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
 		}
@@ -104,10 +98,8 @@ public class ScheduledTasks {
 		if (zookeeperClient.isMaster()) {
 			ZonedDateTime oneWeekAgo = ZonedDateTime.now().minusWeeks(1);
 			ZonedDateTime sixMonthAgo = ZonedDateTime.now().minusMonths(6);
-//			JobService.getQueue2().addLast(CrawlDividendSeibroCompanyExcelJob.builder().start(sixMonthAgo).build());
 			CrawlDividendLatestDataGoKrCompanyJob.regist(JobService.getQueue2());
 			JobService.getQueue2().addLast(CrawlDividendSeibroEtfJob.builder().start(sixMonthAgo).build());
-//			JobService.getQueue2().offer(DividendAllRecentJob.builder().build());
 			JobService.getQueue2().offer(ItemIpoCloseRecentJob.builder()
 					.date(Date.from(LocalDate.now().minusMonths(12).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)))
 					.build());
@@ -127,6 +119,7 @@ public class ScheduledTasks {
 
 		if (zookeeperClient.isMaster()) {
 			JobService.getQueue3().offer(StockCompileJob.builder().start(LocalDate.now().minusMonths(2)).build());
+			JobService.getQueue2().offer(ItemDetailJob.builder().code(null).build());
 		}
 
 		log.info("{} monthly()", Utility.indentEnd());
@@ -139,7 +132,6 @@ public class ScheduledTasks {
 		long started = System.currentTimeMillis();
 
 		if (zookeeperClient.isMaster()) {
-//			Result<ParserResult> result = crawlerService.crawlItemAll();
 		}
 
 		log.info("{} quarterly() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
