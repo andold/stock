@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class CrawlDividendSeibroEtfJob implements Job {
-	@Builder.Default @Getter @Setter private Long timeout = 600L;
+	@Builder.Default @Getter @Setter private Long timeout = 1200L;
 	@Getter @Setter private ZonedDateTime start;
 
 	@Autowired private Seibro seibro;
