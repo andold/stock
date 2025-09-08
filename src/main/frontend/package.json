@@ -2,7 +2,7 @@
 	"name": "frontend",
 	"version": "0.0.1",
 	"private": true,
-	"proxy": "http://localhost:8080/stock",
+	"proxy": "http://dev.andold.kr/stock",
 	"homepage": ".",
 	"dependencies": {
 		"ag-grid-community": "^32.0.2",
