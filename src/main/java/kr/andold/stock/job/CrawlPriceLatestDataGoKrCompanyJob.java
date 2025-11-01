@@ -114,6 +114,11 @@ public class CrawlPriceLatestDataGoKrCompanyJob implements Job {
 				String html = service.read(url);
 				log.debug("{} CrawlPriceLatestDataGoKrCompanyJob::main(『{}』)- 『{}』", Utility.indentMiddle(), start, Utility.ellipsis(html, 128, 64));
 				ResultDataGoKr.ResultPriceCompany result = Utility.parseJsonLine(html, ResultDataGoKr.ResultPriceCompany.class);
+				if (result == null) {
+					CrawlPriceLatestSeibroCompanyExcelJob.regist(JobService.getQueue3());
+					break;
+				}
+
 				List<ResultDataGoKr.PriceCompanyDomain> list = result.getResponse().getBody().getItems().getItem();
 				if (list == null || list.isEmpty()) {
 					break;

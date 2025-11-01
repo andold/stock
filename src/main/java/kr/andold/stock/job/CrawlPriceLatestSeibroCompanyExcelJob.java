@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -41,7 +42,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-@Deprecated
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -69,6 +69,40 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 
 		log.debug("{} 『#{}』 CrawlPriceLatestSeibroCompanyExcelJob::call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;
+	}
+
+	public static void regist(ConcurrentLinkedDeque<Job> deque) {
+		if (containsOrModify(JobService.getQueue0())) {
+			return;
+		}
+		if (containsOrModify(JobService.getQueue1())) {
+			return;
+		}
+		if (containsOrModify(JobService.getQueue2())) {
+			return;
+		}
+		if (containsOrModify(JobService.getQueue3())) {
+			return;
+		}
+
+		deque.addLast(CrawlPriceLatestSeibroCompanyExcelJob.builder().build());
+	}
+
+	private static boolean containsOrModify(ConcurrentLinkedDeque<Job> deque) {
+		for (Job job : deque) {
+			if (containsOrModify(job)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static boolean containsOrModify(Job job) {
+		if (!(job instanceof CrawlPriceLatestSeibroCompanyExcelJob)) {
+			return false;
+		}
+
+		return true;
 	}
 
 	// 주식종목전체검색

@@ -3,6 +3,7 @@ package kr.andold.stock.job;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -30,7 +31,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-@Deprecated
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -57,6 +57,40 @@ public class CrawlPriceLatestSeibroEtfJob implements Job {
 
 		log.debug("{} 『#{}』 CrawlPriceLatestSeibroEtfJob::call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;
+	}
+
+	public static void regist(ConcurrentLinkedDeque<Job> deque) {
+		if (containsOrModify(JobService.getQueue0())) {
+			return;
+		}
+		if (containsOrModify(JobService.getQueue1())) {
+			return;
+		}
+		if (containsOrModify(JobService.getQueue2())) {
+			return;
+		}
+		if (containsOrModify(JobService.getQueue3())) {
+			return;
+		}
+
+		deque.addLast(CrawlPriceLatestSeibroEtfJob.builder().build());
+	}
+
+	private static boolean containsOrModify(ConcurrentLinkedDeque<Job> deque) {
+		for (Job job : deque) {
+			if (containsOrModify(job)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static boolean containsOrModify(Job job) {
+		if (!(job instanceof CrawlPriceLatestSeibroEtfJob)) {
+			return false;
+		}
+
+		return true;
 	}
 
 	// SEIBro > ETF > 종목발행현황

@@ -113,6 +113,11 @@ public class CrawlPriceLatestDataGoKrEtfJob implements Job {
 				String html = service.read(url);
 				log.debug("{} CrawlPriceLatestDataGoKrEtfJob::main(『{}』)- 『{}』", Utility.indentMiddle(), start, Utility.ellipsis(html, 128, 64));
 				ResultDataGoKr.ResultPriceEtf result = Utility.parseJsonLine(html, ResultDataGoKr.ResultPriceEtf.class);
+				if (result == null) {
+					CrawlPriceLatestSeibroEtfJob.regist(JobService.getQueue3());
+					break;
+				}
+
 				List<ResultDataGoKr.PriceEtfDomain> list = result.getResponse().getBody().getItems().getItem();
 				if (list == null || list.isEmpty()) {
 					break;
