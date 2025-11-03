@@ -1,9 +1,19 @@
 package kr.andold.stock.service;
 
+import java.io.File;
+
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class Utility extends kr.andold.utils.Utility {
+	public static boolean createDirectoryIfNotExist(String path) {
+		File dir = new File(path);
+		if (!dir.exists()) {
+			return dir.mkdirs(); // 하위폴더까지 생성
+		}
+		return false;
+	}
+
 	public static String extractStringFromHtmlElement(Element element) {
 		if (element == null) {
 			return null;

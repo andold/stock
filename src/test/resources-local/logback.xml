@@ -1,6 +1,6 @@
 <!DOCTYPE configuration>
 <configuration debug="true" scan="true" scanPeriod="30 seconds">
-	<property name="LOG_PATH" value="${LOG_PATH:-/home/andold/logs/test-stock}" />
+	<property name="LOG_PATH" value="${LOG_PATH:-C:/logs/test-stock}" />
 	<statusListener class="ch.qos.logback.core.status.NopStatusListener" />
 
 	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
@@ -38,21 +38,12 @@
 		</encoder>
 	</appender>
 
-	<logger name="com" additivity="false" value="warn">
-		<appender-ref ref="console" />
-		<appender-ref ref="general" />
-	</logger>
-	<logger name="org" additivity="false" value="warn">
-		<appender-ref ref="console" />
-		<appender-ref ref="general" />
-	</logger>
-
 	<logger name="kr.andold.stock" additivity="false" value="debug">
 		<appender-ref ref="console" />
 		<appender-ref ref="stock" />
 	</logger>
 
-	<root value="warn">
+	<root value="info">
 		<appender-ref ref="console" />
 		<appender-ref ref="general" />
 	</root>

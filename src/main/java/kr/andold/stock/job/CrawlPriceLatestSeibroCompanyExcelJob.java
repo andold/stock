@@ -117,6 +117,10 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 			inquire(driver);
 			String date = baseDate(driver);
 			String filename = downloadExcel(driver);
+			if (filename.isBlank()) {
+				log.debug("{} 『BLANK::{}』 CrawlPriceLatestSeibroCompanyExcelJob::main() - {}", Utility.indentEnd(), STATUS.FAILURE, Utility.toStringPastTimeReadable(started));
+				return STATUS.FAILURE;
+			}
 			String text = readExcel(filename);
 			List<PriceDomain> prices = parseLines(date, text);
 			CrudList<PriceDomain> crud = priceService.put(prices);
@@ -206,7 +210,9 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 	private String readExcel(String filename) throws IOException {
 		log.debug("{} readExcel(『{}』)", Utility.indentStart(), filename);
 
-		String fullPath = String.format("%s/Downloads/%s", System.getProperty("user.home"), filename);
+//		File fileLocation = new File(String.format("%s/Downloads", CrawlerService.getUserDataDir()));
+		File fileLocation = new File(String.format("%s/Downloads", System.getProperty("user.home")));
+		String fullPath = String.format("%s/%s", fileLocation, filename);
 		FileInputStream file = new FileInputStream(fullPath);
 
 		// Create Workbook instance holding reference to .xlsx file
@@ -285,6 +291,9 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 		log.debug("{} 주식종목전체검색:downloadExcel(...) - 『{}』 『{}』", Utility.indentMiddle(), "download", driver.getText(BY_XPATH_DOWNLOAD_BUTTON, Duration.ZERO));
 
 		log.debug("{} 주식종목전체검색:downloadExcel(...) - 『{}』 『{}』", Utility.indentMiddle(), "current window", driver.getWindowHandle());
+		System.setProperty("webdriver.chrome.verboseLogging", "true");
+		driver.manage().timeouts().pageLoadTimeout(Duration.ofMinutes(5));
+		driver.manage().timeouts().scriptTimeout(Duration.ofMinutes(5));
 		String filename = waitUntilDownloadComplete(driver, donwloadFiles);
 		log.debug("{} 주식종목전체검색:downloadExcel(...) - 『{}』 『{}』", Utility.indentMiddle(), "filename", filename);
 
@@ -320,6 +329,7 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 
 	private Set<String> donwloadFiles(ChromeDriverWrapper driver, Set<String> setPrevious) {
 		log.trace("{} donwloadFiles(..., {})", Utility.indentStart(), setPrevious);
+//		File fileLocation = new File(String.format("%s/Downloads", CrawlerService.getUserDataDir()));
 		File fileLocation = new File(String.format("%s/Downloads", System.getProperty("user.home")));
 
 		// Get the list of files in the directory

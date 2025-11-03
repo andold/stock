@@ -25,8 +25,8 @@ import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.DividendHistoryService;
 import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.PriceService;
+import kr.andold.stock.service.Utility;
 import kr.andold.utils.ChromeDriverWrapper;
-import kr.andold.utils.Utility;
 import kr.andold.utils.persist.CrudList;
 import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.Getter;
@@ -148,20 +148,21 @@ public class CrawlerService {
 	public static ChromeDriverWrapper defaultChromeDriver() {
 		System.setProperty("webdriver.chrome.driver", webdriverPath);
 
+		Utility.createDirectoryIfNotExist(getUserDataDir());
 		ChromeOptions options = new ChromeOptions();
+		options.addArguments("--disable-background-networking");	//	timeout 관련
 		options.addArguments("--disable-blink-features=AutomationControlled");
 		options.addArguments("--disable-dev-shm-usage");
+		options.addArguments("--disable-features=NetworkService");	//	timeout 관련
+		options.addArguments("--disable-gpu");
 		options.addArguments("--disable-infobars");
 		options.addArguments("--disable-popup-blocking");
+//		options.addArguments("--headless=new");	//	new:: timeout 관련
+		options.addArguments("--no-sandbox");
 		options.addArguments("--remote-allow-origins=*");
 		options.addArguments(String.format("--user-data-dir=%s", getUserDataDir()));
-		options.addArguments(String.format("--window-size=%d,%d", 1920 * 1, 1090 * 1 - 256));
 		options.addArguments("--window-position=0,0");
-
-		// ref) https://study-grow.tistory.com/entry/DevToolsActivePort-file-doesnt-exist-error-%ED%95%B4%EA%B2%B0%EB%B2%95
-		options.addArguments("--headless");
-		options.addArguments("--no-sandbox");
-
+		options.addArguments(String.format("--window-size=%d,%d", 1920 * 1, 1090 * 1 - 256));
 		options.setPageLoadStrategy(PageLoadStrategy.NONE);
 		ChromeDriverWrapper driver = new ChromeDriverWrapper(options);
 		return driver;
