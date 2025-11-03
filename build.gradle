@@ -6,7 +6,7 @@ buildscript {
 	}
 	dependencies {
 		classpath("io.spring.gradle:dependency-management-plugin:1.1.4")
-		classpath("com.github.node-gradle:gradle-node-plugin:7.0.2")
+//		classpath("com.github.node-gradle:gradle-node-plugin:7.0.2")
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:3.2.2")
 	}
 }
@@ -21,7 +21,7 @@ ext {
 }
 
 apply plugin: "org.springframework.boot"
-apply plugin: "com.github.node-gradle.node"
+//apply plugin: "com.github.node-gradle.node"
 apply plugin: "io.spring.dependency-management"
 
 war.enabled = true
@@ -92,10 +92,10 @@ test {
 	useJUnitPlatform()
 }
 
-def webappDir = "$projectDir/src/main/frontend"
+//def webappDir = "$projectDir/src/main/frontend"
 
 println "projectDir: $projectDir"
-println "webappDir: $webappDir"
+//println "webappDir: $webappDir"
 
 if (project.hasProperty("profile")) {
 	println "profile: ${profile}"
@@ -116,7 +116,7 @@ if (project.hasProperty("profile")) {
 		}
 	}
 }
-
+/*
 processResources {
     dependsOn "copyWebApp"
 }
@@ -142,3 +142,4 @@ task buildAdmin(type: NpmTask) {
 rootProject.tasks.named("processResources") {
 	duplicatesStrategy = "include"
 }
+*/

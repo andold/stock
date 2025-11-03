@@ -98,10 +98,10 @@ java -jar $ANTLR_JAR_FILE_NAME -encoding UTF8 -package $ANTLR_PACKAGE_NAME -visi
 #
 # react npm install
 #
-cd	$SOURCE_DIR/src/main/frontend
-npm install --no-bin-links --force
-npm audit fix --force
-npm install react-scripts@latest --save
+#cd	$SOURCE_DIR/src/main/frontend
+#npm install --no-bin-links --force
+#npm audit fix --force
+#npm install react-scripts@latest --save
 # 
 # 
 # build 
