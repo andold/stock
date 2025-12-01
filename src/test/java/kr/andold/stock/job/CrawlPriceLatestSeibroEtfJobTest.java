@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class CrawlPriceLatestSeibroEtfJobTest {
-	@SuppressWarnings("deprecation")
 	@Autowired private CrawlPriceLatestSeibroEtfJob job;
 
 	@BeforeEach
@@ -23,7 +22,6 @@ public class CrawlPriceLatestSeibroEtfJobTest {
 		assertNotNull(job);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Test
 	public void main() {
 		STATUS status = job.main();
