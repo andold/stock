@@ -210,8 +210,7 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 	private String readExcel(String filename) throws IOException {
 		log.debug("{} readExcel(『{}』)", Utility.indentStart(), filename);
 
-//		File fileLocation = new File(String.format("%s/Downloads", CrawlerService.getUserDataDir()));
-		File fileLocation = new File(String.format("%s/Downloads", System.getProperty("user.home")));
+		File fileLocation = new File(CrawlerService.getDownloadsDir());
 		String fullPath = String.format("%s/%s", fileLocation, filename);
 		FileInputStream file = new FileInputStream(fullPath);
 
@@ -219,11 +218,6 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 		Workbook workbook = null;
 
 		workbook = new XSSFWorkbook(file);
-//		if (filename.endsWith("xlsx")) {
-//			workbook = new XSSFWorkbook(file);
-//		} else if (filename.endsWith("xls")) {
-//			workbook = new HSSFWorkbook(file);
-//		}
 		
 		// Get first/desired sheet from the workbook
 		Sheet sheet = workbook.getSheetAt(0);
@@ -329,8 +323,8 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 
 	private Set<String> donwloadFiles(ChromeDriverWrapper driver, Set<String> setPrevious) {
 		log.trace("{} donwloadFiles(..., {})", Utility.indentStart(), setPrevious);
-//		File fileLocation = new File(String.format("%s/Downloads", CrawlerService.getUserDataDir()));
-		File fileLocation = new File(String.format("%s/Downloads", System.getProperty("user.home")));
+
+		File fileLocation = new File(CrawlerService.getDownloadsDir());
 
 		// Get the list of files in the directory
 		File[] files = fileLocation.listFiles();

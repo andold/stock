@@ -5,7 +5,9 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import org.openqa.selenium.By;
 import org.openqa.selenium.PageLoadStrategy;
@@ -69,6 +71,13 @@ public class CrawlerService {
 		log.info("{} INIT::CrawlerService.setUserDataDir({})", Utility.indentMiddle(), value);
 		userDataDir = value;
 		clearFolder(value);
+	}
+	public static String getDownloadsDir() {
+		String userDataDir = getUserDataDir();
+		if (userDataDir == null) {
+			userDataDir = System.getProperty("user.home");
+		}
+		return String.format("%s/Downloads", userDataDir);
 	}
 
 	@Getter private static Boolean debug = false;
@@ -149,7 +158,18 @@ public class CrawlerService {
 		System.setProperty("webdriver.chrome.driver", webdriverPath);
 
 		Utility.createDirectoryIfNotExist(getUserDataDir());
+
+		String downloadPath = getDownloadsDir();
+		Utility.createDirectoryIfNotExist(downloadPath);
+		Map<String, Object> prefs = new HashMap<>();
+        prefs.put("download.default_directory", downloadPath);
+        prefs.put("download.prompt_for_download", false);
+        prefs.put("download.directory_upgrade", true);
+        prefs.put("safebrowsing.enabled", true);
+        prefs.put("profile.default_content_settings.popups", 0);
+
 		ChromeOptions options = new ChromeOptions();
+		options.setExperimentalOption("prefs", prefs);
 		options.addArguments("--disable-background-networking");	//	timeout 관련
 		options.addArguments("--disable-blink-features=AutomationControlled");
 		options.addArguments("--disable-dev-shm-usage");

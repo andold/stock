@@ -19,6 +19,7 @@ import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
@@ -370,7 +371,7 @@ public class NoSpringTest {
 
 	@Test
 	public void parseExcelHtml() throws IOException {
-		String fullPath = String.format("%s/Downloads/%s", System.getProperty("user.home"), "배당내역상세.xls");
+		String fullPath = String.format("%s/%s", CrawlerService.getDownloadsDir(), "배당내역상세.xls");
 		File file = new File(fullPath);
 		Document doc = Jsoup.parse(file);
 		log.info(Utility.extractStringFromHtmlElement(doc));

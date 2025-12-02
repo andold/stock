@@ -164,7 +164,7 @@ public class CrawlDividendSeibroCompanyExcelJob implements Job {
 	private String readExcel(String filename) throws IOException {
 		log.debug("{} readExcel(『{}』)", Utility.indentStart(), filename);
 
-		String fullPath = String.format("%s/Downloads/%s", System.getProperty("user.home"), filename);
+		String fullPath = String.format("%s/%s", CrawlerService.getDownloadsDir(), filename);
 		File file = new File(fullPath);
 		Document doc = Jsoup.parse(file);
 		String text = Utility.extractStringFromHtmlElement(doc);
@@ -224,7 +224,8 @@ public class CrawlDividendSeibroCompanyExcelJob implements Job {
 
 	private Set<String> donwloadFiles(ChromeDriverWrapper driver, Set<String> setPrevious) {
 		log.trace("{} donwloadFiles(..., {})", Utility.indentStart(), setPrevious);
-		File fileLocation = new File(String.format("%s/Downloads", System.getProperty("user.home")));
+
+		File fileLocation = new File(CrawlerService.getDownloadsDir());
 
 		// Get the list of files in the directory
 		File[] files = fileLocation.listFiles();
