@@ -5,6 +5,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.repository.Modifying;
@@ -81,14 +80,34 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		log.info("{} put(『#{}』)", Utility.indentStart(), Utility.size(afters));
 		long started = System.currentTimeMillis();
 
-		CrudList<PriceDomain> result = CommonBlockService.super.put(afters);
+		if (afters == null || afters.isEmpty()) {
+			log.info("{} 『EMPTY::#{}』 put(『#{}』) - {}", Utility.indentEnd(), 0, Utility.size(afters), Utility.toStringPastTimeReadable(started));
+			return new CrudList<PriceDomain>();
+		}
 
-		log.info("{} 『{}』 put(『#{}』) - {}", Utility.indentEnd(), result, Utility.size(afters), Utility.toStringPastTimeReadable(started));
-		return result;
+		Date start = Date.from(LocalDate.now().minusDays(1).atStartOfDay(Utility.ZONE_ID_KST).toInstant());
+		for (PriceDomain after : afters) {
+			Date date = after.getBase();
+			if (start.after(date)) {
+				start = date;
+			}
+		}
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(start);
+		calendar.add(Calendar.DATE, -1);
+		PriceParam param = PriceParam.builder().start(calendar.getTime()).build();
+		List<PriceDomain> befores = search(param);
+		CrudList<PriceDomain> crud = differ(befores, afters);
+		crud.getRemoves().clear();
+		batch(crud);
+
+		log.info("{} 『{}』 put(『#{}』) - {} {} #{} {}", Utility.indentEnd()
+				, crud, Utility.size(afters), start, param, Utility.size(afters)
+				, Utility.toStringPastTimeReadable(started));
+		return crud;
 	}
 
 	@Modifying
-	@CacheEvict(value = "prices")
 	@Override
 	public List<PriceDomain> update(List<PriceDomain> domains) {
 		log.info("{} update(『#{}』)", Utility.indentStart(), Utility.size(domains));
@@ -136,7 +155,6 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		return domain.key();
 	}
 
-	@Cacheable(value= "prices")
 	@Override
 	public List<PriceDomain> search(PriceParam param) {
 		log.info("{} search({})", Utility.indentStart(), param);
@@ -158,7 +176,6 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 	}
 
 	@Modifying
-	@Cacheable(value= "prices")
 	@Override
 	public int remove(List<PriceDomain> domains) {
 		List<PriceEntity> entities = toEntities(domains);
@@ -168,7 +185,6 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 	}
 
 	@Modifying
-	@CacheEvict(value = "prices")
 	@Override
 	public List<PriceDomain> create(List<PriceDomain> domains) {
 		log.info("{} create(『#{}』)", Utility.indentStart(), Utility.size(domains));
@@ -439,7 +455,6 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 
 
 	@Modifying
-	@CacheEvict(value = "prices")
 	@Transactional
 	public int purge() {
 		ZonedDateTime date = ZonedDateTime.now().minusMonths(1);
