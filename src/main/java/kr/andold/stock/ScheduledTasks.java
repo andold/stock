@@ -2,7 +2,6 @@ package kr.andold.stock;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -14,7 +13,6 @@ import kr.andold.stock.service.ItemDetailJob;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.BackupJob;
 import kr.andold.stock.service.JobService.DeduplicatePriceJob;
-import kr.andold.stock.service.JobService.ItemIpoCloseRecentJob;
 import kr.andold.stock.service.JobService.StockCompileJob;
 import kr.andold.stock.service.ZookeeperClient;
 import kr.andold.utils.Utility;
@@ -33,10 +31,6 @@ public class ScheduledTasks {
 		long started = System.currentTimeMillis();
 
 		zookeeperClient.run();
-		Utility.sleep(1000 * 32);
-		if (zookeeperClient.isMaster()) {
-			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
-		}
 
 		log.info("{} once() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
 	}
@@ -100,13 +94,12 @@ public class ScheduledTasks {
 			ZonedDateTime sixMonthAgo = ZonedDateTime.now().minusMonths(6);
 			CrawlDividendLatestDataGoKrCompanyJob.regist(JobService.getQueue2());
 			JobService.getQueue2().addLast(CrawlDividendSeibroEtfJob.builder().start(sixMonthAgo).build());
-			JobService.getQueue2().offer(ItemIpoCloseRecentJob.builder()
-					.date(Date.from(LocalDate.now().minusMonths(12).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)))
-					.build());
+			CrawlItemIpoCloseKindJob.regist(JobService.getQueue2(), ZonedDateTime.now().minusMonths(12));
 			JobService.getQueue3().offer(BackupJob.builder().build());
 			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
 			JobService.getQueue3().offer(StockCompileJob.builder().start(LocalDate.now().minusWeeks(2)).build());
 			CrawlItemLatestDataGoKrCompanyJob.regist(JobService.getQueue2(), oneWeekAgo);
+			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
 		}
 
 		log.info("{} weekly() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
@@ -120,6 +113,7 @@ public class ScheduledTasks {
 		if (zookeeperClient.isMaster()) {
 			JobService.getQueue3().offer(StockCompileJob.builder().start(LocalDate.now().minusMonths(2)).build());
 			JobService.getQueue2().offer(ItemDetailJob.builder().code(null).build());
+			CrawlItemIpoCloseKindJob.regist(JobService.getQueue2(), ZonedDateTime.now().minusYears(12));
 		}
 
 		log.info("{} monthly()", Utility.indentEnd());

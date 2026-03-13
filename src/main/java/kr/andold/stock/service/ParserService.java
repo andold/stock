@@ -38,9 +38,9 @@ public class ParserService {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	static public class ParserResult {
-		private List<ItemDomain> items;
-		private List<DividendHistoryDomain> histories;
-		private List<PriceDomain> prices;
+		@Builder.Default private List<ItemDomain> items = new ArrayList<>();
+		@Builder.Default private List<DividendHistoryDomain> histories = new ArrayList<>();
+		@Builder.Default private List<PriceDomain> prices = new ArrayList<>();
 
 		@Override
 		public String toString() {

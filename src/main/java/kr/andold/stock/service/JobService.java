@@ -76,11 +76,6 @@ public class JobService {
 	@Builder
 	public static class DividendAllRecentJob implements Job {
 	}
-	@Data
-	@Builder
-	public static class ItemIpoCloseRecentJob implements Job {
-		private Date date;
-	}
 	@Builder
 	public static class BackupJob implements Job {
 	}
@@ -239,13 +234,6 @@ public class JobService {
 			return result;
 		}
 
-		if (job instanceof ItemIpoCloseRecentJob) {
-			STATUS result = itemIpoCloseRecent((ItemIpoCloseRecentJob) job);
-
-			log.debug("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
-			return result;
-		}
-
 		if (job instanceof ItemDividendJob) {
 			STATUS result = itemDividend((ItemDividendJob) job);
 
@@ -392,16 +380,6 @@ public class JobService {
 
 		log.debug("{} 『{}』 itemDividend() - 『{}』 - {}", Utility.indentEnd(), STATUS.FAILURE, item, Utility.toStringPastTimeReadable(started));
 		return STATUS.FAILURE;
-	}
-
-	private STATUS itemIpoCloseRecent(ItemIpoCloseRecentJob job) {
-		log.info("{} itemIpoCloseRecent({})", Utility.indentStart(), job);
-		long started = System.currentTimeMillis();
-
-		Result<ParserResult> result = crawlerService.crawlItemIpoCloseRecent(job.getDate());
-
-		log.info("{} 『{}』 itemIpoCloseRecent({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
-		return result.getStatus();
 	}
 
 	@Deprecated

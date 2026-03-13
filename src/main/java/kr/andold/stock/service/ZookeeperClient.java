@@ -32,4 +32,8 @@ public class ZookeeperClient extends kr.andold.utils.ZookeeperClient {
 		log.info("{} run() - 『{}』『{}』", Utility.indentEnd(), zookeeperConnectString, zookeeperZnodeElectPath);
 	}
 
+	public static boolean isTestEnvironment() {
+		return getZookeeperZnodeElectPath().contains("test");
+	}
+
 }

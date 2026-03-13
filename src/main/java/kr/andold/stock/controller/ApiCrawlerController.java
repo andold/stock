@@ -17,12 +17,12 @@ import kr.andold.stock.domain.Result;
 import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.job.CrawlDividendLatestDataGoKrCompanyJob;
 import kr.andold.stock.job.CrawlDividendSeibroEtfJob;
+import kr.andold.stock.job.CrawlItemIpoCloseKindJob;
 import kr.andold.stock.job.CrawlPriceLatestDataGoKrCompanyJob;
 import kr.andold.stock.job.CrawlPriceLatestDataGoKrEtfJob;
 import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.param.PriceParam;
 import kr.andold.stock.service.JobService;
-import kr.andold.stock.service.JobService.ItemIpoCloseRecentJob;
 import kr.andold.utils.Utility;
 import kr.andold.stock.service.ParserService.ParserResult;
 import lombok.extern.slf4j.Slf4j;
@@ -50,9 +50,7 @@ public class ApiCrawlerController {
 		log.info("{} crawlPriceAll({})", Utility.indentStart(), param);
 
 		ZonedDateTime oneWeekAgo = ZonedDateTime.now().minusWeeks(1);
-//		JobService.getQueue1().addLast(CrawlPriceLatestSeibroCompanyExcelJob.builder().build());
 		CrawlPriceLatestDataGoKrCompanyJob.regist(JobService.getQueue1(), oneWeekAgo);
-//		JobService.getQueue1().addLast(CrawlPriceLatestSeibroEtfJob.builder().build());
 		CrawlPriceLatestDataGoKrEtfJob.regist(JobService.getQueue1(), oneWeekAgo);
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
 
@@ -76,8 +74,9 @@ public class ApiCrawlerController {
 	public Result<ParserResult> crawlItemIpoCloseAll() {
 		log.info("{} crawlItemIpoCloseAll()", Utility.indentStart());
 
-		Result<ParserResult> result = service.crawlItemIpoCloseAll();
+		CrawlItemIpoCloseKindJob.regist(JobService.getQueue2(), ZonedDateTime.now().minusYears(12));
 		
+		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
 		log.info("{} 『{}』 - crawlItemIpoCloseAll()", Utility.indentEnd(), result);
 		return result;
 	}
@@ -88,7 +87,7 @@ public class ApiCrawlerController {
 		log.info("{} crawlItemIpoCloseRecent({})", Utility.indentStart(), param);
 
 		Date start = param == null ? Date.from(LocalDate.now().minusMonths(12).atStartOfDay().toInstant(Utility.ZONE_OFFSET_KST)) : param.getStart();
-		JobService.getQueue1().offer(ItemIpoCloseRecentJob.builder().date(start).build());
+		CrawlItemIpoCloseKindJob.regist(JobService.getQueue2(), ZonedDateTime.ofInstant(start.toInstant(), Utility.ZONE_ID_KST));
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
 
 		log.info("{} 『{}』 - crawlItemIpoCloseRecent()", Utility.indentEnd(), result);
@@ -101,10 +100,8 @@ public class ApiCrawlerController {
 		log.info("{} crawlDividendAllRecent()", Utility.indentStart());
 
 		ZonedDateTime sixMonthAgo = ZonedDateTime.now().minusMonths(6);
-//		JobService.getQueue1().addLast(CrawlDividendSeibroCompanyExcelJob.builder().start(sixMonthAgo).build());
 		CrawlDividendLatestDataGoKrCompanyJob.regist(JobService.getQueue1());
 		JobService.getQueue1().addLast(CrawlDividendSeibroEtfJob.builder().start(sixMonthAgo).build());
-//		JobService.getQueue1().offer(DividendAllRecentJob.builder().build());
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
 		
 		log.info("{} 『{}』 - crawlDividendAllRecent()", Utility.indentEnd(), result);

@@ -1,10 +1,23 @@
 package kr.andold.stock.service;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Comparator;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class Utility extends kr.andold.utils.Utility {
 	public static boolean createDirectoryIfNotExist(String path) {
 		File dir = new File(path);
@@ -54,5 +67,77 @@ public class Utility extends kr.andold.utils.Utility {
 		return string;
 	}
 
+	public static String readClassPathFile(String filename, String charset) {
+		log.info("{} readClassPathFile(『{}』)", Utility.indentStart(), filename);
+		long started = System.currentTimeMillis();
+
+		String javaClassPath = System.getProperty("java.class.path");
+		String[] listJavaClassPath = javaClassPath.split("[:;]");
+
+		for (int cx = 0; cx < listJavaClassPath.length; cx++) {
+			String fullPath = String.format("%s/%s", listJavaClassPath[cx], filename);
+			File file = new File(fullPath);
+			if (!file.exists()) {
+				continue;
+			}
+
+			try {
+				InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file), charset);
+				BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+				String string = extractStringFromText(bufferedReader);
+
+				log.info("{} 『{}』 readClassPathFile(『{}』) - {}", Utility.indentEnd(), toStringJson(string, 32, 32), filename, Utility.toStringPastTimeReadable(started));
+				return string;
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		log.info("{} 『{}』 readClassPathFile(『{}』) - {}", Utility.indentEnd(), null, filename, Utility.toStringPastTimeReadable(started));
+		return null;
+	}
+
+	public static String extractStringFromText(BufferedReader bufferedReader) {
+		try {
+			String line = null;
+			StringBuffer stringBuffer = new StringBuffer();
+			int lineno = 0;
+			while ((line = bufferedReader.readLine()) != null) {
+				stringBuffer.append(line);
+				stringBuffer.append("\n");
+				if (lineno++ % 1024 == 0) {
+					log.debug("{} {}:	{}", Utility.indentMiddle(), lineno, line);
+				}
+			}
+			bufferedReader.close();
+
+			return new String(stringBuffer);
+		} catch (Exception e) {
+			log.warn("{} Exception:: {}", Utility.indentMiddle(), e.getMessage(), e);
+		}
+
+		return null;
+	}
+
+	public static void wipeDirectory(String downloadPath) {
+		try {
+			Path path = Paths.get(downloadPath); // 삭제할 디렉토리 경로
+			// 디렉토리 내부를 탐색 (Files.walk)
+			Files.walk(path).sorted(Comparator.reverseOrder()) // 하위 파일부터 지워야 부모 디렉토리가 지워짐
+					.forEach(p -> {
+						try {
+							Files.delete(p);
+						} catch (IOException e) {
+							log.warn("{} IOException:: {} {}", Utility.indentMiddle(), p, e.getMessage(), e);
+						}
+					});
+		} catch (IOException e) {
+			log.warn("{} IOException:: {}", Utility.indentMiddle(), e.getMessage(), e);
+		}
+	}
 
 }

@@ -25,7 +25,6 @@ class CrawlDividendSeibroCompanyExcelJobTest {
 		assertNotNull(job);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Test
 	public void main() {
 		job.setStart(ZonedDateTime.now().minusMonths(1));

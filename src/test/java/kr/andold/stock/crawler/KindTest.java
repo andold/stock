@@ -22,13 +22,6 @@ public class KindTest {
 	private Kind service;
 
 	@Test
-	public void testIpoCloseAll() {
-		Result<ParserResult> result = service.itemIpoCloseAll();
-		log.info("{}", result);
-		assertEquals(result.getStatus(), STATUS.SUCCESS);
-	}
-
-	@Test
 	public void testItemDate() {
 		Result<ParserResult> result = service.item(Date.from(LocalDate.now().atStartOfDay().minusMonths(12).toInstant(Utility.ZONE_OFFSET_KST)));
 		log.info("{}", result);

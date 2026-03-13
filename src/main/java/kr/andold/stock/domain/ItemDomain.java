@@ -85,7 +85,7 @@ public class ItemDomain extends ItemEntity implements CommonBlockDomain<ItemDoma
 
 	@Override
 	public String toString() {
-		return String.format("%s %s", getCode(), getSymbol());
+		return String.format("%s %s %tF", getCode(), getSymbol(), getIpoClose());
 	}
 
 	public static ItemDomain of(ItemEntity entity) {

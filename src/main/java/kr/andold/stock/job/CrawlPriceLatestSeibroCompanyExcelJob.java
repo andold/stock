@@ -1,23 +1,15 @@
 package kr.andold.stock.job;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -121,7 +113,7 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 				log.debug("{} 『BLANK::{}』 CrawlPriceLatestSeibroCompanyExcelJob::main() - {}", Utility.indentEnd(), STATUS.FAILURE, Utility.toStringPastTimeReadable(started));
 				return STATUS.FAILURE;
 			}
-			String text = readExcel(filename);
+			String text = CrawlerService.readExcel(filename);
 			List<PriceDomain> prices = parseLines(date, text);
 			CrudList<PriceDomain> crud = priceService.put(prices);
 			propergate(date);
@@ -204,56 +196,6 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 
 		log.debug("{} 『{}』 parseLines(『{}』, 『{}』)", Utility.indentEnd(), Utility.size(prices), date, Utility.ellipsis(text, 32));
 		return prices;
-	}
-
-	@SuppressWarnings("resource")
-	private String readExcel(String filename) throws IOException {
-		log.debug("{} readExcel(『{}』)", Utility.indentStart(), filename);
-
-		File fileLocation = new File(CrawlerService.getDownloadsDir());
-		String fullPath = String.format("%s/%s", fileLocation, filename);
-		FileInputStream file = new FileInputStream(fullPath);
-
-		// Create Workbook instance holding reference to .xlsx file
-		Workbook workbook = null;
-
-		workbook = new XSSFWorkbook(file);
-		
-		// Get first/desired sheet from the workbook
-		Sheet sheet = workbook.getSheetAt(0);
-
-		StringBuffer sb = new StringBuffer();
-		// Iterate through each rows one by one
-		Iterator<Row> rowIterator = sheet.iterator();
-		while (rowIterator.hasNext()) {
-			Row row = rowIterator.next();
-			// For each row, iterate through all the columns
-			Iterator<Cell> cellIterator = row.cellIterator();
-
-			while (cellIterator.hasNext()) {
-				Cell cell = cellIterator.next();
-				// Check the cell type and format accordingly
-				switch (cell.getCellType()) {
-				case NUMERIC:
-					sb.append(cell.getNumericCellValue());
-					sb.append("\t");
-					break;
-				case STRING:
-					sb.append(cell.getStringCellValue());
-					sb.append("\t");
-					break;
-				default:
-					throw new IllegalStateException("Unexpected value: " + cell.getCellType());
-				}
-			}
-			sb.append("\n");
-		}
-		file.close();
-		
-		String text = sb.toString();
-
-		log.debug("{} 『{}』 readExcel(『{}』)", Utility.indentEnd(), Utility.ellipsis(text, 256, 256), filename);
-		return text;
 	}
 
 	private String downloadExcel(ChromeDriverWrapper driver) throws Exception {
