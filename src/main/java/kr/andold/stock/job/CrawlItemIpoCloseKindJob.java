@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -141,7 +142,9 @@ public class CrawlItemIpoCloseKindJob  implements Job {
 			log.debug("{} kind(...) - 『{}』『{}』", Utility.indentMiddle(), "시작일", driver.getText(BY_XPATH_FROM_DATE, Duration.ZERO));
 			driver.sendKeys(BY_XPATH_FROM_DATE, Keys.chord(Keys.CONTROL, "a"));
 			driver.sendKeys(BY_XPATH_FROM_DATE, date.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+			driver.setInputValue(BY_XPATH_FROM_DATE, date.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
 			log.debug("{} kind(...) - 『{}』『{}』", Utility.indentMiddle(), "시작일", driver.getText(BY_XPATH_FROM_DATE, Duration.ZERO));
+			log.debug("{} kind(...) - 『{}』『{}』", Utility.indentMiddle(), "시작일", driver.getAttribute(driver.findElement(BY_XPATH_FROM_DATE), "value", ""));
 
 			// 전체 클릭
 //			By BY_XPATH_ALL_BUTTON = By.xpath("//*[@id='search-btn-dates']/ul/li/a[@class='ord-07']");
@@ -156,18 +159,9 @@ public class CrawlItemIpoCloseKindJob  implements Job {
 //			new Select(driver.findElement(BY_XPATH_100_SELECT)).selectByVisibleText("100건");
 //			log.debug("{} kind(...) - 『{}』『{}』", Utility.indentMiddle(), "100건", driver.getTextEscape(BY_XPATH_100_SELECT, Duration.ZERO));
 			
-			// 검색 클릭
-			By BY_COUNT = By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='info type-00']/em");
-			log.debug("{} kind(...) - 『{}』『{}』", Utility.indentMiddle(), "32", driver.getText(BY_COUNT, Duration.ZERO));
-			String count = driver.getText(BY_COUNT, DEFAULT_TIMEOUT_DURATION, "32");
-			driver.findElement(By.xpath("//*[@id='searchForm']/section/div/div[@class='btn-group type-bt']/a[@title='검색']"), DEFAULT_TIMEOUT_DURATION).click();
-			driver.waitUntilTextNotInclude(BY_COUNT, count, DEFAULT_TIMEOUT_DURATION);
-			log.debug("{} kind(...) - 『{}』『{}』", Utility.indentMiddle(), "32", driver.getText(BY_COUNT, Duration.ZERO));
-
+			activateSearch(driver);
 			Set<String> donwloadFiles = donwloadFiles(null);
-
 			activateDownlowdExcel(driver);
-
 			String filename = waitUntilDownloadComplete(donwloadFiles, Duration.ofSeconds(16));
 			List<ItemDomain> items = parse(CrawlerService.readExcel(filename));
 			ParserResult result = ParserResult.builder().items(items).build();
@@ -186,6 +180,27 @@ public class CrawlItemIpoCloseKindJob  implements Job {
 		return result;
 	}
 
+	//	검색 클릭
+	private void activateSearch(ChromeDriverWrapper driver) {
+		//	검색결과 갯수
+		By BY_COUNT = By.xpath("//*[@id='main-contents']/section[@class='paging-group']/div[@class='info type-00']/em");
+		log.debug("{} kind(...) - 『{}』『{}』", Utility.indentMiddle(), "32", driver.getText(BY_COUNT, Duration.ZERO));
+		String count = driver.getText(BY_COUNT, DEFAULT_TIMEOUT_DURATION, "32");
+		log.debug("{} kind(...) - 『{}』『{}』", Utility.indentMiddle(), "32", driver.getText(BY_COUNT, Duration.ZERO));
+
+		// 검색 클릭
+		By BY_SEARCH_BUTTON = By.xpath("//*[@id='searchForm']/section/div/div[@class='btn-group type-bt']/a[@title='검색']");
+		log.debug("{} kind(...) - 『{}』『{}』", Utility.indentMiddle(), "검색", driver.getText(BY_SEARCH_BUTTON, Duration.ZERO));
+		driver.click(BY_SEARCH_BUTTON);
+		((JavascriptExecutor) driver).executeScript("fnSearchCorpName();");
+		log.debug("{} kind(...) - 『{}』『{}』", Utility.indentMiddle(), "검색", driver.getText(BY_SEARCH_BUTTON, Duration.ZERO));
+
+		log.debug("{} kind(...) - 『{}』『{}』", Utility.indentMiddle(), "32", driver.getText(BY_COUNT, Duration.ZERO));
+		driver.waitUntilTextNotInclude(BY_COUNT, count, DEFAULT_TIMEOUT_DURATION);
+		log.debug("{} kind(...) - 『{}』『{}』", Utility.indentMiddle(), "32", driver.getText(BY_COUNT, Duration.ZERO));
+	}
+
+	//	다운로드 엑셀 클릭
 	private void activateDownlowdExcel(ChromeDriverWrapper driver) {
 		//	엑셀다운로드 클릭	//*[@id="searchForm"]/section/div/div[3]/a[2]
 		By BY_XPATH_EXEL_DOWNLOAD_BUTTON = By.xpath("//*[@id='searchForm']//a[@title='EXCEL']");
@@ -196,25 +211,28 @@ public class CrawlItemIpoCloseKindJob  implements Job {
 //		js.executeScript("arguments[0].click();", downloadBtn);
 		
 		// 개발자 도구(F12)에서 버튼의 href나 onclick에 적힌 함수 확인 후 실행
-//		((JavascriptExecutor) driver).executeScript("fnDownload();");
+		((JavascriptExecutor) driver).executeScript("fnDownload();");
 
 		log.debug("{} activateDownlowdExcel(...) - 『{}』『{}』", Utility.indentMiddle(), "엑셀다운로드", driver.getText(BY_XPATH_EXEL_DOWNLOAD_BUTTON, Duration.ZERO));
 	}
 
 	private static final String DELEMETER = "[\t]";
 	public static List<ItemDomain> parse(String text) {
+		log.info("{} parse(『{}』)", Utility.indentStart(), Utility.ellipsisEscape(text, 32));
+
 		List<ItemDomain> list = new ArrayList<>();
 
 		try {
 			String[] lines = text.split("\n");
 			if (lines == null || lines.length < 2) {
+				log.info("{} 『INVALID::#{}』 parse(『{}』)", Utility.indentEnd(), Utility.size(list), Utility.ellipsisEscape(text, 32));
 				return list;
 			}
 
 			for (int cx = 1; cx < lines.length; cx++) {
 				String[] fields = lines[cx].split(DELEMETER);
 				if (fields.length != 5) {
-					log.info("{} INVALID::{} parse({})", Utility.indentMiddle(), fields, Utility.ellipsisEscape(lines[cx], 32, 32));
+					log.debug("{} INVALID::{} parse({})", Utility.indentMiddle(), fields, Utility.ellipsisEscape(lines[cx], 32, 32));
 					continue;
 				}
 
@@ -224,11 +242,13 @@ public class CrawlItemIpoCloseKindJob  implements Job {
 						.ipoClose(Utility.parseDateTime(fields[3]))
 					.build();
 				list.add(item);
-				log.info("{} VALID::{} parse({})", Utility.indentMiddle(), fields, Utility.ellipsisEscape(lines[cx], 32, 32));
+				log.trace("{} VALID::{} parse({})", Utility.indentMiddle(), fields, Utility.ellipsisEscape(lines[cx], 32, 32));
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 		}
+
+		log.info("{} 『#{}』 parse(『{}』)", Utility.indentEnd(), Utility.size(list), Utility.ellipsisEscape(text, 32));
 		return list;
 	}
 

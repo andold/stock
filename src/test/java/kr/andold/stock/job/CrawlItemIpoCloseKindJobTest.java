@@ -24,7 +24,7 @@ class CrawlItemIpoCloseKindJobTest {
 
 	@Test
 	public void main() {
-		job.setStart(ZonedDateTime.now().minusDays(7));
+		job.setStart(ZonedDateTime.now().minusYears(1));
 		STATUS result = job.main();
 		log.info("{} kind() - {}", Utility.indentMiddle(), result);
 	}

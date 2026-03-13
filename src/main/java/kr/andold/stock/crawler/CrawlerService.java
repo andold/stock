@@ -9,16 +9,10 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.openqa.selenium.By;
@@ -40,7 +34,6 @@ import kr.andold.stock.service.DividendHistoryService;
 import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.PriceService;
 import kr.andold.stock.service.Utility;
-import kr.andold.stock.service.ZookeeperClient;
 import kr.andold.utils.ChromeDriverWrapper;
 import kr.andold.utils.persist.CrudList;
 import kr.andold.stock.service.ParserService.ParserResult;
@@ -191,9 +184,9 @@ public class CrawlerService {
 		options.addArguments("--disable-gpu");
 		options.addArguments("--disable-infobars");
 		options.addArguments("--disable-popup-blocking");
-		if (!ZookeeperClient.isTestEnvironment()) {
+//		if (!ZookeeperClient.isTestEnvironment()) {
 			options.addArguments("--headless=new");	//	new:: timeout 관련
-		}
+//		}
 		options.addArguments("--no-sandbox");
 		options.addArguments("--remote-allow-origins=*");
 		options.addArguments(String.format("--user-data-dir=%s", getUserDataDir()));
@@ -355,51 +348,8 @@ public class CrawlerService {
 		Document document = Jsoup.parse(textAsHtml, Utility.BLANK);
 		String textAsTable = Utility.extractStringFromHtmlElement(document);
 
-		log.debug("{} 『{}』 readExcel(『{}』)", Utility.indentEnd(), Utility.ellipsisEscape(textAsTable, 256, 256), filename);
+		log.debug("{} 『{}』 readExcel(『{}』)", Utility.indentEnd(), Utility.ellipsisEscape(textAsTable, 64, 64), filename);
 		return textAsTable;
 	}
 
-	@SuppressWarnings("resource")
-	@Deprecated
-	public static String excelToText(FileInputStream file) {
-		log.debug("{} excelToText(『{}』)", Utility.indentStart(), file);
-
-		String text = "";
-		try {
-			Workbook workbook = new XSSFWorkbook(file);
-			// Get first/desired sheet from the workbook
-			Sheet sheet = workbook.getSheetAt(0);
-			StringBuffer sb = new StringBuffer("");
-			// Iterate through each rows one by one
-			Iterator<Row> rowIterator = sheet.iterator();
-			while (rowIterator.hasNext()) {
-				Row row = rowIterator.next();
-				// For each row, iterate through all the columns
-				Iterator<Cell> cellIterator = row.cellIterator();
-				while (cellIterator.hasNext()) {
-					Cell cell = cellIterator.next();
-					// Check the cell type and format accordingly
-					switch (cell.getCellType()) {
-					case NUMERIC:
-						sb.append(cell.getNumericCellValue());
-						sb.append("\t");
-						break;
-					case STRING:
-						sb.append(cell.getStringCellValue());
-						sb.append("\t");
-						break;
-					default:
-						break;
-					}
-				}
-				sb.append("\n");
-			}
-			text = sb.toString();
-		} catch (Exception e) {
-			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
-		}
-
-		log.debug("{} 『{}』 excelToText(『{}』)", Utility.indentEnd(), Utility.ellipsis(text, 256, 256), file);
-		return text;
-	}
 }

@@ -10,7 +10,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -127,14 +126,15 @@ public class Utility extends kr.andold.utils.Utility {
 		try {
 			Path path = Paths.get(downloadPath); // 삭제할 디렉토리 경로
 			// 디렉토리 내부를 탐색 (Files.walk)
-			Files.walk(path).sorted(Comparator.reverseOrder()) // 하위 파일부터 지워야 부모 디렉토리가 지워짐
-					.forEach(p -> {
-						try {
-							Files.delete(p);
-						} catch (IOException e) {
-							log.warn("{} IOException:: {} {}", Utility.indentMiddle(), p, e.getMessage(), e);
-						}
-					});
+			Files.walk(path)
+				.filter(Files::isRegularFile) // 디렉토리는 제외하고 파일만
+				.forEach(p -> {
+					try {
+						Files.delete(p);
+					} catch (IOException e) {
+						log.warn("{} IOException:: {} {}", Utility.indentMiddle(), p, e.getMessage(), e);
+					}
+				});
 		} catch (IOException e) {
 			log.warn("{} IOException:: {}", Utility.indentMiddle(), e.getMessage(), e);
 		}
