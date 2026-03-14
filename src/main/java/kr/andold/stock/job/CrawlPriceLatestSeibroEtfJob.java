@@ -209,6 +209,7 @@ public class CrawlPriceLatestSeibroEtfJob implements Job {
 				sb.append("\t");
 			}
 			sb.append("\n");
+			log.debug("{} 『{}』 extract(...) - {}", Utility.indentMiddle(), Utility.ellipsisEscape(sb.toString(), 8, 32), Utility.toStringPastTimeReadable(started));
 		}
 
 		String text = new String(sb);

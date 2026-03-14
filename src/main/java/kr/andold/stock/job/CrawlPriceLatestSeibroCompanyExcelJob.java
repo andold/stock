@@ -195,7 +195,7 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 			//log.debug("{} 『{}/{}』『{}』『{}』『{}』", Utility.indentMiddle(), cx, lines.length, date, price, lines[cx]);
 		}
 
-		log.debug("{} 『{}』 parseLines(『{}』, 『{}』) - {}", Utility.indentEnd(), Utility.size(prices), date, Utility.ellipsis(text, 32), Utility.toStringPastTimeReadable(started));
+		log.debug("{} 『{}』 parseLines(『{}』, 『{}』) - {}", Utility.indentEnd(), Utility.size(prices), date, Utility.ellipsisEscape(text, 16, 32), Utility.toStringPastTimeReadable(started));
 		return prices;
 	}
 
