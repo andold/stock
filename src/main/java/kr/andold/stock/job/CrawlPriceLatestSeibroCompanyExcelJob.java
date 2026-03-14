@@ -143,6 +143,7 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 	private static final String DELEMETER = "[\t]";
 	public static List<PriceDomain> parseLines(String date, String text) {
 		log.debug("{} parseLines(『{}』, 『{}』)", Utility.indentStart(), date, Utility.ellipsisEscape(text, 64));
+		long started = System.currentTimeMillis();
 
 		List<PriceDomain> prices = new ArrayList<>();
 		String[] lines = text.split("\n");
@@ -172,18 +173,18 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 		for (int cx = 1; cx < lines.length; cx++) {
 			String[] words = lines[cx].split(DELEMETER);
 			if (words == null || words.length <= indexPrice) {
-				log.debug("{} 『INVALID::{}』 parseLines(『{}』, ...)", Utility.indentMiddle(), Utility.ellipsisEscape(lines[cx], 32), date);
+				log.trace("{} 『INVALID::{}』 parseLines(『{}』, ...)", Utility.indentMiddle(), Utility.ellipsisEscape(lines[cx], 32), date);
 				continue;
 			}
 			if (words[indexCode].isBlank()) {
-				log.debug("{} 『BLANK::{}』 parseLines(『{}』, ...)", Utility.indentMiddle(), Utility.ellipsisEscape(lines[cx], 32), date);
+				log.trace("{} 『BLANK::{}』 parseLines(『{}』, ...)", Utility.indentMiddle(), Utility.ellipsisEscape(lines[cx], 32), date);
 				continue;
 			}
 			if (words[indexPrice].isBlank()) {
 				log.trace("{} 『BLANK::{}』 parseLines(『{}』, ...)", Utility.indentMiddle(), Utility.ellipsisEscape(lines[cx], 32), date);
 				continue;
 			}
-			log.debug("{} 『{}』『{}』 parseLines(『{}』, ...)", Utility.indentMiddle(), words[indexCode], words[indexPrice], date);
+			log.trace("{} 『{}』『{}』 parseLines(『{}』, ...)", Utility.indentMiddle(), words[indexCode], words[indexPrice], date);
 
 			PriceDomain price = PriceDomain.builder()
 					.code(words[indexCode])
@@ -194,7 +195,7 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 			//log.debug("{} 『{}/{}』『{}』『{}』『{}』", Utility.indentMiddle(), cx, lines.length, date, price, lines[cx]);
 		}
 
-		log.debug("{} 『{}』 parseLines(『{}』, 『{}』)", Utility.indentEnd(), Utility.size(prices), date, Utility.ellipsis(text, 32));
+		log.debug("{} 『{}』 parseLines(『{}』, 『{}』) - {}", Utility.indentEnd(), Utility.size(prices), date, Utility.ellipsis(text, 32), Utility.toStringPastTimeReadable(started));
 		return prices;
 	}
 

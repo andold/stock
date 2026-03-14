@@ -144,28 +144,28 @@ public class CrawlPriceLatestSeibroEtfJob implements Job {
 
 			// 테이블
 			By BY_TABLE = By.xpath("//table[@id='grid1_body_table']");
-			log.debug("{} 종목발행현황:pages() - 『{}』 『{}』", Utility.indentMiddle(), "테이블", Utility.ellipsisEscape(driver.getText(BY_TABLE, Duration.ZERO), 32, 32));
+			log.debug("{} 『{}』종목발행현황:pages() - 『{}』 『{}』", Utility.indentMiddle(), pageNumber, "테이블", Utility.ellipsisEscape(driver.getText(BY_TABLE, Duration.ZERO), 32, 32));
 			WebElement table = driver.findElement(BY_TABLE, DEFAULT_TIMEOUT_DURATION);
 			// width inherit
 			((JavascriptExecutor) driver).executeScript("arguments[0].style.removeProperty('width')", table);
-			String text = extractFromTable(table);
+			String text = extractFromTable(driver);
 			List<PriceDomain> prices = CrawlPriceLatestSeibroCompanyExcelJob.parseLines(base, text);
 			CrudList<PriceDomain> crud = priceService.put(prices);
 			container.add(crud);
 
 			// 다음 페이지
-			log.debug("{} 종목발행현황:pages() - 『{}』 『{}』", Utility.indentMiddle(), "페이지", driver.getText(BY_MARK_PAGE_CHANGE, Duration.ZERO));
+			log.debug("{} 『{}』종목발행현황:pages() - 『{}』 『{}』", Utility.indentMiddle(), pageNumber, "페이지", driver.getText(BY_MARK_PAGE_CHANGE, Duration.ZERO));
 			markPageChange = driver.getText(BY_MARK_PAGE_CHANGE, DEFAULT_TIMEOUT_DURATION, "-");
 			if (CrawlerService.getDebug()) {
 				driver.clickIfExist(By.xpath("//*[@id='pageList1_nextPage_btn']/a"));
 			} else {
 				driver.clickIfExist(By.xpath("//*[@id='pageList1_next_btn']/a"));
 			}
-			log.debug("{} 종목발행현황:pages() - 『{}』 『{}』", Utility.indentMiddle(), "페이지", driver.getText(BY_MARK_PAGE_CHANGE, Duration.ZERO));
+			log.debug("{} 『{}』종목발행현황:pages() - 『{}』 『{}』", Utility.indentMiddle(), pageNumber, "페이지", driver.getText(BY_MARK_PAGE_CHANGE, Duration.ZERO));
 			driver.waitUntilIsDisplayed(By.xpath("//*[@id='___processbar2_i']"), false, TIMEOUT);
 			driver.waitUntilTextNotInclude(BY_MARK_PAGE_CHANGE, TIMEOUT, markPageChange);
 			String currentPageNumber = driver.getText(BY_CURRENT_PAGE, DEFAULT_TIMEOUT_DURATION, "-1");
-			log.debug("{} 종목발행현황:pages() - 『{}』 『{}』", Utility.indentMiddle(), "페이지", driver.getText(BY_MARK_PAGE_CHANGE, Duration.ZERO));
+			log.debug("{} 『{}』종목발행현황:pages() - 『{}』 『{}』", Utility.indentMiddle(), pageNumber, "페이지", driver.getText(BY_MARK_PAGE_CHANGE, Duration.ZERO));
 			
 			// 다음 페이지가 갔는데...
 			if (pageNumber.equalsIgnoreCase(currentPageNumber)) {
@@ -178,7 +178,7 @@ public class CrawlPriceLatestSeibroEtfJob implements Job {
 			} else {
 				pause = Math.min(1024 * 4, pause * 2);
 			}
-			Utility.sleep(Math.round(pause * Math.random()));
+//			Utility.sleep(Math.round(pause * Math.random()));
 
 			log.debug("{} 『{}』 priceCurrentEtf({}) - {}", Utility.indentMiddle(), pageNumber, base, Utility.toStringPastTimeReadable(forStarted));
 		}
@@ -187,7 +187,39 @@ public class CrawlPriceLatestSeibroEtfJob implements Job {
 		return container;
 	}
 
-	private String extractFromTable(WebElement table) {
+	private String extractFromTable(ChromeDriverWrapper driver) {
+		log.debug("{} extract(...)", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		By BY_TABLE_TR = By.xpath("//table[@id='grid1_body_table']//tr");
+		log.debug("{} extract(...) - 『{}』 『{}』", Utility.indentMiddle(), "TR", driver.getTextEscape(BY_TABLE_TR, Duration.ZERO, 32, 32));
+		List<WebElement> trs = driver.findElements(BY_TABLE_TR);
+		log.debug("{} extract(...) - 『{}』 『{}』", Utility.indentMiddle(), "TR", driver.getTextEscape(BY_TABLE_TR, Duration.ZERO, 32, 32));
+		log.debug("{} extract(...) - {}", Utility.indentMiddle(), Utility.toStringPastTimeReadable(started));
+
+		StringBuffer sb = new StringBuffer();
+		for (WebElement tr : trs) {
+			List<WebElement> ths = tr.findElements(By.cssSelector("th, td"));
+			if (ths.isEmpty()) {
+				continue;
+			}
+
+			for (WebElement th : ths) {
+				sb.append(th.getText().replaceAll("[ \t\n]+", ""));
+				sb.append("\t");
+			}
+			sb.append("\n");
+		}
+
+		String text = new String(sb);
+		log.debug("{} 『{}』 extract(...) - {}", Utility.indentEnd(), Utility.ellipsisEscape(text, 16, 16), Utility.toStringPastTimeReadable(started));
+		return text;
+	}
+	@SuppressWarnings("unused")
+	private String extractFromTable1(WebElement table) {
+		log.debug("{} extractFromTable(...)", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
 		StringBuffer sb = new StringBuffer();
 		List<WebElement> theads = table.findElements(By.tagName("thead"));
 		for (WebElement thead : theads) {
@@ -220,7 +252,9 @@ public class CrawlPriceLatestSeibroEtfJob implements Job {
 			sb.append("\n");
 		}
 
-		return sb.toString();
+		String text = new String(sb);
+		log.debug("{} 『{}』 extractFromTable(...) - {}", Utility.indentEnd(), Utility.ellipsisEscape(text, 16, 16), Utility.toStringPastTimeReadable(started));
+		return text;
 	}
 
 	private String baseDate(ChromeDriverWrapper driver) {

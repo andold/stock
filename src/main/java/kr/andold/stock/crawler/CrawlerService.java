@@ -34,6 +34,7 @@ import kr.andold.stock.service.DividendHistoryService;
 import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.PriceService;
 import kr.andold.stock.service.Utility;
+import kr.andold.stock.service.ZookeeperClient;
 import kr.andold.utils.ChromeDriverWrapper;
 import kr.andold.utils.persist.CrudList;
 import kr.andold.stock.service.ParserService.ParserResult;
@@ -184,9 +185,9 @@ public class CrawlerService {
 		options.addArguments("--disable-gpu");
 		options.addArguments("--disable-infobars");
 		options.addArguments("--disable-popup-blocking");
-//		if (!ZookeeperClient.isTestEnvironment()) {
+		if (!ZookeeperClient.isTestEnvironment()) {
 			options.addArguments("--headless=new");	//	new:: timeout 관련
-//		}
+		}
 		options.addArguments("--no-sandbox");
 		options.addArguments("--remote-allow-origins=*");
 		options.addArguments(String.format("--user-data-dir=%s", getUserDataDir()));
