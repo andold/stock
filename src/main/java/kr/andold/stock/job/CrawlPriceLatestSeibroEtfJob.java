@@ -42,7 +42,7 @@ public class CrawlPriceLatestSeibroEtfJob implements Job {
 	private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(8);
 	private static final Duration DEFAULT_TIMEOUT_DURATION_LONG = Duration.ofMinutes(1);
 
-	@Builder.Default @Getter @Setter private Long timeout = 600L;
+	@Builder.Default @Getter @Setter private Long timeout = 3600L;
 
 	@Autowired private Seibro seibro;
 	@Autowired private PriceService priceService;
