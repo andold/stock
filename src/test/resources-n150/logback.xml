@@ -42,6 +42,10 @@
 		<appender-ref ref="console" />
 		<appender-ref ref="stock" />
 	</logger>
+	<logger name="kr.andold.utils" additivity="false" value="warn">
+		<appender-ref ref="console" />
+		<appender-ref ref="general" />
+	</logger>
 
 	<root value="info">
 		<appender-ref ref="console" />

@@ -185,14 +185,15 @@ public class CrawlerService {
 		options.addArguments("--disable-gpu");
 		options.addArguments("--disable-infobars");
 		options.addArguments("--disable-popup-blocking");
+		options.addArguments("--force-device-scale-factor=0.5");
 		if (!ZookeeperClient.isTestEnvironment()) {
 			options.addArguments("--headless=new");	//	new:: timeout 관련
 		}
 		options.addArguments("--no-sandbox");
 		options.addArguments("--remote-allow-origins=*");
 		options.addArguments(String.format("--user-data-dir=%s", getUserDataDir()));
-//		options.addArguments("--window-position=0,0");
-//		options.addArguments(String.format("--window-size=%d,%d", 1920 * 1, 1090 * 1 - 256));
+		options.addArguments("--window-position=0,0");
+		options.addArguments("--window-size=1920,1080");
 		options.setPageLoadStrategy(PageLoadStrategy.NONE);
 		ChromeDriverWrapper driver = new ChromeDriverWrapper(options);
 		return driver;

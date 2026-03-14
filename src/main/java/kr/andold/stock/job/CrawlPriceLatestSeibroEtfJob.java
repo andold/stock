@@ -2,6 +2,8 @@ package kr.andold.stock.job;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -129,15 +131,9 @@ public class CrawlPriceLatestSeibroEtfJob implements Job {
 	}
 
 	private CrudList<PriceDomain> pages(String base, ChromeDriverWrapper driver) throws Exception {
-		By BY_MARK_PAGE_CHANGE = By.xpath("//*[@id='grid1_cell_0_6']/nobr");
-		log.debug("{} 종목발행현황:pages() - 『{}』 『{}』", Utility.indentMiddle(), "페이지", driver.getText(BY_MARK_PAGE_CHANGE, Duration.ZERO));
-		String markPageChange = driver.getText(BY_MARK_PAGE_CHANGE, DEFAULT_TIMEOUT_DURATION, "");
-		log.debug("{} 종목발행현황:pages() - 『{}』 『{}』", Utility.indentMiddle(), "페이지", driver.getText(BY_MARK_PAGE_CHANGE, Duration.ZERO));
-
 		// 페이지마다 - 테이블 내용 저장
 		By BY_CURRENT_PAGE = By.xpath("//div[@id='pageList1']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']");
 		log.debug("{} 종목발행현황:pages() - 『{}』 『{}』", Utility.indentMiddle(), "BY_CURRENT_PAGE", driver.getText(BY_CURRENT_PAGE, Duration.ZERO));
-		long pause = 1000;
 		CrudList<PriceDomain> container = CrudList.<PriceDomain>builder().build();
 		for (String pageNumber = "1";;) {
 			long forStarted = System.currentTimeMillis();
@@ -148,45 +144,160 @@ public class CrawlPriceLatestSeibroEtfJob implements Job {
 			WebElement table = driver.findElement(BY_TABLE, DEFAULT_TIMEOUT_DURATION);
 			// width inherit
 			((JavascriptExecutor) driver).executeScript("arguments[0].style.removeProperty('width')", table);
-			String text = extractFromTable(driver);
-			List<PriceDomain> prices = CrawlPriceLatestSeibroCompanyExcelJob.parseLines(base, text);
-			CrudList<PriceDomain> crud = priceService.put(prices);
-			container.add(crud);
 
-			// 다음 페이지
-			log.debug("{} 『{}』종목발행현황:pages() - 『{}』 『{}』", Utility.indentMiddle(), pageNumber, "페이지", driver.getText(BY_MARK_PAGE_CHANGE, Duration.ZERO));
-			markPageChange = driver.getText(BY_MARK_PAGE_CHANGE, DEFAULT_TIMEOUT_DURATION, "-");
-			if (CrawlerService.getDebug()) {
-				driver.clickIfExist(By.xpath("//*[@id='pageList1_nextPage_btn']/a"));
-			} else {
-				driver.clickIfExist(By.xpath("//*[@id='pageList1_next_btn']/a"));
-			}
-			log.debug("{} 『{}』종목발행현황:pages() - 『{}』 『{}』", Utility.indentMiddle(), pageNumber, "페이지", driver.getText(BY_MARK_PAGE_CHANGE, Duration.ZERO));
-			driver.waitUntilIsDisplayed(By.xpath("//*[@id='___processbar2_i']"), false, TIMEOUT);
-			driver.waitUntilTextNotInclude(BY_MARK_PAGE_CHANGE, TIMEOUT, markPageChange);
+
+//			List<PriceDomain> pricesByRare = extractParseByRare(driver, base);
+			List<PriceDomain> pricesByRare = extractParseByTd(driver, base);
+			CrudList<PriceDomain> crudByRare = priceService.put(pricesByRare);
+			container.add(crudByRare);
+
+			navigateNextPage(driver, pageNumber);
+
 			String currentPageNumber = driver.getText(BY_CURRENT_PAGE, DEFAULT_TIMEOUT_DURATION, "-1");
-			log.debug("{} 『{}』종목발행현황:pages() - 『{}』 『{}』", Utility.indentMiddle(), pageNumber, "페이지", driver.getText(BY_MARK_PAGE_CHANGE, Duration.ZERO));
-			
 			// 다음 페이지가 갔는데...
 			if (pageNumber.equalsIgnoreCase(currentPageNumber)) {
 				break;
 			}
 
 			pageNumber = currentPageNumber;
-			if (System.currentTimeMillis() - forStarted > 1024 * 4) {
-				pause = Math.max(32, pause / 2);
-			} else {
-				pause = Math.min(1024 * 4, pause * 2);
-			}
-//			Utility.sleep(Math.round(pause * Math.random()));
-
-			log.debug("{} 『{}』 priceCurrentEtf({}) - {}", Utility.indentMiddle(), pageNumber, base, Utility.toStringPastTimeReadable(forStarted));
+			log.debug("{} 『{}』 종목발행현황:pages({}, ...) - {}", Utility.indentMiddle(), pageNumber, base, Utility.toStringPastTimeReadable(forStarted));
 		}
 		driver.quit();
 
 		return container;
 	}
 
+	private List<PriceDomain> extractParseByTd(ChromeDriverWrapper driver, String date) {
+		log.debug("{} extractParseByTd(..., {})", Utility.indentStart(), date);
+		long started = System.currentTimeMillis();
+
+		//	//*[@id="grid1_body_tbody"]
+		By BY_TABLE_TR = By.xpath("//*[@id='grid1_body_tbody']/tr");
+		log.debug("{} extractParseByTd(...) - 『{}』 『{}』", Utility.indentMiddle(), "TR", driver.getTextEscape(BY_TABLE_TR, Duration.ZERO, 32, 32));
+		List<WebElement> trs = driver.findElements(BY_TABLE_TR);
+		log.debug("{} extractParseByTd(...) - 『{}』 『{}』『{}』", Utility.indentMiddle(), "TR", driver.getTextEscape(BY_TABLE_TR, Duration.ZERO, 32, 32), Utility.toStringPastTimeReadable(started));
+
+		Date base = Utility.parseDateTime(date);
+		List<PriceDomain> prices = new ArrayList<>();
+		for (int cx = 0, sizex = trs.size(); cx < sizex; cx++) {
+			WebElement tr = trs.get(cx);
+			List<WebElement> tds = tr.findElements(By.tagName("td"));
+			if (tds.isEmpty() || tds.size() < 8) {
+				log.debug("{} 『INVALID::{}/{}』extractParseByTd(...) - 『{}』 『{}』", Utility.indentMiddle(), cx, sizex, "TR", tr.getText());
+				continue;
+			}
+
+			String code = tds.get(2).getText();
+			Integer closing = Utility.parseInteger(tds.get(5).getText(), null);
+			if (code.isBlank() || closing == null) {
+				log.debug("{} 『INVALID::{}/{}』extractParseByTd(...) - 『{}』 『{}』『{}』『{}』", Utility.indentMiddle(), cx, sizex, "TR", tr.getText(), code, closing);
+				continue;
+			}
+			PriceDomain price = PriceDomain.builder()
+					.code(code)
+					.base(base)
+					.closing(closing)
+					.build();
+				prices.add(price);
+		}
+
+		log.debug("{} 『#{}』 extractParseByTd(...) - {}", Utility.indentEnd(), Utility.size(prices), Utility.toStringPastTimeReadable(started));
+		return prices;
+	}
+
+	@SuppressWarnings("unused")
+	private List<PriceDomain> extractParseByRare(ChromeDriverWrapper driver, String date) {
+		log.debug("{} extractParseByRare(...)", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		By BY_TABLE = By.xpath("//table[@id='grid1_body_table']");
+		log.debug("{} extractParseByRare(...) - 『{}』 『{}』", Utility.indentMiddle(), "table", driver.getTextEscape(BY_TABLE, Duration.ZERO, 32, 32));
+		String text = driver.getText(BY_TABLE);
+		log.debug("{} extractParseByRare(...) - 『{}』 『{}』", Utility.indentMiddle(), "table", driver.getTextEscape(BY_TABLE, Duration.ZERO, 32, 32));
+
+		log.debug("{} 『{}』 extractParseByRare(...) - {}", Utility.indentEnd(), Utility.ellipsisEscape(text, 16, 16), Utility.toStringPastTimeReadable(started));
+
+		List<PriceDomain> prices = new ArrayList<>();
+		String[] lines = text.split("\n");
+		Date base = Utility.parseDateTime(date);
+		String code = "";
+		Integer closing = 0;
+		for (int cx = 2; cx < lines.length; cx++) {
+			log.trace("{} 『{}/{}』 extractParseByRare(『{}』, ...) - 『{}』{}", Utility.indentMiddle(), Utility.size(prices), cx, date, lines[cx], Utility.toStringPastTimeReadable(started));
+			switch (cx % 15) {
+				case 3:
+					code = lines[cx];
+					break;
+				case 5:
+					closing = Integer.parseInt(lines[cx].replaceAll("([,\\t])|(\\.[0-9]+)", ""));
+					break;
+				case 1:
+					if (code.isBlank() || closing == null) {
+						break;
+					}
+
+					PriceDomain price = PriceDomain.builder()
+						.code(code)
+						.base(base)
+						.closing(closing)
+						.build();
+					prices.add(price);
+					code = "";
+					closing = null;
+					break;
+				default:
+					break;
+			}
+		}
+
+		log.debug("{} 『{}』 extractParseByRare(『{}』, 『{}』) - {}", Utility.indentEnd(), Utility.size(prices), date, Utility.ellipsisEscape(text, 64), Utility.toStringPastTimeReadable(started));
+		return prices;
+	}
+
+	private void navigateNextPage(ChromeDriverWrapper driver, String pageNumber) {
+		log.debug("{} navigateNextPage(..., {})", Utility.indentStart(), pageNumber);
+		long started = System.currentTimeMillis();
+
+		//	표식
+		By BY_MARK_PAGE_CHANGE = By.xpath("//*[@id='grid1_cell_0_6']/nobr");
+		log.debug("{} navigateNextPage(..., {}) - 『{}』 『{}』", Utility.indentMiddle(), pageNumber, "표식", driver.getText(BY_MARK_PAGE_CHANGE, Duration.ZERO));
+		String markPageChange = Double.toString(Math.random());
+		driver.setText(BY_MARK_PAGE_CHANGE, markPageChange, TIMEOUT);
+		log.debug("{} navigateNextPage(..., {}) - 『{}』 『{}』", Utility.indentMiddle(), pageNumber, "표식", driver.getText(BY_MARK_PAGE_CHANGE, Duration.ZERO));
+
+		// 다음 페이지
+		log.trace("{} navigateNextPage(..., {}) - 『{}』 『{}』", Utility.indentMiddle(), pageNumber, "표식", driver.getText(BY_MARK_PAGE_CHANGE, Duration.ZERO));
+		markPageChange = driver.getText(BY_MARK_PAGE_CHANGE, DEFAULT_TIMEOUT_DURATION, "-");
+		if (CrawlerService.getDebug()) {
+			driver.click(By.xpath("//*[@id='pageList1_nextPage_btn']/a"));
+		} else {
+			driver.click(By.xpath("//*[@id='pageList1_next_btn']/a"));
+		}
+
+		//	다음 페이지 로딩 완료
+		log.trace("{} navigateNextPage(..., {}) - 『{}』 『{}』", Utility.indentMiddle(), pageNumber, "페이지", driver.getText(BY_MARK_PAGE_CHANGE, Duration.ZERO));
+		driver.waitUntilIsDisplayed(By.xpath("//*[@id='___processbar2_i']"), false, DEFAULT_TIMEOUT_DURATION);
+		log.trace("{} navigateNextPage(..., {}) - {} {}", Utility.indentMiddle(), pageNumber, "페이지", Utility.toStringPastTimeReadable(started));
+		driver.waitUntilTextNotInclude(BY_MARK_PAGE_CHANGE, markPageChange, DEFAULT_TIMEOUT_DURATION);
+		log.trace("{} navigateNextPage(..., {}) - {} {}", Utility.indentMiddle(), pageNumber, "페이지", Utility.toStringPastTimeReadable(started));
+		driver.waitUntilIsDisplayed(BY_MARK_PAGE_CHANGE, true, DEFAULT_TIMEOUT_DURATION);
+		log.trace("{} navigateNextPage(..., {}) - 『{}』 『{}』", Utility.indentMiddle(), pageNumber, "페이지", driver.getText(BY_MARK_PAGE_CHANGE, Duration.ZERO));
+		//	첫번째	//*[@id="grid1_body_tbody"]/tr[1]
+		By BY_FIRST_ROW = By.xpath("//*[@id='grid1_body_tbody']/tr[1]");
+		log.trace("{} navigateNextPage(..., {}) - 『{}』 『{}』", Utility.indentMiddle(), pageNumber, "첫번째", driver.getTextEscape(BY_FIRST_ROW, Duration.ZERO));
+		driver.waitUntilIsDisplayed(BY_FIRST_ROW, true, DEFAULT_TIMEOUT_DURATION);
+		log.trace("{} navigateNextPage(..., {}) - 『{}』 『{}』", Utility.indentMiddle(), pageNumber, "첫번째", driver.getTextEscape(BY_FIRST_ROW, Duration.ZERO));
+		//	첫번째 마지막 칼럼	//*[@id="grid1_cell_0_16"]/nobr
+		By BY_FIRST_ROW_LAST_COLUMN = By.xpath("//*[@id='grid1_cell_0_16']/nobr");
+		log.trace("{} navigateNextPage(..., {}) - 『{}』 『{}』 {}", Utility.indentMiddle(), pageNumber, "마지막항", driver.getTextEscape(BY_FIRST_ROW_LAST_COLUMN, Duration.ZERO), Utility.toStringPastTimeReadable(started));
+		driver.waitUntilIsDisplayed(BY_FIRST_ROW_LAST_COLUMN, true, DEFAULT_TIMEOUT_DURATION);
+		driver.waitUntilTextNotBlank(BY_FIRST_ROW_LAST_COLUMN, (int) (DEFAULT_TIMEOUT_DURATION.getSeconds() * 1000));
+		log.trace("{} navigateNextPage(..., {}) - 『{}』 『{}』 {}", Utility.indentMiddle(), pageNumber, "마지막항", driver.getTextEscape(BY_FIRST_ROW_LAST_COLUMN, Duration.ZERO), Utility.toStringPastTimeReadable(started));
+
+		log.debug("{} navigateNextPage(..., {}) - {}", Utility.indentEnd(), pageNumber, Utility.toStringPastTimeReadable(started));
+	}
+
+	@SuppressWarnings("unused")
 	private String extractFromTable(ChromeDriverWrapper driver) {
 		log.debug("{} extract(...)", Utility.indentStart());
 		long started = System.currentTimeMillis();
@@ -277,6 +388,12 @@ public class CrawlPriceLatestSeibroEtfJob implements Job {
 		log.debug("{} 종목발행현황:inquire(...) - 『{}』 『{}』", Utility.indentMiddle(), "검색결과", driver.getText(BY_XPATH_TOTAL_COUNT_SEARCHED, Duration.ZERO));
 		driver.setText(BY_XPATH_TOTAL_COUNT_SEARCHED, Double.toString(Math.random()), TIMEOUT);
 
+		//	넓게보기		//*[@id="wide"]/div/div
+		By BY_XPATH_SHOW_WIDE = By.xpath("//*[@id='wide']div/div");
+		log.debug("{} 종목발행현황:inquire(...) - 『{}』 『{}』", Utility.indentMiddle(), "넓게보기", driver.getText(BY_XPATH_SHOW_WIDE, Duration.ZERO));
+		driver.click(BY_XPATH_SHOW_WIDE);
+		log.debug("{} 종목발행현황:inquire(...) - 『{}』 『{}』", Utility.indentMiddle(), "넓게보기", driver.getText(BY_XPATH_SHOW_WIDE, Duration.ZERO));
+		
 		// 조회	//*[@id="group133"]
 		By BY_XPATH_INQUIRE = By.xpath("//*[@id='group133']");
 		log.debug("{} 종목발행현황:inquire(...) - 『{}』 『{}』", Utility.indentMiddle(), "조회", driver.getText(BY_XPATH_INQUIRE, Duration.ZERO));
@@ -292,7 +409,7 @@ public class CrawlPriceLatestSeibroEtfJob implements Job {
 		// LOADING //*[@id="___processbar2_i"]
 		By BY_XPATH_LOADING = By.xpath("//*[@id='___processbar2_i']");
 		log.debug("{} 종목발행현황:inquire(...) - 『{}』 『{}』", Utility.indentMiddle(), "LOADING", driver.getText(BY_XPATH_LOADING, Duration.ZERO));
-		driver.waitUntilIsDisplayed(BY_XPATH_LOADING, false, TIMEOUT);
+		driver.waitUntilIsDisplayed(BY_XPATH_LOADING, false, DEFAULT_TIMEOUT_DURATION);
 
 		log.debug("{} inquire(...)", Utility.indentEnd());
 	}
