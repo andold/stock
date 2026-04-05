@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NoSpringTest {
 	public static final String BASE_URL = "http://apis.data.go.kr/1160100/service/GetStocIssuInfoService_V2/getItemBasiInfo_V2?pageNo=1&numOfRows=16&resultType=json";
-	public static final String SERVICE_KEY = "O9RZosIDyY7W71otFMrTAVDzMEB91E%2F4FqvShmAqEqHvbwvhrdA8kLjN%2Bz2e5KSgxzwAW36fjrPl3Um%2Fda%2FbKA%3D%3D";
+	public static final String SERVICE_KEY = "4bfd57acd993d4f83cb6e5f43f42c25533a8b58d0c342fc8eb105d8b5ab82653";
 
 	// 주가지수시세
 	public static final String URL_STOCK_INDEX_PRICE = "https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService/getStockMarketIndex?resultType=json&pageNo=1";
@@ -103,19 +103,15 @@ public class NoSpringTest {
 				, URL, SERVICE_KEY, numOfRows, pageNo, start.format(DateTimeFormatter.ofPattern("yyyyMMdd")), isinCode);
 		log.info("url:{}", url);
 		String html = read(url);
-		log.info("html:{}", Utility.ellipsisEscape(html, 256, 128));
+		log.info("html:{}", Utility.escape(html));
 		ResultDataGoKr.ResultItem result = Utility.parseJsonLine(html, ResultDataGoKr.ResultItem.class);
-//		log.info("result: {}", result);
+		log.info("result: {}", result);
 		log.info(Utility.HR);
 		List<ResultDataGoKr.ItemDomain> list = result.getResponse().getBody().getItems().getItem();
 		for (int cx = 0, sizex = list.size(); cx < sizex; cx++) {
 			ResultDataGoKr.ItemDomain item = list.get(cx);
-			ItemDomain domain = DataGoKrService.toItemDomain(item);
-//			if (item.getItmsNm().contains("포스코")) {
-//				// 디버그
-//				log.info("{} CrawlItemLatestDataGoKrCompanyJob::main(『{}』)- 『{}』『{}』", Utility.indentMiddle(), start, item, domain);
-//			}
 			log.info("{}/{} {}", cx, sizex, item);
+			ItemDomain domain = DataGoKrService.toItemDomain(item);
 			log.info("{}/{} {}", cx, sizex, domain);
 		}
 	}
@@ -234,7 +230,7 @@ public class NoSpringTest {
 		List<ResultDataGoKr.PriceStockDomain> list = price.getResponse().getBody().getItems().getItem();
 		for (int cx = 0, sizex = list.size(); cx < sizex; cx++) {
 			ResultDataGoKr.PriceStockDomain item = list.get(cx);
-			if (item.getMrktCtg().equalsIgnoreCase("KOSDAQ")) {
+			if ("KOSDAQ".equalsIgnoreCase(item.getMrktCtg())) {
 				continue;
 			}
 
@@ -371,9 +367,8 @@ public class NoSpringTest {
 
 	@Test
 	public void parseExcelHtml() throws IOException {
-		String fullPath = String.format("%s/%s", CrawlerService.getDownloadsDir(), "배당내역상세.xls");
-		File file = new File(fullPath);
-		Document doc = Jsoup.parse(file);
+		String string = Utility.readClassPathFile("배당내역상세.xls", "UTF-8");
+		Document doc = Jsoup.parse(string);
 		log.info(Utility.extractStringFromHtmlElement(doc));
 	}
 

@@ -87,8 +87,9 @@ public class DataGoKrService {
 	}
 
 	public static ItemDomain toItemDomain(ResultDataGoKr.ItemDomain domain) {
+		String srtnCd = domain.getSrtnCd();
 		return ItemDomain.builder()
-				.code(domain.getSrtnCd().replaceFirst("^A", ""))
+				.code(srtnCd == null ? "" : srtnCd.replaceFirst("^A", ""))
 				.isinCode(domain.getIsinCd())
 				.symbol(domain.getItmsNm())
 				.type(domain.getMrktCtg())

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +16,7 @@ import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
 
+@Disabled("네크워크 접근 허락을 구할때까지는 테스트해봐야 접근 오류 화면만 나온다")
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class KrxTest {

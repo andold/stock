@@ -23,7 +23,7 @@ public class KindTest {
 
 	@Test
 	public void testItemDate() {
-		Result<ParserResult> result = service.item(Date.from(LocalDate.now().atStartOfDay().minusMonths(12).toInstant(Utility.ZONE_OFFSET_KST)));
+		Result<ParserResult> result = service.item(Date.from(LocalDate.now().atStartOfDay().minusDays(7).toInstant(Utility.ZONE_OFFSET_KST)));
 		log.info("{}", result);
 		assertEquals(result.getStatus(), STATUS.SUCCESS);
 	}
