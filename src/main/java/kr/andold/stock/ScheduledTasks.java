@@ -78,6 +78,7 @@ public class ScheduledTasks {
 			CrawlPriceLatestDataGoKrEtfJob.regist(JobService.getQueue2(), oneWeekAgo);
 			JobService.getQueue3().offer(BackupJob.builder().build());
 			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
+			UpdateItemPriorityJob.regist(JobService.getQueue3());
 		}
 
 		log.info("{} daily() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
