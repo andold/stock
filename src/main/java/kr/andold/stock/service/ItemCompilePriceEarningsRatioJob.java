@@ -15,6 +15,7 @@ import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.domain.Result.STATUS;
+import kr.andold.stock.job.CrawlPriceJob;
 import kr.andold.stock.param.DividendHistoryParam;
 import kr.andold.stock.param.PriceParam;
 import kr.andold.stock.service.JobService.Job;
@@ -93,6 +94,7 @@ public class ItemCompilePriceEarningsRatioJob implements Job {
 			PriceDomain price = candidate(mapThenPrice, dividend.getCode(), dividend.getBase());
 			if (price == null) {
 				log.debug("{} NO-PRICE compileByThenPrice() - 『{}』", Utility.indentMiddle(), dividend);
+				CrawlPriceJob.regist(JobService.getQueue3(), dividend.getCode(), dividend.getBase());
 				continue;
 			}
 
