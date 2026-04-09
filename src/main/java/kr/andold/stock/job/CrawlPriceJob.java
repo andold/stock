@@ -40,6 +40,7 @@ public class CrawlPriceJob implements Job {
 		long started = System.currentTimeMillis();
 
 		CrawlPriceJob that = (CrawlPriceJob) ApplicationContextProvider.getBean(CrawlPriceJob.class);
+		that.setMap(map);
 		STATUS result = that.main();
 
 		log.debug("{} 『#{}』 CrawlPriceJob::call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
