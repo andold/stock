@@ -1695,13 +1695,13 @@ public class Seibro implements Crawler {
 				String string = extractDailyPriceByTable(driver, code);
 				sb.append(string);
 				sb.append(MARK_ANDOLD_SINCE);
-				log.debug("{} 일별시세::priceEtf({}) - 『{}』『{}』", Utility.indentEnd(), code, "테이블", Utility.ellipsisEscape(string, 32, 32));
+				log.debug("{} 일별시세::priceEtf({}) - 『{}』『{}』", Utility.indentMiddle(), code, "테이블", Utility.ellipsisEscape(string, 16, 16));
 
 				// 다음 페이지
 				By BY_NEXT_PAGE = By.xpath("//*[@id='pageList1_next_btn']/a");
 				String firstVolume = driver.getText(BY_1ST_VOLUME, DEFAULT_DURATION, "-");
 				driver.clickIfExist(BY_NEXT_PAGE);
-				log.debug("{} 일별시세::priceEtf({}) - 『{}』『{}』", Utility.indentEnd(), code, "다음 페이지", driver.getText(BY_NEXT_PAGE, Duration.ZERO));
+				log.debug("{} 일별시세::priceEtf({}) - 『{}』『{}』", Utility.indentMiddle(), code, "다음 페이지", driver.getText(BY_NEXT_PAGE, Duration.ZERO));
 				driver.waitUntilTextNotInclude(BY_1ST_VOLUME, TIMEOUT, firstVolume);
 				String currentPageNumber = driver.getText(BY_CURRENT_PAGE, DEFAULT_DURATION, "-1");
 				if (pageNumber.equalsIgnoreCase(currentPageNumber)) {
@@ -1751,7 +1751,7 @@ public class Seibro implements Crawler {
 			
 			StringBuffer sb = new StringBuffer();
 			table.findElements(By.tagName("tr")).forEach(tr -> {
-				sb.append( String.format("%s\t", code));
+				sb.append(String.format("%s\t", code));
 				tr.findElements(By.cssSelector("th, td")).forEach(td -> {
 					sb.append(td.getAttribute("textContent"));
 					sb.append("\t");
