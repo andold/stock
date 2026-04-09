@@ -179,7 +179,7 @@ public class DataGoKrService {
 				ResultDataGoKr.PriceCompanyDomain item = list.get(cy);
 				PriceDomain price = DataGoKrService.toPriceDomain(item);
 				prices.add(price);
-				if (Math.random() < (16.0 / sizey)) {
+				if (Math.random() < (4.0 / sizey)) {
 					log.debug("{} 『{}』주식시세::getStockPriceInfo(『{}』, 『{}』) - 『{}/{}』『{}/{}』", Utility.indentMiddle(), price, code, zdt, cx, NUMBER_OF_PAGES, cy, sizey);
 				}
 			}
