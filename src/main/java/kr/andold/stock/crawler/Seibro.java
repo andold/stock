@@ -31,6 +31,7 @@ public class Seibro implements Crawler {
 	private static final Duration DEFAULT_DURATION_LONG = Duration.ofSeconds(4 * 4);
 
 	public static final String URL_COMPANY = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285";
+	//	SEIBro > ETF > 권리행사정보 > 분배금지급현황
 	private static final String URL_ETF = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179";
 	private static final String MARK_START_END_POINT_COMPANY = String.format("KEYWORD\t%s\t%s\tURL\t%s\n", "CrawlDividendHistoryCompanyThread", "주식(기업) 배당금 내역", URL_COMPANY);
 	private static final String MARK_START_END_POINT_ETF = String.format("KEYWORD\t%s\t%s\tURL\t%s\n", "ETF 배당금 내역", "KSD 증권정보포털 SEIBro", URL_ETF);
@@ -1596,7 +1597,7 @@ public class Seibro implements Crawler {
 	}
 
 	// SEIBro > ETF > ETF종합정보 > 기준가추이 :: 일별시세
-	protected Result<ParserResult> priceEtf(String code, Date start) {
+	public Result<ParserResult> priceEtf(String code, Date start) {
 		log.debug("{} 일별시세::priceEtf({}, {})", Utility.indentStart(), code, start);
 		long started = System.currentTimeMillis();
 
@@ -1604,6 +1605,8 @@ public class Seibro implements Crawler {
 			log.debug("{} 『{}』 일별시세::priceEtf({}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, code, start, Utility.toStringPastTimeReadable(started));
 			return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 		}
+
+		boolean pauseEnable = false;
 
 		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
 		driver.manage().timeouts().implicitlyWait(DEFAULT_DURATION);
@@ -1702,7 +1705,6 @@ public class Seibro implements Crawler {
 			StringBuffer sb = new StringBuffer();
 			sb.append(MARK_START_END_POINT_PRICE_ETF_EACH);
 			By BY_CURRENT_PAGE = By.xpath("//div[@id='pageList1']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']");
-			long pause = 1000;
 			for (String pageNumber = "1";;) {
 				long forStarted = System.currentTimeMillis();
 
@@ -1726,13 +1728,17 @@ public class Seibro implements Crawler {
 				}
 
 				pageNumber = currentPageNumber;
-				if (System.currentTimeMillis() - forStarted > 1024 * 8) {
-					pause = Math.max(32, pause / 2);
-				} else {
-					pause = Math.min(1024 * 8, pause * 2);
+
+				if (pauseEnable) {
+					long pause = 1000;
+					if (System.currentTimeMillis() - forStarted > 1024 * 8) {
+						pause = Math.max(32, pause / 2);
+					} else {
+						pause = Math.min(1024 * 8, pause * 2);
+					}
+					sleep(Math.round(pause * Math.random()));
 				}
 
-				sleep(Math.round(pause * Math.random()));
 				log.debug("{} 『{}』 일별시세::priceEtf({}, {}) - {}", Utility.indentMiddle(), Utility.ellipsisEscape(pageNumber, 32), code, start, Utility.toStringPastTimeReadable(forStarted));
 			}
 			driver.quit();

@@ -54,6 +54,7 @@ public class CrawlDividendSeibroCompanyExcelJob implements Job {
 
 	@Autowired private DividendHistoryService service;
 	
+	@Deprecated
 	@Override
 	public STATUS call() throws Exception {
 		log.debug("{} CrawlDividendSeibroCompanyExcelJob::call()", Utility.indentStart());
@@ -68,6 +69,7 @@ public class CrawlDividendSeibroCompanyExcelJob implements Job {
 	}
 
 	// 배당내역전체검색
+	@Deprecated
 	protected STATUS main() {
 		log.debug("{} CrawlDividendSeibroCompanyExcelJob::main()", Utility.indentStart());
 		long started = System.currentTimeMillis();
@@ -102,6 +104,7 @@ public class CrawlDividendSeibroCompanyExcelJob implements Job {
 	}
 
 	private static final String DELEMETER = "[\t]";
+	@Deprecated
 	public static List<DividendHistoryDomain> parseLines(String text) {
 		log.debug("{} parseLines(『{}』)", Utility.indentStart(), Utility.ellipsisEscape(text, 64));
 

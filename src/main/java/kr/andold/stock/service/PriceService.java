@@ -39,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class PriceService implements CommonBlockService<PriceParam, PriceDomain, PriceEntity> {
+	public static final ZonedDateTime PRICE_BASE_DATE_START = ZonedDateTime.of(2015, 1, 1, 0, 0, 0, 0, Utility.ZONE_ID_KST);
 	@Autowired private PriceRepository repository;
 	@Autowired private Seibro seibro;
 

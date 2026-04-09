@@ -15,9 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class CrawlDividendSeibroCompanyExcelJobTest {
-	@SuppressWarnings("deprecation")
-	@Autowired private CrawlDividendSeibroCompanyExcelJob job;
+class CrawlPriceDataGoKrCompanyJobTest {
+	@Autowired private CrawlPriceDataGoKrCompanyJob job;
 
 	@BeforeEach
 	public void before() {
@@ -25,10 +24,15 @@ class CrawlDividendSeibroCompanyExcelJobTest {
 		assertNotNull(job);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Test
 	public void main() {
-		job.setStart(ZonedDateTime.now().minusMonths(1));
+		job.getMap().put("498400", ZonedDateTime.now().minusMonths(1));
+		job.getMap().put("481060", ZonedDateTime.now().minusMonths(1));
+		job.getMap().put("453850", ZonedDateTime.now().minusMonths(1));
+		job.getMap().put("069500", ZonedDateTime.now().minusMonths(1));
+		job.getMap().put("175330", ZonedDateTime.now().minusMonths(1));
+		job.getMap().put("065710", ZonedDateTime.now().minusMonths(1));
+		job.getMap().put("093920", ZonedDateTime.now().minusMonths(1));
 		STATUS status = job.main();
 		log.info("{}", status);
 	}

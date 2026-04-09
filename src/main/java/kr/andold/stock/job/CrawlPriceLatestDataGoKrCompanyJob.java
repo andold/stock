@@ -1,8 +1,6 @@
 package kr.andold.stock.job;
 
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -11,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import kr.andold.stock.ApplicationContextProvider;
 import kr.andold.stock.domain.PriceDomain;
-import kr.andold.stock.domain.ResultDataGoKr;
 import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.service.DataGoKrService;
 import kr.andold.stock.service.JobService;
@@ -25,17 +22,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+// 주식시세 최근 회사
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Slf4j
 @Service
 public class CrawlPriceLatestDataGoKrCompanyJob implements Job {
-	// 주식시세
-	public static final String URL = "https://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getStockPriceInfo?resultType=json";
-
-	private static final int NUMBER_OF_ROWS = 1024 * 8;
-	private static final int NUMBER_OF_PAGES = 4;
+	@Autowired private DataGoKrService dataGoKrService;
 
 	@Builder.Default
 	@Getter
@@ -103,47 +97,14 @@ public class CrawlPriceLatestDataGoKrCompanyJob implements Job {
 
 	// 주식시세
 	protected STATUS main() {
-		log.debug("{} CrawlPriceLatestDataGoKrCompanyJob::main(『{}』)", Utility.indentStart(), start);
+		log.debug("{} 주식시세최근회사::CrawlPriceLatestDataGoKrCompanyJob::main(『{}』)", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();
 
-		try {
-			CrudList<PriceDomain> container = CrudList.<PriceDomain>builder().build();
-			for (int cx = 0; cx < NUMBER_OF_PAGES; cx++) {
-				String url = String.format("%s&serviceKey=%s&numOfRows=%d&pageNo=%d&beginBasDt=%s", URL, DataGoKrService.getServiceKey(), NUMBER_OF_ROWS, cx + 1, start.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
-				log.debug("{} CrawlPriceLatestDataGoKrCompanyJob::main(『{}』)- 『{}』", Utility.indentMiddle(), start, url);
-				String html = service.read(url);
-				log.debug("{} CrawlPriceLatestDataGoKrCompanyJob::main(『{}』)- 『{}』", Utility.indentMiddle(), start, Utility.ellipsis(html, 128, 64));
-				ResultDataGoKr.ResultPriceCompany result = Utility.parseJsonLine(html, ResultDataGoKr.ResultPriceCompany.class);
-				if (result == null) {
-					CrawlPriceLatestSeibroCompanyExcelJob.regist(JobService.getQueue3());
-					break;
-				}
+		List<PriceDomain> prices = dataGoKrService.getStockPriceInfo(null, start);
+		CrudList<PriceDomain> crud = service.putPrice(prices);
 
-				List<ResultDataGoKr.PriceCompanyDomain> list = result.getResponse().getBody().getItems().getItem();
-				if (list == null || list.isEmpty()) {
-					break;
-				}
-				List<PriceDomain> prices = new ArrayList<>();
-				for (int cy = 0, sizex = list.size(); cy < sizex; cy++) {
-					ResultDataGoKr.PriceCompanyDomain item = list.get(cy);
-					PriceDomain price = DataGoKrService.toPriceDomain(item);
-					prices.add(price);
-					log.trace("{} CrawlPriceLatestDataGoKrCompanyJob::main(『{}』)- 『{}/{}』『{}』", Utility.indentMiddle(), start, cy, sizex, item);
-				}
-
-				CrudList<PriceDomain> crud = service.putPrice(prices);
-				log.debug("{} CrawlPriceLatestDataGoKrCompanyJob::main() - 『{}』『{}』", Utility.indentMiddle(), cx, crud);
-				container.add(crud);
-			}
-
-			log.debug("{} 『{}』 CrawlPriceLatestDataGoKrCompanyJob::main() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
-			return STATUS.SUCCESS;
-		} catch (Exception e) {
-			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
-		}
-
-		log.debug("{} 『{}』 CrawlPriceLatestDataGoKrCompanyJob::main() - {}", Utility.indentEnd(), STATUS.EXCEPTION, Utility.toStringPastTimeReadable(started));
-		return STATUS.EXCEPTION;
+		log.debug("{} 『{}』 주식시세최근회사::CrawlPriceLatestDataGoKrCompanyJob::main() - {}", Utility.indentEnd(), crud, Utility.toStringPastTimeReadable(started));
+		return STATUS.SUCCESS;
 	}
 
 }
