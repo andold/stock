@@ -1,4 +1,4 @@
-// Generated from C:\src\eclipse-workspace\stock\src\main\resources\grammar\Seibro.g4 by ANTLR 4.10.1
+// Generated from C:\src\eclipse-workspace\stock\src\main\resources\grammar\Seibro.g4 by ANTLR 4.13.0
 package kr.andold.stock.antlr;
 
 import java.util.List;
@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.ArrayList;
 
-@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
+@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue"})
 public class SeibroParser extends Parser {
-	static { RuntimeMetaData.checkVersion("4.10.1", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.13.0", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
@@ -108,6 +108,7 @@ public class SeibroParser extends Parser {
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class StockDocumentContext extends ParserRuleContext {
 		public CrawlDividendHistoryCompanyThreadContext crawlDividendHistoryCompanyThread() {
 			return getRuleContext(CrawlDividendHistoryCompanyThreadContext.class,0);
@@ -228,6 +229,7 @@ public class SeibroParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class NaverPriceCurrentEtfContext extends ParserRuleContext {
 		public Token base;
 		public WordContext code;
@@ -439,7 +441,7 @@ public class SeibroParser extends Parser {
 							setState(94); 
 							_errHandler.sync(this);
 							_la = _input.LA(1);
-						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 						setState(96);
 						match(TAB);
 						setState(97);
@@ -546,6 +548,7 @@ public class SeibroParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class SeibroPriceCurrentCompanyContext extends ParserRuleContext {
 		public Token base;
 		public WordContext code;
@@ -707,7 +710,7 @@ public class SeibroParser extends Parser {
 							setState(182); 
 							_errHandler.sync(this);
 							_la = _input.LA(1);
-						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 						setState(184);
 						match(NEWLINE);
 						setState(185);
@@ -850,6 +853,7 @@ public class SeibroParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class SeibroPriceCompanyContext extends ParserRuleContext {
 		public WordContext code;
 		public Token base;
@@ -1137,6 +1141,7 @@ public class SeibroParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class SeibroItemInfoCompanyContext extends ParserRuleContext {
 		public WordContext code;
 		public Token type;
@@ -1324,7 +1329,7 @@ public class SeibroParser extends Parser {
 					setState(381);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
-					while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) {
+					while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) {
 						{
 						{
 						setState(378);
@@ -1459,6 +1464,7 @@ public class SeibroParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class CrawlPriceCompanyContext extends ParserRuleContext {
 		public WordContext code;
 		public WordContext symbol;
@@ -1572,7 +1578,7 @@ public class SeibroParser extends Parser {
 						setState(450); 
 						_errHandler.sync(this);
 						_la = _input.LA(1);
-					} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+					} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 					setState(452);
 					match(NEWLINE);
 					setState(496); 
@@ -1760,6 +1766,7 @@ public class SeibroParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class CrawlItemDetailCompanyThreadContext extends ParserRuleContext {
 		public WordContext code;
 		public Token type;
@@ -1943,7 +1950,7 @@ public class SeibroParser extends Parser {
 					setState(562);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
-					while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) {
+					while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) {
 						{
 						{
 						setState(559);
@@ -2059,6 +2066,7 @@ public class SeibroParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class CrawlItemDividendTopCompanyContext extends ParserRuleContext {
 		public Token type;
 		public WordContext code;
@@ -2220,7 +2228,7 @@ public class SeibroParser extends Parser {
 						setState(650);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
-						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) {
+						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) {
 							{
 							setState(649);
 							((CrawlItemDividendTopCompanyContext)_localctx).code = word();
@@ -2242,7 +2250,7 @@ public class SeibroParser extends Parser {
 							setState(656); 
 							_errHandler.sync(this);
 							_la = _input.LA(1);
-						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 						setState(658);
 						match(TAB);
 						setState(659);
@@ -2352,6 +2360,7 @@ public class SeibroParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class CrawlDividendHistoryCompanyThreadContext extends ParserRuleContext {
 		public Token base;
 		public Token pay;
@@ -2645,7 +2654,7 @@ public class SeibroParser extends Parser {
 									setState(792); 
 									_errHandler.sync(this);
 									_la = _input.LA(1);
-								} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+								} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 								setState(794);
 								match(TAB);
 								setState(795);
@@ -2813,6 +2822,7 @@ public class SeibroParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class WordContext extends ParserRuleContext {
 		public TerminalNode WORD() { return getToken(SeibroParser.WORD, 0); }
 		public TerminalNode KEYWORD() { return getToken(SeibroParser.KEYWORD, 0); }
@@ -2848,7 +2858,7 @@ public class SeibroParser extends Parser {
 			{
 			setState(860);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -2869,6 +2879,7 @@ public class SeibroParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class LineContext extends ParserRuleContext {
 		public TerminalNode NEWLINE() { return getToken(SeibroParser.NEWLINE, 0); }
 		public List<WordContext> word() {
@@ -2939,7 +2950,7 @@ public class SeibroParser extends Parser {
 				setState(866); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << TAB) | (1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2024L) != 0) );
 			setState(868);
 			match(NEWLINE);
 			}
@@ -2955,6 +2966,7 @@ public class SeibroParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class EofContext extends ParserRuleContext {
 		public List<WordContext> word() {
 			return getRuleContexts(WordContext.class);
@@ -3034,7 +3046,7 @@ public class SeibroParser extends Parser {
 				setState(875); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << TAB) | (1L << NEWLINE) | (1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2040L) != 0) );
 			}
 		}
 		catch (RecognitionException re) {

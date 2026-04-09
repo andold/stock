@@ -1,4 +1,4 @@
-// Generated from C:\src\eclipse-workspace\stock\src\main\resources\grammar\Stock.g4 by ANTLR 4.10.1
+// Generated from C:\src\eclipse-workspace\stock\src\main\resources\grammar\Stock.g4 by ANTLR 4.13.0
 package kr.andold.stock.antlr;
 
 import java.util.List;
@@ -18,6 +18,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
+@SuppressWarnings("CheckReturnValue")
 public class StockBaseListener implements StockListener {
 	/**
 	 * {@inheritDoc}

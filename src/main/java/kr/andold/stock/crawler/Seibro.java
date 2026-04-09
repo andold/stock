@@ -1647,7 +1647,7 @@ public class Seibro implements Crawler {
 			if ("0".contentEquals(count)) {
 				driver.quit();
 				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
-				log.debug("{} 『{}』 일별시세::priceEtf({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+				log.debug("{} 『ZERO::{}』 일별시세::priceEtf({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
 				return result;
 			}
 
@@ -1655,28 +1655,12 @@ public class Seibro implements Crawler {
 			By BY_1ST_VOLUME = By.xpath("//*[@id='grid1_cell_0_6']/nobr");
 			if ("1".contentEquals(count)) {
 				String firstVolume = driver.getText(BY_1ST_VOLUME, DEFAULT_DURATION, "-");
-				driver.clickIfExist(BY_SEARCH_CODE_RESULT);
+				driver.click(BY_SEARCH_CODE_RESULT);
 				driver.waitUntilTextNotInclude(BY_1ST_VOLUME, TIMEOUT, firstVolume);
 			} else {
-				List<WebElement> candidates = driver.findElements(BY_SEARCH_CODE_RESULT, DEFAULT_DURATION);
-				boolean found = false;
-				for (WebElement candidate : candidates) {
-					String href = candidate.getAttribute("href");	// javascript:SelectedValueReturn( 'KR7391680006', '흥국HK하이볼액티브증권상장지수투자신탁[주식]' ) 
-					if (href.matches(String.format(".+KR.%s.+", code))) {
-						String firstVolume = driver.getText(BY_1ST_VOLUME, DEFAULT_DURATION, "-");
-						candidate.click();
-						driver.waitUntilTextNotInclude(BY_1ST_VOLUME, TIMEOUT, firstVolume);
-						found = true;
-						break;
-					}
-				}
-
-				if (!found) {
-					driver.quit();
-					Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
-					log.debug("{} 『{}』 일별시세::priceEtf({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
-					return result;
-				}
+				String firstVolume = driver.getText(BY_1ST_VOLUME, DEFAULT_DURATION, "-");
+				driver.click(BY_SEARCH_CODE_RESULT);
+				driver.waitUntilTextNotInclude(BY_1ST_VOLUME, TIMEOUT, firstVolume);
 			}
 
 			//	팝업이 닫혔다, 돌아간다
@@ -1708,10 +1692,7 @@ public class Seibro implements Crawler {
 			for (String pageNumber = "1";;) {
 				long forStarted = System.currentTimeMillis();
 
-				//	테이블
-				By BY_TABLE_CONTENT = By.xpath("//table[@id='grid1_body_table']");
-				WebElement table = driver.findElement(BY_TABLE_CONTENT, DEFAULT_DURATION);
-				String string = driver.extractTextContentFromTableElement(table, String.format("%s\t", code));
+				String string = extractDailyPriceByTable(driver, code);
 				sb.append(string);
 				sb.append(MARK_ANDOLD_SINCE);
 				log.debug("{} 일별시세::priceEtf({}) - 『{}』『{}』", Utility.indentEnd(), code, "테이블", Utility.ellipsisEscape(string, 32, 32));
@@ -1757,6 +1738,35 @@ public class Seibro implements Crawler {
 
 		log.debug("{} 『{}』 일별시세::priceEtf({}, {}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, code, start, Utility.toStringPastTimeReadable(started));
 		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+	}
+
+	private String extractDailyPriceByTable(ChromeDriverWrapper driver, String code) {
+		log.debug("{} 일별시세::extract(..., 『{}』)", Utility.indentStart(), code);
+		long started = System.currentTimeMillis();
+
+		try {
+			//	테이블
+			By BY_TABLE_CONTENT = By.xpath("//table[@id='grid1_body_table']");
+			WebElement table = driver.findElement(BY_TABLE_CONTENT, DEFAULT_DURATION);
+			
+			StringBuffer sb = new StringBuffer();
+			table.findElements(By.tagName("tr")).forEach(tr -> {
+				sb.append( String.format("%s\t", code));
+				tr.findElements(By.cssSelector("th, td")).forEach(td -> {
+					sb.append(td.getAttribute("textContent"));
+					sb.append("\t");
+				});
+				sb.append("\n");
+			});
+			String string = new String(sb);
+
+			log.debug("{} 『{}』일별시세::extract(..., 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(string, 16, 16), code, Utility.toStringPastTimeReadable(started));
+			return string;
+		} catch (Exception e) {
+		}
+
+		log.debug("{} 『Exception』일별시세::extract(..., 『{}』) - {}", Utility.indentEnd(), code, Utility.toStringPastTimeReadable(started));
+		return "";
 	}
 
 }

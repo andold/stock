@@ -298,7 +298,7 @@ public class ParserService {
 				.build();
 
 		if (debug || result.isEmpty()) {
-			log.info("{} parseByKrxEtf(『\n{}\n』)", Utility.indentMiddle(), Utility.ellipsisEscape(text, 128));
+			log.info("{} parseByKrxEtf(『{}』)", Utility.indentMiddle(), Utility.ellipsisEscape(text, 128));
 			infoPrintTokensBySeibro(text);
 		} else {
 			log.debug("{} parseByKrxEtf(『\n{}\n』)", Utility.indentMiddle(), Utility.ellipsisEscape(text, 128, 128));

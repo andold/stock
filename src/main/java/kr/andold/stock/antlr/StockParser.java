@@ -1,4 +1,4 @@
-// Generated from C:\src\eclipse-workspace\stock\src\main\resources\grammar\Stock.g4 by ANTLR 4.10.1
+// Generated from C:\src\eclipse-workspace\stock\src\main\resources\grammar\Stock.g4 by ANTLR 4.13.0
 package kr.andold.stock.antlr;
 
 import java.util.List;
@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.ArrayList;
 
-@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
+@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue"})
 public class StockParser extends Parser {
-	static { RuntimeMetaData.checkVersion("4.10.1", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.13.0", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
@@ -104,6 +104,7 @@ public class StockParser extends Parser {
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class StockDocumentContext extends ParserRuleContext {
 		public CompanyAllPriceContext companyAllPrice() {
 			return getRuleContext(CompanyAllPriceContext.class,0);
@@ -184,6 +185,7 @@ public class StockParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class KrxPriceCompanyContext extends ParserRuleContext {
 		public WordContext code;
 		public Token base;
@@ -826,6 +828,7 @@ public class StockParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class KrxItemInfoCompanyContext extends ParserRuleContext {
 		public Token type;
 		public WordContext symbol;
@@ -1010,7 +1013,7 @@ public class StockParser extends Parser {
 			setState(329);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) {
 				{
 				{
 				setState(326);
@@ -1036,7 +1039,7 @@ public class StockParser extends Parser {
 				setState(336); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 			setState(338);
 			match(TAB);
 			setState(339);
@@ -1186,7 +1189,7 @@ public class StockParser extends Parser {
 			setState(402);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) {
 				{
 				{
 				setState(399);
@@ -1212,7 +1215,7 @@ public class StockParser extends Parser {
 				setState(409); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 			setState(411);
 			match(TAB);
 			setState(412);
@@ -1234,7 +1237,7 @@ public class StockParser extends Parser {
 				setState(418); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 			setState(420);
 			match(TAB);
 			setState(421);
@@ -1258,7 +1261,7 @@ public class StockParser extends Parser {
 			setState(431);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) {
 				{
 				{
 				setState(428);
@@ -1346,6 +1349,7 @@ public class StockParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class KrxBasicInfoCompanyContext extends ParserRuleContext {
 		public WordContext code;
 		public WordContext symbol;
@@ -2124,7 +2128,7 @@ public class StockParser extends Parser {
 							setState(800); 
 							_errHandler.sync(this);
 							_la = _input.LA(1);
-						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 						setState(802);
 						match(NEWLINE);
 						setState(803);
@@ -2200,7 +2204,7 @@ public class StockParser extends Parser {
 						setState(829);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
-						while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) {
+						while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) {
 							{
 							{
 							setState(826);
@@ -2234,7 +2238,7 @@ public class StockParser extends Parser {
 							setState(840); 
 							_errHandler.sync(this);
 							_la = _input.LA(1);
-						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 						setState(842);
 						match(NEWLINE);
 						setState(843);
@@ -2282,7 +2286,7 @@ public class StockParser extends Parser {
 						setState(867);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
-						while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) {
+						while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) {
 							{
 							{
 							setState(864);
@@ -2310,7 +2314,7 @@ public class StockParser extends Parser {
 						setState(880);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
-						while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) {
+						while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) {
 							{
 							{
 							setState(877);
@@ -2433,6 +2437,7 @@ public class StockParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class CompanyAllPriceContext extends ParserRuleContext {
 		public WordContext code;
 		public WordContext symbol;
@@ -3242,7 +3247,7 @@ public class StockParser extends Parser {
 							setState(1277);
 							_errHandler.sync(this);
 							_la = _input.LA(1);
-							while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) {
+							while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) {
 								{
 								{
 								setState(1274);
@@ -3268,7 +3273,7 @@ public class StockParser extends Parser {
 							setState(1289);
 							_errHandler.sync(this);
 							_la = _input.LA(1);
-							while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) {
+							while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) {
 								{
 								{
 								setState(1286);
@@ -3645,6 +3650,7 @@ public class StockParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class WordContext extends ParserRuleContext {
 		public TerminalNode WORD() { return getToken(StockParser.WORD, 0); }
 		public TerminalNode KEYWORD() { return getToken(StockParser.KEYWORD, 0); }
@@ -3680,7 +3686,7 @@ public class StockParser extends Parser {
 			{
 			setState(1443);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -3701,6 +3707,7 @@ public class StockParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class LineContext extends ParserRuleContext {
 		public TerminalNode NEWLINE() { return getToken(StockParser.NEWLINE, 0); }
 		public List<WordContext> word() {
@@ -3771,7 +3778,7 @@ public class StockParser extends Parser {
 				setState(1449); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << TAB) | (1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2024L) != 0) );
 			setState(1451);
 			match(NEWLINE);
 			}
@@ -3787,6 +3794,7 @@ public class StockParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class EofContext extends ParserRuleContext {
 		public List<WordContext> word() {
 			return getRuleContexts(WordContext.class);
@@ -3866,7 +3874,7 @@ public class StockParser extends Parser {
 				setState(1458); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << TAB) | (1L << NEWLINE) | (1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2040L) != 0) );
 			}
 		}
 		catch (RecognitionException re) {

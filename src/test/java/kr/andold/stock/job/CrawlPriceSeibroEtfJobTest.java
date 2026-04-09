@@ -3,6 +3,7 @@ package kr.andold.stock.job;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,13 +27,14 @@ class CrawlPriceSeibroEtfJobTest {
 
 	@Test
 	public void main() {
-		job.getMap().put("498400", ZonedDateTime.now().minusMonths(1));
-		job.getMap().put("481060", ZonedDateTime.now().minusMonths(1));
-		job.getMap().put("453850", ZonedDateTime.now().minusMonths(1));
-		job.getMap().put("069500", ZonedDateTime.now().minusMonths(1));
-		job.getMap().put("175330", ZonedDateTime.now().minusMonths(1));
-		job.getMap().put("065710", ZonedDateTime.now().minusMonths(1));
-		job.getMap().put("093920", ZonedDateTime.now().minusMonths(1));
+		ZonedDateTime zdt = ZonedDateTime.now().minusMonths(2).truncatedTo(ChronoUnit.DAYS);
+		job.getMap().put("498400", zdt);
+		job.getMap().put("481060", zdt);
+		job.getMap().put("453850", zdt);
+		job.getMap().put("069500", zdt);
+		job.getMap().put("175330", zdt);
+		job.getMap().put("065710", zdt);
+		job.getMap().put("093920", zdt);
 		STATUS status = job.main();
 		log.info("{}", status);
 	}

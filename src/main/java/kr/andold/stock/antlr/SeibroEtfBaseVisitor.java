@@ -1,4 +1,4 @@
-// Generated from C:\src\eclipse-workspace\stock\src\main\resources\grammar\SeibroEtf.g4 by ANTLR 4.10.1
+// Generated from C:\src\eclipse-workspace\stock\src\main\resources\grammar\SeibroEtf.g4 by ANTLR 4.13.0
 package kr.andold.stock.antlr;
 
 import java.util.List;
@@ -18,6 +18,7 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
  * @param <T> The return type of the visit operation. Use {@link Void} for
  * operations with no return type.
  */
+@SuppressWarnings("CheckReturnValue")
 public class SeibroEtfBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements SeibroEtfVisitor<T> {
 	/**
 	 * {@inheritDoc}

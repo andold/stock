@@ -1,4 +1,4 @@
-// Generated from C:\src\eclipse-workspace\stock\src\main\resources\grammar\KrxEtf.g4 by ANTLR 4.10.1
+// Generated from C:\src\eclipse-workspace\stock\src\main\resources\grammar\KrxEtf.g4 by ANTLR 4.13.0
 package kr.andold.stock.antlr;
 
 import java.util.List;
@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.ArrayList;
 
-@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
+@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue"})
 public class KrxEtfParser extends Parser {
-	static { RuntimeMetaData.checkVersion("4.10.1", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.13.0", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
@@ -104,6 +104,7 @@ public class KrxEtfParser extends Parser {
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class KrxEtfDocumentContext extends ParserRuleContext {
 		public CrawlPriceKrxContext crawlPriceKrx() {
 			return getRuleContext(CrawlPriceKrxContext.class,0);
@@ -194,6 +195,7 @@ public class KrxEtfParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class KrxPriceEtfContext extends ParserRuleContext {
 		public WordContext code;
 		public Token base;
@@ -490,7 +492,7 @@ public class KrxEtfParser extends Parser {
 										setState(120); 
 										_errHandler.sync(this);
 										_la = _input.LA(1);
-									} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+									} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 									setState(122);
 									match(NEWLINE);
 									setState(123);
@@ -612,6 +614,7 @@ public class KrxEtfParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class KrxItemInfoEtfContext extends ParserRuleContext {
 		public WordContext symbol;
 		public WordContext symbol1;
@@ -783,7 +786,7 @@ public class KrxEtfParser extends Parser {
 			setState(211);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) {
 				{
 				{
 				setState(208);
@@ -817,7 +820,7 @@ public class KrxEtfParser extends Parser {
 				setState(222); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 			setState(224);
 			match(TAB);
 			setState(226); 
@@ -833,7 +836,7 @@ public class KrxEtfParser extends Parser {
 				setState(228); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 			setState(230);
 			match(TAB);
 			setState(231);
@@ -877,7 +880,7 @@ public class KrxEtfParser extends Parser {
 				setState(248); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 			setState(250);
 			match(TAB);
 			setState(252); 
@@ -893,7 +896,7 @@ public class KrxEtfParser extends Parser {
 				setState(254); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 			setState(256);
 			match(TAB);
 			setState(257);
@@ -1047,7 +1050,7 @@ public class KrxEtfParser extends Parser {
 			setState(322);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) {
 				{
 				{
 				setState(319);
@@ -1081,7 +1084,7 @@ public class KrxEtfParser extends Parser {
 				setState(333); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 			setState(335);
 			match(TAB);
 			setState(336);
@@ -1103,7 +1106,7 @@ public class KrxEtfParser extends Parser {
 				setState(342); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 			setState(344);
 			match(TAB);
 			setState(345);
@@ -1171,6 +1174,7 @@ public class KrxEtfParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class KrxBasicInfoEtfContext extends ParserRuleContext {
 		public WordContext code;
 		public WordContext symbol;
@@ -1379,7 +1383,7 @@ public class KrxEtfParser extends Parser {
 							setState(420); 
 							_errHandler.sync(this);
 							_la = _input.LA(1);
-						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 						setState(422);
 						match(NEWLINE);
 						setState(423);
@@ -1453,7 +1457,7 @@ public class KrxEtfParser extends Parser {
 						setState(448);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
-						while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) {
+						while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) {
 							{
 							{
 							setState(445);
@@ -1489,7 +1493,7 @@ public class KrxEtfParser extends Parser {
 							setState(460); 
 							_errHandler.sync(this);
 							_la = _input.LA(1);
-						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 						setState(462);
 						match(NEWLINE);
 						setState(463);
@@ -1517,7 +1521,7 @@ public class KrxEtfParser extends Parser {
 							setState(472); 
 							_errHandler.sync(this);
 							_la = _input.LA(1);
-						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 						setState(474);
 						match(NEWLINE);
 						setState(475);
@@ -1537,7 +1541,7 @@ public class KrxEtfParser extends Parser {
 							setState(480); 
 							_errHandler.sync(this);
 							_la = _input.LA(1);
-						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 						setState(482);
 						match(NEWLINE);
 						setState(483);
@@ -1557,7 +1561,7 @@ public class KrxEtfParser extends Parser {
 							setState(488); 
 							_errHandler.sync(this);
 							_la = _input.LA(1);
-						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 						setState(490);
 						match(NEWLINE);
 						setState(491);
@@ -1627,7 +1631,7 @@ public class KrxEtfParser extends Parser {
 							setState(521); 
 							_errHandler.sync(this);
 							_la = _input.LA(1);
-						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+						} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 						setState(523);
 						match(NEWLINE);
 						setState(524);
@@ -1740,6 +1744,7 @@ public class KrxEtfParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class EtfAllPriceContext extends ParserRuleContext {
 		public WordContext code;
 		public WordContext symbol;
@@ -1990,7 +1995,7 @@ public class KrxEtfParser extends Parser {
 							setState(633);
 							_errHandler.sync(this);
 							_la = _input.LA(1);
-							while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) {
+							while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) {
 								{
 								{
 								setState(630);
@@ -2168,7 +2173,7 @@ public class KrxEtfParser extends Parser {
 								setState(716); 
 								_errHandler.sync(this);
 								_la = _input.LA(1);
-							} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+							} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0) );
 							setState(718);
 							match(NEWLINE);
 							setState(719);
@@ -2427,6 +2432,7 @@ public class KrxEtfParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class CrawlPriceKrxContext extends ParserRuleContext {
 		public WordContext code;
 		public Token base;
@@ -2909,7 +2915,7 @@ public class KrxEtfParser extends Parser {
 											setState(983);
 											_errHandler.sync(this);
 											_la = _input.LA(1);
-											while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) {
+											while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) {
 												{
 												{
 												setState(980);
@@ -3019,6 +3025,7 @@ public class KrxEtfParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class WordContext extends ParserRuleContext {
 		public TerminalNode WORD() { return getToken(KrxEtfParser.WORD, 0); }
 		public TerminalNode KEYWORD() { return getToken(KrxEtfParser.KEYWORD, 0); }
@@ -3054,7 +3061,7 @@ public class KrxEtfParser extends Parser {
 			{
 			setState(1026);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 2016L) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -3075,6 +3082,7 @@ public class KrxEtfParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class LineContext extends ParserRuleContext {
 		public TerminalNode NEWLINE() { return getToken(KrxEtfParser.NEWLINE, 0); }
 		public List<WordContext> word() {
@@ -3145,7 +3153,7 @@ public class KrxEtfParser extends Parser {
 				setState(1032); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << TAB) | (1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2024L) != 0) );
 			setState(1034);
 			match(NEWLINE);
 			}
@@ -3161,6 +3169,7 @@ public class KrxEtfParser extends Parser {
 		return _localctx;
 	}
 
+	@SuppressWarnings("CheckReturnValue")
 	public static class EofContext extends ParserRuleContext {
 		public List<WordContext> word() {
 			return getRuleContexts(WordContext.class);
@@ -3240,7 +3249,7 @@ public class KrxEtfParser extends Parser {
 				setState(1041); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << TAB) | (1L << NEWLINE) | (1L << KEYWORD) | (1L << DATE) | (1L << TIME) | (1L << NUMBER) | (1L << STRING) | (1L << WORD))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 2040L) != 0) );
 			}
 		}
 		catch (RecognitionException re) {

@@ -185,7 +185,8 @@ public class CrawlerService {
 		options.addArguments("--disable-gpu");
 		options.addArguments("--disable-infobars");
 		options.addArguments("--disable-popup-blocking");
-		options.addArguments("--force-device-scale-factor=0.5");
+		options.addArguments("--force-device-scale-factor=1.0");
+//		options.addArguments("--force-device-scale-factor=0.5");
 		if (!ZookeeperClient.isTestEnvironment()) {
 			options.addArguments("--headless=new");	//	new:: timeout 관련
 		}
@@ -193,7 +194,7 @@ public class CrawlerService {
 		options.addArguments("--remote-allow-origins=*");
 		options.addArguments(String.format("--user-data-dir=%s", getUserDataDir()));
 		options.addArguments("--window-position=0,0");
-		options.addArguments("--window-size=1920,1080");
+		options.addArguments("--window-size=1920,2160");
 		options.setPageLoadStrategy(PageLoadStrategy.NONE);
 		ChromeDriverWrapper driver = new ChromeDriverWrapper(options);
 		return driver;
