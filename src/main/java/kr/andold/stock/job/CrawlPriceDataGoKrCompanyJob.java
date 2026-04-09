@@ -42,6 +42,7 @@ public class CrawlPriceDataGoKrCompanyJob implements Job {
 		long started = System.currentTimeMillis();
 
 		CrawlPriceDataGoKrCompanyJob that = (CrawlPriceDataGoKrCompanyJob) ApplicationContextProvider.getBean(CrawlPriceDataGoKrCompanyJob.class);
+		that.setMap(map);
 		STATUS result = that.main();
 
 		log.debug("{} 『#{}』 주식시세수집회사::CrawlPriceDataGoKrCompanyJob::call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));

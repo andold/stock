@@ -46,6 +46,7 @@ public class CrawlPriceSeibroEtfJob implements Job {
 		long started = System.currentTimeMillis();
 
 		CrawlPriceSeibroEtfJob that = (CrawlPriceSeibroEtfJob) ApplicationContextProvider.getBean(CrawlPriceSeibroEtfJob.class);
+		that.setMap(map);
 		STATUS result = that.main();
 
 		log.debug("{} 『#{}』 CrawlPriceSeibroEtfJob::call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
