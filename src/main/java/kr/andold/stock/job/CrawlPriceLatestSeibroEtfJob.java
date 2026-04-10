@@ -140,7 +140,7 @@ public class CrawlPriceLatestSeibroEtfJob implements Job {
 
 			// 테이블
 			By BY_TABLE = By.xpath("//table[@id='grid1_body_table']");
-			log.debug("{} 『{}』종목발행현황:pages() - 『{}』 『{}』", Utility.indentMiddle(), pageNumber, "테이블", Utility.ellipsisEscape(driver.getText(BY_TABLE, Duration.ZERO), 32, 32));
+			log.debug("{} 『{}』종목발행현황:pages() - 『{}』 『{}』", Utility.indentMiddle(), pageNumber, "테이블", Utility.ellipsisEscape(driver.getText(BY_TABLE, Duration.ZERO), 32, 16));
 			WebElement table = driver.findElement(BY_TABLE, DEFAULT_TIMEOUT_DURATION);
 			// width inherit
 			((JavascriptExecutor) driver).executeScript("arguments[0].style.removeProperty('width')", table);
@@ -173,9 +173,9 @@ public class CrawlPriceLatestSeibroEtfJob implements Job {
 
 		//	//*[@id="grid1_body_tbody"]
 		By BY_TABLE_TR = By.xpath("//*[@id='grid1_body_tbody']/tr");
-		log.debug("{} extractParseByTd(...) - 『{}』 『{}』", Utility.indentMiddle(), "TR", driver.getTextEscape(BY_TABLE_TR, Duration.ZERO, 32, 32));
+		log.debug("{} extractParseByTd(...) - 『{}』 『{}』", Utility.indentMiddle(), "TR", driver.getTextEscape(BY_TABLE_TR, Duration.ZERO, 32, 16));
 		List<WebElement> trs = driver.findElements(BY_TABLE_TR);
-		log.debug("{} extractParseByTd(...) - 『{}』 『{}』『{}』", Utility.indentMiddle(), "TR", driver.getTextEscape(BY_TABLE_TR, Duration.ZERO, 32, 32), Utility.toStringPastTimeReadable(started));
+		log.debug("{} extractParseByTd(...) - 『{}』 『{}』『{}』", Utility.indentMiddle(), "TR", driver.getTextEscape(BY_TABLE_TR, Duration.ZERO, 32, 16), Utility.toStringPastTimeReadable(started));
 
 		Date base = Utility.parseDateTime(date);
 		List<PriceDomain> prices = new ArrayList<>();
