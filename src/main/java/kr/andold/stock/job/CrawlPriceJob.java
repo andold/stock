@@ -106,23 +106,41 @@ public class CrawlPriceJob implements Job {
 		long started = System.currentTimeMillis();
 
 		try {
+			double threshold = 8.0 / map.size();
 			for (String code : map.keySet()) {
 				ZonedDateTime zdt = map.get(code);
 				ItemDomain item = itemService.read(code);
 				if (item == null) {
-					log.debug("{} 『NULL』 CrawlPriceJob::main() - 『{}』『{}』『{}』", Utility.indentMiddle(), code, zdt, item);
+					log.debug("{} 『NULL::ITEM』 CrawlPriceJob::main() - 『{}』『{}』『{}』", Utility.indentMiddle(), code, zdt, item);
 					continue;
 				}
 
 				String type = item.getType();
-				if (type == null || !type.equalsIgnoreCase("ETF")) {
-					CrawlPriceDataGoKrCompanyJob.regist(JobService.getQueue3(), code, zdt);
-					log.debug("{} 『회사』 CrawlPriceJob::main() - 『{}』『{}』『{}』『{}』", Utility.indentMiddle(), code, zdt, item, type);
+				if (type == null) {
+					log.debug("{} 『NULL::TYPE』 CrawlPriceJob::main() - 『{}』『{}』『{}』", Utility.indentMiddle(), code, zdt, item);
 					continue;
 				}
-				
-				CrawlPriceSeibroEtfJob.regist(JobService.getQueue3(), code, zdt);
-				log.debug("{} 『ETF』 CrawlPriceJob::main() - 『{}』『{}』『{}』『{}』", Utility.indentMiddle(), code, zdt, item, type);
+
+				switch (type) {
+				case "KOSPI", "KOSDAQ":
+				case "KONEX", "코넥스":
+					CrawlPriceDataGoKrCompanyJob.regist(JobService.getQueue3(), code, zdt);
+					if (Math.random() < threshold) {
+						log.debug("{} 『{}』 CrawlPriceJob::main() - 『{}』『{}』『{}』『{}』", Utility.indentMiddle(), type, code, zdt, item, type);
+					}
+					break;
+
+				case "ETF":
+					CrawlPriceSeibroEtfJob.regist(JobService.getQueue3(), code, zdt);
+					if (Math.random() < threshold) {
+						log.debug("{} 『ETF』 CrawlPriceJob::main() - 『{}』『{}』『{}』『{}』", Utility.indentMiddle(), code, zdt, item, type);
+					}
+					break;
+
+				case "K-OTC", "기타비상장":
+				default:
+					break;
+				}
 			}
 
 			log.debug("{} 『{}』 CrawlPriceJob::main() - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.toStringPastTimeReadable(started));
