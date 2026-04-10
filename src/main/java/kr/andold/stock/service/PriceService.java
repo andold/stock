@@ -9,8 +9,10 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -86,10 +88,10 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 			return new CrudList<PriceDomain>();
 		}
 
-		List<String> codes = new ArrayList<>();
+		Set<String> set = new HashSet<>();
 		Date start = Date.from(LocalDate.now().minusDays(1).atStartOfDay(Utility.ZONE_ID_KST).toInstant());
 		for (PriceDomain after : afters) {
-			codes.add(after.getCode());
+			set.add(after.getCode());
 			Date date = after.getBase();
 			if (start.after(date)) {
 				start = date;
@@ -98,7 +100,10 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(start);
 		calendar.add(Calendar.DATE, -1);
-		PriceParam param = PriceParam.builder().codes(codes).start(calendar.getTime()).build();
+		PriceParam param = PriceParam.builder().start(calendar.getTime()).build();
+		if (set.size() > 0 && set.size() < 128) {
+			param.setCodes(new ArrayList<String>(set));
+		}
 		List<PriceDomain> befores = search(param);
 		CrudList<PriceDomain> crud = differ(befores, afters);
 		crud.getRemoves().clear();
