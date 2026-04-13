@@ -7,6 +7,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
@@ -1741,6 +1745,41 @@ public class Seibro implements Crawler {
 	}
 
 	private String extractDailyPriceByTable(ChromeDriverWrapper driver, String code) {
+		log.debug("{} 일별시세::extract(..., 『{}』)", Utility.indentStart(), code);
+		long started = System.currentTimeMillis();
+
+		try {
+			//	테이블
+			By BY_TABLE_CONTENT = By.xpath("//table[@id='grid1_body_table']");
+			WebElement table = driver.findElement(BY_TABLE_CONTENT, DEFAULT_DURATION);
+			String html = table.getAttribute("outerHTML");
+			Document doc = Jsoup.parse(html);
+			Elements rows = doc.select("tr");
+			StringBuffer sb = new StringBuffer();
+			for (Element row : rows) {
+				sb.append(code);
+				sb.append("\t");
+			    // 3. 각 행 내부의 열(td 또는 th)들 가져오기
+			    Elements cols = row.select("td, th");
+			    for (Element col : cols) {
+			        // 4. 셀 내용 출력
+					sb.append(col.text());
+					sb.append("\t");
+			    }
+				sb.append("\n");
+			}
+			String string = new String(sb);
+
+			log.debug("{} 『{}』일별시세::extract(..., 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(string, 16, 16), code, Utility.toStringPastTimeReadable(started));
+			return string;
+		} catch (Exception e) {
+		}
+
+		log.debug("{} 『Exception』일별시세::extract(..., 『{}』) - {}", Utility.indentEnd(), code, Utility.toStringPastTimeReadable(started));
+		return "";
+	}
+	@SuppressWarnings("unused")
+	private String extractDailyPriceByTableWithSeleniumParsing(ChromeDriverWrapper driver, String code) {
 		log.debug("{} 일별시세::extract(..., 『{}』)", Utility.indentStart(), code);
 		long started = System.currentTimeMillis();
 
