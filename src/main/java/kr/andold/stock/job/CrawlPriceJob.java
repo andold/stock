@@ -117,7 +117,7 @@ public class CrawlPriceJob implements Job {
 
 				Date ipoClose = item.getIpoClose();
 				if (ipoClose != null) {
-					log.debug("{} 『상장폐지::IpoClose』 CrawlPriceJob::main() - 『{}』『{}』『{}』", Utility.indentMiddle(), code, zdt, item);
+					log.debug("{} 『상장폐지::{}』 CrawlPriceJob::main() - 『{}』『{}』『{}』", Utility.indentMiddle(), ipoClose, code, zdt, item);
 					continue;
 				}
 
