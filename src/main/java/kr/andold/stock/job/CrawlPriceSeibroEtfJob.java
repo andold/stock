@@ -116,7 +116,7 @@ public class CrawlPriceSeibroEtfJob implements Job {
 
 		try {
 			int size = map.size();
-			double threshold = 8.0 / size;
+			double threshold = 32.0 / size;
 			for (String code : map.keySet()) {
 				if (Math.random() > threshold) {
 					continue;
