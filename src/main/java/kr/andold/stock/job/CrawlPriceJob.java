@@ -47,8 +47,8 @@ public class CrawlPriceJob implements Job {
 		return result;
 	}
 
-	public static void regist(ConcurrentLinkedDeque<Job> deque, String code, Date date) {
-		ZonedDateTime zdt = (date == null) ? ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, Utility.ZONE_ID_KST) : date.toInstant().atZone(Utility.ZONE_ID_KST);
+	public static void regist(ConcurrentLinkedDeque<Job> deque, String code, Date date, int daysago) {
+		ZonedDateTime zdt = (date == null) ? ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, Utility.ZONE_ID_KST) : date.toInstant().atZone(Utility.ZONE_ID_KST).minusDays(daysago);
 		if (containsOrModify(JobService.getQueue0(), code, zdt)) {
 			return;
 		}
