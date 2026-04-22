@@ -70,7 +70,7 @@ public class ItemCompilePriceEarningsRatioJob implements Job {
 			return;
 		}
 
-		CrawlPriceJob job = CrawlPriceJob.builder().build();
+		ItemCompilePriceEarningsRatioJob job = ItemCompilePriceEarningsRatioJob.builder().build();
 		deque.addLast(job);
 	}
 
