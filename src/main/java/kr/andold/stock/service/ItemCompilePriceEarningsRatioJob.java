@@ -127,7 +127,7 @@ public class ItemCompilePriceEarningsRatioJob implements Job {
 			PriceDomain price = candidate(mapThenPrice, dividend.getCode(), dividend.getBase());
 			if (price == null) {
 				log.debug("{} NO-PRICE compileByThenPrice() - 『{}』", Utility.indentMiddle(), dividend);
-				CrawlPriceJob.regist(JobService.getQueue3(), dividend.getCode(), dividend.getBase());
+				CrawlPriceJob.regist(JobService.getQueue3(), dividend.getCode(), dividend.getBase(), 28);
 				continue;
 			}
 
