@@ -137,7 +137,8 @@ public class CrawlPriceJob implements Job {
 					break;
 
 				case "ETF":
-					CrawlPriceSeibroEtfJob.regist(JobService.getQueue3(), code, zdt);
+//					CrawlPriceSeibroEtfJob.regist(JobService.getQueue3(), code, zdt);
+					CrawlPriceDataGoKrEtfJob.regist(JobService.getQueue3(), code, zdt);
 					if (Math.random() < threshold) {
 						log.debug("{} 『ETF』 CrawlPriceJob::main() - 『{}』『{}』『{}』『{}』", Utility.indentMiddle(), code, zdt, item, type);
 					}

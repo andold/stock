@@ -49,14 +49,27 @@ public class JobService {
 
 	@Autowired private ZookeeperClient zookeeperClient;
 
+	@Data
+	@Builder
+	public static class JobHistory {
+		private String className;
+		private Object data;
+
+		private ZonedDateTime zdt;
+	}
 	public static interface Job extends Callable<STATUS> {
 		default Long getTimeout() {
 			return 1L;
 		}
+		default List<JobHistory> getHistories() {
+			return null;
+		}
+
 		default STATUS call() throws Exception {
 			return STATUS.NOT_SUPPORT;
 		}
 	}
+
 	@Data
 	@Builder
 	public static class ItemPriceJob implements Job {
