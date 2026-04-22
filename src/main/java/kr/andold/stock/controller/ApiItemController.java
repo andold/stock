@@ -78,7 +78,7 @@ public class ApiItemController {
 	public void compile() {
 		log.info("{} compile()", Utility.indentStart());
 
-		JobService.getQueue1().offer(new ItemCompilePriceEarningsRatioJob());
+		ItemCompilePriceEarningsRatioJob.regist(JobService.getQueue1());
 
 		log.info("{} compile()", Utility.indentEnd());
 	}

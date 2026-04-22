@@ -461,13 +461,11 @@ public class PriceService implements CommonBlockService<PriceParam, PriceDomain,
 		return map;
 	}
 
-
+	@Deprecated
 	@Modifying
 	@Transactional
 	public int purge() {
-		ZonedDateTime date = ZonedDateTime.now().minusMonths(1);
-		int result = repository.purge(Date.from(date.toInstant()));
-		return result;
+		return 0;
 	}
 
 	@Override

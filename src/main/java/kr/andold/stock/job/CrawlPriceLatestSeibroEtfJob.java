@@ -125,7 +125,7 @@ public class CrawlPriceLatestSeibroEtfJob implements Job {
 
 		LocalDate start = Utility.parseDateTime(date).toInstant().atZone(Utility.ZONE_ID_KST).toLocalDate();
 		JobService.getQueue2().addLast(StockCompileJob.builder().start(start).build());
-		JobService.getQueue2().addLast(ItemCompilePriceEarningsRatioJob.builder().build());
+		ItemCompilePriceEarningsRatioJob.regist(JobService.getQueue2());
 
 		log.debug("{} propergate(『{}』)", Utility.indentEnd(), date);
 	}

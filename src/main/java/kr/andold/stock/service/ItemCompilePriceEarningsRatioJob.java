@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedDeque;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,18 +35,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ItemCompilePriceEarningsRatioJob implements Job {
-	@Autowired
-	private ItemService itemService;
-	@Autowired
-	private DividendHistoryService dividendHistoryService;
-	@Autowired
-	private PriceService priceService;
+	@Builder.Default @Getter private Long timeout = 240L;	//	TimeUnit.SECONDS
+	
+	@Autowired private ItemService itemService;
+	@Autowired private DividendHistoryService dividendHistoryService;
+	@Autowired private PriceService priceService;
 
 	private List<DividendHistoryDomain> dividends;
 	private List<PriceDomain> prices;
 
-	@Builder.Default @Getter private Long timeout = 240L;	//	TimeUnit.SECONDS
-	
 	@Override
 	public STATUS call() throws Exception {
 		log.info("{} call()", Utility.indentStart());
@@ -57,13 +56,47 @@ public class ItemCompilePriceEarningsRatioJob implements Job {
 		return STATUS.SUCCESS;
 	}
 
+	public static void regist(ConcurrentLinkedDeque<Job> deque) {
+		if (containsOrModify(JobService.getQueue0())) {
+			return;
+		}
+		if (containsOrModify(JobService.getQueue1())) {
+			return;
+		}
+		if (containsOrModify(JobService.getQueue2())) {
+			return;
+		}
+		if (containsOrModify(JobService.getQueue3())) {
+			return;
+		}
+
+		CrawlPriceJob job = CrawlPriceJob.builder().build();
+		deque.addLast(job);
+	}
+
+	private static boolean containsOrModify(ConcurrentLinkedDeque<Job> deque) {
+		for (Job job : deque) {
+			if (containsOrModify(job)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static boolean containsOrModify(Job job) {
+		if (!(job instanceof ItemCompilePriceEarningsRatioJob)) {
+			return false;
+		}
+
+		return true;
+	}
+
 	private STATUS main() throws Exception {
 		log.info("{} main()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		ItemCompilePriceEarningsRatioJob that = (ItemCompilePriceEarningsRatioJob) ApplicationContextProvider.getBean(ItemCompilePriceEarningsRatioJob.class);
-		Map<String, Float> map = that.compileByCurrentPrice();
-		that.compileByThenPrice(map);
+		Map<String, Float> map = compileByCurrentPrice();
+		compileByThenPrice(map);
 		List<ItemDomain> items = new ArrayList<>();
 		for (String code : map.keySet()) {
 			ItemDomain item = ItemDomain.builder().code(code).priceEarningsRatio(map.get(code)).build();

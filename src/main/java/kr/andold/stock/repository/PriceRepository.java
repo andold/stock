@@ -12,6 +12,7 @@ import kr.andold.stock.entity.PriceEntity;
 
 @Repository
 public interface PriceRepository extends JpaRepository<PriceEntity, Integer>, JpaSpecificationExecutor<PriceEntity> {
+	@Deprecated
 	@Modifying
 	@Query("	DELETE"
 			+ "		FROM PriceEntity	x"

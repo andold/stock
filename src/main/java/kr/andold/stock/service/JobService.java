@@ -191,8 +191,7 @@ public class JobService {
 			return STATUS.INVALID;
 		}
 		
-		if (job instanceof ItemCompilePriceEarningsRatioJob
-				|| job instanceof CrawlPriceLatestSeibroCompanyExcelJob
+		if (job instanceof CrawlPriceLatestSeibroCompanyExcelJob
 				|| job instanceof CrawlPriceLatestSeibroEtfJob
 				|| job instanceof ItemDetailJob) {
 			ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -411,11 +410,10 @@ public class JobService {
 		long started = System.currentTimeMillis();
 
 		List<ItemDomain> compileResult = stockService.compile(job.getStart());
-		int purged = priceService.purge();
 
-		log.info("{} 『{}/{}/{}/{}』『#{} #{}』 stockCompile({}) - {}", Utility.indentEnd()
+		log.info("{} 『{}/{}/{}/{}』『#{}』 stockCompile({}) - {}", Utility.indentEnd()
 				, Utility.size(queue0), Utility.size(queue1), Utility.size(queue2), Utility.size(queue3)
-				, Utility.size(compileResult), purged
+				, Utility.size(compileResult)
 				, job, Utility.toStringPastTimeReadable(started));
 		return STATUS.SUCCESS;
 	}

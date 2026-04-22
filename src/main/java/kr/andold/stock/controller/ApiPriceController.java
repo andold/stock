@@ -90,14 +90,15 @@ public class ApiPriceController {
 		return result;
 	}
 
+	@Deprecated
 	@ResponseBody
 	@GetMapping(value = "purge")
 	public int purge() {
-		log.info("{} purge()", Utility.indentStart());
+		log.warn("{} @Deprecated::purge()", Utility.indentStart());
 
-		int result = service.purge();
+		int result = -1;
 
-		log.info("{} #{} purge()", Utility.indentEnd(), result);
+		log.warn("{} #{} @Deprecated::purge()", Utility.indentEnd(), result);
 		return result;
 	}
 
