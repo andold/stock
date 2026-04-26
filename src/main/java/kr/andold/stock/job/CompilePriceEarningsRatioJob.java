@@ -1,7 +1,9 @@
-package kr.andold.stock.service;
+package kr.andold.stock.job;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,25 +19,26 @@ import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.domain.Result.STATUS;
-import kr.andold.stock.job.CrawlPriceJob;
 import kr.andold.stock.param.DividendHistoryParam;
 import kr.andold.stock.param.PriceParam;
+import kr.andold.stock.service.DividendHistoryService;
+import kr.andold.stock.service.ItemService;
+import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.Job;
+import kr.andold.stock.service.JobService.JobHistory;
+import kr.andold.stock.service.PriceService;
 import kr.andold.utils.Utility;
 import kr.andold.utils.persist.CrudList;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+//	배당수익율 계산
 @Slf4j
 @Service
-public class ItemCompilePriceEarningsRatioJob implements Job {
-	@Builder.Default @Getter private Long timeout = 240L;	//	TimeUnit.SECONDS
+public class CompilePriceEarningsRatioJob implements Job {
+	@Getter private Long timeout = 240L;	//	TimeUnit.SECONDS
+	@Getter private ZonedDateTime start = ZonedDateTime.now();
+	@Getter private List<JobHistory> histories = new ArrayList<>();
 	
 	@Autowired private ItemService itemService;
 	@Autowired private DividendHistoryService dividendHistoryService;
@@ -49,43 +52,55 @@ public class ItemCompilePriceEarningsRatioJob implements Job {
 		log.info("{} call()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		ItemCompilePriceEarningsRatioJob that = (ItemCompilePriceEarningsRatioJob) ApplicationContextProvider.getBean(ItemCompilePriceEarningsRatioJob.class);
-		STATUS result = that.main();
+		STATUS result = main();
 		
 		log.info("{} 『#{}』 call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return STATUS.SUCCESS;
 	}
 
-	public static void regist(ConcurrentLinkedDeque<Job> deque) {
-		if (containsOrModify(JobService.getQueue0())) {
+	public static void regist(ConcurrentLinkedDeque<Job> deque, ZonedDateTime zdt) {
+		if (zdt == null) {
+			zdt = ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, Utility.ZONE_ID_KST);
+		}
+		if (containsOrModify(JobService.getQueue0(), zdt)) {
 			return;
 		}
-		if (containsOrModify(JobService.getQueue1())) {
+		if (containsOrModify(JobService.getQueue1(), zdt)) {
 			return;
 		}
-		if (containsOrModify(JobService.getQueue2())) {
+		if (containsOrModify(JobService.getQueue2(), zdt)) {
 			return;
 		}
-		if (containsOrModify(JobService.getQueue3())) {
+		if (containsOrModify(JobService.getQueue3(), zdt)) {
 			return;
 		}
 
-		ItemCompilePriceEarningsRatioJob job = ItemCompilePriceEarningsRatioJob.builder().build();
+		CompilePriceEarningsRatioJob job = (CompilePriceEarningsRatioJob) ApplicationContextProvider.getBean(CompilePriceEarningsRatioJob.class);
 		deque.addLast(job);
 	}
 
-	private static boolean containsOrModify(ConcurrentLinkedDeque<Job> deque) {
+	private static boolean containsOrModify(ConcurrentLinkedDeque<Job> deque, ZonedDateTime zdt) {
 		for (Job job : deque) {
-			if (containsOrModify(job)) {
+			if (containsOrModify(job, zdt)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private static boolean containsOrModify(Job job) {
-		if (!(job instanceof ItemCompilePriceEarningsRatioJob)) {
+	private static boolean containsOrModify(Job job, ZonedDateTime zdt) {
+		if (!(job instanceof CompilePriceEarningsRatioJob)) {
 			return false;
+		}
+
+		CompilePriceEarningsRatioJob previous = (CompilePriceEarningsRatioJob) job;
+		return previous.containsOrModify(zdt);
+	}
+
+	private boolean containsOrModify(ZonedDateTime zdt) {
+		if (zdt.isBefore(start)) {
+			start = zdt;
+			return true;
 		}
 
 		return true;
@@ -112,6 +127,7 @@ public class ItemCompilePriceEarningsRatioJob implements Job {
 		log.info("{} compileByThenPrice()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
+		ZonedDateTime yesterday = ZonedDateTime.now().minusDays(1).truncatedTo(ChronoUnit.DAYS);
 		Map<String, PriceDomain> mapThenPrice = new HashMap<>();	//	당시 주식 가격
 		for (PriceDomain price : prices) {
 			String key = String.format("%s.%tF", price.getCode(), price.getBase());
@@ -120,10 +136,18 @@ public class ItemCompilePriceEarningsRatioJob implements Job {
 
 		Map<String, Float> mapYearlySummaryRatio = new HashMap<>();	//	연간 배당금 합계
 		for (DividendHistoryDomain dividend : dividends) {
-			if (dividend.getDividend() < 0) {
+			Date base = dividend.getBase();
+			if (dividend.getDividend() < 0 || dividend.getCode() == null || dividend.getCode().isBlank() || base == null) {
+				log.debug("{} 『부적합』compileByThenPrice() - 『{}』", Utility.indentMiddle(), dividend);
 				continue;
 			}
 
+			ZonedDateTime zdt = base.toInstant().atZone(Utility.ZONE_ID_KST);
+			if (zdt.isAfter(yesterday)) {
+				log.debug("{} 『부적합::미래배당』compileByThenPrice() - 『{}』", Utility.indentMiddle(), dividend);
+				continue;
+			}
+			
 			PriceDomain price = candidate(mapThenPrice, dividend.getCode(), dividend.getBase());
 			if (price == null) {
 				log.debug("{} NO-PRICE compileByThenPrice() - 『{}』", Utility.indentMiddle(), dividend);
@@ -179,12 +203,12 @@ public class ItemCompilePriceEarningsRatioJob implements Job {
 		log.info("{} compileByCurrentPrice()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		Date yearsAgo = Date.from(LocalDate.of(LocalDate.now().getYear() - 3, 1, 1).atStartOfDay(Utility.ZONE_ID_KST).toInstant());
+		Date ago = Date.from(start.toInstant());
 
-		DividendHistoryParam dividendHistoryParam = DividendHistoryParam.builder().start(yearsAgo).build();
+		DividendHistoryParam dividendHistoryParam = DividendHistoryParam.builder().start(ago).build();
 		dividends = dividendHistoryService.search(dividendHistoryParam);
 
-		PriceParam priceParam = PriceParam.builder().start(yearsAgo).build();
+		PriceParam priceParam = PriceParam.builder().start(ago).build();
 		prices = priceService.search(priceParam);
 		
 		Map<String, PriceDomain> mapCurrentPrice = new HashMap<>();	//	현재 주식 가격

@@ -19,7 +19,6 @@ import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.crawler.Seibro;
 import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.domain.Result.STATUS;
-import kr.andold.stock.service.ItemCompilePriceEarningsRatioJob;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.PriceService;
 import kr.andold.stock.service.JobService.Job;
@@ -135,7 +134,7 @@ public class CrawlPriceLatestSeibroCompanyExcelJob implements Job {
 
 		LocalDate start = Utility.parseDateTime(date).toInstant().atZone(Utility.ZONE_ID_KST).toLocalDate();
 		JobService.getQueue2().addLast(StockCompileJob.builder().start(start).build());
-		ItemCompilePriceEarningsRatioJob.regist(JobService.getQueue2());
+		CompilePriceEarningsRatioJob.regist(JobService.getQueue2(), start.atStartOfDay(Utility.ZONE_ID_KST));
 
 		log.debug("{} propergate(『{}』)", Utility.indentEnd(), date);
 	}

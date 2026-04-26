@@ -22,8 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.job.CrawlItemLatestDataGoKrCompanyJob;
+import kr.andold.stock.job.CompilePriceEarningsRatioJob;
 import kr.andold.stock.param.ItemParam;
-import kr.andold.stock.service.ItemCompilePriceEarningsRatioJob;
 import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.JobService;
 import kr.andold.utils.Utility;
@@ -78,7 +78,7 @@ public class ApiItemController {
 	public void compile() {
 		log.info("{} compile()", Utility.indentStart());
 
-		ItemCompilePriceEarningsRatioJob.regist(JobService.getQueue1());
+		CompilePriceEarningsRatioJob.regist(JobService.getQueue1(), ZonedDateTime.now().minusYears(3));
 
 		log.info("{} compile()", Utility.indentEnd());
 	}

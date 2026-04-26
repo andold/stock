@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.job.*;
-import kr.andold.stock.service.ItemCompilePriceEarningsRatioJob;
 import kr.andold.stock.service.ItemDetailJob;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.BackupJob;
@@ -80,7 +79,7 @@ public class ScheduledTasks {
 			JobService.getQueue3().offer(BackupJob.builder().build());
 			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
 			UpdateItemPriorityJob.regist(JobService.getQueue3());
-			ItemCompilePriceEarningsRatioJob.regist(JobService.getQueue3());
+			CompilePriceEarningsRatioJob.regist(JobService.getQueue3(), ZonedDateTime.now().minusWeeks(1));
 		}
 
 		log.info("{} daily() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
@@ -103,7 +102,7 @@ public class ScheduledTasks {
 			JobService.getQueue3().offer(StockCompileJob.builder().start(LocalDate.now().minusWeeks(2)).build());
 			CrawlItemLatestDataGoKrCompanyJob.regist(JobService.getQueue2(), oneWeekAgo);
 			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
-			ItemCompilePriceEarningsRatioJob.regist(JobService.getQueue3());
+			CompilePriceEarningsRatioJob.regist(JobService.getQueue3(), ZonedDateTime.now().minusMonths(1));
 		}
 
 		log.info("{} weekly() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));

@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +63,29 @@ public class JobService {
 			return 1L;
 		}
 		default List<JobHistory> getHistories() {
-			return null;
+			return new ArrayList<JobHistory>();
+		}
+		default boolean tag(Object data) {
+			List<JobHistory> histories = getHistories();
+			boolean isCircular = false;
+			String thisClassName = this.getClass().getName();
+
+			for (JobHistory history : histories) {
+				String className = history.getClassName();
+				if (className.contentEquals(thisClassName)) {
+					isCircular = true;
+					break;
+				}
+			}
+
+			JobHistory history = JobHistory.builder()
+					.className(thisClassName)
+					.data(data)
+					.zdt(ZonedDateTime.now())
+					.build();
+			histories.add(history);
+
+			return isCircular;
 		}
 
 		default STATUS call() throws Exception {

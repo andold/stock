@@ -18,7 +18,6 @@ import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.crawler.Seibro;
 import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.domain.Result.STATUS;
-import kr.andold.stock.service.ItemCompilePriceEarningsRatioJob;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.PriceService;
 import kr.andold.stock.service.JobService.Job;
@@ -120,14 +119,14 @@ public class CrawlPriceLatestSeibroEtfJob implements Job {
 		return STATUS.EXCEPTION;
 	}
 
-	private void propergate(String date) {
-		log.debug("{} propergate(『{}』)", Utility.indentStart(), date);
+	private void propergate(String dateString) {
+		log.debug("{} propergate(『{}』)", Utility.indentStart(), dateString);
 
-		LocalDate start = Utility.parseDateTime(date).toInstant().atZone(Utility.ZONE_ID_KST).toLocalDate();
+		LocalDate start = Utility.parseDateTime(dateString).toInstant().atZone(Utility.ZONE_ID_KST).toLocalDate();
 		JobService.getQueue2().addLast(StockCompileJob.builder().start(start).build());
-		ItemCompilePriceEarningsRatioJob.regist(JobService.getQueue2());
+		CompilePriceEarningsRatioJob.regist(JobService.getQueue2(), start.atStartOfDay(Utility.ZONE_ID_KST));
 
-		log.debug("{} propergate(『{}』)", Utility.indentEnd(), date);
+		log.debug("{} propergate(『{}』)", Utility.indentEnd(), dateString);
 	}
 
 	private CrudList<PriceDomain> pages(String base, ChromeDriverWrapper driver) throws Exception {

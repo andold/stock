@@ -87,6 +87,13 @@ public class NoSpringTest {
 		log.info(Utility.HR);
 	}
 
+	@Test
+	public void  classNameTest() {
+		String str = "Hello";
+		log.info("{}", str.getClass().getName());
+		log.info("{}", this.getClass().getName());
+	}
+
 	// 종목기본정보조회
 	@Test
 	public void itemBasicInfoTest() {
