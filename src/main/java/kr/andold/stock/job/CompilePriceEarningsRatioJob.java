@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class CompilePriceEarningsRatioJob implements Job {
 	@Getter private Long timeout = 240L;	//	TimeUnit.SECONDS
-	@Getter private ZonedDateTime start = ZonedDateTime.now();
+	@Getter private ZonedDateTime start = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS);
 	@Getter private List<JobHistory> histories = new ArrayList<>();
 	
 	@Autowired private ItemService itemService;
@@ -76,6 +76,7 @@ public class CompilePriceEarningsRatioJob implements Job {
 		}
 
 		CompilePriceEarningsRatioJob job = (CompilePriceEarningsRatioJob) ApplicationContextProvider.getBean(CompilePriceEarningsRatioJob.class);
+		job.containsOrModify(zdt);
 		deque.addLast(job);
 	}
 
