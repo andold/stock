@@ -103,10 +103,10 @@ public class CrawlItemDetailJob implements Job {
 				if (Math.random() < threshold) {
 					log.debug("{} 『{}/{}』CrawlItemDetailJob::main() - 『{}』", Utility.indentMiddle(), threshold, map.size(), code);
 				}
-
-				log.info("{} 『{}』 CrawlItemDetailJob::main() - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.toStringPastTimeReadable(started));
-				return STATUS.SUCCESS;
 			}
+
+			log.info("{} 『{}』 CrawlItemDetailJob::main() - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.toStringPastTimeReadable(started));
+			return STATUS.SUCCESS;
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 		}
