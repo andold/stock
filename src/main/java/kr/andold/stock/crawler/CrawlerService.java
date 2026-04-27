@@ -51,7 +51,6 @@ public class CrawlerService {
 	@SuppressWarnings("unused") @Autowired private Naver naver;
 
 	@Autowired private ItemService itemService;
-
 	@Autowired private DividendHistoryService dividendHistoryService;
 
 	@Autowired

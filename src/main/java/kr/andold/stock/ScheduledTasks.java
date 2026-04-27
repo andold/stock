@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.job.*;
-import kr.andold.stock.service.ItemDetailJob;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.BackupJob;
 import kr.andold.stock.service.JobService.DeduplicatePriceJob;
@@ -115,7 +114,7 @@ public class ScheduledTasks {
 
 		if (zookeeperClient.isMaster()) {
 			JobService.getQueue3().offer(StockCompileJob.builder().start(LocalDate.now().minusMonths(2)).build());
-			JobService.getQueue2().offer(ItemDetailJob.builder().code(null).build());
+			CrawlItemDetailJob.regist(JobService.getQueue2(), null);
 			CrawlItemIpoCloseKindJob.regist(JobService.getQueue2(), ZonedDateTime.now().minusYears(12));
 		}
 

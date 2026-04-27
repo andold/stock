@@ -31,24 +31,24 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class Seibro implements Crawler {
 	private static final Date START_DATE = Date.from(LocalDate.of(2008, 1, 3).atStartOfDay(Utility.ZONE_ID_KST).toInstant());	// 2008-01-03
-	private static final Duration DEFAULT_DURATION = Duration.ofSeconds(4);
-	private static final Duration DEFAULT_DURATION_LONG = Duration.ofSeconds(4 * 4);
+	public static final Duration DEFAULT_DURATION = Duration.ofSeconds(4);
+	public static final Duration DEFAULT_DURATION_LONG = Duration.ofSeconds(4 * 4);
 
 	public static final String URL_COMPANY = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285";
 	//	SEIBro > ETF > 권리행사정보 > 분배금지급현황
 	private static final String URL_ETF = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179";
 	private static final String MARK_START_END_POINT_COMPANY = String.format("KEYWORD\t%s\t%s\tURL\t%s\n", "CrawlDividendHistoryCompanyThread", "주식(기업) 배당금 내역", URL_COMPANY);
 	private static final String MARK_START_END_POINT_ETF = String.format("KEYWORD\t%s\t%s\tURL\t%s\n", "ETF 배당금 내역", "KSD 증권정보포털 SEIBro", URL_ETF);
-	private static final int TIMEOUT = 4000;
+	public static final int TIMEOUT = 4000;
 	public static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
 
 	// SEIBro > 주식 > 종목별상세정보 > 종목종합내역
-	private static final String URL_COMPANY_EACH_SUMMARY_INFO = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02006V.xml&menuNo=44";
-	private static final String MARK_START_END_POINT_COMPANY_EACH_SUMMARY_INFO = String.format("KEYWORD\t%s\t%s\t%s\n", "SEIBro", "주식 > 종목별상세정보 > 종목종합내역", URL_COMPANY_EACH_SUMMARY_INFO);
+	public static final String URL_COMPANY_EACH_SUMMARY_INFO = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02006V.xml&menuNo=44";
+	public static final String MARK_START_END_POINT_COMPANY_EACH_SUMMARY_INFO = String.format("KEYWORD\t%s\t%s\t%s\n", "SEIBro", "주식 > 종목별상세정보 > 종목종합내역", URL_COMPANY_EACH_SUMMARY_INFO);
 
 	// SEIBro > ETF > ETF종합정보 > 종목상세
-	private static final String URL_ETF_EACH_SUMMARY_INFO = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS906032V.xml&menuNo=514";
-	private static final String MARK_START_END_POINT_ETF_EACH_SUMMARY_INFO = String.format("KEYWORD\t%s\t%s\t%s\n", "SEIBro", "ETF > ETF종합정보 > 종목상세", URL_ETF_EACH_SUMMARY_INFO);
+	public static final String URL_ETF_EACH_SUMMARY_INFO = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS906032V.xml&menuNo=514";
+	public static final String MARK_START_END_POINT_ETF_EACH_SUMMARY_INFO = String.format("KEYWORD\t%s\t%s\t%s\n", "SEIBro", "ETF > ETF종합정보 > 종목상세", URL_ETF_EACH_SUMMARY_INFO);
 
 	// SEIBro > 주식 > 종목별상세정보 > 일자별시세
 	private static final String URL_PRICE_COMPANY_EACH = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02007V.xml&menuNo=45";
@@ -1081,7 +1081,7 @@ public class Seibro implements Crawler {
 	}
 
 	// 넓게보기 아이콘 클릭	//*[@id="wide"]/div/div
-	public void clickShowWideIcon(ChromeDriverWrapper driver) {
+	public static void clickShowWideIcon(ChromeDriverWrapper driver) {
 		By BY_XPATH_VIEW_WIDE= By.xpath("//*[@id='wide']/div/div");
 		driver.presenceOfElementLocated(BY_XPATH_VIEW_WIDE, Duration.ofMinutes(1));
 		driver.clickIfExist(BY_XPATH_VIEW_WIDE);

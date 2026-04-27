@@ -215,8 +215,7 @@ public class JobService {
 		}
 		
 		if (job instanceof CrawlPriceLatestSeibroCompanyExcelJob
-				|| job instanceof CrawlPriceLatestSeibroEtfJob
-				|| job instanceof ItemDetailJob) {
+				|| job instanceof CrawlPriceLatestSeibroEtfJob) {
 			ExecutorService executor = Executors.newSingleThreadExecutor();
 	        Future<STATUS> future = executor.submit(job);
 			STATUS result = STATUS.EXCEPTION;

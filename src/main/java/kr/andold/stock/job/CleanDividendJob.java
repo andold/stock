@@ -65,9 +65,9 @@ public class CleanDividendJob implements Job {
 		deque.addLast(job);
 	}
 
-	private static boolean containsOrModify(ConcurrentLinkedDeque<Job> deque, String zdt) {
+	private static boolean containsOrModify(ConcurrentLinkedDeque<Job> deque, String code) {
 		for (Job job : deque) {
-			if (containsOrModify(job, zdt)) {
+			if (containsOrModify(job, code)) {
 				return true;
 			}
 		}
@@ -110,12 +110,14 @@ public class CleanDividendJob implements Job {
 				ItemDomain item = itemService.read(code);
 				if (item == null) {
 					log.debug("{} 『NULL::ITEM』 CleanDividendJob::main() - 『{}』『{}』『{}』", Utility.indentMiddle(), code, zdt, item);
+					CrawlItemDetailJob.regist(JobService.getQueue3(), code);
 					continue;
 				}
 
 				Date ipoOpen = item.getIpoOpen();
 				if (ipoOpen == null) {
 					log.debug("{} 『상장일::{}』 CleanDividendJob::main() - 『{}』『{}』『{}』", Utility.indentMiddle(), ipoOpen, code, zdt, item);
+					CrawlItemDetailJob.regist(JobService.getQueue3(), code);
 					continue;
 				}
 
