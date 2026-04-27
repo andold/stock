@@ -112,18 +112,22 @@ public class CrawlPriceJob implements Job {
 				ItemDomain item = itemService.read(code);
 				if (item == null) {
 					log.debug("{} 『NULL::ITEM』 CrawlPriceJob::main() - 『{}』『{}』『{}』", Utility.indentMiddle(), code, zdt, item);
+					CrawlItemDetailJob.regist(JobService.getQueue3(), code);
 					continue;
 				}
 
+				/*
 				Date ipoClose = item.getIpoClose();
 				if (ipoClose != null) {
 					log.debug("{} 『상장폐지::{}』 CrawlPriceJob::main() - 『{}』『{}』『{}』", Utility.indentMiddle(), ipoClose, code, zdt, item);
 					continue;
 				}
+				*/
 
 				String type = item.getType();
 				if (type == null) {
 					log.debug("{} 『NULL::TYPE』 CrawlPriceJob::main() - 『{}』『{}』『{}』", Utility.indentMiddle(), code, zdt, item);
+					CrawlItemDetailJob.regist(JobService.getQueue3(), code);
 					continue;
 				}
 
@@ -137,7 +141,6 @@ public class CrawlPriceJob implements Job {
 					break;
 
 				case "ETF":
-//					CrawlPriceSeibroEtfJob.regist(JobService.getQueue3(), code, zdt);
 					CrawlPriceDataGoKrEtfJob.regist(JobService.getQueue3(), code, zdt);
 					if (Math.random() < threshold) {
 						log.debug("{} 『ETF』 CrawlPriceJob::main() - 『{}』『{}』『{}』『{}』", Utility.indentMiddle(), code, zdt, item, type);

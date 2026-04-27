@@ -137,9 +137,16 @@ public class CompilePriceEarningsRatioJob implements Job {
 
 		Map<String, Float> mapYearlySummaryRatio = new HashMap<>();	//	연간 배당금 합계
 		for (DividendHistoryDomain dividend : dividends) {
+			String code = dividend.getCode();
+			if (code == null || code.isBlank()) {
+				log.debug("{} 『부적합:code』compileByThenPrice() - 『{}』", Utility.indentMiddle(), dividend);
+				continue;
+			}
+
 			Date base = dividend.getBase();
-			if (dividend.getDividend() < 0 || dividend.getCode() == null || dividend.getCode().isBlank() || base == null) {
+			if (dividend.getDividend() < 0 || base == null) {
 				log.debug("{} 『부적합』compileByThenPrice() - 『{}』", Utility.indentMiddle(), dividend);
+				CleanDividendJob.regist(JobService.getQueue3(), dividend.getCode());
 				continue;
 			}
 

@@ -125,7 +125,12 @@ public class CleanDividendJob implements Job {
 				List<DividendHistoryDomain> dividends = dividendHistoryService.search(dividendHistoryParam);
 				for (DividendHistoryDomain dividend : dividends) {
 					Date base = dividend.getBase();
-					if (base.before(ipoOpen)) {
+					if (base == null || base.before(ipoOpen)) {
+						removes.add(dividend);
+						continue;
+					}
+
+					if (dividend.getDividend() < 0) {
 						removes.add(dividend);
 						continue;
 					}
