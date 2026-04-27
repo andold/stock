@@ -78,7 +78,7 @@ public class CrawlItemDetailSeibroJob implements Job {
 	}
 
 	private STATUS main() throws Exception {
-		log.trace("{} main#{})", Utility.indentStart(), Utility.size(map));
+		log.info("{} main(#{})", Utility.indentStart(), Utility.size(map));
 		long started = System.currentTimeMillis();
 
 		try {
@@ -88,15 +88,15 @@ public class CrawlItemDetailSeibroJob implements Job {
 				if (Math.random() < threshold) {
 					log.debug("{} 『{}/{}』CrawlItemDetailSeibroJob::main() - 『{}』", Utility.indentMiddle(), threshold, map.size(), code);
 				}
-
-				log.trace("{} 『{}』 main() - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.toStringPastTimeReadable(started));
-				return STATUS.SUCCESS;
 			}
+
+			log.info("{} 『{}』 main() - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.toStringPastTimeReadable(started));
+			return STATUS.SUCCESS;
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 		}
 
-		log.trace("{} 『{}』 main() - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}』 main() - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.toStringPastTimeReadable(started));
 		return STATUS.SUCCESS;
 	}
 
