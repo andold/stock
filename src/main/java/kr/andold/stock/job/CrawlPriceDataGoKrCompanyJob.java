@@ -121,6 +121,10 @@ public class CrawlPriceDataGoKrCompanyJob implements Job {
 				ZonedDateTime zdt = map.get(code);
 				List<PriceDomain> prices = dataGoKrService.getStockPriceInfo(code, zdt);
 				CrudList<PriceDomain> crud = dataGoKrService.putPrice(prices);
+				if(crud.getCreates().isEmpty() && crud.getUpdates().isEmpty() && crud.getRemoves().isEmpty()) {
+					//	배당수익율계산작업 => 배당일의 주가없음 => 주가수집 => 주가변화없음::배당일이상검사
+					CleanDividendJob.regist(JobService.getQueue3(), code);
+				}
 				log.debug("{} 『{}/{}』 주식시세수집회사::CrawlPriceDataGoKrCompanyJob::main() - 『{}』『{}』『#{}』『{}』", Utility.indentMiddle()
 						, size, threshold, code, map.get(code), Utility.size(prices), crud);
 			}
