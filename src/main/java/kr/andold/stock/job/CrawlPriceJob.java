@@ -36,14 +36,14 @@ public class CrawlPriceJob implements Job {
 
 	@Override
 	public STATUS call() throws Exception {
-		log.debug("{} CrawlPriceJob::call()", Utility.indentStart());
+		log.debug("{} CrawlPriceJob::call(#{})", Utility.indentStart(), Utility.size(map));
 		long started = System.currentTimeMillis();
 
 		CrawlPriceJob that = (CrawlPriceJob) ApplicationContextProvider.getBean(CrawlPriceJob.class);
 		that.setMap(map);
 		STATUS result = that.main();
 
-		log.debug("{} 『#{}』 CrawlPriceJob::call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		log.debug("{} 『#{}』 CrawlPriceJob::call(#{}) - {}", Utility.indentEnd(), result, Utility.size(map), Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 

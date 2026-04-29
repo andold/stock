@@ -141,7 +141,7 @@ public class DataGoKrService {
 		for (DividendHistoryDomain dividend : dividends) {
 			String isinCode = dividend.getIsinCode();
 			String code = map.get(isinCode);
-			if (code == null) {
+			if (code == null || code.isBlank()) {
 				log.warn("{} putDividendHistoryDomain(『#{}』) - 『{}:{}』『{}』", Utility.indentMiddle(), Utility.size(dividends), isinCode, code, dividend);
 				CrawlItemDetailDataGoKrCompanyJob.regist(JobService.getQueue3(), isinCode);
 				dividend.setCode("");
