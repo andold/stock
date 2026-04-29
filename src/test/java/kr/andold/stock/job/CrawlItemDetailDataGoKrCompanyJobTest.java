@@ -26,8 +26,7 @@ class CrawlItemDetailDataGoKrCompanyJobTest {
 
 	@Test
 	public void main() {
-		job.setIsinCode("KR7015060007");
-		job.setBaseDate(ZonedDateTime.now().minusWeeks(1));
+		job.getMap().put("KR7015060007", ZonedDateTime.now().minusWeeks(1));
 		STATUS status = job.main();
 		log.info("{}", status);
 	}

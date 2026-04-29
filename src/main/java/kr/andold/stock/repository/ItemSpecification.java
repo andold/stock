@@ -22,6 +22,12 @@ public class ItemSpecification {
 	            		, builder.like(root.get("category"), "%" + param.getKeyword() + "%")
         		));
 	        }
+	        if (param.getCodes() != null && !param.getCodes().isEmpty()) {
+	            predicates.add(builder.in(root.get("code")).value(param.getCodes()));
+	        }
+	        if (param.getIsinCodes() != null && !param.getIsinCodes().isEmpty()) {
+	            predicates.add(builder.in(root.get("isinCode")).value(param.getIsinCodes()));
+	        }
 	        if (param.getPriority() != null) {
 	            predicates.add(builder.greaterThanOrEqualTo(root.get("priority"), param.getPriority() * 4));
 	            predicates.add(builder.lessThan(root.get("priority"), (param.getPriority() + 1) * 4));

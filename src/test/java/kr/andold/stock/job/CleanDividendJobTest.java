@@ -27,6 +27,7 @@ class CleanDividendJobTest {
 	@Test
 	public void main() throws Exception {
 		job.getMap().put("482630", ZonedDateTime.now());
+		job.getMapIsinCode().put("KR7037870003", ZonedDateTime.now());
 		STATUS result = job.call();
 		log.info("{}", Utility.toStringJson(result));
 	}

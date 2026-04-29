@@ -16,6 +16,7 @@ import kr.andold.stock.domain.DividendHistoryDomain;
 import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.param.DividendHistoryParam;
+import kr.andold.stock.param.ItemParam;
 import kr.andold.stock.service.DividendHistoryService;
 import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.JobService;
@@ -30,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CleanDividendJob implements Job {
 	@Getter private Long timeout = 300L;	//	TimeUnit.SECONDS
 	@Getter private Map<String, ZonedDateTime> map = new HashMap<>();	//	Map<종목코드, dummy>
+	@Getter private Map<String, ZonedDateTime> mapIsinCode = new HashMap<>();	//	Map<IsinCode종목코드, dummy>
 
 	@Autowired private ItemService itemService;
 	@Autowired private DividendHistoryService dividendHistoryService;
@@ -39,114 +41,192 @@ public class CleanDividendJob implements Job {
 		log.info("{} call()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		STATUS result = main();
+		STATUS result = cleanDividendByCode();
+		STATUS resultByIsInCode = cleanDividendByIsInCode();
 		
-		log.info("{} 『#{}』 call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}:{}』 call() - {}", Utility.indentEnd(), result, resultByIsInCode, Utility.toStringPastTimeReadable(started));
 		return STATUS.SUCCESS;
 	}
 
-	public static void regist(ConcurrentLinkedDeque<Job> deque, String code) {
-		if (containsOrModify(JobService.getQueue0(), code)) {
+	//	IsInCode를 이용한 배당 정보 청소. 상장일 이전의 배당정보 제거(상장일 이전의 주가 정보가 없다)
+	private STATUS cleanDividendByIsInCode() {
+		log.debug("{} cleanDividendByIsInCode(#{})", Utility.indentStart(), Utility.size(mapIsinCode));
+		long started = System.currentTimeMillis();
+		
+		List<String> isinCodes = new ArrayList<>(mapIsinCode.keySet());
+		for (int cx = 0, sizex = isinCodes.size(); cx < sizex; cx += 128) {
+	        // 마지막 부분에서 인덱스 범위를 넘지 않도록 Math.min 사용
+			List<String> isinCodes128 = isinCodes.subList(cx, Math.min(cx + 128, sizex));
+
+			List<ItemDomain> items = itemService.search(ItemParam.builder().isinCodes(isinCodes128).build());
+			Map<String, ItemDomain> mapIsinCodeItem = new HashMap<>();
+			for (ItemDomain item: items) {
+				mapIsinCodeItem.put(item.getIsinCode(), item);
+			}
+
+			List<DividendHistoryDomain> dividends = dividendHistoryService.search(DividendHistoryParam.builder().isinCodes(isinCodes128).build());
+			Map<String, List<DividendHistoryDomain>> mapIsinCodeDividend = new HashMap<>();
+			for (DividendHistoryDomain dividend : dividends) {
+				String isinCode = dividend.getIsinCode();
+				List<DividendHistoryDomain> previous = mapIsinCodeDividend.get(isinCode);
+				if (previous == null) {
+					previous = new ArrayList<>();
+					mapIsinCodeDividend.put(isinCode, previous);
+				}
+				
+				previous.add(dividend);
+			}
+			
+			for (String isinCode: isinCodes128) {
+				cleanDividend(mapIsinCodeItem.get(isinCode), mapIsinCodeDividend.get(isinCode));
+			}
+	    }
+
+		log.debug("{} 『{}』cleanDividendByIsInCode(#{}) - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.size(mapIsinCode), Utility.toStringPastTimeReadable(started));
+		return STATUS.SUCCESS;
+	}
+
+	private void cleanDividend(ItemDomain item, List<DividendHistoryDomain> dividends) {
+		log.debug("{} cleanDividend(『{}』, 『#{}』)", Utility.indentStart(), item, Utility.size(dividends));
+
+		if (item == null) {
+			log.debug("{} 『NULL::ITEM』 cleanDividend(『{}』, 『#{}』)", Utility.indentEnd(), item, Utility.size(dividends));
 			return;
 		}
-		if (containsOrModify(JobService.getQueue1(), code)) {
+
+		Date ipoOpen = item.getIpoOpen();
+		if (ipoOpen == null) {
+			CrawlItemDetailJob.regist(JobService.getQueue3(), item.getCode());
+			log.debug("{} 『NULL::상장일』 cleanDividend(『{}』, 『#{}』)", Utility.indentEnd(), item, Utility.size(dividends));
 			return;
 		}
-		if (containsOrModify(JobService.getQueue2(), code)) {
+
+		List<DividendHistoryDomain> removes = new ArrayList<>();
+		List<DividendHistoryDomain> updates = new ArrayList<>();
+		for (DividendHistoryDomain dividend : dividends) {
+			Date base = dividend.getBase();
+			if (base == null || base.before(ipoOpen)) {
+				removes.add(dividend);
+				continue;
+			}
+
+			if (dividend.getDividend() <= 0) {
+				removes.add(dividend);
+				continue;
+			}
+			
+			String code = dividend.getCode();
+			String isinCode = dividend.getIsinCode();
+			if (isinCode != null && !isinCode.isBlank()) {
+				if (code == null || code.isBlank()) {
+					dividend.setCode(item.getCode());
+					updates.add(dividend);
+				}
+			}
+
+			if (code != null && !code.isBlank()) {
+				if (isinCode == null || isinCode.isBlank()) {
+					dividend.setIsinCode(item.getIsinCode());
+					updates.add(dividend);
+				}
+			}
+		}
+
+		int removed = dividendHistoryService.remove(removes);
+		List<DividendHistoryDomain> updated = dividendHistoryService.update(updates);
+		log.debug("{} 『{}:{}』cleanDividend(『{}』, 『#{}』)", Utility.indentEnd(), removed, Utility.size(updated), item, Utility.size(dividends));
+	}
+
+	//	배당 정보 청소. 상장일 이전의 배당정보 제거(상장일 이전의 주가 정보가 없다)
+	protected STATUS cleanDividendByCode() {
+		log.debug("{} cleanDividendByCode()", Utility.indentStart());
+		long started = System.currentTimeMillis();
+
+		List<String> codes = new ArrayList<>(map.keySet());
+		for (int cx = 0, sizex = codes.size(); cx < sizex; cx += 128) {
+	        // 마지막 부분에서 인덱스 범위를 넘지 않도록 Math.min 사용
+			List<String> codes128 = codes.subList(cx, Math.min(cx + 128, sizex));
+
+			List<ItemDomain> items = itemService.search(ItemParam.builder().codes(codes128).build());
+			Map<String, ItemDomain> mapIsinCodeItem = new HashMap<>();
+			for (ItemDomain item: items) {
+				mapIsinCodeItem.put(item.getIsinCode(), item);
+			}
+
+			List<DividendHistoryDomain> dividends = dividendHistoryService.search(DividendHistoryParam.builder().codes(codes128).build());
+			Map<String, List<DividendHistoryDomain>> mapCodeDividend = new HashMap<>();
+			for (DividendHistoryDomain dividend : dividends) {
+				String code = dividend.getCode();
+				List<DividendHistoryDomain> previous = mapCodeDividend.get(code);
+				if (previous == null) {
+					previous = new ArrayList<>();
+					mapCodeDividend.put(code, previous);
+				}
+				
+				previous.add(dividend);
+			}
+			
+			for (String code: codes128) {
+				cleanDividend(mapIsinCodeItem.get(code), mapCodeDividend.get(code));
+			}
+	    }
+
+		log.debug("{} 『{}』 cleanDividendByCode() - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.toStringPastTimeReadable(started));
+		return STATUS.SUCCESS;
+	}
+
+	public static void regist(ConcurrentLinkedDeque<Job> deque, String code, String isinCode) {
+		if (containsOrModify(JobService.getQueue0(), code, isinCode)) {
 			return;
 		}
-		if (containsOrModify(JobService.getQueue3(), code)) {
+		if (containsOrModify(JobService.getQueue1(), code, isinCode)) {
+			return;
+		}
+		if (containsOrModify(JobService.getQueue2(), code, isinCode)) {
+			return;
+		}
+		if (containsOrModify(JobService.getQueue3(), code, isinCode)) {
 			return;
 		}
 
 		CleanDividendJob job = (CleanDividendJob) ApplicationContextProvider.getBean(CleanDividendJob.class);
-		job.containsOrModify(code);
-		job.getMap().put(code, ZonedDateTime.now());
+		job.containsOrModify(code, isinCode);
+		if (code != null) {
+			job.getMap().put(code, ZonedDateTime.now());
+		}
+		if (isinCode != null) {
+			job.getMapIsinCode().put(isinCode, ZonedDateTime.now());
+		}
 		deque.addLast(job);
 	}
 
-	private static boolean containsOrModify(ConcurrentLinkedDeque<Job> deque, String code) {
+	private static boolean containsOrModify(ConcurrentLinkedDeque<Job> deque, String code, String isinCode) {
 		for (Job job : deque) {
-			if (containsOrModify(job, code)) {
+			if (containsOrModify(job, code, isinCode)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private static boolean containsOrModify(Job job, String code) {
+	private static boolean containsOrModify(Job job, String code, String isinCode) {
 		if (!(job instanceof CleanDividendJob)) {
 			return false;
 		}
 
 		CleanDividendJob previous = (CleanDividendJob) job;
-		return previous.containsOrModify(code);
+		return previous.containsOrModify(code, isinCode);
 	}
 
-	private boolean containsOrModify(String code) {
-		ZonedDateTime datePrevious = map.get(code);
-		if (datePrevious == null) {
+	private boolean containsOrModify(String code, String isinCode) {
+		if (code != null) {
 			map.put(code, ZonedDateTime.now());
-			return true;
+		}
+		if (isinCode != null) {
+			mapIsinCode.put(isinCode, ZonedDateTime.now());
 		}
 
 		return true;
 	}
 
-	//	배당 정보 청소. 상장일 이전의 배당정보 제거(상장일 이전의 주가 정보가 없다)
-	protected STATUS main() {
-		log.debug("{} CleanDividendJob::main()", Utility.indentStart());
-		long started = System.currentTimeMillis();
-
-		try {
-			double threshold = 128.0 / map.size();
-			List<DividendHistoryDomain> removes = new ArrayList<>();
-			for (String code : map.keySet()) {
-				if (Math.random() > threshold) {
-					continue;
-				}
-
-				ZonedDateTime zdt = map.get(code);
-				ItemDomain item = itemService.read(code);
-				if (item == null) {
-					log.debug("{} 『NULL::ITEM』 CleanDividendJob::main() - 『{}』『{}』『{}』", Utility.indentMiddle(), code, zdt, item);
-					CrawlItemDetailJob.regist(JobService.getQueue3(), code);
-					continue;
-				}
-
-				Date ipoOpen = item.getIpoOpen();
-				if (ipoOpen == null) {
-					log.debug("{} 『상장일::{}』 CleanDividendJob::main() - 『{}』『{}』『{}』", Utility.indentMiddle(), ipoOpen, code, zdt, item);
-					CrawlItemDetailJob.regist(JobService.getQueue3(), code);
-					continue;
-				}
-
-				DividendHistoryParam dividendHistoryParam = DividendHistoryParam.builder().code(code).build();
-				List<DividendHistoryDomain> dividends = dividendHistoryService.search(dividendHistoryParam);
-				for (DividendHistoryDomain dividend : dividends) {
-					Date base = dividend.getBase();
-					if (base == null || base.before(ipoOpen)) {
-						removes.add(dividend);
-						continue;
-					}
-
-					if (dividend.getDividend() < 0) {
-						removes.add(dividend);
-						continue;
-					}
-				}
-			}
-
-			int removed = dividendHistoryService.remove(removes);
-
-			log.debug("{} 『{}:{}/#{}』 CleanDividendJob::main() - {}", Utility.indentEnd()
-					, STATUS.SUCCESS, removed, Utility.size(removes), Utility.toStringPastTimeReadable(started));
-			return STATUS.SUCCESS;
-		} catch (Exception e) {
-			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
-		}
-
-		log.debug("{} 『{}』 CleanDividendJob::main() - {}", Utility.indentEnd(), STATUS.EXCEPTION, Utility.toStringPastTimeReadable(started));
-		return STATUS.EXCEPTION;
-	}
 }

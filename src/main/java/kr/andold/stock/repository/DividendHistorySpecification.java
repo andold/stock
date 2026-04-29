@@ -28,6 +28,9 @@ public class DividendHistorySpecification {
 	        if (param.getCodes() != null && !param.getCodes().isEmpty()) {
 	            predicates.add(builder.in(root.get("code")).value(param.getCodes()));
 	        }
+	        if (param.getIsinCodes() != null && !param.getIsinCodes().isEmpty()) {
+	            predicates.add(builder.in(root.get("isinCode")).value(param.getIsinCodes()));
+	        }
 
 	        return builder.and(predicates.toArray(new Predicate[0]));
 		});

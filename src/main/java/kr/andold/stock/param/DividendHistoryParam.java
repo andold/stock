@@ -14,15 +14,17 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter @Setter
 public class DividendHistoryParam extends DividendHistoryDomain {
-	@Getter @Setter private Date start;
-	@Getter @Setter private Date end;
-	@Getter @Setter private List<String> codes;
+	private Date start;
+	private Date end;
+	private List<String> codes;
+	private List<String> isinCodes;
 
-	@Getter @Setter private List<DividendHistoryDomain> creates;
-	@Getter @Setter private List<DividendHistoryDomain> duplicates;
-	@Getter @Setter private List<DividendHistoryDomain> updates;
-	@Getter @Setter private List<DividendHistoryDomain> removes;
+	private List<DividendHistoryDomain> creates;
+	private List<DividendHistoryDomain> duplicates;
+	private List<DividendHistoryDomain> updates;
+	private List<DividendHistoryDomain> removes;
 
 	@Override
 	public String toString() {

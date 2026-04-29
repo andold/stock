@@ -14,18 +14,21 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter @Setter
 public class ItemParam extends ItemDomain {
-	@Getter @Setter private String keyword;
-	@Getter @Setter private Date start;
-	@Getter @Setter private Float priceEarningsRatio;
-	@Getter @Setter private Integer totalPages;
+	private String keyword;
+	private Date start;
+	private Float priceEarningsRatio;
+	private Integer totalPages;
+	private List<String> codes;
+	private List<String> isinCodes;
 	
-	@Getter @Setter private List<ItemDomain> items;
+	private List<ItemDomain> items;
 
-	@Getter @Setter private List<ItemDomain> creates;
-	@Getter @Setter private List<ItemDomain> duplicates;
-	@Getter @Setter private List<ItemDomain> updates;
-	@Getter @Setter private List<ItemDomain> removes;
+	private List<ItemDomain> creates;
+	private List<ItemDomain> duplicates;
+	private List<ItemDomain> updates;
+	private List<ItemDomain> removes;
 
 	@Override
 	public String toString() {

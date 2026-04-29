@@ -28,7 +28,6 @@ import kr.andold.stock.domain.PriceDomain;
 import kr.andold.stock.domain.Result;
 import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.job.CrawlPriceLatestSeibroCompanyExcelJob;
-import kr.andold.stock.job.CrawlPriceLatestSeibroEtfJob;
 import kr.andold.stock.param.DividendHistoryParam;
 import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.utils.Utility;
@@ -214,8 +213,7 @@ public class JobService {
 			return STATUS.INVALID;
 		}
 		
-		if (job instanceof CrawlPriceLatestSeibroCompanyExcelJob
-				|| job instanceof CrawlPriceLatestSeibroEtfJob) {
+		if (job instanceof CrawlPriceLatestSeibroCompanyExcelJob) {
 			ExecutorService executor = Executors.newSingleThreadExecutor();
 	        Future<STATUS> future = executor.submit(job);
 			STATUS result = STATUS.EXCEPTION;

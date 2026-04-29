@@ -25,27 +25,19 @@ import kr.andold.stock.service.JobService.StockCompileJob;
 import kr.andold.utils.ChromeDriverWrapper;
 import kr.andold.utils.Utility;
 import kr.andold.utils.persist.CrudList;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Slf4j
 @Service
 public class CrawlPriceLatestSeibroEtfJob implements Job {
+	@Getter private Long timeout = 3600L;
+
 	private static final int TIMEOUT = 8000;
 	private static final String URL = Seibro.URL_PRICE_ETF_CURRENT;	// https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06025V.xml&menuNo=174
 	private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(8);
 	private static final Duration DEFAULT_TIMEOUT_DURATION_LONG = Duration.ofMinutes(1);
 
-	@Builder.Default @Getter @Setter private Long timeout = 3600L;
-
-	@Autowired private Seibro seibro;
 	@Autowired private PriceService priceService;
 
 	@Override
@@ -53,8 +45,7 @@ public class CrawlPriceLatestSeibroEtfJob implements Job {
 		log.debug("{} CrawlPriceLatestSeibroEtfJob::call()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		CrawlPriceLatestSeibroEtfJob that = (CrawlPriceLatestSeibroEtfJob) ApplicationContextProvider.getBean(CrawlPriceLatestSeibroEtfJob.class);
-		STATUS result = that.main();
+		STATUS result = main();
 
 		log.debug("{} 『#{}』 CrawlPriceLatestSeibroEtfJob::call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;
@@ -74,7 +65,8 @@ public class CrawlPriceLatestSeibroEtfJob implements Job {
 			return;
 		}
 
-		deque.addLast(CrawlPriceLatestSeibroEtfJob.builder().build());
+		CrawlPriceLatestSeibroEtfJob job = (CrawlPriceLatestSeibroEtfJob) ApplicationContextProvider.getBean(CrawlPriceLatestSeibroEtfJob.class);
+		deque.addLast(job);
 	}
 
 	private static boolean containsOrModify(ConcurrentLinkedDeque<Job> deque) {
@@ -418,7 +410,7 @@ public class CrawlPriceLatestSeibroEtfJob implements Job {
 		driver.navigate().to(URL);
 
 		driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT_DURATION);
-		seibro.clickShowWideIcon(driver);
+		Seibro.clickShowWideIcon(driver);
 	}
 
 }
