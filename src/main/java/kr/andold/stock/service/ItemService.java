@@ -34,6 +34,24 @@ public class ItemService implements CommonBlockService<ItemParam, ItemDomain, It
 	@Autowired private ItemRepository repository;
 	@Autowired private Seibro seibro;
 
+	@Override
+	public CrudList<ItemDomain> put(List<ItemDomain> items) {
+		if (items == null || items.isEmpty()) {
+			return new CrudList<ItemDomain>();
+		}
+
+		List<String> codes = new ArrayList<>();
+		for (ItemDomain item : items) {
+			codes.add(item.getCode());
+		}
+		List<ItemDomain> befores = search(ItemParam.builder().codes(codes).build());
+		CrudList<ItemDomain> list = differ(befores, items);
+		list.getRemoves().clear();
+		batch(list);
+
+		return list;
+	}
+
 	public ItemParam search(ItemParam param, Pageable page) {
 		log.info("{} search({}, {})", Utility.indentStart(), param, page);
 		long started = System.currentTimeMillis();
