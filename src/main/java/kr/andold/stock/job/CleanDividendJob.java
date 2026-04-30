@@ -86,43 +86,68 @@ public class CleanDividendJob implements Job {
 		return STATUS.SUCCESS;
 	}
 
-	private void cleanDividend(ItemDomain item, List<DividendHistoryDomain> dividends) {
-		log.debug("{} cleanDividend(『{}』, 『#{}』)", Utility.indentStart(), item, Utility.size(dividends));
-
-		if (item == null) {
-			log.debug("{} 『NULL::ITEM』 cleanDividend(『{}』, 『#{}』)", Utility.indentEnd(), item, Utility.size(dividends));
-			return;
-		}
-
-		Date ipoOpen = item.getIpoOpen();
-		if (ipoOpen == null) {
-			String type = item.getType();
-			if (type == null || !type.equals("기타비상장")) {
-				CrawlItemDetailJob.regist(JobService.getQueue3(), item.getCode());
-			}
-			log.debug("{} 『NULL::상장일』 cleanDividend(『{}』, 『#{}』)", Utility.indentEnd(), item, Utility.size(dividends));
-			return;
-		}
+	private void cleanDividend(List<DividendHistoryDomain> dividends) {
+		log.debug("{} cleanDividend(『#{}』)", Utility.indentStart(), Utility.size(dividends));
 
 		if (dividends == null) {
-			log.debug("{} 『NULL::dividends』 cleanDividend(『{}』, 『#{}』)", Utility.indentEnd(), item, Utility.size(dividends));
+			log.debug("{} 『NULL::dividends』 cleanDividend(『#{}』)", Utility.indentEnd(), Utility.size(dividends));
 			return;
 		}
 
 		List<DividendHistoryDomain> removes = new ArrayList<>();
 		List<DividendHistoryDomain> updates = new ArrayList<>();
 		for (DividendHistoryDomain dividend : dividends) {
-			Date base = dividend.getBase();
-			if (base == null || base.before(ipoOpen)) {
-				removes.add(dividend);
-				continue;
-			}
-
 			if (dividend.getDividend() <= 0) {
 				removes.add(dividend);
 				continue;
 			}
-			
+		}
+
+		int removed = dividendHistoryService.remove(removes);
+		List<DividendHistoryDomain> updated = dividendHistoryService.update(updates);
+		log.debug("{} 『{}:{}』cleanDividend(『#{}』)", Utility.indentEnd(), removed, Utility.size(updated), Utility.size(dividends));
+	}
+
+	private void cleanDividend(ItemDomain item) {
+		log.debug("{} cleanDividend(『{}』)", Utility.indentStart(), item);
+
+		if (item == null) {
+			log.debug("{} 『NULL::ITEM』 cleanDividend(『{}』)", Utility.indentEnd(), item);
+			return;
+		}
+
+		Date ipoOpen = item.getIpoOpen();
+		String type = item.getType();
+		if (ipoOpen == null) {
+			if (type == null || !type.equals("기타비상장")) {
+				CrawlItemDetailJob.regist(JobService.getQueue3(), item.getCode());
+			}
+		}
+
+		log.debug("{} cleanDividend(『{}』)", Utility.indentEnd(), item);
+	}
+
+	private void cleanDividend(ItemDomain item, List<DividendHistoryDomain> dividends) {
+		log.debug("{} cleanDividend(『{}』, 『#{}』)", Utility.indentStart(), item, Utility.size(dividends));
+
+		cleanDividend(item);
+		cleanDividend(dividends);
+
+		if (item == null || dividends == null) {
+			log.debug("{} 『NULL』 cleanDividend(『{}』, 『#{}』)", Utility.indentEnd(), item, Utility.size(dividends));
+			return;
+		}
+
+		Date ipoOpen = item.getIpoOpen();
+		List<DividendHistoryDomain> removes = new ArrayList<>();
+		List<DividendHistoryDomain> updates = new ArrayList<>();
+		for (DividendHistoryDomain dividend : dividends) {
+			Date base = dividend.getBase();
+			if (base == null || (ipoOpen != null && base.before(ipoOpen))) {
+				removes.add(dividend);
+				continue;
+			}
+
 			String code = dividend.getCode();
 			String isinCode = dividend.getIsinCode();
 			if (isinCode != null && !isinCode.isBlank()) {
