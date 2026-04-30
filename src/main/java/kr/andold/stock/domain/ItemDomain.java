@@ -83,11 +83,6 @@ public class ItemDomain extends ItemEntity implements CommonBlockDomain<ItemDoma
 		setCategory(new String(stringBuffer).trim());
 	}
 
-	@Override
-	public String toString() {
-		return String.format("%s %s %tF", getCode(), getSymbol(), getIpoClose());
-	}
-
 	public static ItemDomain of(ItemEntity entity) {
 		ItemDomain domain = new ItemDomain();
 		BeanUtils.copyProperties(entity, domain);

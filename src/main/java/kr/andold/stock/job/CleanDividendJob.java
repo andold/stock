@@ -96,7 +96,10 @@ public class CleanDividendJob implements Job {
 
 		Date ipoOpen = item.getIpoOpen();
 		if (ipoOpen == null) {
-			CrawlItemDetailJob.regist(JobService.getQueue3(), item.getCode());
+			String type = item.getType();
+			if (type == null || !type.equals("기타비상장")) {
+				CrawlItemDetailJob.regist(JobService.getQueue3(), item.getCode());
+			}
 			log.debug("{} 『NULL::상장일』 cleanDividend(『{}』, 『#{}』)", Utility.indentEnd(), item, Utility.size(dividends));
 			return;
 		}
