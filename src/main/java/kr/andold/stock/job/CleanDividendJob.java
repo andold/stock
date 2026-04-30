@@ -101,6 +101,11 @@ public class CleanDividendJob implements Job {
 			return;
 		}
 
+		if (dividends == null) {
+			log.debug("{} 『NULL::dividends』 cleanDividend(『{}』, 『#{}』)", Utility.indentEnd(), item, Utility.size(dividends));
+			return;
+		}
+
 		List<DividendHistoryDomain> removes = new ArrayList<>();
 		List<DividendHistoryDomain> updates = new ArrayList<>();
 		for (DividendHistoryDomain dividend : dividends) {
