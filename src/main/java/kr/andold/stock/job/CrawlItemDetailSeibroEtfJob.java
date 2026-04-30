@@ -144,7 +144,10 @@ public class CrawlItemDetailSeibroEtfJob implements Job {
 			driver.navigate().to(Seibro.URL_ETF_EACH_SUMMARY_INFO);
 			
 			// 화면이 표시될 때까지
-			driver.waitUntilIsDisplayed(By.xpath("//div[@id='___processbar2']"), false, Seibro.TIMEOUT * 4);	// 진행중 화면은 지워지고
+			By BY_PROCESS_BAR = By.xpath("//div[@id='___processbar2']");
+			log.debug("{} 종목상세::itemEtf(..., 『{}』) - 『{}』『{}』", Utility.indentMiddle(), code, "진행중 화면", driver.getText(BY_PROCESS_BAR, Duration.ZERO));
+			driver.waitUntilIsDisplayed(BY_PROCESS_BAR, false, Seibro.TIMEOUT * 4);	// 진행중 화면은 지워지고
+			log.debug("{} 종목상세::itemEtf(..., 『{}』) - 『{}』『{}』", Utility.indentMiddle(), code, "진행중 화면", driver.getText(BY_PROCESS_BAR, Duration.ZERO));
 
 			Seibro.clickShowWideIcon(driver);	// 넓게보기
 

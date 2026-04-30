@@ -97,12 +97,13 @@ public class CrawlItemDetailSeibroCompanyJob implements Job {
 
 		try {
 			double threshold = 128.0 / map.size();
+			ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
 			for (String code : map.keySet()) {
 				if (Math.random() > threshold) {
 					continue;
 				}
 
-				Result<ParserResult> itemResult = itemCompany(code);
+				Result<ParserResult> itemResult = itemCompany(driver, code);
 				if (itemResult.getStatus() == STATUS.SUCCESS) {
 					itemService.put(itemResult.getResult().getItems());
 					continue;
@@ -110,7 +111,8 @@ public class CrawlItemDetailSeibroCompanyJob implements Job {
 				
 				CrawlItemDetailSeibroEtfJob.regist(JobService.getQueue3(), code);
 			}
-
+			
+			driver.quit();
 			log.info("{} 『{}』 main() - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.toStringPastTimeReadable(started));
 			return STATUS.SUCCESS;
 		} catch (Exception e) {
@@ -122,7 +124,7 @@ public class CrawlItemDetailSeibroCompanyJob implements Job {
 	}
 
 	// SEIBro > 주식 > 종목별상세정보 > 종목종합내역
-	protected Result<ParserResult> itemCompany(String code) {
+	protected Result<ParserResult> itemCompany(ChromeDriverWrapper driver, String code) {
 		log.debug("{} 종목종합내역::itemCompany({})", Utility.indentStart(), code);
 		long started = System.currentTimeMillis();
 
@@ -130,7 +132,6 @@ public class CrawlItemDetailSeibroCompanyJob implements Job {
 			return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
 		}
 
-		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
 		try {
 			driver.navigate().to(Seibro.URL_COMPANY_EACH_SUMMARY_INFO);
 
@@ -163,22 +164,30 @@ public class CrawlItemDetailSeibroCompanyJob implements Job {
 			//	검색 결과에서 선택
 			String count = driver.getText(BY_SEARCH_RESULT_COUNT, Seibro.DEFAULT_DURATION, "0");
 			if ("0".contentEquals(count)) {
-				driver.quit();
 				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
 				log.debug("{} 『{}』 종목종합내역::itemCompany({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
 				return result;
 			}
 
+			//	검색 결과에서 선택
 			By BY_SEARCH_CODE_RESULT = By.xpath("//ul[@id='P_isinList']/li/a/span[text()='" + code + "']");
-			driver.findElement(BY_SEARCH_CODE_RESULT, Seibro.DEFAULT_DURATION).click();
+			log.debug("{} 종목종합내역::itemCompany(..., 『{}』) - 『{}』『{}』", Utility.indentMiddle(), code, "검색 결과", driver.getText(BY_SEARCH_CODE_RESULT, Duration.ZERO));
+			if (!driver.isPresence(BY_SEARCH_CODE_RESULT, Seibro.DEFAULT_DURATION)) {
+				Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.FAIL_NO_RESULT).build();
+				log.debug("{} 『NO_CODE::{}』 종목종합내역::itemCompany({}) - {}", Utility.indentEnd(), result, code, Utility.toStringPastTimeReadable(started));
+				return result;
+			}
+			driver.click(BY_SEARCH_CODE_RESULT);
+			log.debug("{} 종목종합내역::itemCompany(..., 『{}』) - 『{}』『{}』", Utility.indentMiddle(), code, "검색 결과", driver.getText(BY_SEARCH_CODE_RESULT, Duration.ZERO));
 
 			//	팝업이 닫혔다, 돌아간다
 			driver.switchTo().defaultContent();
 
 			// 조회	//*[@id="group94"]
 			By BY_SHOW_DETAIL = By.xpath("//*[@id='group94']");
+			log.debug("{} 종목종합내역::itemCompany({}) - {}", Utility.indentMiddle(), code, "조회", driver.getText(BY_SHOW_DETAIL, Duration.ZERO));
 			driver.presenceOfElementLocated(BY_SHOW_DETAIL, Seibro.DEFAULT_DURATION_LONG);
-			driver.clickIfExist(BY_SHOW_DETAIL);
+			driver.click(BY_SHOW_DETAIL);
 			log.debug("{} 종목종합내역::itemCompany({}) - {}", Utility.indentMiddle(), code, "조회", driver.getText(BY_SHOW_DETAIL, Duration.ZERO));
 
 			// 조회결과 바뀐거 확인
@@ -214,7 +223,6 @@ public class CrawlItemDetailSeibroCompanyJob implements Job {
 			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
-			driver.quit();
 		}
 
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
