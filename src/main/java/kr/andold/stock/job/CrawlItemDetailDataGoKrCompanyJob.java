@@ -117,30 +117,33 @@ public class CrawlItemDetailDataGoKrCompanyJob implements Job {
 					continue;
 				}
 
+				log.debug("{} 『{}:{}/{}』 CrawlItemDetailDataGoKrCompanyJob::main()", Utility.indentStart(), isinCode, threshold, size);
+
 				ZonedDateTime baseDate = map.get(isinCode);
+				List<ItemDomain> items = new ArrayList<>();
 				for (int cx = 0; cx < NUMBER_OF_PAGES; cx++) {
 					String url = String.format("%s&serviceKey=%s&numOfRows=%d&pageNo=%d&isinCd=%s&basDt=%s"
 							, URL, DataGoKrService.getServiceKey(), NUMBER_OF_ROWS, cx + 1, isinCode, baseDate.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
-					log.debug("{} 『{}』 CrawlItemDetailDataGoKrCompanyJob::main(『{}』, 『{}』)- 『{}』", Utility.indentMiddle(), cx, isinCode, baseDate, url);
 					String html = service.read(url);
-					log.debug("{} CrawlItemDetailDataGoKrCompanyJob::main(『{}』, 『{}』)- 『{}』", Utility.indentMiddle(), isinCode, baseDate, Utility.ellipsis(html, 128, 64));
+					log.trace("{} CrawlItemDetailDataGoKrCompanyJob::main(『{}』, 『{}』) - 『{}』", Utility.indentMiddle(), isinCode, baseDate, Utility.ellipsis(html, 128, 64));
 					ResultDataGoKr.ResultItemDetail result = Utility.parseJsonLine(html, ResultDataGoKr.ResultItemDetail.class);
 					List<ResultDataGoKr.ItemDetailDomain> list = result.getResponse().getBody().getItems().getItem();
 					if (list == null || list.isEmpty()) {
 						break;
 					}
-					List<ItemDomain> items = new ArrayList<>();
-					for (int cy = 0, sizex = list.size(); cy < sizex; cy++) {
+					for (int cy = 0, sizey = list.size(); cy < sizey; cy++) {
 						ResultDataGoKr.ItemDetailDomain item = list.get(cy);
 						ItemDomain domain = DataGoKrService.toItemDomain(item);
 						items.add(domain);
-						log.trace("{} CrawlItemDetailDataGoKrCompanyJob::main(『#{}』)- 『{}/{}』『{}』", Utility.indentMiddle(), Utility.size(map), cy, sizex, item);
+						log.debug("{} 『{}:{}/{}』CrawlItemDetailDataGoKrCompanyJob::main(#{}) - 『{}』", Utility.indentMiddle()
+								, isinCode, cy, sizey, Utility.size(map), cy, sizey, size, item);
 					}
-	
-					CrudList<ItemDomain> crud = service.putItem(items);
-					log.debug("{} CrawlItemDetailDataGoKrCompanyJob::main(『#{}』) - 『{}』『{}』", Utility.indentMiddle(), Utility.size(map), cx, crud);
-					container.add(crud);
 				}
+				
+				CrudList<ItemDomain> crud = service.putItem(items);
+				container.add(crud);
+
+				log.debug("{} 『{}:{}/{}』 CrawlItemDetailDataGoKrCompanyJob::main() - 『{}』『{}』", Utility.indentEnd(), isinCode, threshold, size, Utility.size(items), crud);
 			}
 
 			log.debug("{} 『{}』 CrawlItemDetailDataGoKrCompanyJob::main(『#{}』) - {}", Utility.indentEnd(), container, Utility.size(map), Utility.toStringPastTimeReadable(started));
