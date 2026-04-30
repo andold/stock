@@ -11,6 +11,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import org.jsoup.Jsoup;
@@ -85,6 +86,11 @@ public class NoSpringTest {
 	@BeforeEach
 	public void before() {
 		log.info(Utility.HR);
+	}
+
+	@Test
+	public void  truncateTest() {
+		log.info("{}", ZonedDateTime.now().minusYears(1).withDayOfMonth(1).withMonth(1).truncatedTo(ChronoUnit.DAYS));
 	}
 
 	@Test
