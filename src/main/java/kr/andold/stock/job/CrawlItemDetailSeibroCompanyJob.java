@@ -95,9 +95,9 @@ public class CrawlItemDetailSeibroCompanyJob implements Job {
 		log.info("{} main(#{})", Utility.indentStart(), Utility.size(map));
 		long started = System.currentTimeMillis();
 
+		ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
 		try {
 			double threshold = 128.0 / map.size();
-			ChromeDriverWrapper driver = CrawlerService.defaultChromeDriver();
 			for (String code : map.keySet()) {
 				if (Math.random() > threshold) {
 					continue;
@@ -119,8 +119,9 @@ public class CrawlItemDetailSeibroCompanyJob implements Job {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 		}
 
-		log.info("{} 『{}』 main() - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.toStringPastTimeReadable(started));
-		return STATUS.SUCCESS;
+		driver.quit();
+		log.info("{} 『{}』 main() - {}", Utility.indentEnd(), STATUS.EXCEPTION, Utility.toStringPastTimeReadable(started));
+		return STATUS.EXCEPTION;
 	}
 
 	// SEIBro > 주식 > 종목별상세정보 > 종목종합내역
@@ -213,7 +214,6 @@ public class CrawlItemDetailSeibroCompanyJob implements Job {
 			sb.append(String.format("KEYWORD\t%s\n", driver.findElement(By.xpath("//dd[@id='ISSU_SCHD_STKQTY']"), Seibro.DEFAULT_DURATION).getText()));	//	// 발행주식총수
 			sb.append(String.format("KEYWORD\t%s\n", driver.findElement(By.xpath("//dd[@id='APLI_DT']"), Seibro.DEFAULT_DURATION).getText()));	// 상장일
 			sb.append(String.format("KEYWORD\t%s\n", driver.findElement(By.xpath("//dd[@id='DLIST_DT']"), Seibro.DEFAULT_DURATION).getText()));	// 상장폐지일
-			driver.quit();
 
 			sb.append(Seibro.MARK_ANDOLD_SINCE);
 			sb.append(Seibro.MARK_START_END_POINT_COMPANY_EACH_SUMMARY_INFO);
