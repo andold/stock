@@ -145,7 +145,7 @@ public class CompilePriceEarningsRatioJob implements Job {
 			}
 
 			Date base = dividend.getBase();
-			if (dividend.getDividend() < 0 || base == null) {
+			if (dividend.getDividend() <= 0 || base == null) {
 				log.debug("{} 『부적합』compileByThenPrice() - 『{}』", Utility.indentMiddle(), dividend);
 				CleanDividendJob.regist(JobService.getQueue3(), dividend.getCode(), dividend.getIsinCode());
 				continue;
