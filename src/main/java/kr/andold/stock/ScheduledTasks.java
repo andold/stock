@@ -2,6 +2,8 @@ package kr.andold.stock;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -78,7 +80,7 @@ public class ScheduledTasks {
 			JobService.getQueue3().offer(BackupJob.builder().build());
 			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
 			UpdateItemPriorityJob.regist(JobService.getQueue3());
-			CompilePriceEarningsRatioJob.regist(JobService.getQueue3(), ZonedDateTime.now().minusWeeks(1));
+			CompilePriceEarningsRatioJob.regist(JobService.getQueue3(), ZonedDateTime.now().minusWeeks(1).truncatedTo(ChronoUnit.DAYS));
 		}
 
 		log.info("{} daily() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));
@@ -101,7 +103,7 @@ public class ScheduledTasks {
 			JobService.getQueue3().offer(StockCompileJob.builder().start(LocalDate.now().minusWeeks(2)).build());
 			CrawlItemLatestDataGoKrCompanyJob.regist(JobService.getQueue2(), oneWeekAgo);
 			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());
-			CompilePriceEarningsRatioJob.regist(JobService.getQueue3(), ZonedDateTime.now().minusMonths(1));
+			CompilePriceEarningsRatioJob.regist(JobService.getQueue3(), ZonedDateTime.now().minusMonths(1).truncatedTo(ChronoUnit.DAYS));
 		}
 
 		log.info("{} weekly() - {}", Utility.indentEnd(), Utility.toStringPastTimeReadable(started));

@@ -5,6 +5,8 @@ import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -78,7 +80,7 @@ public class ApiItemController {
 	public void compile() {
 		log.info("{} compile()", Utility.indentStart());
 
-		CompilePriceEarningsRatioJob.regist(JobService.getQueue1(), ZonedDateTime.now().minusYears(3));
+		CompilePriceEarningsRatioJob.regist(JobService.getQueue1(), ZonedDateTime.now().minusYears(1).truncatedTo(ChronoUnit.YEARS));
 
 		log.info("{} compile()", Utility.indentEnd());
 	}
