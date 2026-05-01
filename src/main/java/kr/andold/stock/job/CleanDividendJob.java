@@ -22,6 +22,7 @@ import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.Job;
 import kr.andold.utils.Utility;
+import kr.andold.utils.persist.CrudList;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,61 +42,76 @@ public class CleanDividendJob implements Job {
 		log.info("{} call()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		STATUS result = cleanDividendByCode();
-		STATUS resultByIsInCode = cleanDividendByIsInCode();
+		CrudList<DividendHistoryDomain> container = CrudList.<DividendHistoryDomain>builder().build();
+		CrudList<DividendHistoryDomain> crudByCode = cleanDividendByCode(map);
+		container.add(crudByCode);
+		STATUS resultByIsInCode = cleanDividendByIsInCode(mapIsinCode);
 		
-		log.info("{} 『{}:{}』 call() - {}", Utility.indentEnd(), result, resultByIsInCode, Utility.toStringPastTimeReadable(started));
+		log.info("{} 『{}:{}:{}』 call() - {}", Utility.indentEnd(), container, crudByCode, resultByIsInCode, Utility.toStringPastTimeReadable(started));
 		return STATUS.SUCCESS;
 	}
 
 	//	IsInCode를 이용한 배당 정보 청소. 상장일 이전의 배당정보 제거(상장일 이전의 주가 정보가 없다)
-	private STATUS cleanDividendByIsInCode() {
-		log.debug("{} cleanDividendByIsInCode(#{})", Utility.indentStart(), Utility.size(mapIsinCode));
+	private STATUS cleanDividendByIsInCode(Map<String, ZonedDateTime> map) {
+		log.debug("{} cleanDividendByIsInCode(#{})", Utility.indentStart(), Utility.size(map));
 		long started = System.currentTimeMillis();
 		
-		List<String> isinCodes = new ArrayList<>(mapIsinCode.keySet());
+		List<String> isinCodes = new ArrayList<>(map.keySet());
 		for (int cx = 0, sizex = isinCodes.size(); cx < sizex; cx += 128) {
 	        // 마지막 부분에서 인덱스 범위를 넘지 않도록 Math.min 사용
 			List<String> isinCodes128 = isinCodes.subList(cx, Math.min(cx + 128, sizex));
-
-			List<ItemDomain> items = itemService.search(ItemParam.builder().isinCodes(isinCodes128).build());
-			Map<String, ItemDomain> mapIsinCodeItem = new HashMap<>();
-			for (ItemDomain item: items) {
-				mapIsinCodeItem.put(item.getIsinCode(), item);
-			}
-
-			List<DividendHistoryDomain> dividends = dividendHistoryService.search(DividendHistoryParam.builder().isinCodes(isinCodes128).build());
-			Map<String, List<DividendHistoryDomain>> mapIsinCodeDividend = new HashMap<>();
-			for (DividendHistoryDomain dividend : dividends) {
-				String isinCode = dividend.getIsinCode();
-				List<DividendHistoryDomain> previous = mapIsinCodeDividend.get(isinCode);
-				if (previous == null) {
-					previous = new ArrayList<>();
-					mapIsinCodeDividend.put(isinCode, previous);
-				}
-				
-				previous.add(dividend);
-			}
-			
-			for (String isinCode: isinCodes128) {
-				cleanDividend(mapIsinCodeItem.get(isinCode), mapIsinCodeDividend.get(isinCode));
-			}
+			cleanDividendByIsInCode(isinCodes128);
 	    }
 
-		log.debug("{} 『{}』cleanDividendByIsInCode(#{}) - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.size(mapIsinCode), Utility.toStringPastTimeReadable(started));
+		log.debug("{} 『{}』cleanDividendByIsInCode(#{}) - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.size(map), Utility.toStringPastTimeReadable(started));
 		return STATUS.SUCCESS;
 	}
 
-	private void cleanDividend(List<DividendHistoryDomain> dividends) {
-		log.debug("{} cleanDividend(『#{}』)", Utility.indentStart(), Utility.size(dividends));
+	private CrudList<DividendHistoryDomain> cleanDividendByIsInCode(List<String> isinCodes) {
+		log.debug("{} cleanDividendByIsInCode(#{})", Utility.indentStart(), Utility.size(isinCodes));
 
-		if (dividends == null) {
-			log.debug("{} 『NULL::dividends』 cleanDividend(『#{}』)", Utility.indentEnd(), Utility.size(dividends));
-			return;
+		CrudList<DividendHistoryDomain> container = CrudList.<DividendHistoryDomain>builder().build();
+		List<DividendHistoryDomain> dividends = dividendHistoryService.search(DividendHistoryParam.builder().isinCodes(isinCodes).build());		if (dividends == null || dividends.isEmpty()) {
+			log.debug("{} 『NULL_EMPTY_RESULT』cleanDividendByIsInCode(#{})", Utility.indentEnd(), Utility.size(isinCodes));
+			return container;		}
+
+		List<ItemDomain> items = itemService.search(ItemParam.builder().isinCodes(isinCodes).build());
+		Map<String, ItemDomain> mapIsinCodeItem = new HashMap<>();
+		for (ItemDomain item: items) {
+			mapIsinCodeItem.put(item.getIsinCode(), item);
 		}
 
-		List<DividendHistoryDomain> removes = new ArrayList<>();
-		List<DividendHistoryDomain> updates = new ArrayList<>();
+		Map<String, List<DividendHistoryDomain>> mapIsinCodeDividend = new HashMap<>();
+		for (DividendHistoryDomain dividend : dividends) {
+			String isinCode = dividend.getIsinCode();
+			List<DividendHistoryDomain> previous = mapIsinCodeDividend.get(isinCode);
+			if (previous == null) {
+				previous = new ArrayList<>();
+				mapIsinCodeDividend.put(isinCode, previous);
+			}
+			
+			previous.add(dividend);
+		}
+		
+		for (String isinCode: isinCodes) {
+			CrudList<DividendHistoryDomain> crud = cleanDividend(mapIsinCodeItem.get(isinCode), mapIsinCodeDividend.get(isinCode));
+			container.add(crud);
+		}
+
+		log.debug("{} 『{}』cleanDividendByIsInCode(#{})", Utility.indentEnd(), container, Utility.size(isinCodes));
+		return container;
+	}
+
+	private CrudList<DividendHistoryDomain> cleanDividend(List<DividendHistoryDomain> dividends) {
+		log.debug("{} cleanDividend(『#{}』)", Utility.indentStart(), Utility.size(dividends));
+
+		CrudList<DividendHistoryDomain> crud = CrudList.<DividendHistoryDomain>builder().build();
+		List<DividendHistoryDomain> removes = crud.getRemoves();
+		if (dividends == null) {
+			log.debug("{} 『NULL::dividends』 cleanDividend(『#{}』)", Utility.indentEnd(), Utility.size(dividends));
+			return crud;
+		}
+
 		for (DividendHistoryDomain dividend : dividends) {
 			if (dividend.getDividend() <= 0) {
 				removes.add(dividend);
@@ -104,8 +120,8 @@ public class CleanDividendJob implements Job {
 		}
 
 		int removed = dividendHistoryService.remove(removes);
-		List<DividendHistoryDomain> updated = dividendHistoryService.update(updates);
-		log.debug("{} 『{}:{}』cleanDividend(『#{}』)", Utility.indentEnd(), removed, Utility.size(updated), Utility.size(dividends));
+		log.debug("{} 『{}/{}』cleanDividend(『#{}』)", Utility.indentEnd(), removed, Utility.size(removes), Utility.size(dividends));
+		return crud;
 	}
 
 	private void cleanDividend(ItemDomain item) {
@@ -127,15 +143,15 @@ public class CleanDividendJob implements Job {
 		log.debug("{} cleanDividend(『{}』)", Utility.indentEnd(), item);
 	}
 
-	private void cleanDividend(ItemDomain item, List<DividendHistoryDomain> dividends) {
+	private CrudList<DividendHistoryDomain> cleanDividend(ItemDomain item, List<DividendHistoryDomain> dividends) {
 		log.debug("{} cleanDividend(『{}』, 『#{}』)", Utility.indentStart(), item, Utility.size(dividends));
 
 		cleanDividend(item);
-		cleanDividend(dividends);
+		CrudList<DividendHistoryDomain> crud = cleanDividend(dividends);
 
 		if (item == null || dividends == null) {
-			log.debug("{} 『NULL』 cleanDividend(『{}』, 『#{}』)", Utility.indentEnd(), item, Utility.size(dividends));
-			return;
+			log.debug("{} 『{}』 cleanDividend(『{}』, 『#{}』)", Utility.indentEnd(), crud, item, Utility.size(dividends));
+			return crud;
 		}
 
 		Date ipoOpen = item.getIpoOpen();
@@ -167,45 +183,67 @@ public class CleanDividendJob implements Job {
 
 		int removed = dividendHistoryService.remove(removes);
 		List<DividendHistoryDomain> updated = dividendHistoryService.update(updates);
-		log.debug("{} 『{}:{}』cleanDividend(『{}』, 『#{}』)", Utility.indentEnd(), removed, Utility.size(updated), item, Utility.size(dividends));
+		crud.getUpdates().addAll(updates);
+		crud.getRemoves().addAll(removes);
+		
+		log.debug("{} 『{}:{}:{}』cleanDividend(『{}』, 『#{}』)", Utility.indentEnd(), crud, removed, Utility.size(updated), item, Utility.size(dividends));
+		return crud;
 	}
 
 	//	배당 정보 청소. 상장일 이전의 배당정보 제거(상장일 이전의 주가 정보가 없다)
-	protected STATUS cleanDividendByCode() {
-		log.debug("{} cleanDividendByCode()", Utility.indentStart());
+	private CrudList<DividendHistoryDomain> cleanDividendByCode(Map<String, ZonedDateTime> map) {
+		log.debug("{} cleanDividendByCode(#{})", Utility.indentStart(), Utility.size(map));
 		long started = System.currentTimeMillis();
 
+		//	전체에서 적절한 크기로 분할하여 처리한다.
+		CrudList<DividendHistoryDomain> container = CrudList.<DividendHistoryDomain>builder().build();
 		List<String> codes = new ArrayList<>(map.keySet());
 		for (int cx = 0, sizex = codes.size(); cx < sizex; cx += 128) {
 	        // 마지막 부분에서 인덱스 범위를 넘지 않도록 Math.min 사용
 			List<String> codes128 = codes.subList(cx, Math.min(cx + 128, sizex));
-
-			List<ItemDomain> items = itemService.search(ItemParam.builder().codes(codes128).build());
-			Map<String, ItemDomain> mapIsinCodeItem = new HashMap<>();
-			for (ItemDomain item: items) {
-				mapIsinCodeItem.put(item.getIsinCode(), item);
-			}
-
-			List<DividendHistoryDomain> dividends = dividendHistoryService.search(DividendHistoryParam.builder().codes(codes128).build());
-			Map<String, List<DividendHistoryDomain>> mapCodeDividend = new HashMap<>();
-			for (DividendHistoryDomain dividend : dividends) {
-				String code = dividend.getCode();
-				List<DividendHistoryDomain> previous = mapCodeDividend.get(code);
-				if (previous == null) {
-					previous = new ArrayList<>();
-					mapCodeDividend.put(code, previous);
-				}
-				
-				previous.add(dividend);
-			}
-			
-			for (String code: codes128) {
-				cleanDividend(mapIsinCodeItem.get(code), mapCodeDividend.get(code));
-			}
+			CrudList<DividendHistoryDomain> crud = cleanDividendByCode(codes128);
+			container.add(crud);
 	    }
 
-		log.debug("{} 『{}』 cleanDividendByCode() - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.toStringPastTimeReadable(started));
-		return STATUS.SUCCESS;
+		log.debug("{} 『{}』 cleanDividendByCode(#{}) - {}", Utility.indentEnd(), container, Utility.size(map), Utility.toStringPastTimeReadable(started));
+		return container;
+	}
+
+	private CrudList<DividendHistoryDomain> cleanDividendByCode(List<String> codes) {
+		log.debug("{} cleanDividendByCode(#{})", Utility.indentStart(), Utility.size(codes));
+
+		CrudList<DividendHistoryDomain> container = CrudList.<DividendHistoryDomain>builder().build();
+		List<DividendHistoryDomain> dividends = dividendHistoryService.search(DividendHistoryParam.builder().codes(codes).build());
+		if (dividends == null || dividends.isEmpty()) {
+			log.debug("{} 『NULL_EMPTY_RESULT:{}』cleanDividendByCode(#{})", Utility.indentEnd(), container, Utility.size(codes));
+			return container;
+		}
+
+		List<ItemDomain> items = itemService.search(ItemParam.builder().codes(codes).build());
+		Map<String, ItemDomain> mapCodeItem = new HashMap<>();
+		for (ItemDomain item: items) {
+			mapCodeItem.put(item.getCode(), item);
+		}
+
+		Map<String, List<DividendHistoryDomain>> mapCodeDividend = new HashMap<>();
+		for (DividendHistoryDomain dividend : dividends) {
+			String code = dividend.getCode();
+			List<DividendHistoryDomain> previous = mapCodeDividend.get(code);
+			if (previous == null) {
+				previous = new ArrayList<>();
+				mapCodeDividend.put(code, previous);
+			}
+			
+			previous.add(dividend);
+		}
+		
+		for (String code: codes) {
+			CrudList<DividendHistoryDomain> crud = cleanDividend(mapCodeItem.get(code), mapCodeDividend.get(code));
+			container.add(crud);
+		}
+
+		log.debug("{} 『{}』cleanDividendByCode(#{})", Utility.indentEnd(), container, Utility.size(codes));
+		return container;
 	}
 
 	public static void regist(ConcurrentLinkedDeque<Job> deque, String code, String isinCode) {

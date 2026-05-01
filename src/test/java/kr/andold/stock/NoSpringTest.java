@@ -89,6 +89,12 @@ public class NoSpringTest {
 	}
 
 	@Test
+	public void  formatDoubleTest() {
+		log.info("소수점 둘째 자리까지 표시 {:.2f}", Math.random());
+		log.info("소수점 둘째 자리까지 표시 {%.2f}", Math.random());
+	}
+
+	@Test
 	public void  truncateTest() {
 		log.info("{}", ZonedDateTime.now().minusYears(1).withDayOfMonth(1).withMonth(1).truncatedTo(ChronoUnit.DAYS));
 	}
