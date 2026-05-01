@@ -136,7 +136,7 @@ public class CrawlItemDetailDataGoKrCompanyJob implements Job {
 						ItemDomain domain = DataGoKrService.toItemDomain(item);
 						items.add(domain);
 						log.debug("{} 『{}:{}/{}』CrawlItemDetailDataGoKrCompanyJob::main(#{}) - 『{}』", Utility.indentMiddle()
-								, isinCode, cy, sizey, Utility.size(map), cy, sizey, size, item);
+								, isinCode, cy, sizey, Utility.size(map), item);
 					}
 				}
 				

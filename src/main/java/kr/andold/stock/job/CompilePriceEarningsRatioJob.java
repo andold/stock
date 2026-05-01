@@ -141,6 +141,7 @@ public class CompilePriceEarningsRatioJob implements Job {
 			if (code == null || code.isBlank()) {
 				log.debug("{} 『부적합:code』compileByThenPrice() - 『{}』", Utility.indentMiddle(), dividend);
 				CrawlItemDetailDataGoKrCompanyJob.regist(JobService.getQueue3(), dividend.getIsinCode());
+				CleanDividendJob.regist(JobService.getQueue3(), dividend.getCode(), dividend.getIsinCode());
 				continue;
 			}
 
