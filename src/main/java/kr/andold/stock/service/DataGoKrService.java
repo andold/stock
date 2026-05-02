@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -181,7 +182,7 @@ public class DataGoKrService {
 				ResultDataGoKr.PriceCompanyDomain item = list.get(cy);
 				PriceDomain price = DataGoKrService.toPriceDomain(item);
 				prices.add(price);
-				if (Math.random() < (4.0 / sizey)) {
+				if (Set.of(0, 1, sizey - 1, sizey - 2, sizey / 2).contains(cy)) {
 					log.debug("{} 『{}』주식시세::getStockPriceInfo(『{}』, 『{}』) - 『{}/{}』『{}/{}』", Utility.indentMiddle(), price, code, zdt, cx, NUMBER_OF_PAGES, cy, sizey);
 				}
 			}

@@ -12,7 +12,9 @@ import java.net.http.HttpResponse;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -92,6 +94,12 @@ public class NoSpringTest {
 	public void  formatDoubleTest() {
 		log.info("소수점 둘째 자리까지 표시 {:.2f}", Math.random());
 		log.info("소수점 둘째 자리까지 표시 {%.2f}", Math.random());
+		if (Arrays.asList(1, 2, 3, 4, 5).contains(3)) {
+			log.info("포함 {}", Set.of(1, 2, 3, 4, 5));
+		}
+		if (Set.of(1, 2, 3, 4, 5).contains(3)) {
+			log.info("포함 {}", Set.of(1, 2, 3, 4, 5));
+		}
 	}
 
 	@Test

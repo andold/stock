@@ -18,34 +18,25 @@ import kr.andold.stock.service.PriceService;
 import kr.andold.stock.service.Utility;
 import kr.andold.stock.service.JobService.Job;
 import kr.andold.utils.persist.CrudList;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 // 주식 시세 수집, 회사
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Slf4j
 @Service
 public class CrawlPriceDataGoKrCompanyJob implements Job {
-	@Builder.Default @Getter @Setter private Long timeout = 600L;
-	@Builder.Default @Getter @Setter private Map<String, ZonedDateTime> map = new HashMap<>();	//	Map<종목코드, 배당일>
+	@Getter private Long timeout = 600L;
+	@Getter private Map<String, ZonedDateTime> map = new HashMap<>();	//	Map<종목코드, 배당일>
 	@Autowired private DataGoKrService dataGoKrService;
 
 	@Override
 	public STATUS call() throws Exception {
-		log.debug("{} 주식시세수집회사::CrawlPriceDataGoKrCompanyJob::call()", Utility.indentStart());
+		log.debug("{} 주식시세수집회사::CrawlPriceDataGoKrCompanyJob::call(#{})", Utility.indentStart(), map.size());
 		long started = System.currentTimeMillis();
 
-		CrawlPriceDataGoKrCompanyJob that = (CrawlPriceDataGoKrCompanyJob) ApplicationContextProvider.getBean(CrawlPriceDataGoKrCompanyJob.class);
-		that.setMap(map);
-		STATUS result = that.main();
+		STATUS result = main();
 
-		log.debug("{} 『#{}』 주식시세수집회사::CrawlPriceDataGoKrCompanyJob::call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
+		log.debug("{} 『#{}』 주식시세수집회사::CrawlPriceDataGoKrCompanyJob::call(#{}) - {}", Utility.indentEnd(), result, map.size(), Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 
@@ -67,8 +58,8 @@ public class CrawlPriceDataGoKrCompanyJob implements Job {
 			return;
 		}
 
-		CrawlPriceDataGoKrCompanyJob job = CrawlPriceDataGoKrCompanyJob.builder().build();
-		job.getMap().put(code, zdt);
+		CrawlPriceDataGoKrCompanyJob job = (CrawlPriceDataGoKrCompanyJob) ApplicationContextProvider.getBean(CrawlPriceDataGoKrCompanyJob.class);
+		job.containsOrModify(code, zdt);
 		deque.addLast(job);
 	}
 
@@ -107,7 +98,7 @@ public class CrawlPriceDataGoKrCompanyJob implements Job {
 
 	// 주식시세
 	protected STATUS main() {
-		log.debug("{} 주식시세수집회사::CrawlPriceDataGoKrCompanyJob::main()", Utility.indentStart());
+		log.debug("{} 주식시세수집회사::CrawlPriceDataGoKrCompanyJob::main(#{})", Utility.indentStart(), map.size());
 		long started = System.currentTimeMillis();
 
 		try {
@@ -125,17 +116,17 @@ public class CrawlPriceDataGoKrCompanyJob implements Job {
 					//	배당수익율계산작업 => 배당일의 주가없음 => 주가수집 => 주가변화없음::배당일이상검사
 					CleanDividendJob.regist(JobService.getQueue3(), code, null);
 				}
-				log.debug("{} 『{}/{}』 주식시세수집회사::CrawlPriceDataGoKrCompanyJob::main() - 『{}』『{}』『#{}』『{}』", Utility.indentMiddle()
-						, size, threshold, code, map.get(code), Utility.size(prices), crud);
+				log.debug("{} 『{}/{}』 주식시세수집회사::CrawlPriceDataGoKrCompanyJob::main(#{}) - 『{}』『{}』『#{}』『{}』", Utility.indentMiddle()
+						, size, threshold, map.size(), code, map.get(code), Utility.size(prices), crud);
 			}
 
-			log.debug("{} 『{}』 주식시세수집회사::CrawlPriceDataGoKrCompanyJob::main() - {}", Utility.indentEnd(), STATUS.SUCCESS, Utility.toStringPastTimeReadable(started));
+			log.debug("{} 『{}』 주식시세수집회사::CrawlPriceDataGoKrCompanyJob::main(#{}) - {}", Utility.indentEnd(), STATUS.SUCCESS, map.size(), Utility.toStringPastTimeReadable(started));
 			return STATUS.SUCCESS;
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 		}
 
-		log.debug("{} 『{}』 주식시세수집회사::CrawlPriceDataGoKrCompanyJob::main() - {}", Utility.indentEnd(), STATUS.EXCEPTION, Utility.toStringPastTimeReadable(started));
+		log.debug("{} 『{}』 주식시세수집회사::CrawlPriceDataGoKrCompanyJob::main(#{}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, map.size(), Utility.toStringPastTimeReadable(started));
 		return STATUS.EXCEPTION;
 	}
 
