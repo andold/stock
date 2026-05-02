@@ -16,22 +16,15 @@ import kr.andold.stock.service.ItemService;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.Job;
 import kr.andold.stock.service.Utility;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 //	주식시세 수집
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Slf4j
 @Service
 public class CrawlPriceJob implements Job {
-	@Builder.Default @Getter @Setter private Long timeout = 60L;
-	@Builder.Default @Getter @Setter private Map<String, ZonedDateTime> map = new HashMap<>();	//	Map<종목코드, 배당일>
+	@Getter private Long timeout = 60L;
+	@Getter private Map<String, ZonedDateTime> map = new HashMap<>();	//	Map<종목코드, 배당일>
 	@Autowired private ItemService itemService;
 
 	@Override
@@ -39,9 +32,7 @@ public class CrawlPriceJob implements Job {
 		log.debug("{} CrawlPriceJob::call(#{})", Utility.indentStart(), Utility.size(map));
 		long started = System.currentTimeMillis();
 
-		CrawlPriceJob that = (CrawlPriceJob) ApplicationContextProvider.getBean(CrawlPriceJob.class);
-		that.setMap(map);
-		STATUS result = that.main();
+		STATUS result = main();
 
 		log.debug("{} 『#{}』 CrawlPriceJob::call(#{}) - {}", Utility.indentEnd(), result, Utility.size(map), Utility.toStringPastTimeReadable(started));
 		return result;
@@ -62,8 +53,8 @@ public class CrawlPriceJob implements Job {
 			return;
 		}
 
-		CrawlPriceJob job = CrawlPriceJob.builder().build();
-		job.getMap().put(code, zdt);
+		CrawlPriceJob job = (CrawlPriceJob) ApplicationContextProvider.getBean(CrawlPriceJob.class);
+		job.containsOrModify(code, zdt);
 		deque.addLast(job);
 	}
 

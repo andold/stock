@@ -125,7 +125,7 @@ public class CompilePriceEarningsRatioJob implements Job {
 	}
 
 	private Map<String, Float> compileByThenPrice(Map<String, Float> mapMaxRecent) {
-		log.info("{} compileByThenPrice()", Utility.indentStart());
+		log.info("{} compileByThenPrice(#{})", Utility.indentStart(), Utility.size(mapMaxRecent));
 		long started = System.currentTimeMillis();
 
 		ZonedDateTime yesterday = ZonedDateTime.now().minusDays(1).truncatedTo(ChronoUnit.DAYS);
@@ -139,7 +139,7 @@ public class CompilePriceEarningsRatioJob implements Job {
 		for (DividendHistoryDomain dividend : dividends) {
 			String code = dividend.getCode();
 			if (code == null || code.isBlank()) {
-				log.debug("{} 『부적합:code』compileByThenPrice() - 『{}』", Utility.indentMiddle(), dividend);
+				log.debug("{} 『부적합:code』compileByThenPrice(#{}) - 『{}』", Utility.indentMiddle(), Utility.size(mapMaxRecent), dividend);
 				CrawlItemDetailDataGoKrCompanyJob.regist(JobService.getQueue3(), dividend.getIsinCode());
 				CleanDividendJob.regist(JobService.getQueue3(), dividend.getCode(), dividend.getIsinCode());
 				continue;
@@ -147,25 +147,28 @@ public class CompilePriceEarningsRatioJob implements Job {
 
 			Date base = dividend.getBase();
 			if (dividend.getDividend() <= 0 || base == null) {
-				log.debug("{} 『부적합』compileByThenPrice() - 『{}』", Utility.indentMiddle(), dividend);
+				log.debug("{} 『부적합』compileByThenPrice(#{}) - 『{}』", Utility.indentMiddle(), Utility.size(mapMaxRecent), dividend);
 				CleanDividendJob.regist(JobService.getQueue3(), dividend.getCode(), dividend.getIsinCode());
 				continue;
 			}
 
 			ZonedDateTime zdt = base.toInstant().atZone(Utility.ZONE_ID_KST);
 			if (zdt.isAfter(yesterday)) {
-				log.debug("{} 『부적합::미래배당』compileByThenPrice() - 『{}』", Utility.indentMiddle(), dividend);
+				log.debug("{} 『부적합::미래배당』compileByThenPrice(#{}) - 『{}』", Utility.indentMiddle(), Utility.size(mapMaxRecent), dividend);
 				continue;
 			}
 			
 			PriceDomain price = candidate(mapThenPrice, dividend.getCode(), dividend.getBase());
 			if (price == null) {
-				log.debug("{} NO-PRICE compileByThenPrice() - 『{}』", Utility.indentMiddle(), dividend);
+				log.debug("{} NO-PRICE compileByThenPrice(#{}) - 『{}』", Utility.indentMiddle(), Utility.size(mapMaxRecent), dividend);
 				CrawlPriceJob.regist(JobService.getQueue3(), dividend.getCode(), dividend.getBase(), 28);
 				continue;
 			}
+			
+			dividend.setPriceBase(price.getBase());
+			dividend.setPriceClosing(price.getClosing());
 
-			Float priceEarningsRatio = dividend.getDividend().floatValue() / price.getClosing().floatValue() * 100f;
+			Float priceEarningsRatio = dividend.getDividend().floatValue() / dividend.getPriceClosing().floatValue() * 100f;
 			String key = String.format("%s.%d", dividend.getCode(), LocalDate.ofInstant(dividend.getBase().toInstant(), Utility.ZONE_ID_KST).getYear());
 			Float before = mapYearlySummaryRatio.get(key);
 			if (before == null) {
@@ -190,7 +193,9 @@ public class CompilePriceEarningsRatioJob implements Job {
 			}
 		}
 		
-		log.info("{} 『#{}』 compileByThenPrice() - {}", Utility.indentEnd(), Utility.size(mapMaxRecent), Utility.toStringPastTimeReadable(started));
+		CrudList<DividendHistoryDomain> crud = dividendHistoryService.put(dividends);
+		
+		log.info("{} 『#{}:{}』 compileByThenPrice(#{}) - {}", Utility.indentEnd(), Utility.size(mapMaxRecent), crud, Utility.size(mapMaxRecent), Utility.toStringPastTimeReadable(started));
 		return mapMaxRecent;
 	}
 
