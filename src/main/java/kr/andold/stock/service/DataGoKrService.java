@@ -75,7 +75,7 @@ public class DataGoKrService {
 				.market(Integer.parseInt(domain.getMkp()))
 				.high(Integer.parseInt(domain.getHipr()))
 				.low(Integer.parseInt(domain.getLopr()))
-				.volume(Integer.parseInt(domain.getTrqu()))
+				.volume(Long.parseLong(domain.getTrqu()))
 				.build();
 	}
 

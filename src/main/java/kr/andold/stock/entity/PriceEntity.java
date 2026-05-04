@@ -40,7 +40,7 @@ public class PriceEntity {
 	private Integer market;		//	시가
 	private Integer high;		//	고가
 	private Integer low;		//	저가
-	private Integer volume;		//	거래량
+	private Long volume;		//	거래량
 	
 	/*
 	 	bit 0 ~ 3: reserved

@@ -214,7 +214,7 @@ public class NoSpringTest {
 		List<ResultDataGoKr.PriceEtfDomain> list = price.getResponse().getBody().getItems().getItem();
 		for (int cx = 0, sizex = list.size(); cx < sizex; cx++) {
 			ResultDataGoKr.PriceEtfDomain item = list.get(cx);
-			PriceDomain p = toPriceDomain(item);
+			PriceDomain p = DataGoKrService.toPriceDomain(item);
 			log.info("{}/{} {}", cx, sizex, item);
 			log.info("{}/{} {}", cx, sizex, p);
 		}
@@ -229,7 +229,7 @@ public class NoSpringTest {
 				.dividend(Math.round(item.getStckGenrDvdnAmt()))
 				.build();
 	}
-
+/*
 	public PriceDomain toPriceDomain(ResultDataGoKr.PriceEtfDomain item) {
 		return PriceDomain.builder()
 				.code(item.getSrtnCd())
@@ -241,7 +241,7 @@ public class NoSpringTest {
 				.volume(item.getTrqu())
 				.build();
 	}
-
+*/
 	// 파생상품지수시세
 	@Test
 	public void deriveProductIndexPriceTest() {

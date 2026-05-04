@@ -141,7 +141,7 @@ public class ResultDataGoKr<T> {
 		private Integer mkp;
 		private Integer hipr;
 		private Integer lopr;
-		private Integer trqu;
+		private Long trqu;
 		private String trPrc;
 		private String lstgStCnt;
 		private String mrktTotAmt;

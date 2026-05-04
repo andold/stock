@@ -150,7 +150,7 @@ public class ParserService {
 				.market(Utility.parseInteger(market, null))
 				.high(Utility.parseInteger(high, null))
 				.low(Utility.parseInteger(low, null))
-				.volume(Utility.parseInteger(volume, null))
+				.volume(Utility.parseLong(volume, null))
 				.flag(0)
 				.build());
 	}
