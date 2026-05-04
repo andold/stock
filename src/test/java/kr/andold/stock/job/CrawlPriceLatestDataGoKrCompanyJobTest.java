@@ -26,7 +26,7 @@ class CrawlPriceLatestDataGoKrCompanyJobTest {
 
 	@Test
 	public void main() {
-		job.setStart(ZonedDateTime.now().minusWeeks(1));
+		job.containsOrModify(ZonedDateTime.now().minusWeeks(1));
 		STATUS status = job.main();
 		log.info("{}", status);
 	}

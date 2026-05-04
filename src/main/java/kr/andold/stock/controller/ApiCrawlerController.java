@@ -2,6 +2,7 @@ package kr.andold.stock.controller;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +50,7 @@ public class ApiCrawlerController {
 	public Result<ParserResult> crawlPriceAll(@RequestBody PriceParam param) {
 		log.info("{} crawlPriceAll({})", Utility.indentStart(), param);
 
-		ZonedDateTime oneWeekAgo = ZonedDateTime.now().minusWeeks(1);
+		ZonedDateTime oneWeekAgo = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS).minusWeeks(1);
 		CrawlPriceLatestDataGoKrCompanyJob.regist(JobService.getQueue1(), oneWeekAgo);
 		CrawlPriceLatestDataGoKrEtfJob.regist(JobService.getQueue1(), oneWeekAgo);
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
@@ -74,7 +75,7 @@ public class ApiCrawlerController {
 	public Result<ParserResult> crawlItemIpoCloseAll() {
 		log.info("{} crawlItemIpoCloseAll()", Utility.indentStart());
 
-		CrawlItemIpoCloseKindJob.regist(JobService.getQueue2(), ZonedDateTime.now().minusYears(12));
+		CrawlItemIpoCloseKindJob.regist(JobService.getQueue2(), ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS).minusYears(12));
 		
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
 		log.info("{} 『{}』 - crawlItemIpoCloseAll()", Utility.indentEnd(), result);
@@ -99,7 +100,7 @@ public class ApiCrawlerController {
 	public Result<ParserResult> crawlDividendAllRecent() {
 		log.info("{} crawlDividendAllRecent()", Utility.indentStart());
 
-		ZonedDateTime sixMonthAgo = ZonedDateTime.now().minusMonths(6);
+		ZonedDateTime sixMonthAgo = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS).minusMonths(6);
 		CrawlDividendLatestDataGoKrCompanyJob.regist(JobService.getQueue1());
 		JobService.getQueue1().addLast(CrawlDividendSeibroEtfJob.builder().start(sixMonthAgo).build());
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();

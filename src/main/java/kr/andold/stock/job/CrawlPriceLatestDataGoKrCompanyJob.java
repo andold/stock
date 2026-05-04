@@ -15,41 +15,24 @@ import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.Job;
 import kr.andold.utils.Utility;
 import kr.andold.utils.persist.CrudList;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-// 주식시세 최근 회사
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+// 최근주가회사
 @Slf4j
 @Service
 public class CrawlPriceLatestDataGoKrCompanyJob implements Job {
+	@Getter private Long timeout = 600L;
+	@Getter private ZonedDateTime start = ZonedDateTime.now();
+
 	@Autowired private DataGoKrService dataGoKrService;
-
-	@Builder.Default
-	@Getter
-	@Setter
-	private Long timeout = 600L;
-	@Getter
-	@Setter
-	private ZonedDateTime start;
-
-	@Autowired
-	private DataGoKrService service;
 
 	@Override
 	public STATUS call() throws Exception {
 		log.debug("{} CrawlPriceLatestDataGoKrCompanyJob::call(『{}』)", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();
 
-		CrawlPriceLatestDataGoKrCompanyJob that = (CrawlPriceLatestDataGoKrCompanyJob) ApplicationContextProvider.getBean(CrawlPriceLatestDataGoKrCompanyJob.class);
-		that.setStart(start);
-		STATUS result = that.main();
+		STATUS result = main();
 
 		log.debug("{} 『#{}』 CrawlPriceLatestDataGoKrCompanyJob::call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;
@@ -69,7 +52,9 @@ public class CrawlPriceLatestDataGoKrCompanyJob implements Job {
 			return;
 		}
 
-		deque.addLast(CrawlPriceLatestDataGoKrCompanyJob.builder().start(date).build());
+		CrawlPriceLatestDataGoKrCompanyJob job = (CrawlPriceLatestDataGoKrCompanyJob) ApplicationContextProvider.getBean(CrawlPriceLatestDataGoKrCompanyJob.class);
+		job.containsOrModify(date);
+		deque.addLast(job);
 	}
 
 	private static boolean containsOrModify(ZonedDateTime date, ConcurrentLinkedDeque<Job> deque) {
@@ -87,11 +72,15 @@ public class CrawlPriceLatestDataGoKrCompanyJob implements Job {
 		}
 
 		CrawlPriceLatestDataGoKrCompanyJob previous = (CrawlPriceLatestDataGoKrCompanyJob) job;
-		if (previous.getStart().isBefore(date)) {
+		return previous.containsOrModify(date);
+	}
+
+	public boolean containsOrModify(ZonedDateTime date) {
+		if (start.isBefore(date)) {
 			return true;
 		}
 		
-		previous.setStart(date);
+		start = date;
 		return true;
 	}
 
@@ -101,7 +90,7 @@ public class CrawlPriceLatestDataGoKrCompanyJob implements Job {
 		long started = System.currentTimeMillis();
 
 		List<PriceDomain> prices = dataGoKrService.getStockPriceInfo(null, start);
-		CrudList<PriceDomain> crud = service.putPrice(prices);
+		CrudList<PriceDomain> crud = dataGoKrService.putPrice(prices);
 
 		log.debug("{} 『{}』 주식시세최근회사::CrawlPriceLatestDataGoKrCompanyJob::main() - {}", Utility.indentEnd(), crud, Utility.toStringPastTimeReadable(started));
 		return STATUS.SUCCESS;

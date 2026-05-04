@@ -74,7 +74,7 @@ public class ScheduledTasks {
 		long started = System.currentTimeMillis();
 
 		if (zookeeperClient.isMaster()) {
-			ZonedDateTime oneWeekAgo = ZonedDateTime.now().minusWeeks(1);
+			ZonedDateTime oneWeekAgo = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS).minusWeeks(1);
 			CrawlPriceLatestDataGoKrCompanyJob.regist(JobService.getQueue2(), oneWeekAgo);
 			CrawlPriceLatestDataGoKrEtfJob.regist(JobService.getQueue2(), oneWeekAgo);
 			JobService.getQueue3().offer(BackupJob.builder().build());
@@ -93,8 +93,8 @@ public class ScheduledTasks {
 		long started = System.currentTimeMillis();
 
 		if (zookeeperClient.isMaster()) {
-			ZonedDateTime oneWeekAgo = ZonedDateTime.now().minusWeeks(1);
-			ZonedDateTime sixMonthAgo = ZonedDateTime.now().minusMonths(6);
+			ZonedDateTime oneWeekAgo = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS).minusWeeks(1);
+			ZonedDateTime sixMonthAgo = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS).minusMonths(6);
 			CrawlDividendLatestDataGoKrCompanyJob.regist(JobService.getQueue2());
 			JobService.getQueue2().addLast(CrawlDividendSeibroEtfJob.builder().start(sixMonthAgo).build());
 			CrawlItemIpoCloseKindJob.regist(JobService.getQueue2(), ZonedDateTime.now().minusMonths(12));

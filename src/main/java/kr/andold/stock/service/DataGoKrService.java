@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,7 +21,6 @@ import kr.andold.stock.domain.ResultDataGoKr;
 import kr.andold.stock.domain.ResultDataGoKr.DividendDomain;
 import kr.andold.stock.domain.ResultDataGoKr.ItemDetailDomain;
 import kr.andold.stock.job.CrawlItemDetailDataGoKrCompanyJob;
-import kr.andold.utils.Utility;
 import kr.andold.utils.persist.CrudList;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +28,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class DataGoKrService {
-	// 주식시세 회사
+	// 주가 회사
 	public static final String URL_GET_STOCK_PRICE_INFO = "https://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getStockPriceInfo?resultType=json";
-	// 주식시세 ETF
+	//	주가 ETF
 	public static final String URL_GET_ETF_PRICE_INFO = "https://apis.data.go.kr/1160100/service/GetSecuritiesProductInfoService/getETFPriceInfo?resultType=json";
 
 	private static final int NUMBER_OF_ROWS = 1024 * 8;
@@ -163,27 +160,27 @@ public class DataGoKrService {
 			if (code != null && !code.isBlank()) {
 				url = String.format("%s&likeSrtnCd=%s", url, code);
 			}
-			log.debug("{} 주식시세::getStockPriceInfo(『{}』, 『{}』) - 『{}/{}』『{}』", Utility.indentMiddle(), code, zdt, cx, NUMBER_OF_PAGES, url);
+			log.debug("{} 『{}/{}』주식시세::getStockPriceInfo(『{}』, 『{}』) - 『{}』", Utility.indentMiddle(), cx, NUMBER_OF_PAGES, code, zdt, url);
 
 			String html = read(url);
-			log.debug("{} 주식시세::getStockPriceInfo(『{}』)- 『{}』", Utility.indentMiddle(), zdt, Utility.ellipsis(html, 128, 64));
+			log.debug("{} 『{}/{}』주식시세::getStockPriceInfo(『{}』)- 『{}』", Utility.indentMiddle(), cx, NUMBER_OF_PAGES, zdt, Utility.ellipsis(html, 128, 64));
 			ResultDataGoKr.ResultPriceCompany result = Utility.parseJsonLine(html, ResultDataGoKr.ResultPriceCompany.class);
 			if (result == null) {
-				log.debug("{} 『NULL』주식시세::getStockPriceInfo(『{}』, 『{}』) - 『{}/{}』", Utility.indentMiddle(), code, zdt, cx, NUMBER_OF_PAGES);
+				log.debug("{} 『NULL:{}/{}』주식시세::getStockPriceInfo(『{}』, 『{}』)", Utility.indentMiddle(), cx, NUMBER_OF_PAGES, code, zdt);
 				break;
 			}
 
 			List<ResultDataGoKr.PriceCompanyDomain> list = result.getResponse().getBody().getItems().getItem();
 			if (list == null || list.isEmpty()) {
-				log.debug("{} 『BLANK』주식시세::getStockPriceInfo(『{}』, 『{}』) - 『{}/{}』", Utility.indentMiddle(), code, zdt, cx, NUMBER_OF_PAGES);
+				log.debug("{} 『BLANK:{}/{}』주식시세::getStockPriceInfo(『{}』, 『{}』)", Utility.indentMiddle(), cx, NUMBER_OF_PAGES, code, zdt);
 				break;
 			}
 			for (int cy = 0, sizey = list.size(); cy < sizey; cy++) {
 				ResultDataGoKr.PriceCompanyDomain item = list.get(cy);
 				PriceDomain price = DataGoKrService.toPriceDomain(item);
 				prices.add(price);
-				if (Set.of(0, 1, sizey - 1, sizey - 2, sizey / 2).contains(cy)) {
-					log.debug("{} 『{}』주식시세::getStockPriceInfo(『{}』, 『{}』) - 『{}/{}』『{}/{}』", Utility.indentMiddle(), price, code, zdt, cx, NUMBER_OF_PAGES, cy, sizey);
+				if (Utility.samples(cy, sizey, 6)) {
+					log.debug("{} 『{}/{}:{}/{}:{}』주식시세::getStockPriceInfo(『{}』, 『{}』)", Utility.indentMiddle(), cy, sizey, cx, NUMBER_OF_PAGES, price, code, zdt);
 				}
 			}
 		}
@@ -192,6 +189,7 @@ public class DataGoKrService {
 		return prices;
 	}
 
+	@Deprecated(since = "2026-05-04 use kr.andold.stock.job.CrawlPriceLatestDataGoKrEtfJob")
 	public List<PriceDomain> getETFPriceInfo(String code, ZonedDateTime zdt) {
 		log.info("{} 주식시세::getETFPriceInfo(『{}』, 『{}』)", Utility.indentStart(), code, zdt);
 		long started = System.currentTimeMillis();

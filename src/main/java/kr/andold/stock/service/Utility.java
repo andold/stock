@@ -10,6 +10,8 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -138,6 +140,40 @@ public class Utility extends kr.andold.utils.Utility {
 		} catch (IOException e) {
 			log.warn("{} IOException:: {}", Utility.indentMiddle(), e.getMessage(), e);
 		}
+	}
+
+	private static int SAMPLES_COUNT_MAX = 9;
+	public static boolean samples(int index, int size, int count) {
+		if (count <= 0 || size <= 0) {
+			return false;
+		}
+
+		Set<Integer> set = new HashSet<>();
+		count = Math.min(count, SAMPLES_COUNT_MAX);
+		switch (count) {
+		case 9:
+			set.add(Math.max(0, size / 2 - 1));
+		case 8:
+			set.add(Math.max(size - 3, 0));
+		case 7:
+			set.add(Math.min(size - 1, 2));
+		case 6:
+			set.add(Math.min(size - 1, size / 2 + 1));
+		case 5:
+			set.add(Math.max(size - 2, 0));
+		case 4:
+			set.add(Math.min(size - 1, 1));
+		case 3:
+			set.add(size / 2);
+		case 2:
+			set.add(Math.max(size - 1, 0));
+		case 1:
+			set.add(0);
+		default:
+			break;
+		}
+
+		return set.contains(index);
 	}
 
 }

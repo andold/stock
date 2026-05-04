@@ -26,6 +26,7 @@ class DataGoKrServiceTest {
 		assertNotNull(service);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void getETFPriceInfo() {
 		List<PriceDomain> result = service.getETFPriceInfo("441680", ZonedDateTime.now().minusDays(21));

@@ -16,46 +16,31 @@ import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.service.DataGoKrService;
 import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.Job;
-import kr.andold.utils.Utility;
+import kr.andold.stock.service.Utility;
 import kr.andold.utils.persist.CrudList;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+//	최근주가ETF
 @Slf4j
 @Service
 public class CrawlPriceLatestDataGoKrEtfJob implements Job {
-	// ETF시세
-	public static final String URL = "https://apis.data.go.kr/1160100/service/GetSecuritiesProductInfoService/getETFPriceInfo?resultType=json";
-
+	//	주가 ETF
+	private static final String URL = DataGoKrService.URL_GET_ETF_PRICE_INFO;
 	private static final int NUMBER_OF_ROWS = 1024 * 8;
 	private static final int NUMBER_OF_PAGES = 4;
 
-	@Builder.Default
-	@Getter
-	@Setter
-	private Long timeout = 600L;
-	@Getter
-	@Setter
-	private ZonedDateTime start;
+	@Getter private Long timeout = 600L;
+	@Getter private ZonedDateTime start = ZonedDateTime.now();
 
-	@Autowired
-	private DataGoKrService service;
+	@Autowired private DataGoKrService service;
 
 	@Override
 	public STATUS call() throws Exception {
 		log.debug("{} CrawlPriceLatestDataGoKrEtfJob::call(『{}』)", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();
 
-		CrawlPriceLatestDataGoKrEtfJob that = (CrawlPriceLatestDataGoKrEtfJob) ApplicationContextProvider.getBean(CrawlPriceLatestDataGoKrEtfJob.class);
-		that.setStart(start);
-		STATUS result = that.main();
+		STATUS result = main();
 
 		log.debug("{} 『#{}』 CrawlPriceLatestDataGoKrEtfJob::call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;
@@ -75,7 +60,9 @@ public class CrawlPriceLatestDataGoKrEtfJob implements Job {
 			return;
 		}
 
-		deque.addLast(CrawlPriceLatestDataGoKrEtfJob.builder().start(date).build());
+		CrawlPriceLatestDataGoKrEtfJob job = (CrawlPriceLatestDataGoKrEtfJob) ApplicationContextProvider.getBean(CrawlPriceLatestDataGoKrEtfJob.class);
+		job.containsOrModify(date);
+		deque.addLast(job);
 	}
 
 	private static boolean containsOrModify(ZonedDateTime date, ConcurrentLinkedDeque<Job> deque) {
@@ -93,55 +80,69 @@ public class CrawlPriceLatestDataGoKrEtfJob implements Job {
 		}
 
 		CrawlPriceLatestDataGoKrEtfJob previous = (CrawlPriceLatestDataGoKrEtfJob) job;
-		if (previous.getStart().isBefore(date)) {
+		return previous.containsOrModify(date);
+	}
+
+	public boolean containsOrModify(ZonedDateTime date) {
+		if (start.isBefore(date)) {
 			return true;
 		}
 		
-		previous.setStart(date);
+		start = date;
 		return true;
 	}
 
-	// ETF시세
+	// 최근주가ETF
 	protected STATUS main() {
-		log.debug("{} CrawlPriceLatestDataGoKrEtfJob::main(『{}』)", Utility.indentStart(), start);
+		log.debug("{} 최근주가ETF::main(『{}』)", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();
 
 		try {
 			CrudList<PriceDomain> container = CrudList.<PriceDomain>builder().build();
 			for (int cx = 0; cx < NUMBER_OF_PAGES; cx++) {
 				String url = String.format("%s&serviceKey=%s&numOfRows=%d&pageNo=%d&beginBasDt=%s", URL, DataGoKrService.getServiceKey(), NUMBER_OF_ROWS, cx + 1, start.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+				log.debug("{} 『{}/{}』최근주가ETF::main(『{}』) - 『{}』", Utility.indentMiddle(), cx, NUMBER_OF_PAGES, start, url);
+
 				String html = service.read(url);
-				log.debug("{} CrawlPriceLatestDataGoKrEtfJob::main(『{}』)- 『{}』", Utility.indentMiddle(), start, Utility.ellipsis(html, 128, 64));
+				log.debug("{} 『{}/{}』최근주가ETF::main(『{}』) - 『{}』", Utility.indentMiddle(), cx, NUMBER_OF_PAGES, start, Utility.ellipsis(html, 128, 32));
 				ResultDataGoKr.ResultPriceEtf result = Utility.parseJsonLine(html, ResultDataGoKr.ResultPriceEtf.class);
 				if (result == null) {
-					CrawlPriceLatestSeibroEtfJob.regist(JobService.getQueue3());
+					log.debug("{} 『NULL_RESULT:{}/{}』최근주가ETF::main(『{}』)", Utility.indentMiddle(), cx, NUMBER_OF_PAGES, start);
 					break;
 				}
 
 				List<ResultDataGoKr.PriceEtfDomain> list = result.getResponse().getBody().getItems().getItem();
 				if (list == null || list.isEmpty()) {
+					log.debug("{} 『EMPTY:{}/{}』최근주가ETF::main(『{}』)", Utility.indentMiddle(), cx, NUMBER_OF_PAGES, start);
 					break;
 				}
 				List<PriceDomain> prices = new ArrayList<>();
-				for (int cy = 0, sizex = list.size(); cy < sizex; cy++) {
+				for (int cy = 0, sizey = list.size(); cy < sizey; cy++) {
 					ResultDataGoKr.PriceEtfDomain item = list.get(cy);
 					PriceDomain price = DataGoKrService.toPriceDomain(item);
 					prices.add(price);
-					log.trace("{} CrawlPriceLatestDataGoKrEtfJob::main(『{}』)- 『{}/{}』『{}』", Utility.indentMiddle(), start, cy, sizex, item);
+					if (Utility.samples(cy, sizey, 6)) {
+						log.debug("{} 『{}/{}:{}/{}:{}』최근주가ETF::main(『{}』)", Utility.indentMiddle(), cy, sizey, cx, NUMBER_OF_PAGES, item, start);
+					}
 				}
 
 				CrudList<PriceDomain> crud = service.putPrice(prices);
-				log.debug("{} CrawlPriceLatestDataGoKrEtfJob::main() - 『{}』『{}』", Utility.indentMiddle(), cx, crud);
+				log.debug("{} 『{}/{}:{}』최근주가ETF::main(『{}』)", Utility.indentMiddle(), cx, NUMBER_OF_PAGES, crud, start);
 				container.add(crud);
 			}
+			
+			if (container.isEmpty()) {
+				CrawlPriceLatestSeibroEtfJob.regist(JobService.getQueue3());
+				log.debug("{} 『EMPTY_CONTAINER』최근주가ETF::main(『{}』)", Utility.indentMiddle(), start);
+			}
 
-			log.debug("{} 『{}』 CrawlPriceLatestDataGoKrEtfJob::main() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
+			log.debug("{} 『{}』 최근주가ETF::main() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
 			return STATUS.SUCCESS;
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 		}
 
-		log.debug("{} 『{}』 CrawlPriceLatestDataGoKrEtfJob::main() - {}", Utility.indentEnd(), STATUS.EXCEPTION, Utility.toStringPastTimeReadable(started));
+		log.debug("{} 『{}』 최근주가ETF::main() - {}", Utility.indentEnd(), STATUS.EXCEPTION, Utility.toStringPastTimeReadable(started));
 		return STATUS.EXCEPTION;
 	}
 
