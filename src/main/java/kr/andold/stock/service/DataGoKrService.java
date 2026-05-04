@@ -71,11 +71,11 @@ public class DataGoKrService {
 		return PriceDomain.builder()
 				.code(domain.getSrtnCd())
 				.base(Utility.parseDateTime(domain.getBasDt()))
-				.closing(domain.getClpr())
-				.market(domain.getMkp())
-				.high(domain.getHipr())
-				.low(domain.getLopr())
-				.volume(domain.getTrqu())
+				.closing(Integer.parseInt(domain.getClpr()))
+				.market(Integer.parseInt(domain.getMkp()))
+				.high(Integer.parseInt(domain.getHipr()))
+				.low(Integer.parseInt(domain.getLopr()))
+				.volume(Integer.parseInt(domain.getTrqu()))
 				.build();
 	}
 
