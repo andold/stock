@@ -60,7 +60,7 @@ closing		integer,
 market		integer,
 high		integer,
 low			integer,
-volume		integer,
+volume		BIGINT,
 
 flag		integer,
 
@@ -69,4 +69,4 @@ updated		timestamp not null DEFAULT CURRENT_TIMESTAMP,
 primary key (id));
 ALTER SEQUENCE stock_price_id_seq RESTART WITH 1024;
 CREATE INDEX index_base_code_flag ON stock_price(base, code, flag);
-
+-- ALTER TABLE stock_price ALTER COLUMN volume TYPE BIGINT;

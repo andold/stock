@@ -89,7 +89,7 @@ public class CrawlPriceLatestDataGoKrCompanyJob implements Job {
 		log.debug("{} 주식시세최근회사::CrawlPriceLatestDataGoKrCompanyJob::main(『{}』)", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();
 
-		List<PriceDomain> prices = dataGoKrService.getStockPriceInfo(null, start);
+		List<PriceDomain> prices = DataGoKrService.getStockPriceInfo(null, start);
 		CrudList<PriceDomain> crud = dataGoKrService.putPrice(prices);
 
 		log.debug("{} 『{}』 주식시세최근회사::CrawlPriceLatestDataGoKrCompanyJob::main() - {}", Utility.indentEnd(), crud, Utility.toStringPastTimeReadable(started));

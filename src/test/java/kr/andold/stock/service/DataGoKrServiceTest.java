@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import kr.andold.stock.domain.ItemDomain;
 import kr.andold.stock.domain.PriceDomain;
 import kr.andold.utils.Utility;
 import lombok.extern.slf4j.Slf4j;
@@ -26,16 +27,22 @@ class DataGoKrServiceTest {
 		assertNotNull(service);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Test
 	public void getETFPriceInfo() {
-		List<PriceDomain> result = service.getETFPriceInfo("441680", ZonedDateTime.now().minusDays(21));
+		List<PriceDomain> result = DataGoKrService.getETFPriceInfo("441680", ZonedDateTime.now().minusDays(21));
 		log.info("{}", Utility.toStringJson(result));
 	}
 
 	@Test
 	public void getStockPriceInfo() {
-		List<PriceDomain> result = service.getStockPriceInfo("496320", ZonedDateTime.now().minusDays(21));
+		List<PriceDomain> result = DataGoKrService.getStockPriceInfo("496320", ZonedDateTime.now().minusDays(21));
+		assertThat(result.size() > 0);
+		log.info("{}", Utility.toStringJson(result));
+	}
+
+	@Test
+	public void getItemInfo() {
+		List<ItemDomain> result = DataGoKrService.getItemInfo("496320", null, ZonedDateTime.now().minusDays(21));
 		assertThat(result.size() > 0);
 		log.info("{}", Utility.toStringJson(result));
 	}

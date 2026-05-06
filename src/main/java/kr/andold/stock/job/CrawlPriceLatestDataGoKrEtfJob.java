@@ -1,8 +1,6 @@
 package kr.andold.stock.job;
 
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -11,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import kr.andold.stock.ApplicationContextProvider;
 import kr.andold.stock.domain.PriceDomain;
-import kr.andold.stock.domain.ResultDataGoKr;
 import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.service.DataGoKrService;
 import kr.andold.stock.service.JobService;
@@ -25,11 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class CrawlPriceLatestDataGoKrEtfJob implements Job {
-	//	주가 ETF
-	private static final String URL = DataGoKrService.URL_GET_ETF_PRICE_INFO;
-	private static final int NUMBER_OF_ROWS = 1024 * 8;
-	private static final int NUMBER_OF_PAGES = 4;
-
 	@Getter private Long timeout = 600L;
 	@Getter private ZonedDateTime start = ZonedDateTime.now();
 
@@ -98,45 +90,10 @@ public class CrawlPriceLatestDataGoKrEtfJob implements Job {
 		long started = System.currentTimeMillis();
 
 		try {
-			CrudList<PriceDomain> container = CrudList.<PriceDomain>builder().build();
-			for (int cx = 0; cx < NUMBER_OF_PAGES; cx++) {
-				String url = String.format("%s&serviceKey=%s&numOfRows=%d&pageNo=%d&beginBasDt=%s", URL, DataGoKrService.getServiceKey(), NUMBER_OF_ROWS, cx + 1, start.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
-				log.debug("{} 『{}/{}』최근주가ETF::main(『{}』) - 『{}』", Utility.indentMiddle(), cx, NUMBER_OF_PAGES, start, url);
+			List<PriceDomain> prices = DataGoKrService.getETFPriceInfo(null, start);
+			CrudList<PriceDomain> crud = service.putPrice(prices);
 
-				String html = service.read(url);
-				log.debug("{} 『{}/{}』최근주가ETF::main(『{}』) - 『{}』", Utility.indentMiddle(), cx, NUMBER_OF_PAGES, start, Utility.ellipsis(html, 128, 32));
-				ResultDataGoKr.ResultPriceEtf result = Utility.parseJsonLine(html, ResultDataGoKr.ResultPriceEtf.class);
-				if (result == null) {
-					log.debug("{} 『NULL_RESULT:{}/{}』최근주가ETF::main(『{}』)", Utility.indentMiddle(), cx, NUMBER_OF_PAGES, start);
-					break;
-				}
-
-				List<ResultDataGoKr.PriceEtfDomain> list = result.getResponse().getBody().getItems().getItem();
-				if (list == null || list.isEmpty()) {
-					log.debug("{} 『EMPTY:{}/{}』최근주가ETF::main(『{}』)", Utility.indentMiddle(), cx, NUMBER_OF_PAGES, start);
-					break;
-				}
-				List<PriceDomain> prices = new ArrayList<>();
-				for (int cy = 0, sizey = list.size(); cy < sizey; cy++) {
-					ResultDataGoKr.PriceEtfDomain item = list.get(cy);
-					PriceDomain price = DataGoKrService.toPriceDomain(item);
-					prices.add(price);
-					if (Utility.samples(cy, sizey, 6)) {
-						log.debug("{} 『{}/{}:{}/{}:{}』최근주가ETF::main(『{}』)", Utility.indentMiddle(), cy, sizey, cx, NUMBER_OF_PAGES, item, start);
-					}
-				}
-
-				CrudList<PriceDomain> crud = service.putPrice(prices);
-				log.debug("{} 『{}/{}:{}』최근주가ETF::main(『{}』)", Utility.indentMiddle(), cx, NUMBER_OF_PAGES, crud, start);
-				container.add(crud);
-			}
-			
-			if (container.isEmpty()) {
-				CrawlPriceLatestSeibroEtfJob.regist(JobService.getQueue3());
-				log.debug("{} 『EMPTY_CONTAINER』최근주가ETF::main(『{}』)", Utility.indentMiddle(), start);
-			}
-
-			log.debug("{} 『{}』 최근주가ETF::main() - {}", Utility.indentEnd(), container, Utility.toStringPastTimeReadable(started));
+			log.debug("{} 『{}』 최근주가ETF::main() - {}", Utility.indentEnd(), crud, Utility.toStringPastTimeReadable(started));
 			return STATUS.SUCCESS;
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);

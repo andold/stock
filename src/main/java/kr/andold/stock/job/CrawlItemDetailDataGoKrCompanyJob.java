@@ -1,8 +1,6 @@
 package kr.andold.stock.job;
 
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import kr.andold.stock.ApplicationContextProvider;
 import kr.andold.stock.domain.ItemDomain;
-import kr.andold.stock.domain.ResultDataGoKr;
 import kr.andold.stock.domain.Result.STATUS;
 import kr.andold.stock.service.DataGoKrService;
 import kr.andold.stock.service.JobService;
@@ -28,12 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 public class CrawlItemDetailDataGoKrCompanyJob implements Job {
 	@Getter private Long timeout = 600L;	//	TimeUnit.SECONDS
 	@Getter private Map<String, ZonedDateTime> map = new HashMap<>();	//	Map<isinCode종목코드, 기준일>
-
-	// 종목기본정보조회
-	public static final String URL = "http://apis.data.go.kr/1160100/service/GetStocIssuInfoService_V2/getItemBasiInfo_V2?resultType=json";
-
-	private static final int NUMBER_OF_ROWS = 1024 * 1;
-	private static final int NUMBER_OF_PAGES = 4;
 
 	@Autowired private DataGoKrService service;
 
@@ -105,7 +96,7 @@ public class CrawlItemDetailDataGoKrCompanyJob implements Job {
 
 	// 종목기본정보조회
 	protected STATUS main() {
-		log.debug("{} CrawlItemDetailDataGoKrCompanyJob::main(『#{}』)", Utility.indentStart(), Utility.size(map));
+		log.debug("{} 종목기본정보조회::main(『#{}』)", Utility.indentStart(), Utility.size(map));
 		long started = System.currentTimeMillis();
 
 		try {
@@ -117,42 +108,23 @@ public class CrawlItemDetailDataGoKrCompanyJob implements Job {
 					continue;
 				}
 
-				log.debug("{} 『{}:{}/{}』 CrawlItemDetailDataGoKrCompanyJob::main()", Utility.indentStart(), isinCode, threshold, size);
-
+				log.debug("{} 『{}:{}/{}』 종목기본정보조회::main()", Utility.indentStart(), isinCode, threshold, size);
 				ZonedDateTime baseDate = map.get(isinCode);
-				List<ItemDomain> items = new ArrayList<>();
-				for (int cx = 0; cx < NUMBER_OF_PAGES; cx++) {
-					String url = String.format("%s&serviceKey=%s&numOfRows=%d&pageNo=%d&isinCd=%s&basDt=%s"
-							, URL, DataGoKrService.getServiceKey(), NUMBER_OF_ROWS, cx + 1, isinCode, baseDate.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
-					String html = service.read(url);
-					log.trace("{} CrawlItemDetailDataGoKrCompanyJob::main(『{}』, 『{}』) - 『{}』", Utility.indentMiddle(), isinCode, baseDate, Utility.ellipsis(html, 128, 64));
-					ResultDataGoKr.ResultItemDetail result = Utility.parseJsonLine(html, ResultDataGoKr.ResultItemDetail.class);
-					List<ResultDataGoKr.ItemDetailDomain> list = result.getResponse().getBody().getItems().getItem();
-					if (list == null || list.isEmpty()) {
-						break;
-					}
-					for (int cy = 0, sizey = list.size(); cy < sizey; cy++) {
-						ResultDataGoKr.ItemDetailDomain item = list.get(cy);
-						ItemDomain domain = DataGoKrService.toItemDomain(item);
-						items.add(domain);
-						log.debug("{} 『{}:{}/{}』CrawlItemDetailDataGoKrCompanyJob::main(#{}) - 『{}』", Utility.indentMiddle()
-								, isinCode, cy, sizey, Utility.size(map), item);
-					}
-				}
-				
+
+				List<ItemDomain> items = DataGoKrService.getItemInfo(null, isinCode, baseDate);
 				CrudList<ItemDomain> crud = service.putItem(items);
 				container.add(crud);
 
-				log.debug("{} 『{}:{}/{}』 CrawlItemDetailDataGoKrCompanyJob::main() - 『{}』『{}』", Utility.indentEnd(), isinCode, threshold, size, Utility.size(items), crud);
+				log.debug("{} 『{}:{}/{}』 종목기본정보조회::main() - 『{}』『{}』", Utility.indentEnd(), isinCode, threshold, size, Utility.size(items), crud);
 			}
 
-			log.debug("{} 『{}』 CrawlItemDetailDataGoKrCompanyJob::main(『#{}』) - {}", Utility.indentEnd(), container, Utility.size(map), Utility.toStringPastTimeReadable(started));
+			log.debug("{} 『{}』 종목기본정보조회::main(『#{}』) - {}", Utility.indentEnd(), container, Utility.size(map), Utility.toStringPastTimeReadable(started));
 			return STATUS.SUCCESS;
 		} catch (Exception e) {
 			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
 		}
 
-		log.debug("{} 『{}』 CrawlItemDetailDataGoKrCompanyJob::main(『#{}』) - {}", Utility.indentEnd(), STATUS.EXCEPTION, Utility.size(map), Utility.toStringPastTimeReadable(started));
+		log.debug("{} 『{}』 종목기본정보조회::main(『#{}』) - {}", Utility.indentEnd(), STATUS.EXCEPTION, Utility.size(map), Utility.toStringPastTimeReadable(started));
 		return STATUS.EXCEPTION;
 	}
 

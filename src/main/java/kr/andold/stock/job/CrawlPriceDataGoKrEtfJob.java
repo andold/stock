@@ -119,7 +119,7 @@ public class CrawlPriceDataGoKrEtfJob implements Job {
 				}
 				
 				ZonedDateTime zdt = map.get(code);
-				List<PriceDomain> prices = dataGoKrService.getETFPriceInfo(code, zdt);
+				List<PriceDomain> prices = DataGoKrService.getETFPriceInfo(code, zdt);
 				CrudList<PriceDomain> crud = dataGoKrService.putPrice(prices);
 				log.debug("{} 『{}/{}』 주식시세수집ETF::CrawlPriceDataGoKrEtfJob::main() - 『{}』『{}』『#{}』『{}』", Utility.indentMiddle()
 						, size, threshold, code, map.get(code), Utility.size(prices), crud);

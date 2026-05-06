@@ -99,7 +99,7 @@ public class CrawlDividendLatestDataGoKrCompanyJob implements Job {
 			for (int cx = 0; cx < NUMBER_OF_PAGES; cx++) {
 				String url = String.format("%s&serviceKey=%s&numOfRows=%d&pageNo=%d", URL, DataGoKrService.getServiceKey(), NUMBER_OF_ROWS, cx + 1);
 				log.debug("{} CrawlDividendLatestDataGoKrCompanyJob::main()- 『{}』", Utility.indentMiddle(), url);
-				String html = service.read(url);
+				String html = DataGoKrService.read(url);
 				log.debug("{} CrawlDividendLatestDataGoKrCompanyJob::main()- 『{}』", Utility.indentMiddle(), Utility.ellipsis(html, 128, 64));
 				ResultDataGoKr.ResultDividend result = Utility.parseJsonLine(html, ResultDataGoKr.ResultDividend.class);
 				List<ResultDataGoKr.DividendDomain> list = result.getResponse().getBody().getItems().getItem();
