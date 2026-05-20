@@ -48,8 +48,7 @@ public class CrawlDividendLatestDataGoKrCompanyJob implements Job {
 		log.debug("{} CrawlDividendLatestDataGoKrCompanyJob::call()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		CrawlDividendLatestDataGoKrCompanyJob that = (CrawlDividendLatestDataGoKrCompanyJob) ApplicationContextProvider.getBean(CrawlDividendLatestDataGoKrCompanyJob.class);
-		STATUS result = that.main();
+		STATUS result = main();
 
 		log.debug("{} 『#{}』 CrawlDividendLatestDataGoKrCompanyJob::call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;
@@ -69,7 +68,8 @@ public class CrawlDividendLatestDataGoKrCompanyJob implements Job {
 			return;
 		}
 
-		deque.addLast(CrawlDividendLatestDataGoKrCompanyJob.builder().build());
+		CrawlDividendLatestDataGoKrCompanyJob job = (CrawlDividendLatestDataGoKrCompanyJob) ApplicationContextProvider.getBean(CrawlDividendLatestDataGoKrCompanyJob.class);
+		deque.addLast(job);
 	}
 
 	private static boolean containsOrModify(ConcurrentLinkedDeque<Job> deque) {

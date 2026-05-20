@@ -211,7 +211,9 @@ public class JobService {
 			log.trace("{} 『NULL::{}』 run({}) - {}", Utility.indentEnd(), STATUS.INVALID, job, Utility.toStringPastTimeReadable(started));
 			return STATUS.INVALID;
 		}
-		
+
+		status("run");
+
 		if (job instanceof CrawlPriceLatestSeibroCompanyExcelJob) {
 			ExecutorService executor = Executors.newSingleThreadExecutor();
 	        Future<STATUS> future = executor.submit(job);
