@@ -104,6 +104,7 @@ public class ApiCrawlerController {
 		jobService.status("┍ApiCrawlerController");
 		ZonedDateTime sixMonthAgo = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS).minusMonths(6);
 		CrawlDividendLatestDataGoKrCompanyJob.regist(JobService.getQueue1());
+		jobService.status("┝ApiCrawlerController");
 		CrawlDividendSeibroEtfJob.regist(JobService.getQueue1(), sixMonthAgo);
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
 		jobService.status("┕ApiCrawlerController");

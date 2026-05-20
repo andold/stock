@@ -56,22 +56,29 @@ public class CrawlDividendSeibroEtfJob implements Job, ConstantSeibro {
 	}
 
 	public static void regist(ConcurrentLinkedDeque<Job> deque, ZonedDateTime date) {
+		log.debug("{} regist(..., 『{}』)", Utility.indentStart(), date);
+
 		if (containsOrModify(date, JobService.getQueue0())) {
+			log.debug("{} 『0』regist(..., 『{}』)", Utility.indentEnd(), date);
 			return;
 		}
 		if (containsOrModify(date, JobService.getQueue1())) {
+			log.debug("{} 『1』regist(..., 『{}』)", Utility.indentEnd(), date);
 			return;
 		}
 		if (containsOrModify(date, JobService.getQueue2())) {
+			log.debug("{} 『2』regist(..., 『{}』)", Utility.indentEnd(), date);
 			return;
 		}
 		if (containsOrModify(date, JobService.getQueue3())) {
+			log.debug("{} 『3』regist(..., 『{}』)", Utility.indentEnd(), date);
 			return;
 		}
 
 		CrawlDividendSeibroEtfJob job = (CrawlDividendSeibroEtfJob) ApplicationContextProvider.getBean(CrawlDividendSeibroEtfJob.class);
 		job.containsOrModify(date);
 		deque.addLast(job);
+		log.debug("{} 『NEW』regist(..., 『{}』)", Utility.indentEnd(), date);
 	}
 
 	public boolean containsOrModify(ZonedDateTime date) {

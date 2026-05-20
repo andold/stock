@@ -57,21 +57,28 @@ public class CrawlDividendLatestDataGoKrCompanyJob implements Job {
 	}
 
 	public static void regist(ConcurrentLinkedDeque<Job> deque) {
+		log.debug("{} regist(...)", Utility.indentStart());
+
 		if (containsOrModify(JobService.getQueue0())) {
+			log.debug("{} 『0』regist(...)", Utility.indentEnd());
 			return;
 		}
 		if (containsOrModify(JobService.getQueue1())) {
+			log.debug("{} 『1』regist(...)", Utility.indentEnd());
 			return;
 		}
 		if (containsOrModify(JobService.getQueue2())) {
+			log.debug("{} 『2』regist(...)", Utility.indentEnd());
 			return;
 		}
 		if (containsOrModify(JobService.getQueue3())) {
+			log.debug("{} 『3』regist(...)", Utility.indentEnd());
 			return;
 		}
 
 		CrawlDividendLatestDataGoKrCompanyJob job = (CrawlDividendLatestDataGoKrCompanyJob) ApplicationContextProvider.getBean(CrawlDividendLatestDataGoKrCompanyJob.class);
 		deque.addLast(job);
+		log.debug("{} 『NEW』regist(...)", Utility.indentEnd());
 	}
 
 	private static boolean containsOrModify(ConcurrentLinkedDeque<Job> deque) {
