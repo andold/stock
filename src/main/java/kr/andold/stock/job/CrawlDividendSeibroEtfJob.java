@@ -40,13 +40,16 @@ public class CrawlDividendSeibroEtfJob implements Job, ConstantSeibro {
 	@Getter @Setter private ZonedDateTime start;
 
 	@Autowired private CrawlerService service;
+	@Autowired private JobService jobService;
 
 	@Override
 	public STATUS call() throws Exception {
 		log.debug("{} CrawlDividendSeibroEtfJob::call()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
+		jobService.status("┍ETF최근배당:SEIBRO");
 		STATUS result = main();
+		jobService.status("┕ETF최근배당:SEIBRO");
 
 		log.debug("{} 『#{}』 CrawlPriceLatestSeibroEtfJob::call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;

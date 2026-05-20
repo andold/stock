@@ -27,13 +27,16 @@ public class CrawlItemDetailDataGoKrCompanyJob implements Job {
 	@Getter private Map<String, ZonedDateTime> map = new HashMap<>();	//	Map<isinCode종목코드, 기준일>
 
 	@Autowired private DataGoKrService service;
+	@Autowired private JobService jobService;
 
 	@Override
 	public STATUS call() throws Exception {
 		log.debug("{} CrawlItemDetailDataGoKrCompanyJob::call(『#{}』)", Utility.indentStart(), Utility.size(map));
 		long started = System.currentTimeMillis();
 
+		jobService.status("┍회사정보:공공데이타");
 		STATUS result = main();
+		jobService.status("┕회사정보:공공데이타");
 
 		log.debug("{} 『#{}』 CrawlItemDetailDataGoKrCompanyJob::call(『#{}』) - {}", Utility.indentEnd(), result, Utility.size(map), Utility.toStringPastTimeReadable(started));
 		return result;

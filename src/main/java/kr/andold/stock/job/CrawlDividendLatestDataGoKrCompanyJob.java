@@ -40,15 +40,17 @@ public class CrawlDividendLatestDataGoKrCompanyJob implements Job {
 	@Setter
 	private Long timeout = 600L;
 
-	@Autowired
-	private DataGoKrService service;
+	@Autowired private DataGoKrService service;
+	@Autowired private JobService jobService;
 
 	@Override
 	public STATUS call() throws Exception {
 		log.debug("{} CrawlDividendLatestDataGoKrCompanyJob::call()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
+		jobService.status("┍회사최근배당:공공데이타");
 		STATUS result = main();
+		jobService.status("┕회사최근배당:공공데이타");
 
 		log.debug("{} 『#{}』 CrawlDividendLatestDataGoKrCompanyJob::call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;
