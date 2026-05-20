@@ -8,6 +8,11 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.Vocabulary;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.openqa.selenium.WebElement;
 
 import kr.andold.stock.antlr.KrxEtfLexer;
 import kr.andold.stock.antlr.KrxEtfParser;
@@ -399,6 +404,24 @@ public class ParserService {
 		SeibroEtfLexer lexer = new SeibroEtfLexer(CharStreams.fromString(text));
 		String tokensFromText = tokens(lexer, "NEWLINE");
 		log.info("{} infoPrintTokensBySeibroEtf::tokensFromText = 『{}』", Utility.indentMiddle(), Utility.ellipsisEscape(tokensFromText, 128));
+	}
+
+	public static String parseTable(WebElement table) {
+		String html = table.getAttribute("outerHTML");
+		Document doc = Jsoup.parse(html);
+		Elements rows = doc.select("tr");
+		StringBuffer sb = new StringBuffer();
+		for (Element row : rows) {
+		    Elements cols = row.select("td, th");
+		    for (Element col : cols) {
+				sb.append(col.text());
+				sb.append("\t");
+		    }
+			sb.append("\n");
+		}
+
+		String string = new String(sb);
+		return string;
 	}
 
 }
