@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("api/crawl")
 public class ApiCrawlerController {
 	@Autowired private CrawlerService service;
+	@Autowired private JobService jobService;
 
 	@ResponseBody
 	@PostMapping(value = "item")
@@ -100,10 +101,12 @@ public class ApiCrawlerController {
 	public Result<ParserResult> crawlDividendAllRecent() {
 		log.info("{} crawlDividendAllRecent()", Utility.indentStart());
 
+		jobService.status("┍ApiCrawlerController");
 		ZonedDateTime sixMonthAgo = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS).minusMonths(6);
 		CrawlDividendLatestDataGoKrCompanyJob.regist(JobService.getQueue1());
 		CrawlDividendSeibroEtfJob.regist(JobService.getQueue1(), sixMonthAgo);
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
+		jobService.status("┕ApiCrawlerController");
 		
 		log.info("{} 『{}』 - crawlDividendAllRecent()", Utility.indentEnd(), result);
 		return result;
