@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import kr.andold.stock.ApplicationContextProvider;
+import kr.andold.stock.crawler.ConstantSeibro;
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.crawler.Seibro;
 import kr.andold.stock.domain.Result;
@@ -28,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class CrawlItemDetailSeibroCompanyJob implements Job {
+public class CrawlItemDetailSeibroCompanyJob implements Job, ConstantSeibro {
 	@Getter private Long timeout = 600L;	//	TimeUnit.SECONDS
 	@Getter private Map<String, ZonedDateTime> map = new HashMap<>();	//	Map<종목코드, 배당일>
 
@@ -134,7 +135,7 @@ public class CrawlItemDetailSeibroCompanyJob implements Job {
 		}
 
 		try {
-			driver.navigate().to(Seibro.URL_COMPANY_EACH_SUMMARY_INFO);
+			driver.navigate().to(URL_COMPANY_EACH_SUMMARY_INFO);
 
 			// 진행중 화면이 없어지고
 			driver.waitUntilIsDisplayed(By.xpath("//div[@id='___processbar2']"), false, Seibro.TIMEOUT * 4);

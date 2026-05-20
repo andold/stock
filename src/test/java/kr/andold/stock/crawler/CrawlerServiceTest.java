@@ -26,13 +26,6 @@ public class CrawlerServiceTest {
 		log.info("{}", String.format("%.0f", 123.465));
 	}
 
-	@Deprecated
-	@Test
-	public void testCrawlDividendAllRecent() {
-		Result<ParserResult> result = service.crawlDividendAllRecent();
-		log.info("{}", result);
-	}
-
 	@Test
 	public void testCrawlItem() {
 		Result<ParserResult> result = service.crawlItem(ItemParam.builder()

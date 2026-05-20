@@ -96,7 +96,7 @@ public class ScheduledTasks {
 			ZonedDateTime oneWeekAgo = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS).minusWeeks(1);
 			ZonedDateTime sixMonthAgo = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS).minusMonths(6);
 			CrawlDividendLatestDataGoKrCompanyJob.regist(JobService.getQueue2());
-			JobService.getQueue2().addLast(CrawlDividendSeibroEtfJob.builder().start(sixMonthAgo).build());
+			CrawlDividendSeibroEtfJob.regist(JobService.getQueue2(), sixMonthAgo);
 			CrawlItemIpoCloseKindJob.regist(JobService.getQueue2(), ZonedDateTime.now().minusMonths(12));
 			JobService.getQueue3().offer(BackupJob.builder().build());
 			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());

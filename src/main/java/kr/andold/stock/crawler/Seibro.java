@@ -29,43 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class Seibro implements Crawler {
-	private static final Date START_DATE = Date.from(LocalDate.of(2008, 1, 3).atStartOfDay(Utility.ZONE_ID_KST).toInstant());	// 2008-01-03
-	public static final Duration DEFAULT_DURATION = Duration.ofSeconds(4);
-	public static final Duration DEFAULT_DURATION_LONG = Duration.ofSeconds(4 * 4);
-
-	public static final String URL_COMPANY = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/company/BIP_CNTS01041V.xml&menuNo=285";
-	//	SEIBro > ETF > 권리행사정보 > 분배금지급현황
-	private static final String URL_ETF = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06030V.xml&menuNo=179";
-	private static final String MARK_START_END_POINT_COMPANY = String.format("KEYWORD\t%s\t%s\tURL\t%s\n", "CrawlDividendHistoryCompanyThread", "주식(기업) 배당금 내역", URL_COMPANY);
-	private static final String MARK_START_END_POINT_ETF = String.format("KEYWORD\t%s\t%s\tURL\t%s\n", "ETF 배당금 내역", "KSD 증권정보포털 SEIBro", URL_ETF);
-	public static final int TIMEOUT = 4000;
-	public static final String MARK_ANDOLD_SINCE = CrawlerService.MARK_ANDOLD_SINCE;
-
-	// SEIBro > 주식 > 종목별상세정보 > 종목종합내역
-	public static final String URL_COMPANY_EACH_SUMMARY_INFO = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02006V.xml&menuNo=44";
-	public static final String MARK_START_END_POINT_COMPANY_EACH_SUMMARY_INFO = String.format("KEYWORD\t%s\t%s\t%s\n", "SEIBro", "주식 > 종목별상세정보 > 종목종합내역", URL_COMPANY_EACH_SUMMARY_INFO);
-
-	// SEIBro > ETF > ETF종합정보 > 종목상세
-	public static final String URL_ETF_EACH_SUMMARY_INFO = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS906032V.xml&menuNo=514";
-	public static final String MARK_START_END_POINT_ETF_EACH_SUMMARY_INFO = String.format("KEYWORD\t%s\t%s\t%s\n", "SEIBro", "ETF > ETF종합정보 > 종목상세", URL_ETF_EACH_SUMMARY_INFO);
-
-	// SEIBro > 주식 > 종목별상세정보 > 일자별시세
-	private static final String URL_PRICE_COMPANY_EACH = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02007V.xml&menuNo=45";
-	private static final String MARK_START_END_POINT_PRICE_COMPANY_EACH = String.format("KEYWORD\t%s\t%s\t%s\n", "SEIBro", "주식 > 종목별상세정보 > 일자별시세", URL_PRICE_COMPANY_EACH);
-
-	// SEIBro > ETF > ETF종합정보 > 기준가추이 :: 일별시세
-	private static final String URL_PRICE_ETF_EACH = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06033V.xml&menuNo=182";
-	private static final String MARK_START_END_POINT_PRICE_ETF_EACH = String.format("KEYWORD\t%s\t%s\t%s\n", "SEIBro", "ETF > ETF종합정보 > 기준가추이 :: 일별시세", URL_PRICE_ETF_EACH);
-
-	// SEIBro > 주식 > 종목전체검색 > 주식종목전체검색
-	public static final String URL_PRICE_COMPANY_CURRENT = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/stock/BIP_CNTS02004V.xml&menuNo=41";
-	private static final String MARK_START_END_POINT_PRICE_COMPANY_CURRENT = String.format("KEYWORD\t%s\t%s\t%s\n", "SEIBro", "주식 > 종목전체검색 > 주식종목전체검색", URL_PRICE_COMPANY_CURRENT);
-
-	// SEIBro > ETF > 종목발행현황
-	public static final String URL_PRICE_ETF_CURRENT = "https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/etf/BIP_CNTS06025V.xml&menuNo=174";
-	public static final String MARK_START_END_POINT_PRICE_ETF_CURRENT = String.format("KEYWORD\t%s\t%s\t%s\n", "SEIBro", "ETF > 종목발행현황", URL_PRICE_ETF_CURRENT);
-
+public class Seibro implements Crawler, ConstantSeibro {
 	private Integer count = 0;
 
 	@Override
@@ -974,110 +938,9 @@ public class Seibro implements Crawler {
 		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
 	}
 
-	@Deprecated
 	@Override
 	public Result<ParserResult> dividend(Date start) {
-		log.info("{} dividend({})", Utility.indentStart(), start);
-		long started = System.currentTimeMillis();
-
-		if (start.before(START_DATE)) {
-			start = START_DATE;
-		}
-
-		ParserResult container = new ParserResult().clear();
-		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).result(container).build();
-		Result<ParserResult> resultCompany = dividendCompany(start);
-		if (resultCompany.getStatus().equals(STATUS.SUCCESS)) {
-			container.addAll(resultCompany.getResult());
-		} else {
-			result.setStatus(resultCompany.getStatus());
-		}
-
-		Result<ParserResult> resultEtf = dividendEtf(start);
-		if (resultEtf.getStatus().equals(STATUS.SUCCESS)) {
-			container.addAll(resultEtf.getResult());
-		} else {
-			result.setStatus(resultEtf.getStatus());
-		}
-
-		log.info("{} 『{}』 dividend({}) - {}", Utility.indentEnd(), result, start, Utility.toStringPastTimeReadable(started));
-		return result;
-	}
-
-	@Deprecated
-	protected Result<ParserResult> dividendCompany(Date start) {
-		log.debug("{} dividendCompany({})", Utility.indentStart(), start);
-		long started = System.currentTimeMillis();
-
-		ChromeDriverWrapper driver = null;
-		try {
-			driver = CrawlerService.defaultChromeDriver();
-			driver.navigate().to(URL_COMPANY);
-
-			clickShowWideIcon(driver);
-
-			// 시작일 입력
-			WebElement startElement = driver.findElement(By.id("inputCalendar1_input"), DEFAULT_DURATION);
-			startElement.clear();
-			startElement.sendKeys(String.format("%1$tY%1$tm%1$td", start));
-			startElement.sendKeys(Keys.TAB); // 시작일 입력
-
-			By BY_TABLE_1ST_LINE = By.xpath("//table[@id='grid1_body_table']/tbody/tr[1]");
-			By BY_NEXT_PAGE_ICON = By.xpath("//div[@id='cntsPaging01']/ul/li[@id='cntsPaging01_next_btn']/a");
-			By BY_CURRENT_PAGE = By.xpath("//div[@id='cntsPaging01']/ul/li/a[@class='w2pageList_control_label w2pageList_label_selected']");
-
-			// 첫번째 라인 저장
-			String previous1stLine = driver.getText(BY_TABLE_1ST_LINE, DEFAULT_DURATION, MARK_ANDOLD_SINCE);
-
-			// 조회 클릭
-			if (!clickSearchIconInCompany(driver)) {
-				log.debug("{} {} dividendCompany({}) - {}", Utility.indentEnd(), "FAILURE SEARH", start, Utility.toStringPastTimeReadable(started));
-				driver.quit();
-				return Result.<ParserResult>builder().status(STATUS.FAILURE).build();
-			}
-
-			// 시작 표시
-			StringBuffer sb = new StringBuffer();
-			sb.append(MARK_START_END_POINT_COMPANY);
-
-			// 페이징 처리 - 여기부터
-			String currentPage = driver.getText(BY_CURRENT_PAGE, DEFAULT_DURATION, "andold"); // 현재 페이지 번호
-			while (true) {
-				WebElement table = driver.findElement(By.xpath("//*[@id='grid1_body_table']"), DEFAULT_DURATION);
-				sb.append(driver.extractTextFromTableElement(table));
-
-				// 다음 페이지 클릭
-				driver.clickIfExist(BY_NEXT_PAGE_ICON);
-
-				// 변경 확인
-				driver.waitUntilTextNotInclude(BY_TABLE_1ST_LINE, TIMEOUT, previous1stLine);
-				previous1stLine = driver.getText(BY_TABLE_1ST_LINE, DEFAULT_DURATION, MARK_ANDOLD_SINCE);
-
-				String nextPage = driver.getText(BY_CURRENT_PAGE, DEFAULT_DURATION, currentPage);
-				if (currentPage.equalsIgnoreCase(nextPage) || (CrawlerService.getDebug() && currentPage.equalsIgnoreCase("3"))) {
-					break;
-				}
-
-				log.debug("{} 쪽:{} dividendCompany({}) - {}", Utility.indentMiddle(), currentPage, start, Utility.toStringPastTimeReadable(started));
-				currentPage = nextPage;
-			}
-			// 페이징 처리 - 여기까지
-
-			// 마지막 표시
-			sb.append(MARK_ANDOLD_SINCE);
-			sb.append(MARK_START_END_POINT_COMPANY);
-			ParserResult result = ParserService.parse(new String(sb), CrawlerService.getDebug());
-
-			log.debug("{} {} dividendCompany({}) - {}", Utility.indentEnd(), result, start, Utility.toStringPastTimeReadable(started));
-			driver.quit();
-			return Result.<ParserResult>builder().status(STATUS.SUCCESS).result(result).build();
-		} catch (Exception e) {
-			log.error("{} Exception:: {}", Utility.indentMiddle(), e.getLocalizedMessage(), e);
-			driver.quit();
-		}
-
-		log.debug("{} {} dividendCompany({}) - {}", Utility.indentEnd(), STATUS.EXCEPTION, start, Utility.toStringPastTimeReadable(started));
-		return Result.<ParserResult>builder().status(STATUS.EXCEPTION).build();
+		return Result.<ParserResult>builder().status(STATUS.NOT_SUPPORT).build();
 	}
 
 	// 넓게보기 아이콘 클릭	//*[@id="wide"]/div/div
@@ -1768,35 +1631,6 @@ public class Seibro implements Crawler {
 			    }
 				sb.append("\n");
 			}
-			String string = new String(sb);
-
-			log.debug("{} 『{}』일별시세::extract(..., 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(string, 16, 16), code, Utility.toStringPastTimeReadable(started));
-			return string;
-		} catch (Exception e) {
-		}
-
-		log.debug("{} 『Exception』일별시세::extract(..., 『{}』) - {}", Utility.indentEnd(), code, Utility.toStringPastTimeReadable(started));
-		return "";
-	}
-	@SuppressWarnings("unused")
-	private String extractDailyPriceByTableWithSeleniumParsing(ChromeDriverWrapper driver, String code) {
-		log.debug("{} 일별시세::extract(..., 『{}』)", Utility.indentStart(), code);
-		long started = System.currentTimeMillis();
-
-		try {
-			//	테이블
-			By BY_TABLE_CONTENT = By.xpath("//table[@id='grid1_body_table']");
-			WebElement table = driver.findElement(BY_TABLE_CONTENT, DEFAULT_DURATION);
-			
-			StringBuffer sb = new StringBuffer();
-			table.findElements(By.tagName("tr")).forEach(tr -> {
-				sb.append(String.format("%s\t", code));
-				tr.findElements(By.cssSelector("th, td")).forEach(td -> {
-					sb.append(td.getAttribute("textContent"));
-					sb.append("\t");
-				});
-				sb.append("\n");
-			});
 			String string = new String(sb);
 
 			log.debug("{} 『{}』일별시세::extract(..., 『{}』) - {}", Utility.indentEnd(), Utility.ellipsisEscape(string, 16, 16), code, Utility.toStringPastTimeReadable(started));

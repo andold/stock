@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.Duration;
-import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -279,20 +278,6 @@ public class CrawlerService {
 		}
 
 		log.info("{} 『{}』 crawlItemAll() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
-		return result;
-	}
-
-	@Deprecated
-	public Result<ParserResult> crawlDividendAllRecent() {
-		log.info("{} crawlDividendAllRecent()", Utility.indentStart());
-		long started = System.currentTimeMillis();
-
-		Result<ParserResult> result = seibro.dividend(Date.from(ZonedDateTime.now().minusMonths(6).toInstant()));
-		if (result.getStatus() == STATUS.SUCCESS) {
-			put(result.getResult());
-		}
-
-		log.info("{} 『{}』 crawlDividendAllRecent() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;
 	}
 

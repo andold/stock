@@ -29,16 +29,6 @@ public class SeibroTest {
 		assertEquals(result.getResult().isEmpty(), false);
 	}
 
-	@Deprecated
-	@Test
-	public void testDividendCompany() {
-		Result<ParserResult> result = service
-				.dividendCompany(Date.from(ZonedDateTime.now().minusMonths(1).toInstant()));
-		log.info("{}", result);
-		assertEquals(result.getStatus(), STATUS.SUCCESS);
-		assertEquals(result.getResult().isEmpty(), false);
-	}
-
 	@Test
 	public void testItem() {
 		Result<ParserResult> result = service.item("003540");

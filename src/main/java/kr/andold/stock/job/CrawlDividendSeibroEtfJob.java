@@ -2,6 +2,7 @@ package kr.andold.stock.job;
 
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.crawler.Seibro;
 import kr.andold.stock.domain.Result;
 import kr.andold.stock.domain.Result.STATUS;
+import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.Job;
 import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.utils.Utility;
@@ -38,12 +40,56 @@ public class CrawlDividendSeibroEtfJob implements Job {
 		log.debug("{} CrawlDividendSeibroEtfJob::call()", Utility.indentStart());
 		long started = System.currentTimeMillis();
 
-		CrawlDividendSeibroEtfJob that = (CrawlDividendSeibroEtfJob) ApplicationContextProvider.getBean(CrawlDividendSeibroEtfJob.class);
-		that.setStart(start);
-		STATUS result = that.main();
+		STATUS result = main();
 
 		log.debug("{} 『#{}』 CrawlPriceLatestSeibroEtfJob::call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;
+	}
+
+	public static void regist(ConcurrentLinkedDeque<Job> deque, ZonedDateTime date) {
+		if (containsOrModify(date, JobService.getQueue0())) {
+			return;
+		}
+		if (containsOrModify(date, JobService.getQueue1())) {
+			return;
+		}
+		if (containsOrModify(date, JobService.getQueue2())) {
+			return;
+		}
+		if (containsOrModify(date, JobService.getQueue3())) {
+			return;
+		}
+
+		CrawlDividendSeibroEtfJob job = (CrawlDividendSeibroEtfJob) ApplicationContextProvider.getBean(CrawlDividendSeibroEtfJob.class);
+		job.containsOrModify(date);
+		deque.addLast(job);
+	}
+
+	public boolean containsOrModify(ZonedDateTime date) {
+		if (start.isBefore(date)) {
+			return true;
+		}
+		
+		start = date;
+		return true;
+	}
+
+	private static boolean containsOrModify(ZonedDateTime date, ConcurrentLinkedDeque<Job> deque) {
+		for (Job job : deque) {
+			if (containsOrModify(date, job)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static boolean containsOrModify(ZonedDateTime date, Job job) {
+		if (!(job instanceof CrawlDividendSeibroEtfJob)) {
+			return false;
+		}
+
+		CrawlDividendSeibroEtfJob previous = (CrawlDividendSeibroEtfJob) job;
+		return previous.containsOrModify(date);
 	}
 
 	protected STATUS main() {

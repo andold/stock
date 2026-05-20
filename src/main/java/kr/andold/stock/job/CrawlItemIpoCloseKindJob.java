@@ -65,7 +65,18 @@ public class CrawlItemIpoCloseKindJob  implements Job {
 			return;
 		}
 
-		deque.addLast(CrawlItemIpoCloseKindJob.builder().start(date).build());
+		CrawlItemIpoCloseKindJob job = (CrawlItemIpoCloseKindJob) ApplicationContextProvider.getBean(CrawlItemIpoCloseKindJob.class);
+		job.containsOrModify(date);
+		deque.addLast(job);
+	}
+
+	public boolean containsOrModify(ZonedDateTime date) {
+		if (start.isBefore(date)) {
+			return true;
+		}
+		
+		start = date;
+		return true;
 	}
 
 	private static boolean containsOrModify(ZonedDateTime date, ConcurrentLinkedDeque<Job> deque) {
@@ -83,12 +94,7 @@ public class CrawlItemIpoCloseKindJob  implements Job {
 		}
 
 		CrawlItemIpoCloseKindJob previous = (CrawlItemIpoCloseKindJob) job;
-		if (previous.getStart().isBefore(date)) {
-			return true;
-		}
-		
-		previous.setStart(date);
-		return true;
+		return previous.containsOrModify(date);
 	}
 
 	@Override
@@ -96,9 +102,7 @@ public class CrawlItemIpoCloseKindJob  implements Job {
 		log.debug("{} CrawlItemIpoCloseJob::call(『{}』)", Utility.indentStart(), start);
 		long started = System.currentTimeMillis();
 
-		CrawlItemIpoCloseKindJob that = (CrawlItemIpoCloseKindJob) ApplicationContextProvider.getBean(CrawlItemIpoCloseKindJob.class);
-		that.setStart(start);
-		STATUS result = that.main();
+		STATUS result = main();
 
 		log.debug("{} 『#{}』 CrawlItemIpoCloseJob::call() - {}", Utility.indentEnd(), result, Utility.toStringPastTimeReadable(started));
 		return result;

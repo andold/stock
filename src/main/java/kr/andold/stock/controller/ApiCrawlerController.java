@@ -102,7 +102,7 @@ public class ApiCrawlerController {
 
 		ZonedDateTime sixMonthAgo = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS).minusMonths(6);
 		CrawlDividendLatestDataGoKrCompanyJob.regist(JobService.getQueue1());
-		JobService.getQueue1().addLast(CrawlDividendSeibroEtfJob.builder().start(sixMonthAgo).build());
+		CrawlDividendSeibroEtfJob.regist(JobService.getQueue1(), sixMonthAgo);
 		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
 		
 		log.info("{} 『{}』 - crawlDividendAllRecent()", Utility.indentEnd(), result);

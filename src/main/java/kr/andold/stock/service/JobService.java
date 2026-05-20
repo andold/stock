@@ -41,7 +41,6 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class JobService {
 	@Autowired private Seibro seibro;
-	@Autowired private CrawlerService crawlerService;
 	@Autowired private StockService stockService;
 	@Autowired private ItemService itemService;
 	@Autowired private DividendHistoryService dividendHistoryService;
@@ -258,14 +257,6 @@ public class JobService {
 			return result;
 		}
 
-		// @Deprecated
-		if (job instanceof DividendAllRecentJob) {
-			STATUS result = dividendAllRecent((DividendAllRecentJob) job);
-
-			log.debug("{} 『{}』 run({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
-			return result;
-		}
-
 		if (job instanceof ItemDividendJob) {
 			STATUS result = itemDividend((ItemDividendJob) job);
 
@@ -412,17 +403,6 @@ public class JobService {
 
 		log.debug("{} 『{}』 itemDividend() - 『{}』 - {}", Utility.indentEnd(), STATUS.FAILURE, item, Utility.toStringPastTimeReadable(started));
 		return STATUS.FAILURE;
-	}
-
-	@Deprecated
-	private STATUS dividendAllRecent(DividendAllRecentJob job) {
-		log.info("{} dividendAll({})", Utility.indentStart(), job);
-		long started = System.currentTimeMillis();
-
-		Result<ParserResult> result = crawlerService.crawlDividendAllRecent();
-
-		log.info("{} 『{}』 dividendAll({}) - {}", Utility.indentEnd(), result, job, Utility.toStringPastTimeReadable(started));
-		return result.getStatus();
 	}
 
 	private STATUS stockCompile(StockCompileJob job) {
