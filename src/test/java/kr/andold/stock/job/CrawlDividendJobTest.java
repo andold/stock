@@ -3,6 +3,7 @@ package kr.andold.stock.job;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,20 +16,20 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class CrawlDividendSeibroEtfJobTest {
-	@Autowired private CrawlDividendSeibroEtfJob job;
+class CrawlDividendJobTest {
+	@Autowired private CrawlDividendJob job;
 
 	@BeforeEach
-	public void before() {
+	protected void setUp() throws Exception {
 		log.info(Utility.HR);
 		assertNotNull(job);
 	}
 
 	@Test
 	public void main() {
-		job.containsOrModify(ZonedDateTime.now().minusMonths(1));
-		STATUS status = job.main();
-		log.info("{}", status);
+		job.containsOrModify(Utility.BLANK, ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS).minusDays(7));
+		STATUS result = job.main();
+		log.info("{}", Utility.toStringJson(result));
 	}
 
 }

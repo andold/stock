@@ -16,8 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import kr.andold.stock.crawler.CrawlerService;
 import kr.andold.stock.domain.Result;
 import kr.andold.stock.domain.Result.STATUS;
-import kr.andold.stock.job.CrawlDividendLatestDataGoKrCompanyJob;
-import kr.andold.stock.job.CrawlDividendSeibroEtfJob;
+import kr.andold.stock.job.CrawlDividendJob;
 import kr.andold.stock.job.CrawlItemIpoCloseKindJob;
 import kr.andold.stock.job.CrawlPriceLatestDataGoKrCompanyJob;
 import kr.andold.stock.job.CrawlPriceLatestDataGoKrEtfJob;
@@ -33,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("api/crawl")
 public class ApiCrawlerController {
 	@Autowired private CrawlerService service;
-	@Autowired private JobService jobService;
 
 	@ResponseBody
 	@PostMapping(value = "item")
@@ -101,14 +99,10 @@ public class ApiCrawlerController {
 	public Result<ParserResult> crawlDividendAllRecent() {
 		log.info("{} crawlDividendAllRecent()", Utility.indentStart());
 
-		jobService.status("┍ApiCrawlerController");
 		ZonedDateTime sixMonthAgo = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS).minusMonths(6);
-		CrawlDividendLatestDataGoKrCompanyJob.regist(JobService.getQueue1());
-		jobService.status("┝ApiCrawlerController");
-		CrawlDividendSeibroEtfJob.regist(JobService.getQueue1(), sixMonthAgo);
-		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
-		jobService.status("┕ApiCrawlerController");
+		CrawlDividendJob.regist(JobService.getQueue1(), Utility.BLANK, sixMonthAgo);
 		
+		Result<ParserResult> result = Result.<ParserResult>builder().status(STATUS.SUCCESS).build();
 		log.info("{} 『{}』 - crawlDividendAllRecent()", Utility.indentEnd(), result);
 		return result;
 	}

@@ -95,8 +95,7 @@ public class ScheduledTasks {
 		if (zookeeperClient.isMaster()) {
 			ZonedDateTime oneWeekAgo = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS).minusWeeks(1);
 			ZonedDateTime sixMonthAgo = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS).minusMonths(6);
-			CrawlDividendLatestDataGoKrCompanyJob.regist(JobService.getQueue2());
-			CrawlDividendSeibroEtfJob.regist(JobService.getQueue2(), sixMonthAgo);
+			CrawlDividendJob.regist(JobService.getQueue2(), Utility.BLANK, sixMonthAgo);
 			CrawlItemIpoCloseKindJob.regist(JobService.getQueue2(), ZonedDateTime.now().minusMonths(12));
 			JobService.getQueue3().offer(BackupJob.builder().build());
 			JobService.getQueue3().offer(DeduplicatePriceJob.builder().build());

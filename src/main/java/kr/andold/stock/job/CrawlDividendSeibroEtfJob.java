@@ -23,21 +23,15 @@ import kr.andold.stock.service.JobService.Job;
 import kr.andold.stock.service.ParserService.ParserResult;
 import kr.andold.utils.ChromeDriverWrapper;
 import kr.andold.utils.Utility;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Slf4j
 @Service
 public class CrawlDividendSeibroEtfJob implements Job, ConstantSeibro {
-	@Builder.Default @Getter @Setter private Long timeout = 1200L;
-	@Getter @Setter private ZonedDateTime start;
+	private ZonedDateTime start = ZonedDateTime.now();
+
+	@Getter private Long timeout = 1200L;
 
 	@Autowired private CrawlerService service;
 	@Autowired private JobService jobService;

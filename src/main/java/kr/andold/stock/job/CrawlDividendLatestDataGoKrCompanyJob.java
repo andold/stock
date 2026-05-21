@@ -16,16 +16,9 @@ import kr.andold.stock.service.JobService;
 import kr.andold.stock.service.JobService.Job;
 import kr.andold.utils.Utility;
 import kr.andold.utils.persist.CrudList;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Slf4j
 @Service
 public class CrawlDividendLatestDataGoKrCompanyJob implements Job {
@@ -35,10 +28,7 @@ public class CrawlDividendLatestDataGoKrCompanyJob implements Job {
 	private static final int NUMBER_OF_ROWS = 1024 * 8;
 	private static final int NUMBER_OF_PAGES = 16;
 
-	@Builder.Default
-	@Getter
-	@Setter
-	private Long timeout = 600L;
+	@Getter private Long timeout = 600L;
 
 	@Autowired private DataGoKrService service;
 	@Autowired private JobService jobService;
