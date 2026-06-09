@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import kr.andold.stock.crawler.CrawlerService;
@@ -33,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 public class ApiCrawlerController {
 	@Autowired private CrawlerService service;
 
-	@ResponseBody
 	@PostMapping(value = "item")
 	public Result<ParserResult> crawlItem(@RequestBody ItemParam param) {
 		log.info("{} crawlItem({})", Utility.indentStart(), param);
@@ -44,7 +42,6 @@ public class ApiCrawlerController {
 		return result;
 	}
 
-	@ResponseBody
 	@PostMapping(value = "price/all")
 	public Result<ParserResult> crawlPriceAll(@RequestBody PriceParam param) {
 		log.info("{} crawlPriceAll({})", Utility.indentStart(), param);
@@ -58,7 +55,6 @@ public class ApiCrawlerController {
 		return result;
 	}
 
-	@ResponseBody
 	@GetMapping(value = "item/all")
 	public Result<ParserResult> crawlItemAll() {
 		log.info("{} crawlItemAll()", Utility.indentStart());
@@ -69,7 +65,6 @@ public class ApiCrawlerController {
 		return result;
 	}
 
-	@ResponseBody
 	@GetMapping(value = "item/ipo-close/all")
 	public Result<ParserResult> crawlItemIpoCloseAll() {
 		log.info("{} crawlItemIpoCloseAll()", Utility.indentStart());
@@ -81,7 +76,6 @@ public class ApiCrawlerController {
 		return result;
 	}
 
-	@ResponseBody
 	@PostMapping(value = "item/ipo-close/recent")
 	public Result<ParserResult> crawlItemIpoCloseRecent(@RequestBody(required = false) PriceParam param) {
 		log.info("{} crawlItemIpoCloseRecent({})", Utility.indentStart(), param);
@@ -97,7 +91,6 @@ public class ApiCrawlerController {
 		return result;
 	}
 
-	@ResponseBody
 	@GetMapping(value = "dividend/all/recent")
 	public Result<ParserResult> crawlDividendAllRecent() {
 		log.info("{} crawlDividendAllRecent()", Utility.indentStart());
