@@ -82,7 +82,7 @@ public class ApiCrawlerController {
 	}
 
 	@ResponseBody
-	@GetMapping(value = "item/ipo-close/recent")
+	@PostMapping(value = "item/ipo-close/recent")
 	public Result<ParserResult> crawlItemIpoCloseRecent(@RequestBody(required = false) PriceParam param) {
 		log.info("{} crawlItemIpoCloseRecent({})", Utility.indentStart(), param);
 
