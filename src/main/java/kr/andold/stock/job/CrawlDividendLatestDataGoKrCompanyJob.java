@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class CrawlDividendLatestDataGoKrCompanyJob implements Job {
 	// 배당정보조회
-	public static final String URL = "http://apis.data.go.kr/1160100/service/GetStocDiviInfoService/getDiviInfo?resultType=json";
+	public static final String URL = "https://apis.data.go.kr/1160100/GetStocDiviInfoService_V2/getDiviInfo_V2?resultType=json";
 
 	private static final int NUMBER_OF_ROWS = 1024 * 8;
 	private static final int NUMBER_OF_PAGES = 16;
